@@ -9,8 +9,9 @@ GET     /                           controllers.Application.index()
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 #######below for android app######
-GET /a/u/find/:userid                      controllers.UserController.getUsers(userid:Long)
-
+GET  /a/user/find/:userid                      controllers.UserController.getDataById(userid:Long)
+GET  /a/user                                   controllers.UserController.getAllData(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc")
+POST /a/user/save                              controllers.UserController.saveData()
 
 
 

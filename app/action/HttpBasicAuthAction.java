@@ -2,7 +2,7 @@ package action;
 
 
 
-import models.UserInfo;
+import models.TuserInfo;
 import play.Logger;
 import play.libs.F.Promise;
 import play.mvc.Action;
@@ -35,8 +35,8 @@ public class HttpBasicAuthAction extends Action.Simple {
 		String password = credString[1];
 		Logger.info("basic auth,user:"+username);
 		Logger.debug("basic auth,password:"+password);
-		UserInfo authUser = UserInfo.authenticate(username, password);
-		Logger.info("**********auth end,user:"+(authUser==null?"null":authUser.getUserid())+"************");
+		TuserInfo authUser = TuserInfo.authenticate(username, password);
+		Logger.info("**********auth end,user:"+(authUser==null?"null":authUser.userid)+"************");
 		return (authUser == null) ? Promise.pure((Result)unauthorized()): delegate.call(context);
 	}
 }
