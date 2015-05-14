@@ -2,6 +2,8 @@
 package utils;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.google.gson.annotations.Expose;
+
 import java.util.List;
 
 /**
@@ -11,8 +13,11 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CommFindEntity<T> {
 
+	@Expose
     private int pageCount;
+	@Expose
     private int rowCount;
+	@Expose
     private List<T> result;
 
    

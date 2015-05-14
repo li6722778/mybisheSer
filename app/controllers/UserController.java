@@ -1,6 +1,6 @@
 package controllers;
 
-import models.TuserInfo;
+import models.info.TuserInfo;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -14,7 +14,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class UserController extends Controller {
-	public static Gson gsonBuilder = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+	static Gson gsonBuilderWithExpose = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 	/**
 	 * 根据主键ID，得到数据
 	 * @param userid
@@ -23,10 +23,10 @@ public class UserController extends Controller {
 	@BasicAuth
 	public static Result getDataById(Long userid) {
 		Logger.info("start to get data");
-		JsonNode json = Json.toJson(TuserInfo.findDataById(userid));
-		String jsonString = Json.stringify(json);
-		Logger.debug("got Data:" + jsonString);
-		return ok(json);
+		String json = gsonBuilderWithExpose.toJson(TuserInfo.findDataById(userid));
+		JsonNode jsonNode = Json.parse(json);
+		Logger.debug("got Data:" + json);
+		return ok(jsonNode);
 	}
 
 	/**
@@ -42,10 +42,11 @@ public class UserController extends Controller {
 		Logger.info("start to all data");
 		CommFindEntity<TuserInfo> allData = TuserInfo.findData(currentPage,
 				pageSize, orderBy);
-		JsonNode json = Json.toJson(allData);
+		String json = gsonBuilderWithExpose.toJson(allData);
+		JsonNode jsonNode = Json.parse(json);
 		// String jsonString = Json.stringify(json);
-		Logger.debug("Got Data Count:" + allData.getRowCount());
-		return ok(json);
+		Logger.debug("CommFindEntity result:" + json);
+		return ok(jsonNode);
 	}
 
 	/**
@@ -57,7 +58,7 @@ public class UserController extends Controller {
 		String request = request().body().asJson().toString();
 		Logger.info("start to post data:" + request);
 		
-		TuserInfo user = gsonBuilder.fromJson(request, TuserInfo.class);
+		TuserInfo user = gsonBuilderWithExpose.fromJson(request, TuserInfo.class);
 		ComResponse<TuserInfo>  response = new ComResponse<TuserInfo>();
 		try {
 			TuserInfo.saveData(user);

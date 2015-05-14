@@ -1,4 +1,4 @@
-package models;
+package models.info;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;

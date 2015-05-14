@@ -2,7 +2,7 @@ package action;
 
 
 
-import models.TuserInfo;
+import models.info.TuserInfo;
 import play.Logger;
 import play.libs.F.Promise;
 import play.mvc.Action;

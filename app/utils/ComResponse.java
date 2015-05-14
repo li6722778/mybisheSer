@@ -1,6 +1,7 @@
 package utils;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.google.gson.annotations.Expose;
 
 /**
  *
@@ -9,18 +10,23 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ComResponse<T> {
 
+	
     public final static int STATUS_OK = 0;
 
     public final static int STATUS_FAIL = 1;
 
     public final static int STATUS_TIMEOUT = 2;
 
+    @Expose
     private int responseStatus;
 
+    @Expose
     private String errorMessage;
 
+    @Expose
     private T responseEntity;
 
+    @Expose
     private String extendResponseContext;
 
     /**

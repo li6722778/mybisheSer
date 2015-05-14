@@ -1,4 +1,4 @@
-package models;
+package models.info;
 
 import java.util.Date;
 import java.util.List;
@@ -7,8 +7,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
@@ -24,64 +22,126 @@ import utils.CommFindEntity;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Page;
+import com.google.gson.annotations.Expose;
 
 @Entity
 @Table(name = "tb_parking")
 public class TParkInfo extends Model {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE)
+	@Expose
 	public Long parkId;
 
 	@Constraints.Required
 	@Column(nullable = false, length = 100)
 	@Size(max = 100)
+	@Expose
 	public String parkname;
 
 	@Column(columnDefinition = "TEXT")
+	@Expose
 	public String detail;
 
 	@Column(length = 500)
+	@Expose
 	public String address;
 
 	@Column(length = 200)
+	@Expose
 	public String vender;
 
 	@Constraints.Required
 	@Column(nullable = false, length = 30)
+	@Expose
 	public String owner;
 
 	@Constraints.Required
 	@Column(nullable = false, length = 30)
-	public int ownerPhone;
+	@Expose
+	public long ownerPhone;
 
 	@Size(max = 255)
+	@Expose
 	public String venderBankName;
 
 	@Size(max = 255)
+	@Expose
 	public String venderBankNumber;
+	
+	@Column(columnDefinition = "integer(2) default 1")
+	@Expose
+	public int feeType;
+	
+	@Column(columnDefinition = "integer(2) default 1")
+	@Expose
+	public int feeTypeSecInScopeHours;
 
+	@Column(columnDefinition = "decimal(12,2) default 0.0")
+	@Expose
+	public double feeTypeSecInScopeHourMoney;
+	
+	@Column(columnDefinition = "decimal(12,2) default 0.0")
+	@Expose
+	public double feeTypeSecOutScopeHourMoney;
+	
+	@Column(columnDefinition = "decimal(12,2) default 0.0")
+	@Expose
+	public double feeTypefixedHourMoney;
+	
+	@Column(columnDefinition = "integer(2) default 0")
+	@Expose
+	public int isDiscountAllday;
+	
+	@Column(columnDefinition = "integer(2) default 0")
+	@Expose
+	public int isDiscountSec;
+	
+	@Column(columnDefinition = "decimal(12,2) default 0.0")
+	@Expose
+	public double discountHourAlldayMoney;
+	
+	@Column(columnDefinition = "decimal(12,2) default 0.0")
+	@Expose
+	public double discountSecHourMoney;
+	
+	@Formats.DateTime(pattern = "HH:mm:ss")
+	@Column(columnDefinition = "time")
+	@Expose
+	public Date discountSecStartHour;
+	
+	@Formats.DateTime(pattern = "HH:mm:ss")
+	@Column(columnDefinition = "time")
+	@Expose
+	public Date discountSecEndHour;
+	
 	@OneToMany(cascade = { CascadeType.REMOVE }, fetch = FetchType.LAZY, mappedBy = "parkInfo")
-	@OrderBy("updateDate ASC")
+	@OrderBy("updateDate DESC")
+	@Expose
 	public List<TParkInfo_Img> imgUrlArray;
 
 	@OneToMany(cascade = { CascadeType.REMOVE }, fetch = FetchType.LAZY, mappedBy = "parkInfo")
+	@OrderBy("updateDate DESC")
+	@Expose
 	public List<TParkInfo_Loc> latLngArray;
 
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
-	@Temporal(TemporalType.TIMESTAMP)
+	@Column(columnDefinition = "timestamp")
+	@Expose
 	public Date createDate;
 
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
-	@Temporal(TemporalType.TIMESTAMP)
+	@Column(columnDefinition = "timestamp")
+	@Expose
 	public Date updateDate;
 
 	@Column(length = 50)
 	@Size(max = 50)
+	@Expose
 	public String createPerson;
 
 	@Column(length = 50)
 	@Size(max = 50)
+	@Expose
 	public String updatePerson;
 
 	// 查询finder，用于其他方法中需要查询的场景
@@ -121,22 +181,41 @@ public class TParkInfo extends Model {
 
 	/**
 	 * 新建或更新数据
-	 * @param userinfo
+	 * @param bean
 	 */
 	public static void saveData(TParkInfo bean) {
 		// ------------生成主键，所有插入数据的方法都需要这个-----------
 		if (bean.parkId == null || bean.parkId <= 0) {
 			bean.parkId = TPKGenerator.getPrimaryKey(
 					TParkInfo.class.getName(), "parkId");
+			Ebean.save(bean);
+		}else{
+			bean.updateDate = new Date();
+			Ebean.update(bean);
 		}
 		// -------------end----------------
+		
+		
+		if(bean.imgUrlArray!=null&&bean.imgUrlArray.size()>0){
+			for(TParkInfo_Img imgBean:bean.imgUrlArray){
+				imgBean.parkInfo = bean;
+			   TParkInfo_Img.saveData(imgBean);
+			}
+		}
+		
+		if(bean.latLngArray!=null&&bean.latLngArray.size()>0){
+			for(TParkInfo_Loc loc:bean.latLngArray){
+				loc.parkInfo = bean;
+				TParkInfo_Loc.saveData(loc);
+			}
+		}
 
-		Ebean.save(bean);
+		
 	}
 
 	/**
 	 * 删除数据
-	 * @param userid
+	 * @param id
 	 */
 	public static void deleteData(Long id) {
 		Ebean.delete(TParkInfo.class, id);

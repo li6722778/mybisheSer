@@ -1,4 +1,4 @@
-package models;
+package models.info;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -48,6 +48,7 @@ public class TuserInfo extends Model implements Serializable {
 	@Expose
 	public String userName;
 	
+	@Expose
 	public String passwd;
 	
 	@Column(nullable = false, length = 30)
@@ -62,13 +63,16 @@ public class TuserInfo extends Model implements Serializable {
 
 	///*用户类型,10:普通用户,20:车位管理员,30:市场用户,99超级用户*/
 	@Expose
+	@Column(columnDefinition = "integer(3) default 10")
 	public int userType;
 	
 	@Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
+	@Column(columnDefinition = "timestamp")
 	@Expose
 	public Date createDate;
 	
 	@Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
+	@Column(columnDefinition = "timestamp")
 	@Expose
 	public Date updateDate;
 	
@@ -140,10 +144,14 @@ public class TuserInfo extends Model implements Serializable {
 		//------------生成主键，所有插入数据的方法都需要这个-----------
 		if(userinfo.userid==null||userinfo.userid<=0){
 			userinfo.userid = TPKGenerator.getPrimaryKey(TuserInfo.class.getName(), "userid");
+			 Ebean.save(userinfo);
+		}else{
+			userinfo.updateDate = new Date();
+			Ebean.update(userinfo);
 		}
 		//-------------end----------------
 		
-		 Ebean.save(userinfo);
+		
 	}
 	
 	/**
