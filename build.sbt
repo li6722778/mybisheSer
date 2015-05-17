@@ -10,5 +10,6 @@ libraryDependencies ++= Seq(
   javaJdbc,
   javaEbean,
   cache,
-  javaWs
+  javaWs,
+   "cglib"  % "cglib-nodep"  % "2.1_3" 
 )

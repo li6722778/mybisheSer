@@ -18,12 +18,13 @@ import utils.CommFindEntity;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Page;
+import com.avaje.ebean.TxRunnable;
 import com.avaje.ebean.annotation.Transactional;
 import com.google.gson.annotations.Expose;
 
 @Entity
-@Table(name = "tb_parking_loc")
-public class TParkInfo_Loc extends Model {
+@Table(name = "tb_parking_prod_loc")
+public class TParkInfoPro_Loc extends Model {
 
 	/**
 	 * 
@@ -36,22 +37,22 @@ public class TParkInfo_Loc extends Model {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "parkId")
-	public TParkInfo parkInfo;
+	public TParkInfoProd parkInfo;
 
-	//1:开放中; 2:关闭
+	// 1:开放中; 2:关闭
 	@Column(columnDefinition = "integer(2) default 1")
 	@Expose
 	public int isOpen;
-	
-	//剩余车位
+
+	// 剩余车位
 	@Expose
 	public int parkFreeCount;
-	
-	/*类型,1:出口,2:入口*/
+
+	/* 类型,1:出口,2:入口 */
 	@Expose
 	@Column(columnDefinition = "integer(2) default 1")
 	public int type;
-	
+
 	@Expose
 	@Column(columnDefinition = "decimal(20,17) NOT NULL")
 	public double latitude;
@@ -69,7 +70,7 @@ public class TParkInfo_Loc extends Model {
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(columnDefinition = "timestamp")
 	public Date updateDate;
-	
+
 	@Expose
 	@Column(length = 50)
 	@Size(max = 50)
@@ -79,50 +80,69 @@ public class TParkInfo_Loc extends Model {
 	@Column(length = 50)
 	@Size(max = 50)
 	public String updatePerson;
-	
+
 	// 查询finder，用于其他方法中需要查询的场景
-	public static Finder<Long, TParkInfo_Loc> find = new Finder<Long, TParkInfo_Loc>(Long.class, TParkInfo_Loc.class);
-	
+	public static Finder<Long, TParkInfoPro_Loc> find = new Finder<Long, TParkInfoPro_Loc>(
+			Long.class, TParkInfoPro_Loc.class);
+
 	/**
 	 * 新建或更新数据
+	 * 
 	 * @param userinfo
 	 */
 	@Transactional
-	public static void saveData(TParkInfo_Loc bean) {
+	public static void saveData(final TParkInfoPro_Loc bean) {
 
-		// ------------生成主键，所有插入数据的方法都需要这个-----------
-		if (bean.parkLocId == null || bean.parkLocId <= 0) {
-			bean.parkLocId = TPKGenerator.getPrimaryKey(
-					TParkInfo_Loc.class.getName(), "parkLocId");
-			Ebean.save(bean);
-		}else{
-			Ebean.update(bean);
-		}
-		// -------------end----------------
+		Ebean.execute(new TxRunnable() {
+			public void run() {
+					// ------------生成主键，所有插入数据的方法都需要这个-----------
+					if (bean.parkLocId == null || bean.parkLocId <= 0) {
+						bean.parkLocId = TPKGenerator.getPrimaryKey(
+								TParkInfoPro_Loc.class.getName(), "parkLocId");
+						Ebean.save(bean);
+					} else {
+						Ebean.update(bean);
+					}
+				
+				// -------------end----------------
+			}
+		});
 
 	}
 	
 	/**
+	 * 直接插入数据
+	 * 
+	 * @param userinfo
+	 */
+	@Transactional
+	public static void saveDataWithoutIDPolicy(final TParkInfoPro_Loc bean) {
+						Ebean.save(bean);
+	}
+
+	/**
 	 * 删除数据
+	 * 
 	 * @param id
 	 */
 	public static void deleteData(Long id) {
-		Ebean.delete(TParkInfo_Loc.class, id);
+		Ebean.delete(TParkInfoPro_Loc.class, id);
 	}
-	
+
 	/**
 	 * 得到所有数据，有分页
+	 * 
 	 * @param currentPage
 	 * @param pageSize
 	 * @param orderBy
 	 * @return
 	 */
-	public static CommFindEntity<TParkInfo_Loc> findPageData(int currentPage,
-			int pageSize, String orderBy) {
+	public static CommFindEntity<TParkInfoPro_Loc> findPageData(
+			int currentPage, int pageSize, String orderBy) {
 
-		CommFindEntity<TParkInfo_Loc> result = new CommFindEntity<TParkInfo_Loc>();
+		CommFindEntity<TParkInfoPro_Loc> result = new CommFindEntity<TParkInfoPro_Loc>();
 
-		Page<TParkInfo_Loc> allData = find.where().orderBy(orderBy)
+		Page<TParkInfoPro_Loc> allData = find.where().orderBy(orderBy)
 				.findPagingList(pageSize).setFetchAhead(false)
 				.getPage(currentPage);
 
@@ -131,17 +151,20 @@ public class TParkInfo_Loc extends Model {
 		result.setPageCount(allData.getTotalPageCount());
 		return result;
 	}
-	
+
 	/**
 	 * 根据parkid得到所有的车位坐标
+	 * 
 	 * @param parkId
 	 * @return
 	 */
-	public static CommFindEntity<TParkInfo_Loc> findData(long parkId,int type,int status) {
+	public static CommFindEntity<TParkInfoPro_Loc> findData(long parkId,
+			int type, int status) {
 
-		CommFindEntity<TParkInfo_Loc> result = new CommFindEntity<TParkInfo_Loc>();
+		CommFindEntity<TParkInfoPro_Loc> result = new CommFindEntity<TParkInfoPro_Loc>();
 
-		List<TParkInfo_Loc> allData = find.where().eq("parkId", parkId).eq("type", type).eq("isOpen", status).findList();
+		List<TParkInfoPro_Loc> allData = find.where().eq("parkId", parkId)
+				.eq("type", type).eq("isOpen", status).findList();
 
 		result.setResult(allData);
 		result.setRowCount(allData.size());

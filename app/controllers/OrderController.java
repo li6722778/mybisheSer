@@ -1,5 +1,6 @@
 package controllers;
 
+import models.info.TOrder;
 import models.info.TuserInfo;
 import play.Logger;
 import play.libs.Json;
@@ -9,28 +10,29 @@ import utils.ComResponse;
 import utils.CommFindEntity;
 import action.BasicAuth;
 
+import com.avaje.ebean.annotation.Transactional;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class UserController extends Controller {
-	static Gson gsonBuilderWithExpose = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+public class OrderController extends Controller {
+	public static Gson gsonBuilderWithExpose = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 	/**
 	 * 根据主键ID，得到数据
 	 * @param userid
 	 * @return
 	 */
 	@BasicAuth
-	public static Result getDataById(Long userid) {
+	public static Result getDataById(Long id) {
 		Logger.info("start to get data");
-		String json = gsonBuilderWithExpose.toJson(TuserInfo.findDataById(userid));
+		String json = gsonBuilderWithExpose.toJson(TOrder.findDataById(id));
 		JsonNode jsonNode = Json.parse(json);
 		Logger.debug("got Data:" + json);
 		return ok(jsonNode);
 	}
 
 	/**
-	 * 得到所有的数据，这里是查询出所有的数据，如果有其他条件，需要仿照TuserInfo.findData写一些方法
+	 * 得到所有的数据，这里是查询出所有的数据，如果有其他条件，需要仿照TOrder.findData写一些方法
 	 * @param currentPage
 	 * @param pageSize
 	 * @param orderBy
@@ -40,8 +42,37 @@ public class UserController extends Controller {
 	public static Result getAllData(int currentPage, int pageSize,
 			String orderBy) {
 		Logger.info("start to all data");
-		CommFindEntity<TuserInfo> allData = TuserInfo.findData(currentPage,
+		CommFindEntity<TOrder> allData = TOrder.findPageData(currentPage,
 				pageSize, orderBy);
+		String json = gsonBuilderWithExpose.toJson(allData);
+		JsonNode jsonNode = Json.parse(json);
+		// String jsonString = Json.stringify(json);
+		Logger.debug("CommFindEntity result:" + json);
+		return ok(jsonNode);
+	}
+	
+	/**
+	 * 得到所有的数据，这里是查询出所有的数据，如果有其他条件，需要仿照TOrder.findData写一些方法
+	 * @param currentPage
+	 * @param pageSize
+	 * @param orderBy
+	 * @return
+	 */
+	@BasicAuth
+	public static Result getAllDataForSelf(int currentPage, int pageSize,
+			String orderBy) {
+		Logger.info("start to all data");
+		
+		String idString = session().get("userid");
+		Logger.info("get session value for userid:"+idString);
+		long id = 0l;
+		try{
+			id = Long.parseLong(idString);
+		}catch(Exception e){
+			Logger.error("",e);
+		}
+		CommFindEntity<TOrder> allData = TOrder.findPageData(currentPage,
+				pageSize, orderBy,id);
 		String json = gsonBuilderWithExpose.toJson(allData);
 		JsonNode jsonNode = Json.parse(json);
 		// String jsonString = Json.stringify(json);
@@ -58,16 +89,17 @@ public class UserController extends Controller {
 		String request = request().body().asJson().toString();
 		Logger.info("start to post data:" + request);
 		
-		TuserInfo user = gsonBuilderWithExpose.fromJson(request, TuserInfo.class);
-		ComResponse<TuserInfo>  response = new ComResponse<TuserInfo>();
+		TOrder data = gsonBuilderWithExpose.fromJson(request, TOrder.class);
+		ComResponse<TOrder>  response = new ComResponse<TOrder>();
 		try {
-			TuserInfo.saveData(user);
+			TOrder.saveData(data);
 			response.setResponseStatus(ComResponse.STATUS_OK);
-			response.setResponseEntity(user);
+			response.setResponseEntity(data);
 			response.setExtendResponseContext("更新数据成功.");
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
+			Logger.error("", e);
 		}
 		String tempJsonString = gsonBuilderWithExpose.toJson(response);
 		JsonNode json = Json.parse(tempJsonString);
@@ -76,21 +108,22 @@ public class UserController extends Controller {
 	
 	
 	/**
-	 * 根据ID删除数据，如果有其他条件，就需要仿照TuserInfo.deleteData，写类似的方法
+	 * 根据ID删除数据，如果有其他条件，就需要仿照TOrder.deleteData，写类似的方法
 	 * @param id
 	 * @return
 	 */
 	@BasicAuth
 	public static Result deleteData(long id){
 		Logger.info("start to delete data:" + id);
-		ComResponse<TuserInfo>  response = new ComResponse<TuserInfo>();
+		ComResponse<TOrder>  response = new ComResponse<TOrder>();
 		try {
-			TuserInfo.deleteData(id);
+			TOrder.deleteData(id);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setExtendResponseContext("删除数据成功.");
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
+			Logger.error("", e);
 		}
 		String tempJsonString = gsonBuilderWithExpose.toJson(response);
 		JsonNode json = Json.parse(tempJsonString);

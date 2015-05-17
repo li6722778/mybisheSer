@@ -18,7 +18,7 @@ public class TParkInfo_adm  extends Model{
 	
 	@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name = "parkId")
-	public TParkInfo parkInfo;
+	public TParkInfoProd parkInfo;
 	
 	@OneToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name = "userid")
@@ -27,7 +27,7 @@ public class TParkInfo_adm  extends Model{
 	//查询finder，用于其他方法中需要查询的场景 
 	public static Finder<Long,TParkInfo_adm> find = new Finder<Long,TParkInfo_adm>(Long.class, TParkInfo_adm.class);
 	
-	public static TParkInfo findAdmPartInfo(long userId){
+	public static TParkInfoProd findAdmPartInfo(long userId){
 		TParkInfo_adm adm = find.where().eq("userid", userId).findUnique();
 		return adm==null?null:adm.parkInfo;
 	}

@@ -67,12 +67,12 @@ public class TuserInfo extends Model implements Serializable {
 	public int userType;
 	
 	@Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-	@Column(columnDefinition = "timestamp")
+	@Column(columnDefinition = "timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
 	@Expose
 	public Date createDate;
 	
 	@Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-	@Column(columnDefinition = "timestamp")
+	@Column(columnDefinition = "timestamp NULL")
 	@Expose
 	public Date updateDate;
 	
@@ -141,6 +141,9 @@ public class TuserInfo extends Model implements Serializable {
 	 * @param userinfo
 	 */
 	public static void saveData(TuserInfo userinfo){
+		
+		Ebean.beginTransaction(); 
+		try{
 		//------------生成主键，所有插入数据的方法都需要这个-----------
 		if(userinfo.userid==null||userinfo.userid<=0){
 			userinfo.userid = TPKGenerator.getPrimaryKey(TuserInfo.class.getName(), "userid");
@@ -148,6 +151,10 @@ public class TuserInfo extends Model implements Serializable {
 		}else{
 			userinfo.updateDate = new Date();
 			Ebean.update(userinfo);
+		}
+		Ebean.commitTransaction();  
+		}finally{
+			 Ebean.endTransaction();
 		}
 		//-------------end----------------
 		

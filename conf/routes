@@ -19,4 +19,23 @@ GET  /a/parkinfo                                   controllers.ParkController.ge
 POST /a/parkinfo/save                              controllers.ParkController.saveData()
 GET /a/parkinfo/delete/:parkid                     controllers.ParkController.deleteData(parkid:Long)
 
+GET  /a/order/find/:id                          controllers.OrderController.getDataById(id:Long)
+GET  /a/order                                   controllers.OrderController.getAllData(p:Int ?= 0, s:Int ?= 10, o ?= "orderDate desc")
+GET  /a/order/me                                controllers.OrderController.getAllDataForSelf(p:Int ?= 0, s:Int ?= 10, o ?= "orderDate desc")
+POST /a/order/save                              controllers.OrderController.saveData()
+GET /a/order/delete/:id                         controllers.OrderController.deleteData(id:Long)
+
+GET  /a/parkinfoprod/find/:parkid                 controllers.ParkProdController.getDataById(parkid:Long)
+GET  /a/parkinfoprod                              controllers.ParkProdController.getAllData(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc")
+POST /a/parkinfoprod/save                         controllers.ParkProdController.saveData()
+GET /a/parkinfoprod/delete/:parkid                controllers.ParkProdController.deleteData(parkid:Long)
+GET /a/parkinfoprod/copy/:parkid                  controllers.ParkProdController.copyData(parkid:Long)
+
+
+GET  /a/comments/find/:id                          controllers.CommentsController.getDataById(id:Long)
+GET  /a/comments                                   controllers.CommentsController.getAllData(p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc")
+GET  /a/comments/:parkId                           controllers.CommentsController.getParkCommentsAllData(p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",parkId:Long)
+POST /a/comments/save                              controllers.CommentsController.saveData()
+GET /a/comments/delete/:id                         controllers.CommentsController.deleteData(id:Long)
+
 #######below for web app#######

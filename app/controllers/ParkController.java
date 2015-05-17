@@ -15,7 +15,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 /**
- * 停车场相关
+ * 停车场相关,这些信息都是未经审批的
  * @author woderchen
  *
  */
@@ -57,6 +57,7 @@ public class ParkController extends Controller{
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
+			Logger.error("", e);
 		}
 		String json = gsonBuilderWithExpose.toJson(response);
 		JsonNode jsonNode = Json.parse(json);
@@ -75,8 +76,10 @@ public class ParkController extends Controller{
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
+			Logger.error("", e);
 		}
-		JsonNode json = Json.toJson(response);
+		String tempJsonString = gsonBuilderWithExpose.toJson(response);
+		JsonNode json = Json.parse(tempJsonString);
 		return ok(json);
 	}
 	
@@ -90,10 +93,13 @@ public class ParkController extends Controller{
 	 */
 	public static Result getLocationDataById(Long parkId,int type,int status) {
 		Logger.info("start to get data for getLocationDataById");
-		JsonNode json = Json.toJson(TParkInfo_Loc.findData(parkId,type,status));
-		String jsonString = Json.stringify(json);
-		Logger.debug("got Data:" + jsonString);
-		return ok(json);
+
+		CommFindEntity<TParkInfo_Loc> allData = TParkInfo_Loc.findData(parkId,type,status);
+		String json = gsonBuilderWithExpose.toJson(allData);
+		JsonNode jsonNode = Json.parse(json);
+		
+		Logger.debug("got Data:" + json);
+		return ok(jsonNode);
 	}
 	
 	/**
@@ -105,10 +111,13 @@ public class ParkController extends Controller{
 	 */
 	public static Result getImgDataById(Long parkId) {
 		Logger.info("start to get data for getLocationDataById");
-		JsonNode json = Json.toJson(TParkInfo_Img.findData(parkId));
-		String jsonString = Json.stringify(json);
-		Logger.debug("got Data:" + jsonString);
-		return ok(json);
+
+		CommFindEntity<TParkInfo_Img> allData = TParkInfo_Img.findData(parkId);
+		String json = gsonBuilderWithExpose.toJson(allData);
+		JsonNode jsonNode = Json.parse(json);
+		
+		Logger.debug("got Data:" + json);
+		return ok(jsonNode);
 	}
 	
 }

@@ -4,8 +4,6 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
@@ -14,6 +12,7 @@ import play.Logger;
 import play.db.ebean.Model;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.annotation.Transactional;
 
 @Entity
 @Table(name = "tb_pkgenerator")

@@ -30,7 +30,7 @@ import controllers.ParkController;
  * @author woderchen
  *
  */
-public class UserControllerTest extends WithApplication {
+public class AUserControllerTest extends WithApplication {
 	// public FakeApplication provideFakeApplication() {
 	// return Helpers.fakeApplication(Helpers.inMemoryDatabase(),
 	// Helpers.fakeGlobal());
@@ -69,7 +69,7 @@ public class UserControllerTest extends WithApplication {
 		TuserInfo newUser = info.getResponseEntity();
 		
 		Long testId = newUser.userid;
-		Log.info("--------get new userid:"+testId+",test upload this data-----------");
+		System.out.println("--------get new userid:"+testId+",test upload this data-----------");
 		
 		newUser.userName="junit update";
 
@@ -80,7 +80,7 @@ public class UserControllerTest extends WithApplication {
 		assertThat(Helpers.status(resultUpdate)).isEqualTo(Helpers.OK);
 		
 		
-		Log.info("--------get new userid:"+testId+",test delete this data-----------");
+		System.out.println("--------get new userid:"+testId+",test delete this data-----------");
 		FakeRequest testRequest2 = new FakeRequest(Helpers.GET, "/a/user/find/"+testId).withHeader("Authorization", auth);
 		Result result2 = Helpers.route(testRequest2);		
 		assertThat(Helpers.status(result2)).isEqualTo(Helpers.OK);
@@ -88,13 +88,13 @@ public class UserControllerTest extends WithApplication {
 		
 		String jsonStr2 = Helpers.contentAsString(result2);
 		
-		Log.debug("updated json>>>>>"+jsonStr2);
+		System.out.println("updated json>>>>>"+jsonStr2);
 		
-		TuserInfo Info2 = ParkController.gsonBuilderWithExpose.fromJson(jsonStr2, TuserInfo.class);
-		long id = Info2.userid;
-		FakeRequest test2Request = new FakeRequest(Helpers.GET, "/a/user/delete/"+id).withHeader("Authorization", auth);
-		Result result3 = Helpers.route(test2Request);		
-		assertThat(Helpers.status(result3)).isEqualTo(Helpers.OK);
+//		TuserInfo Info2 = ParkController.gsonBuilderWithExpose.fromJson(jsonStr2, TuserInfo.class);
+//		long id = Info2.userid;
+//		FakeRequest test2Request = new FakeRequest(Helpers.GET, "/a/user/delete/"+id).withHeader("Authorization", auth);
+//		Result result3 = Helpers.route(test2Request);		
+//		assertThat(Helpers.status(result3)).isEqualTo(Helpers.OK);
 	}
 	
 	@Test

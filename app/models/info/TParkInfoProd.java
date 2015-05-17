@@ -13,6 +13,7 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import net.sf.cglib.beans.BeanCopier;
 import play.data.format.Formats;
 import play.data.validation.Constraints;
 import play.db.ebean.Model;
@@ -21,13 +22,11 @@ import utils.CommFindEntity;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Page;
 import com.avaje.ebean.TxRunnable;
-import com.avaje.ebean.annotation.Transactional;
 import com.google.gson.annotations.Expose;
 
 @Entity
-@Table(name = "tb_parking")
-public class TParkInfo extends Model {
-
+@Table(name = "tb_parking_prod")
+public class TParkInfoProd extends Model {
 	@Id
 	@Expose
 	public Long parkId;
@@ -117,12 +116,12 @@ public class TParkInfo extends Model {
 	@OneToMany(cascade = { CascadeType.REMOVE }, fetch = FetchType.LAZY, mappedBy = "parkInfo")
 	@OrderBy("updateDate DESC")
 	@Expose
-	public List<TParkInfo_Img> imgUrlArray;
+	public List<TParkInfoPro_Img> imgUrlArray;
 
 	@OneToMany(cascade = { CascadeType.REMOVE }, fetch = FetchType.LAZY, mappedBy = "parkInfo")
 	@OrderBy("updateDate DESC")
 	@Expose
-	public List<TParkInfo_Loc> latLngArray;
+	public List<TParkInfoPro_Loc> latLngArray;
 
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(columnDefinition = "timestamp")
@@ -143,10 +142,20 @@ public class TParkInfo extends Model {
 	@Size(max = 50)
 	@Expose
 	public String updatePerson;
+	
+	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
+	@Column(columnDefinition = "timestamp")
+	@Expose
+	public Date approveDate;
+	
+	@Column(length = 50)
+	@Size(max = 50)
+	@Expose
+	public String approvePerson;
 
 	// 查询finder，用于其他方法中需要查询的场景
-	public static Finder<Long, TParkInfo> find = new Finder<Long, TParkInfo>(
-			Long.class, TParkInfo.class);
+	public static Finder<Long, TParkInfoProd> find = new Finder<Long, TParkInfoProd>(
+			Long.class, TParkInfoProd.class);
 
 	/**
 	 * 查询所有数据，并且分页
@@ -156,12 +165,12 @@ public class TParkInfo extends Model {
 	 * @param orderBy
 	 * @return
 	 */
-	public static CommFindEntity<TParkInfo> findData(int currentPage,
+	public static CommFindEntity<TParkInfoProd> findData(int currentPage,
 			int pageSize, String orderBy) {
 
-		CommFindEntity<TParkInfo> result = new CommFindEntity<TParkInfo>();
+		CommFindEntity<TParkInfoProd> result = new CommFindEntity<TParkInfoProd>();
 
-		Page<TParkInfo> allData = find.where().orderBy(orderBy)
+		Page<TParkInfoProd> allData = find.where().orderBy(orderBy)
 				.findPagingList(pageSize).setFetchAhead(false)
 				.getPage(currentPage);
 
@@ -177,7 +186,7 @@ public class TParkInfo extends Model {
 	 * @param parkId
 	 * @return
 	 */
-	public static TParkInfo findDataById(long parkId) {
+	public static TParkInfoProd findDataById(long parkId) {
 		return find.byId(parkId);
 	}
 
@@ -186,33 +195,65 @@ public class TParkInfo extends Model {
 	 * 
 	 * @param bean
 	 */
-	public static void saveData(final TParkInfo bean) {
+	public static void saveData(final TParkInfoProd bean) {
 		Ebean.execute(new TxRunnable() {
 			public void run() {
-				// ------------生成主键，所有插入数据的方法都需要这个-----------
-				if (bean.parkId == null || bean.parkId <= 0) {
-					bean.parkId = TPKGenerator.getPrimaryKey(
-							TParkInfo.class.getName(), "parkId");
-					Ebean.save(bean);
-				} else {
-					bean.updateDate = new Date();
-					Ebean.update(bean);
-				}
+
+					// ------------生成主键，所有插入数据的方法都需要这个-----------
+					if (bean.parkId == null || bean.parkId <= 0) {
+						bean.parkId = TPKGenerator.getPrimaryKey(
+								TParkInfoProd.class.getName(), "parkId");
+						Ebean.save(bean);
+					} else {
+						bean.updateDate = new Date();
+						Ebean.update(bean);
+					}
+				
 				// -------------end----------------
 
 				if (bean.imgUrlArray != null && bean.imgUrlArray.size() > 0) {
-					for (TParkInfo_Img imgBean : bean.imgUrlArray) {
+					for (TParkInfoPro_Img imgBean : bean.imgUrlArray) {
 						imgBean.parkInfo = bean;
-						TParkInfo_Img.saveData(imgBean);
+						TParkInfoPro_Img.saveData(imgBean);
 					}
 				}
 
 				if (bean.latLngArray != null && bean.latLngArray.size() > 0) {
-					for (TParkInfo_Loc loc : bean.latLngArray) {
+					for (TParkInfoPro_Loc loc : bean.latLngArray) {
 						loc.parkInfo = bean;
-						TParkInfo_Loc.saveData(loc);
+						TParkInfoPro_Loc.saveData(loc);
 					}
 				}
+			}
+		});
+	}
+	
+	/**
+	 * 从待审批表copy数据
+	 * @param bean
+	 */
+	public static void approveDataWithoutIDPolicy(final TParkInfoProd parkProdInfo) {
+		Ebean.execute(new TxRunnable() {
+			public void run() {
+				
+				Ebean.save(parkProdInfo);
+			
+				if (parkProdInfo.imgUrlArray != null && parkProdInfo.imgUrlArray.size() > 0) {
+					for (TParkInfoPro_Img imgBean : parkProdInfo.imgUrlArray) {
+						imgBean.parkInfo = parkProdInfo;
+						TParkInfoPro_Img.saveDataWithoutIDPolicy(imgBean);
+					}
+				}
+
+				if (parkProdInfo.latLngArray != null && parkProdInfo.latLngArray.size() > 0) {
+					for (TParkInfoPro_Loc loc : parkProdInfo.latLngArray) {
+						loc.parkInfo = parkProdInfo;
+						TParkInfoPro_Loc.saveDataWithoutIDPolicy(loc);
+					}
+				}
+				
+				//删除旧表数据
+				TParkInfo.deleteData(parkProdInfo.parkId);
 			}
 		});
 	}
@@ -223,7 +264,6 @@ public class TParkInfo extends Model {
 	 * @param id
 	 */
 	public static void deleteData(Long id) {
-		Ebean.delete(TParkInfo.class, id);
+		Ebean.delete(TParkInfoProd.class, id);
 	}
-	
 }
