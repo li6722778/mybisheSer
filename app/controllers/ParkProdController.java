@@ -17,6 +17,7 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import utils.ComResponse;
 import utils.CommFindEntity;
+import action.BasicAuth;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
@@ -32,7 +33,9 @@ public class ParkProdController extends Controller{
 	 public static BeanCopier copier = BeanCopier.create(TParkInfo.class, TParkInfoProd.class, false);
 	 public static BeanCopier copierImg = BeanCopier.create(TParkInfo_Img.class, TParkInfoPro_Img.class, false);
 	 public static BeanCopier copierLoc = BeanCopier.create(TParkInfo_Loc.class, TParkInfoPro_Loc.class, false);
-	public static Result getDataById(Long id) {
+	
+	 @BasicAuth
+	 public static Result getDataById(Long id) {
 		Logger.info("start to get data");
 		
 		String json = gsonBuilderWithExpose.toJson(TParkInfoProd.findDataById(id));
@@ -41,6 +44,7 @@ public class ParkProdController extends Controller{
 		return ok(jsonNode);
 	}
 
+	 @BasicAuth
 	public static Result getAllData(int currentPage, int pageSize, String orderBy) {
 		Logger.info("start to get all data");
 		CommFindEntity<TParkInfoProd> allData = TParkInfoProd.findData(currentPage,
@@ -53,6 +57,7 @@ public class ParkProdController extends Controller{
 	}
 
 
+	 @BasicAuth
 	public static Result saveData() {
 		String request = request().body().asJson().toString();
 		Logger.info("start to post data:" + request);
@@ -75,6 +80,7 @@ public class ParkProdController extends Controller{
 		return ok(jsonNode);
 	}
 	
+	 @BasicAuth
 	public static Result copyData(Long parkId) {
 		Logger.info("start to copy data based on approved:" + parkId);
 		
@@ -126,6 +132,7 @@ public class ParkProdController extends Controller{
 	}
 
 
+	 @BasicAuth
 	public static Result deleteData(Long id) {
 		Logger.info("start to delete data:" + id);
 		ComResponse<TParkInfoProd>  response = new ComResponse<TParkInfoProd>();

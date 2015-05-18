@@ -9,6 +9,7 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import utils.ComResponse;
 import utils.CommFindEntity;
+import action.BasicAuth;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
@@ -22,6 +23,7 @@ import com.google.gson.GsonBuilder;
 public class ParkController extends Controller{
 	public static Gson gsonBuilderWithExpose = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 
+	@BasicAuth
 	public static Result getDataById(Long id) {
 		Logger.info("start to get data");
 		
@@ -31,6 +33,7 @@ public class ParkController extends Controller{
 		return ok(jsonNode);
 	}
 
+	@BasicAuth
 	public static Result getAllData(int currentPage, int pageSize, String orderBy) {
 		Logger.info("start to get all data");
 		CommFindEntity<TParkInfo> allData = TParkInfo.findData(currentPage,
@@ -43,6 +46,7 @@ public class ParkController extends Controller{
 	}
 
 
+	@BasicAuth
 	public static Result saveData() {
 		String request = request().body().asJson().toString();
 		Logger.info("start to post data:" + request);
@@ -66,6 +70,7 @@ public class ParkController extends Controller{
 	}
 
 
+	@BasicAuth
 	public static Result deleteData(Long id) {
 		Logger.info("start to delete data:" + id);
 		ComResponse<TParkInfo>  response = new ComResponse<TParkInfo>();
