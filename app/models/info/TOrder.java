@@ -2,6 +2,7 @@ package models.info;
 
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -37,6 +38,10 @@ public class TOrder extends Model {
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "parkId")
 	public TParkInfoProd parkInfo;
+	
+	@OneToOne(fetch = FetchType.EAGER,cascade=CascadeType.ALL)
+	@Expose
+	public TParkInfo_Py pay;
 
 	@Expose
 	public int orderStatus;

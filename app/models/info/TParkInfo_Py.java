@@ -2,6 +2,7 @@ package models.info;
 
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -11,10 +12,10 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
-import com.google.gson.annotations.Expose;
-
 import play.data.format.Formats;
 import play.db.ebean.Model;
+
+import com.google.gson.annotations.Expose;
 
 @Entity
 @Table(name = "tb_parking_py")
@@ -23,11 +24,6 @@ public class TParkInfo_Py extends Model{
 	@Id
 	@Expose
 	public Long parkPyId;
-	
-	@Expose
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "orderId")
-	public TOrder orderInfo;
 	
 	@Column(columnDefinition = "decimal(12,2) default 0.0")
 	@Expose
