@@ -12,6 +12,7 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 GET  /a/user/find/:userid                      controllers.UserController.getDataById(userid:Long)
 GET  /a/user                                   controllers.UserController.getAllData(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc")
 POST /a/user/save                              controllers.UserController.saveData()
+POST /a/user/reg                              controllers.UserController.regUser()
 GET /a/user/delete/:id                         controllers.UserController.deleteData(id:Long)
 
 GET  /a/parkinfo/find/:parkid                      controllers.ParkController.getDataById(parkid:Long)

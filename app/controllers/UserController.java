@@ -74,6 +74,30 @@ public class UserController extends Controller {
 		return ok(json);
 	}
 	
+	/**
+	 * 注册用户，不需要权限认证
+	 * @return
+	 */
+	public static Result regUser() {
+		String request = request().body().asJson().toString();
+		Logger.info("start to post data:" + request);
+		
+		TuserInfo user = gsonBuilderWithExpose.fromJson(request, TuserInfo.class);
+		ComResponse<TuserInfo>  response = new ComResponse<TuserInfo>();
+		try {
+			TuserInfo.saveData(user);
+			response.setResponseStatus(ComResponse.STATUS_OK);
+			response.setResponseEntity(user);
+			response.setExtendResponseContext("用户注册成功.");
+		} catch (Exception e) {
+			response.setResponseStatus(ComResponse.STATUS_FAIL);
+			response.setErrorMessage(e.getMessage());
+		}
+		String tempJsonString = gsonBuilderWithExpose.toJson(response);
+		JsonNode json = Json.parse(tempJsonString);
+		return ok(json);
+	}
+	
 	
 	/**
 	 * 根据ID删除数据，如果有其他条件，就需要仿照TuserInfo.deleteData，写类似的方法
