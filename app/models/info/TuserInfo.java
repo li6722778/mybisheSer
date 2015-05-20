@@ -2,13 +2,12 @@ package models.info;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.Size;
 
 import play.data.format.Formats;
@@ -95,10 +94,11 @@ public class TuserInfo extends Model implements Serializable {
 	 * @param password
 	 * @return
 	 */
-	public static TuserInfo authenticate(String username, String password) {
-		TuserInfo userInfo = find.where().eq("userName", username).eq("passwd",password).findUnique();
+	public static TuserInfo authenticate(String userPhone, String password) {
 		
-		return userInfo;
+		List<TuserInfo> userInfos = find.where().eq("userPhone", userPhone).eq("passwd",password).findList();
+		
+		return (userInfos==null||userInfos.size()<=0)?null:userInfos.get(0);
 	}
 
 	/**
@@ -134,6 +134,16 @@ public class TuserInfo extends Model implements Serializable {
 	public static TuserInfo findDataById(Long userid) {
 		TuserInfo userInfo = find.byId(userid);
 		return userInfo;
+	}
+	
+	/**
+	 * 根据电话查询数据
+	 * @param userid
+	 * @return
+	 */
+	public static TuserInfo findDataByPhoneId(Long userPhone) {
+		List<TuserInfo> userInfos = find.where().eq("userPhone", userPhone).findList();
+		return (userInfos==null||userInfos.size()<=0)?null:userInfos.get(0);
 	}
 	
 	/**

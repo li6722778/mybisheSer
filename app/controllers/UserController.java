@@ -1,5 +1,6 @@
 package controllers;
 
+import models.info.TParkInfo_adm;
 import models.info.TuserInfo;
 import play.Logger;
 import play.libs.Json;
@@ -29,6 +30,15 @@ public class UserController extends Controller {
 		return ok(jsonNode);
 	}
 
+	@BasicAuth
+	public static Result findDataByPhoneId(Long userphone) {
+		Logger.info("start to get data");
+		String json = gsonBuilderWithExpose.toJson(TuserInfo.findDataByPhoneId(userphone));
+		JsonNode jsonNode = Json.parse(json);
+		Logger.debug("got Data:" + json);
+		return ok(jsonNode);
+	}
+	
 	/**
 	 * 得到所有的数据，这里是查询出所有的数据，如果有其他条件，需要仿照TuserInfo.findData写一些方法
 	 * @param currentPage
@@ -119,5 +129,14 @@ public class UserController extends Controller {
 		String tempJsonString = gsonBuilderWithExpose.toJson(response);
 		JsonNode json = Json.parse(tempJsonString);
 		return ok(json);
+	}
+	
+	@BasicAuth
+	public static Result getAdmDataById(Long userid) {
+		Logger.info("start to get data");
+		String json = gsonBuilderWithExpose.toJson(TParkInfo_adm.findAdmPartInfo(userid));
+		JsonNode jsonNode = Json.parse(json);
+		Logger.debug("got Data:" + json);
+		return ok(jsonNode);
 	}
 }

@@ -10,6 +10,8 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 #######below for android app######
 GET  /a/user/find/:userid                      controllers.UserController.getDataById(userid:Long)
+GET  /a/user/phone/:phone                      controllers.UserController.findDataByPhoneId(phone:Long)
+GET  /a/user/adm/:userid                      controllers.UserController.getAdmDataById(userid:Long)
 GET  /a/user                                   controllers.UserController.getAllData(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc")
 POST /a/user/save                              controllers.UserController.saveData()
 POST /a/user/reg                              controllers.UserController.regUser()
