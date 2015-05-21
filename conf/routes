@@ -44,4 +44,7 @@ GET  /a/comments/:parkId                           controllers.CommentsControlle
 POST /a/comments/save                              controllers.CommentsController.saveData()
 GET /a/comments/delete/:id                         controllers.CommentsController.deleteData(id:Long)
 
+
+POST /a/parkinfo/savepic                           controllers.UploadController.upload()
+
 #######below for web app#######
