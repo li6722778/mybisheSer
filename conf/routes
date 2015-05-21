@@ -16,6 +16,7 @@ GET  /a/user                                   controllers.UserController.getAll
 POST /a/user/save                              controllers.UserController.saveData()
 POST /a/user/reg                              controllers.UserController.regUser()
 GET /a/user/delete/:id                         controllers.UserController.deleteData(id:Long)
+GET /a/user/role/:id/:role                     controllers.UserController.updateRole(id:Long,role:Int)
 
 GET  /a/parkinfo/find/:parkid                      controllers.ParkController.getDataById(parkid:Long)
 GET  /a/parkinfo                                   controllers.ParkController.getAllData(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc")

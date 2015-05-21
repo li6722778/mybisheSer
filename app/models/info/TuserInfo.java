@@ -172,6 +172,18 @@ public class TuserInfo extends Model implements Serializable {
 	}
 	
 	/**
+	 * 更新用户权限
+	 * @param userid
+	 * @param roleType
+	 */
+	public static TuserInfo updateRole(Long userid, int roleType){
+		TuserInfo userInfo = find.byId(userid);
+		userInfo.userType = roleType;
+		Ebean.update(userInfo);
+		return userInfo;
+	}
+	
+	/**
 	 * 删除数据
 	 * @param userid
 	 */

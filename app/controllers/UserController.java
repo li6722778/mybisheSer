@@ -8,6 +8,7 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import utils.ComResponse;
 import utils.CommFindEntity;
+import utils.RoleConstants;
 import action.BasicAuth;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -95,10 +96,35 @@ public class UserController extends Controller {
 		TuserInfo user = gsonBuilderWithExpose.fromJson(request, TuserInfo.class);
 		ComResponse<TuserInfo>  response = new ComResponse<TuserInfo>();
 		try {
+			user.userType=RoleConstants.USER_TYPE_NORMAL;
 			TuserInfo.saveData(user);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(user);
 			response.setExtendResponseContext("用户注册成功.");
+		} catch (Exception e) {
+			response.setResponseStatus(ComResponse.STATUS_FAIL);
+			response.setErrorMessage(e.getMessage());
+		}
+		String tempJsonString = gsonBuilderWithExpose.toJson(response);
+		JsonNode json = Json.parse(tempJsonString);
+		return ok(json);
+	}
+	
+	/**
+	 * 更新用户权限
+	 * @param id
+	 * @return
+	 */
+	@BasicAuth
+	public static Result updateRole(long id, int role){
+		Logger.info("start to delete data:" + id);
+		
+		ComResponse<TuserInfo>  response = new ComResponse<TuserInfo>();
+		try {
+			TuserInfo userinfo = TuserInfo.updateRole(id, role);
+			response.setResponseStatus(ComResponse.STATUS_OK);
+			response.setResponseEntity(userinfo);
+			response.setExtendResponseContext("用户权限更新成功.");
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
