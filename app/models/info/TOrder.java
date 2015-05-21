@@ -86,6 +86,13 @@ public class TOrder extends Model {
 				if (bean.orderId == null || bean.orderId <= 0) {
 					bean.orderId = TPKGenerator.getPrimaryKey(
 							TOrder.class.getName(), "orderId");
+					
+					if(bean.pay!=null){
+						bean.pay.parkPyId = TPKGenerator.getPrimaryKey(TParkInfo_Py.class.getName(), "parkPyId");
+//						bean.pay.torder = bean;
+						bean.pay.createPerson=bean.userInfo==null?"":bean.userInfo.userName;
+					}
+					
 					Ebean.save(bean);
 				} else {
 					Ebean.update(bean);

@@ -2,13 +2,9 @@ package models.info;
 
 import java.util.Date;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
@@ -24,7 +20,7 @@ public class TParkInfo_Py extends Model{
 	@Id
 	@Expose
 	public Long parkPyId;
-	
+		
 	@Column(columnDefinition = "decimal(12,2) default 0.0")
 	@Expose
 	public double payTotal;

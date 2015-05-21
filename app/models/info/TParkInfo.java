@@ -13,16 +13,17 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import play.Logger;
 import play.data.format.Formats;
 import play.data.validation.Constraints;
 import play.db.ebean.Model;
 import utils.CommFindEntity;
+import utils.ConfigHelper;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Expr;
 import com.avaje.ebean.Page;
 import com.avaje.ebean.TxRunnable;
-import com.avaje.ebean.annotation.Transactional;
 import com.google.gson.annotations.Expose;
 
 @Entity
@@ -213,6 +214,9 @@ public class TParkInfo extends Model {
 	public static void saveData(final TParkInfo bean) {
 		Ebean.execute(new TxRunnable() {
 			public void run() {
+
+				String urlHeader = ConfigHelper.getString("image.url.header");
+				Logger.info("image url header:"+urlHeader);
 				// ------------生成主键，所有插入数据的方法都需要这个-----------
 				if (bean.parkId == null || bean.parkId <= 0) {
 					bean.parkId = TPKGenerator.getPrimaryKey(
@@ -227,6 +231,9 @@ public class TParkInfo extends Model {
 				if (bean.imgUrlArray != null && bean.imgUrlArray.size() > 0) {
 					for (TParkInfo_Img imgBean : bean.imgUrlArray) {
 						imgBean.parkInfo = bean;
+						imgBean.createPerson = bean.createPerson;
+						imgBean.updatePerson = bean.updatePerson;
+						imgBean.imgUrlHeader = urlHeader;
 						TParkInfo_Img.saveData(imgBean);
 					}
 				}
@@ -234,6 +241,8 @@ public class TParkInfo extends Model {
 				if (bean.latLngArray != null && bean.latLngArray.size() > 0) {
 					for (TParkInfo_Loc loc : bean.latLngArray) {
 						loc.parkInfo = bean;
+						loc.createPerson = bean.createPerson;
+						loc.updatePerson = bean.updatePerson;
 						TParkInfo_Loc.saveData(loc);
 					}
 				}

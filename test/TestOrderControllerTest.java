@@ -1,7 +1,7 @@
 import static org.fest.assertions.Assertions.assertThat;
 import models.info.TOrder;
-import models.info.TParkInfo;
 import models.info.TParkInfoProd;
+import models.info.TParkInfo_Py;
 import models.info.TuserInfo;
 
 import org.junit.Test;
@@ -75,7 +75,12 @@ public class TestOrderControllerTest extends WithApplication {
 			dataBean.parkInfo = part;
 			dataBean.userInfo = user;
 			
+			TParkInfo_Py py = new TParkInfo_Py();
+			py.payActu=33.3;
+			py.payMethod=1;
+			py.payTotal=44.4;
 			
+			dataBean.pay=py;
 
 			//-----------------------test insert------------------------------
 			String newString=OrderController.gsonBuilderWithExpose.toJson(dataBean);
@@ -106,15 +111,15 @@ public class TestOrderControllerTest extends WithApplication {
 			assertThat(Helpers.status(resultUpdate)).isEqualTo(Helpers.OK);
 			
 			
-			System.out.println("--------get new userid:"+testId+",test delete this data-----------");
-			FakeRequest testRequest2 = new FakeRequest(Helpers.GET, "/a/order/find/"+testId).withHeader("Authorization", auth);
-			Result result2 = Helpers.route(testRequest2);		
-			assertThat(Helpers.status(result2)).isEqualTo(Helpers.OK);
-			
-			
-			String jsonStr2 = Helpers.contentAsString(result2);
-			
-			System.out.println("updated json>>>>>"+jsonStr2);
+//			System.out.println("--------get new userid:"+testId+",test delete this data-----------");
+//			FakeRequest testRequest2 = new FakeRequest(Helpers.GET, "/a/order/find/"+testId).withHeader("Authorization", auth);
+//			Result result2 = Helpers.route(testRequest2);		
+//			assertThat(Helpers.status(result2)).isEqualTo(Helpers.OK);
+//			
+//			
+//			String jsonStr2 = Helpers.contentAsString(result2);
+//			
+//			System.out.println("updated json>>>>>"+jsonStr2);
 			
 			
 //			TOrder Info2 = OrderController.gsonBuilderWithExpose.fromJson(jsonStr2, TOrder.class);
