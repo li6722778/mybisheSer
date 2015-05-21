@@ -20,7 +20,7 @@ GET /a/user/role/:id/:role                     controllers.UserController.update
 
 GET  /a/parkinfo/find/:parkid                      controllers.ParkController.getDataById(parkid:Long)
 GET  /a/parkinfo                                   controllers.ParkController.getAllData(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc")
-GET  /a/parkinfo/:user                             controllers.ParkController.getAllDataByUser(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc",user:String)
+GET  /a/parkinfo/:userid                              controllers.ParkController.getAllDataByUser(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc",userid:Long)
 POST /a/parkinfo/save                              controllers.ParkController.saveData()
 GET /a/parkinfo/delete/:parkid                     controllers.ParkController.deleteData(parkid:Long)
 
@@ -32,7 +32,7 @@ GET /a/order/delete/:id                         controllers.OrderController.dele
 
 GET  /a/parkinfoprod/find/:parkid                 controllers.ParkProdController.getDataById(parkid:Long)
 GET  /a/parkinfoprod                              controllers.ParkProdController.getAllData(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc")
-GET  /a/parkinfoprod/:user                        controllers.ParkProdController.getAllDataByUser(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc",user:String)
+GET  /a/parkinfoprod/:userid                        controllers.ParkProdController.getAllDataByUser(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc",userid:Long)
 POST /a/parkinfoprod/save                         controllers.ParkProdController.saveData()
 GET /a/parkinfoprod/delete/:parkid                controllers.ParkProdController.deleteData(parkid:Long)
 GET /a/parkinfoprod/copy/:parkid                  controllers.ParkProdController.copyData(parkid:Long)

@@ -182,17 +182,20 @@ public class TParkInfo extends Model {
 	 * @return
 	 */
 	public static CommFindEntity<TParkInfo> findData(int currentPage,
-			int pageSize, String orderBy,String userName) {
+			int pageSize, String orderBy,long userId) {
 
+		TuserInfo user = TuserInfo.findDataById(userId);
 		CommFindEntity<TParkInfo> result = new CommFindEntity<TParkInfo>();
 
-		Page<TParkInfo> allData = find.where().or(Expr.ieq("createPerson", userName), Expr.ieq("updatePerson", userName)).orderBy(orderBy)
+		if(user!=null){
+		Page<TParkInfo> allData = find.where().or(Expr.ieq("createPerson", user.userName), Expr.ieq("updatePerson", user.userName)).orderBy(orderBy)
 				.findPagingList(pageSize).setFetchAhead(false)
 				.getPage(currentPage);
-
+		
 		result.setResult(allData.getList());
 		result.setRowCount(allData.getTotalRowCount());
 		result.setPageCount(allData.getTotalPageCount());
+		}
 		return result;
 	}	
 

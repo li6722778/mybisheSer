@@ -46,7 +46,7 @@ public class ParkController extends Controller{
 	}
 	
 	@BasicAuth
-	public static Result getAllDataByUser(int currentPage, int pageSize, String orderBy,String user) {
+	public static Result getAllDataByUser(int currentPage, int pageSize, String orderBy,long user) {
 		Logger.info("start to get all data by user");
 		CommFindEntity<TParkInfo> allData = TParkInfo.findData(currentPage,
 				pageSize, orderBy,user);
