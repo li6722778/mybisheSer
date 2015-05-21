@@ -14,4 +14,7 @@ public class Constants {
 	public static final int ORDER_TYPE_OVERDUE=3;
 	public static final int ORDER_TYPE_EXCPTION=4;
 	
+	public static final int PAYMENT_TYPE_ZFB=1;
+	public static final int PAYMENT_TYPE_WEIXIN=2;
+	public static final int PAYMENT_TYPE_YL=3;	
 }

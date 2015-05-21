@@ -20,6 +20,7 @@ import play.db.ebean.Model;
 import utils.CommFindEntity;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.Expr;
 import com.avaje.ebean.Page;
 import com.avaje.ebean.TxRunnable;
 import com.google.gson.annotations.Expose;
@@ -179,7 +180,29 @@ public class TParkInfoProd extends Model {
 		result.setPageCount(allData.getTotalPageCount());
 		return result;
 	}
+	/**
+	 * 查询所有数据，并且分页
+	 * 
+	 * @param currentPage
+	 * @param pageSize
+	 * @param orderBy
+	 * @return
+	 */
+	public static CommFindEntity<TParkInfoProd> findData(int currentPage,
+			int pageSize, String orderBy,String userName) {
 
+		CommFindEntity<TParkInfoProd> result = new CommFindEntity<TParkInfoProd>();
+
+		Page<TParkInfoProd> allData = find.where().or(Expr.ieq("createPerson", userName), Expr.ieq("updatePerson", userName)).orderBy(orderBy)
+				.findPagingList(pageSize).setFetchAhead(false)
+				.getPage(currentPage);
+
+		result.setResult(allData.getList());
+		result.setRowCount(allData.getTotalRowCount());
+		result.setPageCount(allData.getTotalPageCount());
+		return result;
+	}	
+	
 	/**
 	 * 根据主键查询单条数据
 	 * 

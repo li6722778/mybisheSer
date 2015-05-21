@@ -44,6 +44,18 @@ public class ParkController extends Controller{
 		Logger.debug("CommFindEntity result:" + json);
 		return ok(jsonNode);
 	}
+	
+	@BasicAuth
+	public static Result getAllDataByUser(int currentPage, int pageSize, String orderBy,String user) {
+		Logger.info("start to get all data by user");
+		CommFindEntity<TParkInfo> allData = TParkInfo.findData(currentPage,
+				pageSize, orderBy,user);
+		String json = gsonBuilderWithExpose.toJson(allData);
+		JsonNode jsonNode = Json.parse(json);
+		// String jsonString = Json.stringify(json);
+		Logger.debug("CommFindEntity result:" + json);
+		return ok(jsonNode);
+	}
 
 
 	@BasicAuth
