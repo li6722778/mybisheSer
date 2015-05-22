@@ -100,34 +100,32 @@ public class UploadController extends Controller {
 			imgTypeList = Arrays.asList(imgTypeArray);
 		}
 
-		Calendar cal = Calendar.getInstance();// 使用日历类
-		int year = cal.get(Calendar.YEAR);// 得到年
-		int month = cal.get(Calendar.MONTH) + 1;// 得到月，因为从0开始的，所以要加1
-		int day = cal.get(Calendar.DAY_OF_MONTH);// 得到天
-		int hour = cal.get(Calendar.HOUR);// 得到小时
-		int minute = cal.get(Calendar.MINUTE);// 得到分钟
-		int second = cal.get(Calendar.SECOND);// 得到秒
-
-		// 返回给数据库的URI
-		String fileUri = File.separator + year + File.separator + month
-				+ File.separator + day + File.separator;
-
+		
 		List<String> imagepaths = new ArrayList<String>();
 		List<FilePart> pictures = body.getFiles();
-		for (int i = 0; i <= pictures.size(); i++) {
+		for (int i = 0; i < pictures.size(); i++) {
 			FilePart picture = pictures.get(i);
 			String fileName = picture.getFilename();
 			Logger.debug(">>>>try to store the image:" + fileName);
 			String imgtype = isExistType(imgTypeList, fileName);
 
+			Calendar cal = Calendar.getInstance();// 使用日历类
+			int year = cal.get(Calendar.YEAR);// 得到年
+			int month = cal.get(Calendar.MONTH) + 1;// 得到月，因为从0开始的，所以要加1
+			int day = cal.get(Calendar.DAY_OF_MONTH);// 得到天
+			int hour = cal.get(Calendar.HOUR_OF_DAY);// 得到小时
+			int minute = cal.get(Calendar.MINUTE);// 得到分钟
+			int second = cal.get(Calendar.SECOND);// 得到秒
 			int ms = cal.get(Calendar.MILLISECOND);// 得到毫秒
-
+			// 返回给数据库的URI
+			String fileUri = File.separator + year + File.separator + month
+					+ File.separator + day + File.separator;
 			if (imgtype != null) {
 				// String contentType = picture.getContentType();
 				File file = picture.getFile();
 
 				StringBuilder _newFile = new StringBuilder(fileUri);
-				_newFile.append(hour).append(minute).append(second).append(ms)
+				_newFile.append(hour).append(minute).append(second).append(ms).append(i+1)
 						.append(".").append(imgtype);
 				// 相对路径
 				String newFileName = image_store_path + _newFile.toString();
@@ -136,7 +134,7 @@ public class UploadController extends Controller {
 						+ newFileName + "]");
 
 				// 存储在服务器上的绝对路径
-				File remoteFile = new File(image_store_path + newFileName);
+				File remoteFile = new File(newFileName);
 				if (!remoteFile.getParentFile().exists()) {
 					Logger.debug(">>>>create path:"
 							+ remoteFile.getParentFile().getCanonicalPath());
