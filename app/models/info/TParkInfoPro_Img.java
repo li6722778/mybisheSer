@@ -109,6 +109,15 @@ public class TParkInfoPro_Img extends Model {
 	}
 
 	/**
+	 * 找到唯一ID
+	 * @param id
+	 * @return
+	 */
+	public static TParkInfoPro_Img findImgByI(Long id){
+		return find.byId(id);
+	}
+	
+	/**
 	 * 得到所有数据，有分页
 	 * 
 	 * @param currentPage

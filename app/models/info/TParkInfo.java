@@ -210,6 +210,36 @@ public class TParkInfo extends Model {
 	}
 
 	/**
+	 * 从待审批表copy数据
+	 * @param bean
+	 */
+	public static void retrieveDataWithoutIDPolicy(final TParkInfo parkInfo) {
+		Ebean.execute(new TxRunnable() {
+			public void run() {
+				
+				Ebean.save(parkInfo);
+			
+				if (parkInfo.imgUrlArray != null && parkInfo.imgUrlArray.size() > 0) {
+					for (TParkInfo_Img imgBean : parkInfo.imgUrlArray) {
+						imgBean.parkInfo = parkInfo;
+						TParkInfo_Img.saveDataWithoutIDPolicy(imgBean);
+					}
+				}
+
+				if (parkInfo.latLngArray != null && parkInfo.latLngArray.size() > 0) {
+					for (TParkInfo_Loc loc : parkInfo.latLngArray) {
+						loc.parkInfo = parkInfo;
+						TParkInfo_Loc.saveDataWithoutIDPolicy(loc);
+					}
+				}
+				
+				//删除旧表数据
+				TParkInfoProd.deleteData(parkInfo.parkId);
+			}
+		});
+	}
+	
+	/**
 	 * 新建或更新数据
 	 * 
 	 * @param bean

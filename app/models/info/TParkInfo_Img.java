@@ -93,6 +93,11 @@ public class TParkInfo_Img extends Model {
 
 	}
 
+	
+	public static void saveDataWithoutIDPolicy(final TParkInfo_Img bean) {
+			Ebean.save(bean);
+	}
+	
 	/**
 	 * 删除数据
 	 * 

@@ -40,6 +40,13 @@ public class ParkProdController extends Controller {
 	public static BeanCopier copierLoc = BeanCopier.create(TParkInfo_Loc.class,
 			TParkInfoPro_Loc.class, false);
 
+	public static BeanCopier copierOrin = BeanCopier.create(TParkInfoProd.class,
+			TParkInfo.class, false);
+	public static BeanCopier copierImgOrin = BeanCopier.create(TParkInfoPro_Img.class,
+			TParkInfo_Img.class, false);
+	public static BeanCopier copierLocOrin = BeanCopier.create(TParkInfoPro_Loc.class,
+			TParkInfo_Loc.class, false);
+	
 	@BasicAuth
 	public static Result getDataById(Long id) {
 		Logger.info("start to get data");
@@ -149,6 +156,54 @@ public class ParkProdController extends Controller {
 		return ok(jsonNode);
 	}
 
+	@BasicAuth
+	public static Result copyDataToOringal(Long parkProdId) {
+		Logger.info("start to copy data to oringal creator,park prod id:" + parkProdId);
+
+		ComResponse<TParkInfo> response = new ComResponse<TParkInfo>();
+		try {
+			// 从正式表中取出数据
+			TParkInfoProd parkProdInfo = TParkInfoProd.findDataById(parkProdId);
+
+			// copy到已经审批表中
+			TParkInfo parkInfo = new TParkInfo();
+			Logger.debug(">>>>park bean copy start");
+			copierOrin.copy(parkProdInfo,parkInfo, null);
+			Logger.debug(">>>>park bean copy end");
+			List<TParkInfo_Img> imgArray = new ArrayList<TParkInfo_Img>();
+			List<TParkInfo_Loc> locArray = new ArrayList<TParkInfo_Loc>();
+			parkInfo.imgUrlArray = imgArray;
+			parkInfo.latLngArray = locArray;
+			Logger.debug(">>>>img bean copy start");
+			for (TParkInfoPro_Img prodImgArray : parkProdInfo.imgUrlArray) {
+				TParkInfo_Img img = new TParkInfo_Img();
+				copierImgOrin.copy(prodImgArray, img, null);
+				imgArray.add(img);
+			}
+			Logger.debug(">>>>img bean copy end");
+			Logger.debug(">>>>location bean copy start");
+			for (TParkInfoPro_Loc prodLocArray : parkProdInfo.latLngArray) {
+				TParkInfo_Loc loc = new TParkInfo_Loc();
+				copierLocOrin.copy(prodLocArray,loc, null);
+				locArray.add(loc);
+			}
+			Logger.debug(">>>>location bean copy end");
+
+			TParkInfo.retrieveDataWithoutIDPolicy(parkInfo);
+			response.setResponseStatus(ComResponse.STATUS_OK);
+			response.setResponseEntity(parkInfo);
+			response.setExtendResponseContext("更新数据成功.");
+		} catch (Exception e) {
+			response.setResponseStatus(ComResponse.STATUS_FAIL);
+			response.setErrorMessage(e.getMessage());
+			Logger.error("", e);
+		}
+		String json = gsonBuilderWithExpose.toJson(response);
+		JsonNode jsonNode = Json.parse(json);
+		Logger.debug("ComResponse result:" + json);
+		return ok(jsonNode);
+	}
+	
 	@BasicAuth
 	public static Result deleteData(Long id) {
 		Logger.info("start to delete data:" + id);

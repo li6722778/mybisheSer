@@ -65,7 +65,7 @@ public class ParkingProdControllerTest extends WithApplication {
 			TParkInfoProd newParkInfo = parkInfo.getResponseEntity();
 			
 			Long testParkId = newParkInfo.parkId;
-			Log.info("--------get new ParkID:"+testParkId+",test upload this data-----------");
+			System.out.println("--------get new ParkID:"+testParkId+",test upload this data-----------");
 			
 			newParkInfo.detail="每小时8元";
 			TParkInfoPro_Loc locUp = newParkInfo.latLngArray.get(0);
@@ -79,7 +79,7 @@ public class ParkingProdControllerTest extends WithApplication {
 			assertThat(Helpers.status(resultUpdate)).isEqualTo(Helpers.OK);
 			
 			
-			Log.info("--------get new ParkID:"+testParkId+",test delete this data-----------");
+			System.out.println("--------get new ParkID:"+testParkId+",test delete this data-----------");
 			FakeRequest testRequest2 = new FakeRequest(Helpers.GET, "/a/parkinfoprod/find/"+testParkId).withHeader("Authorization", auth);
 			Result result2 = Helpers.route(testRequest2);		
 			assertThat(Helpers.status(result2)).isEqualTo(Helpers.OK);
@@ -93,6 +93,37 @@ public class ParkingProdControllerTest extends WithApplication {
 //			Result result3 = Helpers.route(test2Request);		
 //			assertThat(Helpers.status(result3)).isEqualTo(Helpers.OK);
 			
+			
+		}else{
+			System.out.println("[***WARN***]park table  is null");
+		}
+
+		
+	}
+	
+	
+	@Test
+	public void copyParkInfoToOringalTest() {
+
+		FakeRequest testPreParkRequest = new FakeRequest(Helpers.GET, "/a/parkinfoprod").withHeader("Authorization", auth);
+		Result resultPre = Helpers.route(testPreParkRequest);
+		
+	    assertThat(Helpers.status(resultPre)).isEqualTo(Helpers.OK);
+			
+	    String con2resultString = Helpers.contentAsString(resultPre);
+		
+		CommFindEntity<TParkInfoProd> con2 = OrderController.gsonBuilderWithExpose.fromJson(con2resultString, new TypeToken<CommFindEntity<TParkInfoProd>>() {  
+        }.getType());
+		
+		if(con2!=null&&con2.getResult()!=null&&con2.getResult().size()>0){
+			
+			TParkInfoProd parkInfoProd = con2.getResult().get(0);
+			
+			FakeRequest testRequest = new FakeRequest(Helpers.GET, "/a/parkinfoprod/copy2orin/"+parkInfoProd.parkId).withHeader("Authorization", auth);
+			Result result = Helpers.route(testRequest);
+
+			assertThat(Helpers.status(result)).isEqualTo(Helpers.OK);
+				
 			
 		}else{
 			System.out.println("[***WARN***]park table  is null");
