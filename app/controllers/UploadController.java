@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import models.info.TParkInfoPro_Img;
+import models.info.TParkInfo_Img;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -39,10 +40,10 @@ public class UploadController extends Controller {
 	public static Result deleteRemoteImage(Long imgId) {
 		Logger.info("start to remote image:" + imgId);
 
-		ComResponse<TParkInfoPro_Img> response = new ComResponse<TParkInfoPro_Img>();
+		ComResponse<TParkInfo_Img> response = new ComResponse<TParkInfo_Img>();
 		try {
 			// 先找到
-			TParkInfoPro_Img imgBean = TParkInfoPro_Img.findImgByI(imgId);
+			TParkInfo_Img imgBean = TParkInfo_Img.findImgByID(imgId);
 
 			if (imgBean != null) {
 				// 然后去删除img
@@ -62,7 +63,7 @@ public class UploadController extends Controller {
 			}
 
 			// 最后才删除数据库
-			TParkInfoPro_Img.deleteData(imgId);
+			TParkInfo_Img.deleteData(imgId);
 
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(imgBean);
@@ -143,7 +144,7 @@ public class UploadController extends Controller {
 
 				file.renameTo(remoteFile);
 				Logger.info("restore done,new path:" + file.getAbsolutePath());
-				imagepaths.add(newFileName);
+				imagepaths.add(_newFile.toString());
 			} else {
 				Logger.warn(">>>>image type is not allowed.");
 			}

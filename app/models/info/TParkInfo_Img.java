@@ -99,6 +99,15 @@ public class TParkInfo_Img extends Model {
 	}
 	
 	/**
+	 * 找到唯一ID
+	 * @param id
+	 * @return
+	 */
+	public static TParkInfo_Img findImgByID(Long id){
+		return find.byId(id);
+	}
+	
+	/**
 	 * 删除数据
 	 * 
 	 * @param id
