@@ -137,4 +137,27 @@ public class ParkController extends Controller{
 		return ok(jsonNode);
 	}
 	
+	/**
+	 * 删除经纬度
+	 * @param id
+	 * @return
+	 */
+	@BasicAuth
+	public static Result deleteLocData(Long id) {
+		Logger.info("start to delete location data:" + id);
+		ComResponse<TParkInfo_Loc>  response = new ComResponse<TParkInfo_Loc>();
+		try {
+			TParkInfo_Loc.deleteData(id);
+			response.setResponseStatus(ComResponse.STATUS_OK);
+			response.setExtendResponseContext("删除数据成功.");
+		} catch (Exception e) {
+			response.setResponseStatus(ComResponse.STATUS_FAIL);
+			response.setErrorMessage(e.getMessage());
+			Logger.error("", e);
+		}
+		String tempJsonString = gsonBuilderWithExpose.toJson(response);
+		JsonNode json = Json.parse(tempJsonString);
+		return ok(json);
+	}
+	
 }
