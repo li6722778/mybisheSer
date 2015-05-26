@@ -23,7 +23,11 @@ public class TLog extends Model{
 	@Id
 	@Expose
 	public Long logId;
-
+	
+	@Column(columnDefinition = "integer(2) default 1")
+	@Expose
+	public int level;
+	
 	@Expose
 	@Column(length = 100)
 	public String operateName;

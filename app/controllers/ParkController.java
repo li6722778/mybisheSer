@@ -44,7 +44,7 @@ public class ParkController extends Controller{
 		String json = gsonBuilderWithExpose.toJson(allData);
 		JsonNode jsonNode = Json.parse(json);
 		// String jsonString = Json.stringify(json);
-		Logger.debug("CommFindEntity result:" + json);
+		Logger.info("CommFindEntity result:" + json);
 		return ok(jsonNode);
 	}
 	
@@ -56,7 +56,7 @@ public class ParkController extends Controller{
 		String json = gsonBuilderWithExpose.toJson(allData);
 		JsonNode jsonNode = Json.parse(json);
 		// String jsonString = Json.stringify(json);
-		Logger.debug("CommFindEntity result:" + json);
+		Logger.info("CommFindEntity result:" + json);
 		return ok(jsonNode);
 	}
 
@@ -73,6 +73,7 @@ public class ParkController extends Controller{
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(info);
 			response.setExtendResponseContext("更新数据成功.");
+			LogController.info("save park data:"+info.parkname);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
@@ -81,6 +82,7 @@ public class ParkController extends Controller{
 		String json = gsonBuilderWithExpose.toJson(response);
 		JsonNode jsonNode = Json.parse(json);
 		Logger.debug("ComResponse result:"+json);
+		
 		return ok(jsonNode);
 	}
 
@@ -93,6 +95,7 @@ public class ParkController extends Controller{
 			TParkInfo.deleteData(id);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setExtendResponseContext("删除数据成功.");
+			LogController.info("delete park data:"+id);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
@@ -100,6 +103,7 @@ public class ParkController extends Controller{
 		}
 		String tempJsonString = gsonBuilderWithExpose.toJson(response);
 		JsonNode json = Json.parse(tempJsonString);
+		
 		return ok(json);
 	}
 	
@@ -153,6 +157,7 @@ public class ParkController extends Controller{
 			TParkInfo_Loc.deleteData(id);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setExtendResponseContext("删除数据成功.");
+			LogController.info("delete park location data:"+id);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
@@ -161,6 +166,7 @@ public class ParkController extends Controller{
 		
 		String tempJsonString = gsonBuilderWithExpose.toJson(response);
 		JsonNode json = Json.parse(tempJsonString);
+		
 		return ok(json);
 	}
 

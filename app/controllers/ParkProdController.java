@@ -97,6 +97,7 @@ public class ParkProdController extends Controller {
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(info);
 			response.setExtendResponseContext("更新数据成功.");
+			LogController.info("save prod park data:"+info.parkname);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
@@ -145,6 +146,7 @@ public class ParkProdController extends Controller {
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(parkProdInfo);
 			response.setExtendResponseContext("更新数据成功.");
+			LogController.info("copy prod park data from submited park:"+parkInfo.parkname);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
@@ -192,7 +194,8 @@ public class ParkProdController extends Controller {
 			TParkInfo.retrieveDataWithoutIDPolicy(parkInfo);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(parkInfo);
-			response.setExtendResponseContext("更新数据成功.");
+			response.setExtendResponseContext("回退数据成功.");
+			LogController.info("retrieve submitted park data from prod park:"+parkInfo.parkname);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
@@ -212,6 +215,7 @@ public class ParkProdController extends Controller {
 			TParkInfoProd.deleteData(id);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setExtendResponseContext("删除数据成功.");
+			LogController.info("delete prod parking data:"+id);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());

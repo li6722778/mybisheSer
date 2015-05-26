@@ -2,6 +2,16 @@ CREATE DATABASE /*!32312 IF NOT EXISTS*/`chebole` /*!40100 DEFAULT CHARACTER SET
 
 USE `chebole`;
 
+create table tb_log (
+log_id                    bigint auto_increment not null,
+level                     integer(2) default 1,
+operate_name              varchar(100),
+operate_date              timestamp,
+content                   varchar(500),
+extra_string              varchar(500),
+constraint pk_tb_log primary key (log_id))
+;
+
 create table tb_order (
 order_id                  bigint  not null,
 order_name                varchar(255),
@@ -167,6 +177,15 @@ park_adm_id               bigint  not null,
 parkId                    bigint,
 userid                    bigint,
 constraint pk_tb_parking_adm primary key (park_adm_id))
+;
+
+create table tb_client_ver (
+version_id                bigint auto_increment not null,
+force_update              integer(2) default 0,
+version                   bigint,
+update_url                varchar(100),
+updates_content           varchar(100),
+constraint pk_tb_client_ver primary key (version_id))
 ;
 
 create table tb_user (

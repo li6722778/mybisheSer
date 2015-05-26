@@ -8,6 +8,11 @@ GET     /                           controllers.Application.index()
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
+GET  /a/login/:phone                           controllers.LoginController.loginUser(phone:Long)
+
+#######version###############
+GET  /a/version                               controllers.VersionController.getVersion()
+
 #######below for android app######
 GET  /a/user/find/:userid                      controllers.UserController.getDataById(userid:Long)
 GET  /a/user/phone/:phone                      controllers.UserController.findDataByPhoneId(phone:Long)

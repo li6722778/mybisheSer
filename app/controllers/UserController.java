@@ -37,12 +37,6 @@ public class UserController extends Controller {
 		TuserInfo userinfo = TuserInfo.findDataByPhoneId(userphone);
 		String json = gsonBuilderWithExpose.toJson(userinfo);
 		
-		if(userinfo!=null){
-		    session("userphone", ""+userinfo.userPhone);
-		    session("username", ""+userinfo.userName);
-		    session("userid", ""+userinfo.userid);
-		}
-		
 		JsonNode jsonNode = Json.parse(json);
 		Logger.debug("got Data:" + json);
 		return ok(jsonNode);
@@ -109,6 +103,7 @@ public class UserController extends Controller {
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(user);
 			response.setExtendResponseContext("用户注册成功.");
+			LogController.info("register user data:"+user.userPhone);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
@@ -133,12 +128,14 @@ public class UserController extends Controller {
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(userinfo);
 			response.setExtendResponseContext("用户权限更新成功.");
+			LogController.info("update user data:"+userinfo.userPhone);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
 		}
 		String tempJsonString = gsonBuilderWithExpose.toJson(response);
 		JsonNode json = Json.parse(tempJsonString);
+		
 		return ok(json);
 	}
 	
@@ -156,6 +153,7 @@ public class UserController extends Controller {
 			TuserInfo.deleteData(id);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setExtendResponseContext("删除数据成功.");
+			LogController.info("delete user data:"+id);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());

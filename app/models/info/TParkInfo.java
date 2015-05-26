@@ -297,11 +297,11 @@ public class TParkInfo extends Model {
 	 * 
 	 * @param id
 	 */
-	public static void deleteData(Long id) {
+	public static void deleteData(final Long id) {
 		Ebean.execute(new TxRunnable() {
 			public void run() {
-				Ebean.delete(TParkInfo.class, id);
 				TParkInfo_Img.deleteExistImage(id);
+				Ebean.delete(TParkInfo.class, id);
 			}
 		});
 	}

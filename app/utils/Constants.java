@@ -4,6 +4,8 @@ import play.Play;
 
 public class Constants {
 
+	public static final String VERSION="chebole.1.0.526.ser";
+	
 	public static final int PARKING_TYPE_IN=1;
 	public static final int PARKING_TYPE_OUT=2;
 	public static final int PARKING_STATUS_OPEN=1;

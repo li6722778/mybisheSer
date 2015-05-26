@@ -3,6 +3,16 @@
 
 # --- !Ups
 
+create table tb_log (
+  log_id                    bigint auto_increment not null,
+  level                     integer(2) default 1,
+  operate_name              varchar(100),
+  operate_date              timestamp,
+  content                   varchar(500),
+  extra_string              varchar(500),
+  constraint pk_tb_log primary key (log_id))
+;
+
 create table tb_order (
   order_id                  bigint auto_increment not null,
   order_name                varchar(255),
@@ -170,6 +180,13 @@ create table tb_parking_adm (
   constraint pk_tb_parking_adm primary key (park_adm_id))
 ;
 
+create table tb_client_ver (
+  force_update              integer(2) default 0,
+  version                   bigint,
+  update_url                varchar(100),
+  updates_content           varchar(100))
+;
+
 create table tb_user (
   userid                    bigint auto_increment not null,
   user_name                 varchar(50) not null,
@@ -211,6 +228,8 @@ create index ix_tb_parking_adm_userInfo_10 on tb_parking_adm (userid);
 
 SET FOREIGN_KEY_CHECKS=0;
 
+drop table tb_log;
+
 drop table tb_order;
 
 drop table tb_pkgenerator;
@@ -232,6 +251,8 @@ drop table tb_parking_loc;
 drop table tb_parking_py;
 
 drop table tb_parking_adm;
+
+drop table tb_client_ver;
 
 drop table tb_user;
 
