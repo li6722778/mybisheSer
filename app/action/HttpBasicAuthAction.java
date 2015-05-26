@@ -37,6 +37,7 @@ public class HttpBasicAuthAction extends Action.Simple {
 		Logger.debug("basic auth,password:"+password);
 		TuserInfo authUser = TuserInfo.authenticate(username, password);
 		Logger.info("**********auth end,user:"+(authUser==null?"null":authUser.userid)+"************");
+		
 		return (authUser == null) ? Promise.pure((Result)unauthorized()): delegate.call(context);
 	}
 }

@@ -1,5 +1,6 @@
 package models.info;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -12,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import play.Logger;
 import play.Play;
 import play.data.format.Formats;
 import play.db.ebean.Model;
@@ -21,6 +23,8 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Page;
 import com.avaje.ebean.TxRunnable;
 import com.google.gson.annotations.Expose;
+
+import controllers.UploadController;
 
 @Entity
 @Table(name = "tb_parking_img")
@@ -156,6 +160,41 @@ public class TParkInfo_Img extends Model {
 		result.setRowCount(allData.size());
 		result.setPageCount(1);
 		return result;
+	}
+	
+	/**
+	 * 删除本地存在的图片
+	 * @param parkid
+	 * @return
+	 */
+	public static boolean deleteExistImage(Long parkid){
+		Logger.info("start to delete loc image for " + parkid);
+		boolean status =true;
+		CommFindEntity<TParkInfo_Img> imgArray = TParkInfo_Img.findData(parkid);
+		if(imgArray!=null){
+			List<TParkInfo_Img>  imgList = imgArray.getResult();
+			if(imgList!=null){
+				for(TParkInfo_Img img:imgList){
+					String path = img.imgUrlPath;
+					if(path!=null&&path.length()>0){
+						String fullpath = UploadController.image_store_path+path;
+						Logger.debug("--------start to delete file: " + fullpath+"-----------");
+						try{
+						File file = new File(fullpath);
+						if(file.exists()){
+							file.delete();
+							Logger.debug("------delete done.-------");
+						}
+						}catch(Exception e){
+							Logger.error("deleteExistImage", e);
+							status = false;
+						}
+					}
+				}
+			}
+		}
+		
+		return status;
 	}
 
 }

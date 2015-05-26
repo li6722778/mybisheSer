@@ -34,7 +34,15 @@ public class UserController extends Controller {
 	@BasicAuth
 	public static Result findDataByPhoneId(Long userphone) {
 		Logger.info("start to get data");
-		String json = gsonBuilderWithExpose.toJson(TuserInfo.findDataByPhoneId(userphone));
+		TuserInfo userinfo = TuserInfo.findDataByPhoneId(userphone);
+		String json = gsonBuilderWithExpose.toJson(userinfo);
+		
+		if(userinfo!=null){
+		    session("userphone", ""+userinfo.userPhone);
+		    session("username", ""+userinfo.userName);
+		    session("userid", ""+userinfo.userid);
+		}
+		
 		JsonNode jsonNode = Json.parse(json);
 		Logger.debug("got Data:" + json);
 		return ok(jsonNode);

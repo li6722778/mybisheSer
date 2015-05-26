@@ -1,3 +1,7 @@
+CREATE DATABASE /*!32312 IF NOT EXISTS*/`chebole` /*!40100 DEFAULT CHARACTER SET utf8 */;
+
+USE `chebole`;
+
 create table tb_order (
 order_id                  bigint  not null,
 order_name                varchar(255),

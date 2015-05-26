@@ -1,5 +1,6 @@
 package models.info;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -25,6 +26,8 @@ import com.avaje.ebean.Expr;
 import com.avaje.ebean.Page;
 import com.avaje.ebean.TxRunnable;
 import com.google.gson.annotations.Expose;
+
+import controllers.UploadController;
 
 @Entity
 @Table(name = "tb_parking")
@@ -172,7 +175,7 @@ public class TParkInfo extends Model {
 		result.setPageCount(allData.getTotalPageCount());
 		return result;
 	}
-	
+
 	/**
 	 * 查询所有数据，并且分页
 	 * 
@@ -182,22 +185,25 @@ public class TParkInfo extends Model {
 	 * @return
 	 */
 	public static CommFindEntity<TParkInfo> findData(int currentPage,
-			int pageSize, String orderBy,long userId) {
+			int pageSize, String orderBy, long userId) {
 
 		TuserInfo user = TuserInfo.findDataById(userId);
 		CommFindEntity<TParkInfo> result = new CommFindEntity<TParkInfo>();
 
-		if(user!=null){
-		Page<TParkInfo> allData = find.where().or(Expr.ieq("createPerson", user.userName), Expr.ieq("updatePerson", user.userName)).orderBy(orderBy)
-				.findPagingList(pageSize).setFetchAhead(false)
-				.getPage(currentPage);
-		
-		result.setResult(allData.getList());
-		result.setRowCount(allData.getTotalRowCount());
-		result.setPageCount(allData.getTotalPageCount());
+		if (user != null) {
+			Page<TParkInfo> allData = find
+					.where()
+					.or(Expr.ieq("createPerson", user.userName),
+							Expr.ieq("updatePerson", user.userName))
+					.orderBy(orderBy).findPagingList(pageSize)
+					.setFetchAhead(false).getPage(currentPage);
+
+			result.setResult(allData.getList());
+			result.setRowCount(allData.getTotalRowCount());
+			result.setPageCount(allData.getTotalPageCount());
 		}
 		return result;
-	}	
+	}
 
 	/**
 	 * 根据主键查询单条数据
@@ -211,34 +217,37 @@ public class TParkInfo extends Model {
 
 	/**
 	 * 从待审批表copy数据
+	 * 
 	 * @param bean
 	 */
 	public static void retrieveDataWithoutIDPolicy(final TParkInfo parkInfo) {
 		Ebean.execute(new TxRunnable() {
 			public void run() {
-				
+
 				Ebean.save(parkInfo);
-			
-				if (parkInfo.imgUrlArray != null && parkInfo.imgUrlArray.size() > 0) {
+
+				if (parkInfo.imgUrlArray != null
+						&& parkInfo.imgUrlArray.size() > 0) {
 					for (TParkInfo_Img imgBean : parkInfo.imgUrlArray) {
 						imgBean.parkInfo = parkInfo;
 						TParkInfo_Img.saveDataWithoutIDPolicy(imgBean);
 					}
 				}
 
-				if (parkInfo.latLngArray != null && parkInfo.latLngArray.size() > 0) {
+				if (parkInfo.latLngArray != null
+						&& parkInfo.latLngArray.size() > 0) {
 					for (TParkInfo_Loc loc : parkInfo.latLngArray) {
 						loc.parkInfo = parkInfo;
 						TParkInfo_Loc.saveDataWithoutIDPolicy(loc);
 					}
 				}
-				
-				//删除旧表数据
+
+				// 删除旧表数据
 				TParkInfoProd.deleteData(parkInfo.parkId);
 			}
 		});
 	}
-	
+
 	/**
 	 * 新建或更新数据
 	 * 
@@ -249,7 +258,7 @@ public class TParkInfo extends Model {
 			public void run() {
 
 				String urlHeader = ConfigHelper.getString("image.url.header");
-				Logger.info("image url header:"+urlHeader);
+				Logger.info("image url header:" + urlHeader);
 				// ------------生成主键，所有插入数据的方法都需要这个-----------
 				if (bean.parkId == null || bean.parkId <= 0) {
 					bean.parkId = TPKGenerator.getPrimaryKey(
@@ -289,7 +298,12 @@ public class TParkInfo extends Model {
 	 * @param id
 	 */
 	public static void deleteData(Long id) {
-		Ebean.delete(TParkInfo.class, id);
+		Ebean.execute(new TxRunnable() {
+			public void run() {
+				Ebean.delete(TParkInfo.class, id);
+				TParkInfo_Img.deleteExistImage(id);
+			}
+		});
 	}
-	
+
 }
