@@ -263,6 +263,9 @@ public class TParkInfo extends Model {
 				if (bean.parkId == null || bean.parkId <= 0) {
 					bean.parkId = TPKGenerator.getPrimaryKey(
 							TParkInfo.class.getName(), "parkId");
+					Date  currentDate = new Date();
+					bean.createDate = currentDate;
+					bean.updateDate = currentDate;
 					Ebean.save(bean);
 				} else {
 					bean.updateDate = new Date();
