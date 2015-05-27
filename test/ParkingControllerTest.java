@@ -116,7 +116,9 @@ public class ParkingControllerTest extends WithApplication {
 		newParkInfo.detail="每小时8元";
 		TParkInfo_Loc locUp = newParkInfo.latLngArray.get(0);
 		locUp.parkFreeCount = 199;
-		JsonNode jsonUpdate = Json.toJson(newParkInfo);
+		
+		String updateString=ParkController.gsonBuilderWithExpose.toJson(newParkInfo);
+		JsonNode jsonUpdate = Json.parse(updateString);
 		FakeRequest testUpdateRequest = new FakeRequest(Helpers.POST, "/a/parkinfo/save").withHeader("Authorization", auth).withJsonBody(jsonUpdate);
 		Result resultUpdate = Helpers.route(testUpdateRequest);
 
