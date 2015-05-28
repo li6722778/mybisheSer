@@ -27,6 +27,7 @@ public class VersionController extends Controller {
 	 * @param orderBy
 	 * @return
 	 */
+	@Cached(key="server_version")
 	public static Result getVersion() {
 		Logger.info("start to get all data");
 		String json = gsonBuilderWithExpose.toJson(TVersion.findVersion());
@@ -53,6 +54,7 @@ public class VersionController extends Controller {
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(data);
 			response.setExtendResponseContext("更新数据成功.");
+			LogController.info("save version:"+data.version);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());

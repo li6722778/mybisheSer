@@ -67,6 +67,7 @@ public class UploadController extends Controller {
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(imgBean);
 			response.setExtendResponseContext("删除数据成功.");
+			LogController.info("delete image imgid:"+imgId);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());

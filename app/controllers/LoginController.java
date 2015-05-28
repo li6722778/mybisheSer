@@ -28,13 +28,6 @@ public class LoginController extends Controller {
 		TuserInfo userinfo = TuserInfo.findDataByPhoneId(userphone);
 		String json = gsonBuilderWithExpose.toJson(userinfo);
 
-		// added session
-		if (userinfo != null) {
-			session("userphone", "" + userinfo.userPhone);
-			session("username", "" + userinfo.userName);
-			session("userid", "" + userinfo.userid);
-		}
-
 		JsonNode jsonNode = Json.parse(json);
 		Logger.debug("got Data:" + json);
 		LogController.debug(userphone + " logined");

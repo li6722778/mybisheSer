@@ -86,6 +86,7 @@ public class CommentsController extends Controller {
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(data);
 			response.setExtendResponseContext("更新数据成功.");
+			LogController.info("save comments data:"+data.comments);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
@@ -110,6 +111,7 @@ public class CommentsController extends Controller {
 			TParkInfo_Comment.deleteData(id);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setExtendResponseContext("删除数据成功.");
+			LogController.info("delete comments data:"+id);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());

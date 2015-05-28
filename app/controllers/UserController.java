@@ -78,6 +78,7 @@ public class UserController extends Controller {
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(user);
 			response.setExtendResponseContext("更新数据成功.");
+			LogController.info("save user data:"+user.userName);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());

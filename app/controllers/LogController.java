@@ -69,9 +69,9 @@ public class LogController extends Controller {
 			log.content = logcontent;
 			log.extraString = extLog;
 			log.level = level;
-			String userphone = session("userphone");
-			String username = session("username");
-			String userid = session("userid");
+			String userphone = flash("userphone");
+			String username = flash("username");
+			String userid = flash("userid");
 			log.operateName = username + "[" + userid + "," + userphone + "]";
 			TLog.saveData(log);
 		} catch (Exception e) {
