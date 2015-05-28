@@ -7,6 +7,7 @@ import models.info.TParkInfo;
 import models.info.TParkInfo_Img;
 import models.info.TParkInfo_Loc;
 import play.Logger;
+import play.cache.Cached;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;

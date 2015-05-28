@@ -1,7 +1,6 @@
 package utils;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
+import play.Play;
 
 /**
  * 用于读取配置文件信息
@@ -10,14 +9,18 @@ import com.typesafe.config.ConfigFactory;
  */
 public class ConfigHelper {
 
-	private static Config cheboleConfig;
-	
-	static{
-		cheboleConfig =  ConfigFactory.load("chebole.properties");
-	}
+//	private static Config cheboleConfig;
+//	
+//	static{
+//		cheboleConfig =  ConfigFactory.load("chebole.properties");
+//	}
+//	
+//	public static String getString(String key){
+//		return cheboleConfig.getString(key);
+//	}
 	
 	public static String getString(String key){
-		return cheboleConfig.getString(key);
+		return Play.application().configuration().getString(key);
 	}
 	
 }

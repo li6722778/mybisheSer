@@ -27,7 +27,6 @@ public class VersionController extends Controller {
 	 * @param orderBy
 	 * @return
 	 */
-	@Cached(key="server_version")
 	public static Result getVersion() {
 		Logger.info("start to get all data");
 		String json = gsonBuilderWithExpose.toJson(TVersion.findVersion());
