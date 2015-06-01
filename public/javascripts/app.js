@@ -188,7 +188,7 @@ var App = function () {
             });
 
         // handle ajax links
-        jQuery('.page-sidebar').on('click', ' li > a.ajaxify', function (e) {
+        jQuery('.page-sidebar,.pagination,.breadcrumb').on('click', ' li > a.ajaxify', function (e) {
                 e.preventDefault();
                 App.scrollTop();
 
@@ -215,6 +215,28 @@ var App = function () {
                         App.initUniform(); // initialize uniform elements
                     });
             });
+        
+        jQuery('.table').on('click', ' td > a.ajaxify', function (e) {
+            e.preventDefault();
+            App.scrollTop();
+
+            var url = $(this).attr("href");
+            var menuContainer = jQuery('.page-sidebar ul');
+            var pageContent = $('.page-content');
+            var pageContentBody = $('.page-content .page-content-body');
+
+            App.blockUI(pageContent, false);
+
+            $.post(url, {}, function (res) {
+                    App.unblockUI(pageContent);
+                    pageContentBody.html(res);
+                    App.fixContentHeight(); // fix content height
+                    App.initUniform(); // initialize uniform elements
+                });
+        });
+        
+        
+    
     }
 
     var _calculateFixedSidebarViewportHeight = function () {

@@ -52,7 +52,8 @@ POST /a/parkinfo/savepic                           controllers.UploadController.
 GET /a/image/delete/:id                            controllers.UploadController.deleteRemoteImage(id:Long)
 GET /a/parkinfo/deleteLocdata/:id                  controllers.ParkController.deleteLocData(id:Long)
 
-#######below for web app#######
+######################please DON'T change below URI!!!###################
+########################below for web app################################
 
 GET     /w/login                      controllers.Application.login()
 GET     /                             controllers.Application.index()
@@ -60,4 +61,6 @@ POST    /login                                                   controllers.Aut
 GET		/logout                                                  controllers.AuthController.logout()
 
 #BELOW for menu jump
-POST     /w/dashboard                      controllers.DashboardController.gotoDashboard()
+POST     /w/dashboard                      controllers.WebPageController.gotoDashboard()
+POST     /w/parking                        controllers.WebPageController.gotoParking(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc")
+POST     /w/parking/:parkId                        controllers.WebPageController.gotoDetailParking(parkId:Long)

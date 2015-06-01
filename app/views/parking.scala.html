@@ -1,0 +1,170 @@
+@(entityBean: com.avaje.ebean.Page[models.info.TParkInfo], 
+currentPage: Integer, pageSize: Integer,orderBy: String)
+
+             <!-- BEGIN PAGE HEADER-->
+				<div class="row-fluid">
+
+					<div class="span12">
+
+						<!-- BEGIN STYLE CUSTOMIZER -->
+						<!-- END BEGIN STYLE CUSTOMIZER --> 
+
+						<!-- BEGIN PAGE TITLE & BREADCRUMB-->
+
+						<h3 class="page-title">
+							采集数据 <small>显示正在采集的数据</small>
+						</h3>
+
+						<ul class="breadcrumb">
+
+							<li>
+
+								<i class="icon-home"></i>
+
+								<a href="/">主页</a> 
+
+								<i class="icon-angle-right"></i>
+
+							</li>
+
+							<li><a href="javascript:;">正在采集的数据</a></li>
+							
+						</ul>
+
+						<!-- END PAGE TITLE & BREADCRUMB-->
+					</div>
+				</div>
+				<!-- END PAGE HEADER-->
+				
+				
+				<!-- BEGIN EXAMPLE TABLE PORTLET-->
+
+						<div class="portlet box grey">
+
+							<div class="portlet-title">
+
+								<div class="caption"><i class="icon-map-marker"></i>正在采集的数据</div>
+
+								<div class="tools">
+									<a href="javascript:;" class="reload"></a>
+								</div>
+
+							</div>
+
+							<div class="portlet-body">
+						
+
+									<div class="btn-group pull-right">
+
+										<button class="btn dropdown-toggle" data-toggle="dropdown">工具 <i class="icon-angle-down"></i>
+
+										</button>
+
+										<ul class="dropdown-menu pull-right">
+
+											<li><a href="#">删除数据</a></li>
+
+										</ul>
+
+									</div>
+
+								</div>
+
+								<table class="table table-striped table-bordered table-hover" id="sample_1">
+
+									<thead>
+
+										<tr>
+
+											<th style="width:8px;"><input type="checkbox" class="group-checkable" data-set="#sample_1 .checkboxes" /></th>
+
+											<th class="hidden-480">编号</th>
+
+											<th >停车场名</th>
+
+											<th class="hidden-480">地址</th>
+											
+											<th class="hidden-480">联系人</th>
+											
+											<th class="hidden-480">管理公司</th>
+
+											<th class="hidden-480">采集时间</th>
+
+											<th >采集人</th>
+
+										</tr>
+
+									</thead>
+
+									<tbody>
+
+                            @for(TParkInfo <- entityBean.getList) {
+										<tr class="odd gradeX">
+											<td class="hidden-480"><input type="checkbox" class="checkboxes" value="@TParkInfo.parkId" /></td>
+											<td>@TParkInfo.parkId</td>
+											<td ><a class="ajaxify" href="/w/parking/@TParkInfo.parkId">@TParkInfo.parkname</a></td>
+											<td class="hidden-480">@TParkInfo.address</td>
+											<td class="hidden-480">@TParkInfo.owner</td>
+											<td class="hidden-480">@TParkInfo.vender</td>
+											<td class="center hidden-480">@TParkInfo.updateDate</td>
+											<td ><span class="label label-success">@TParkInfo.updatePerson</span></td>
+										</tr>
+                              }
+										
+									</tbody>
+
+								</table>
+
+					            <div id="pagination" class="pagination">
+					               <ul>
+						                @if(entityBean.hasPrev) {
+						                    <li class="prev">
+						                        <a class="ajaxify" href="/w/parking?p=@(entityBean.getPageIndex - 1)">&larr; 上一页</a>
+						                    </li>
+						                } else {
+						                    <li class="prev disabled">
+						                        <a>&larr; 上一页</a>
+						                    </li>
+						                }
+						                <li class="current">
+						                    <a>显示 @entityBean.getDisplayXtoYofZ(" to "," of ")</a>
+						                </li>
+						                @if(entityBean.hasNext) {
+						                    <li class="next">
+						                        <a class="ajaxify" href="/w/parking?p=@(entityBean.getPageIndex + 1)">下一页 &rarr;</a>
+						                    </li>
+						                } else {
+						                    <li class="next disabled">
+						                        <a>下一页 &rarr;</a>
+						                    </li>
+						                }
+					               </ul>
+					             </div>
+        
+        
+								<div class="clearfix">
+
+									<div class="alert">
+
+									<button class="close" data-dismiss="alert"></button>
+
+									<strong>注意!</strong>正在采集的数据不会立即显示在地图上.
+
+								</div>
+							</div>
+
+						</div>
+
+
+	<script src="@routes.Assets.at("javascripts/app.js")"></script>      
+
+	<script>
+
+		jQuery(document).ready(function() {    
+
+		   App.init();
+
+		});
+
+	</script>
+				

@@ -1,6 +1,5 @@
 package models.info;
 
-import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -26,8 +25,6 @@ import com.avaje.ebean.Expr;
 import com.avaje.ebean.Page;
 import com.avaje.ebean.TxRunnable;
 import com.google.gson.annotations.Expose;
-
-import controllers.UploadController;
 
 @Entity
 @Table(name = "tb_parking")
@@ -154,6 +151,22 @@ public class TParkInfo extends Model {
 			Long.class, TParkInfo.class);
 
 	/**
+	 * 
+	 * @param page
+	 * @param pageSize
+	 * @param sortBy
+	 * @param order
+	 * @param filter
+	 * @return
+	 */
+	public static Page<TParkInfo> page(int currentPage,int pageSize, String orderBy) {
+		Page<TParkInfo> allData = find.where().orderBy(orderBy)
+				.findPagingList(pageSize).setFetchAhead(false)
+				.getPage(currentPage);
+        return allData;
+    }
+	
+	/**
 	 * 查询所有数据，并且分页
 	 * 
 	 * @param currentPage
@@ -166,9 +179,7 @@ public class TParkInfo extends Model {
 
 		CommFindEntity<TParkInfo> result = new CommFindEntity<TParkInfo>();
 
-		Page<TParkInfo> allData = find.where().orderBy(orderBy)
-				.findPagingList(pageSize).setFetchAhead(false)
-				.getPage(currentPage);
+		Page<TParkInfo> allData = page(currentPage,pageSize,orderBy);
 
 		result.setResult(allData.getList());
 		result.setRowCount(allData.getTotalRowCount());

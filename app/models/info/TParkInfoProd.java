@@ -13,7 +13,6 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
-import net.sf.cglib.beans.BeanCopier;
 import play.data.format.Formats;
 import play.data.validation.Constraints;
 import play.db.ebean.Model;
@@ -167,6 +166,22 @@ public class TParkInfoProd extends Model {
 	}
 	
 	/**
+	 * 
+	 * @param page
+	 * @param pageSize
+	 * @param sortBy
+	 * @param order
+	 * @param filter
+	 * @return
+	 */
+	public static Page<TParkInfoProd> page(int currentPage,int pageSize, String orderBy) {
+		Page<TParkInfoProd> allData = find.where().orderBy(orderBy)
+				.findPagingList(pageSize).setFetchAhead(false)
+				.getPage(currentPage);
+        return allData;
+    }
+	
+	/**
 	 * 查询所有数据，并且分页
 	 * 
 	 * @param currentPage
@@ -179,9 +194,7 @@ public class TParkInfoProd extends Model {
 
 		CommFindEntity<TParkInfoProd> result = new CommFindEntity<TParkInfoProd>();
 
-		Page<TParkInfoProd> allData = find.where().orderBy(orderBy)
-				.findPagingList(pageSize).setFetchAhead(false)
-				.getPage(currentPage);
+		Page<TParkInfoProd> allData = page(currentPage,pageSize,orderBy);
 
 		result.setResult(allData.getList());
 		result.setRowCount(allData.getTotalRowCount());

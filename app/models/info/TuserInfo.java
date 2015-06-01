@@ -111,6 +111,22 @@ public class TuserInfo extends Model implements Serializable {
 	}
 
 	/**
+	 * 
+	 * @param currentPage
+	 * @param pageSize
+	 * @param orderBy
+	 * @return
+	 */
+	public static Page<TuserInfo> page(int currentPage,int pageSize, String orderBy) {
+		Page<TuserInfo> allData = find.where()
+                .orderBy(orderBy)
+                .findPagingList(pageSize)
+                .setFetchAhead(false)
+                .getPage(currentPage);
+        return allData;
+    }
+	
+	/**
 	 * 得到所有的数据
 	 * @param page
 	 * @param pageSize
@@ -123,11 +139,7 @@ public class TuserInfo extends Model implements Serializable {
     	
     	CommFindEntity<TuserInfo> result = new CommFindEntity<TuserInfo>();
 
-    	Page<TuserInfo> allData = find.where()
-                .orderBy(orderBy)
-                .findPagingList(pageSize)
-                .setFetchAhead(false)
-                .getPage(currentPage);
+    	Page<TuserInfo> allData = page(currentPage,pageSize,orderBy);;
     	
     	result.setResult(allData.getList());
     	result.setRowCount(allData.getTotalRowCount());
