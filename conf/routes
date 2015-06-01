@@ -58,3 +58,6 @@ GET     /w/login                      controllers.Application.login()
 GET     /                             controllers.Application.index()
 POST    /login                                                   controllers.AuthController.authenticate()
 GET		/logout                                                  controllers.AuthController.logout()
+
+#BELOW for menu jump
+POST     /w/dashboard                      controllers.DashboardController.gotoDashboard()

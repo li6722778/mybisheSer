@@ -12,7 +12,7 @@
 
 	<meta charset="utf-8" />
 
-	<title>车伯乐--您的私人停车专家</title>
+	<title>车泊乐--您的私人停车专家</title>
 
 	<meta content="width=device-width, initial-scale=1.0" name="viewport" />
 
@@ -57,7 +57,7 @@
 
 				<!-- BEGIN LOGO -->
 
-				<a class="brand" href="index.html">
+				<a class="brand" href="">
 
 				<img src="@routes.Assets.at("image/logo-big.png")" alt="logo" />
 
@@ -354,27 +354,10 @@
 
 	<!-- BEGIN CONTAINER -->
 
-	<div class="page-container row-fluid">
+	<div class="page-container">
 
 		<!-- BEGIN SAMPLE PORTLET CONFIGURATION MODAL FORM-->
 
-		<div id="portlet-config" class="modal hide">
-
-			<div class="modal-header">
-
-				<button data-dismiss="modal" class="close" type="button"></button>
-
-				<h3>Widget Settings</h3>
-
-			</div>
-
-			<div class="modal-body">
-
-				<p>Here will be a configuration form</p>
-
-			</div>
-
-		</div>
 
 		<!-- END SAMPLE PORTLET CONFIGURATION MODAL FORM-->
 
@@ -419,71 +402,32 @@
 				</li>
 
 				<li class="start">
-
-					<a class="ajaxify start" href="layout_ajax_content_1.html">
-
+					<a class="ajaxify start"  href="/w/dashboard ">
 					<i class="icon-home"></i> 
-
 					<span class="title">仪表盘</span>
-
 					<span class="selected"></span>
-
 					</a>
-
 				</li>
 
 				<li class="">
-
 					<a href="javascript:;">
-
-					<i class="icon-cogs"></i> 
-
-					<span class="title">信息采集</span>
-
+					<i class="icon-map-marker"></i> 
+					<span class="title">停车场</span>
 					<span class="selected"></span>
-
 					<span class="arrow open"></span>
-
 					</a>
-
 					<ul class="sub-menu">
 
 						<li>
-
 							<a class="ajaxify" href="layout_ajax_content_2.html">
-							信息采集记录                    
+							 正在采集的数据               
 							</a>
-
 						</li>
 
 						<li>
-
 							<a class="ajaxify" href="layout_ajax_content_3.html">
-
-							新增停车场                    
-
+							  已审批的数据             
 							</a>
-
-						</li>
-
-						<li>
-
-							<a class="ajaxify" href="layout_ajax_content_2.html">
-
-							Ajax Link Sample 3                    
-
-							</a>
-
-						</li>
-
-						<li>
-
-							<a class="ajaxify" href="layout_ajax_content_3.html">
-
-							Ajax Link Sample 4                    
-
-							</a>
-
 						</li>
 
 					</ul>
@@ -493,57 +437,17 @@
 				<li class="">
 
 					<a href="javascript:;">
-
 					<i class="icon-cogs"></i> 
-
 					<span class="title">数据审核</span>
-
 					<span class="selected"></span>
-
 					<span class="arrow"></span>
-
 					</a>
 
 					<ul class="sub-menu">
-
 						<li>
-
 							<a class="ajaxify" href="layout_ajax_content_2.html">
-
 							停车场数据审核                
-
 							</a>
-
-						</li>
-
-						<li>
-
-							<a class="ajaxify" href="layout_ajax_content_3.html">
-
-							Ajax Link Sample 2                    
-
-							</a>
-
-						</li>
-
-						<li>
-
-							<a class="ajaxify" href="layout_ajax_content_2.html">
-
-							Ajax Link Sample 3                    
-
-							</a>
-
-						</li>
-
-						<li>
-
-							<a class="ajaxify" href="layout_ajax_content_3.html">
-
-							Ajax Link Sample 4                    
-
-							</a>
-
 						</li>
 
 					</ul>
@@ -586,26 +490,6 @@
 
 						</li>
 
-						<li>
-
-							<a class="ajaxify" href="layout_ajax_content_2.html">
-
-							Ajax Link Sample 3                    
-
-							</a>
-
-						</li>
-
-						<li>
-
-							<a class="ajaxify" href="layout_ajax_content_3.html">
-
-							Ajax Link Sample 4                    
-
-							</a>
-
-						</li>
-
 					</ul>
 
 				</li>
@@ -621,103 +505,17 @@
 		<!-- BEGIN PAGE -->
 
 		<div class="page-content">
-
+					
 			<!-- BEGIN PAGE CONTAINER-->
 
 			<div class="container-fluid">
 
-				<!-- BEGIN STYLE CUSTOMIZER -->
-
-				<div class="color-panel hidden-phone">
-
-					<div class="color-mode-icons icon-color"></div>
-
-					<div class="color-mode-icons icon-color-close"></div>
-
-					<div class="color-mode">
-
-						<p>THEME COLOR</p>
-
-						<ul class="inline">
-
-							<li class="color-black current color-default" data-style="default"></li>
-
-							<li class="color-blue" data-style="blue"></li>
-
-							<li class="color-brown" data-style="brown"></li>
-
-							<li class="color-purple" data-style="purple"></li>
-
-							<li class="color-grey" data-style="grey"></li>
-
-							<li class="color-white color-light" data-style="light"></li>
-
-						</ul>
-
-						<label>
-
-							<span>Layout</span>
-
-							<select class="layout-option m-wrap small">
-
-								<option value="fluid" selected>Fluid</option>
-
-								<option value="boxed">Boxed</option>
-
-							</select>
-
-						</label>
-
-						<label>
-
-							<span>Header</span>
-
-							<select class="header-option m-wrap small">
-
-								<option value="fixed" selected>Fixed</option>
-
-								<option value="default">Default</option>
-
-							</select>
-
-						</label>
-
-						<label>
-
-							<span>Sidebar</span>
-
-							<select class="sidebar-option m-wrap small">
-
-								<option value="fixed">Fixed</option>
-
-								<option value="default" selected>Default</option>
-
-							</select>
-
-						</label>
-
-						<label>
-
-							<span>Footer</span>
-
-							<select class="footer-option m-wrap small">
-
-								<option value="fixed">Fixed</option>
-
-								<option value="default" selected>Default</option>
-
-							</select>
-
-						</label>
-
-					</div>
-
-				</div>
 
 				<!-- END BEGIN STYLE CUSTOMIZER -->
-
-				<div class="page-content-body">
-
+				<div class="page-content-body"> 
+				
+              
+				
 				</div>
 
 			</div>

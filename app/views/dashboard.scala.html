@@ -1,0 +1,191 @@
+@()
+
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html lang="en"> <!--<![endif]-->
+
+<!-- BEGIN HEAD -->
+             <!-- BEGIN PAGE HEADER-->
+				<div class="row-fluid">
+
+					<div class="span12">
+
+						<!-- BEGIN STYLE CUSTOMIZER -->
+						<!-- END BEGIN STYLE CUSTOMIZER --> 
+
+						<!-- BEGIN PAGE TITLE & BREADCRUMB-->
+
+						<h3 class="page-title">
+							仪表盘 <small>签约停车场和注册用户</small>
+						</h3>
+
+						<ul class="breadcrumb">
+
+							<li>
+
+								<i class="icon-home"></i>
+
+								<a href="/">主页</a> 
+
+								<i class="icon-angle-right"></i>
+
+							</li>
+
+							<li><a href="#">仪表盘</a>
+							<i class="icon-angle-right"></i></li>
+							
+							<li>
+							  
+				                  <div class="btn-group">
+										<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+										沈阳 <i class="icon-angle-down"></i>
+										</a>
+										<ul class="dropdown-menu">
+											<li><a href="#">沈阳</a></li>
+											<li><a href="#">成都</a></li>
+										</ul>
+				                 </div>
+				
+							</li>
+
+						</ul>
+
+						<!-- END PAGE TITLE & BREADCRUMB-->
+					</div>
+				</div>
+				<!-- END PAGE HEADER-->
+				
+				<!-- BEGIN DASHBOARD STATS -->
+
+					<div class="row-fluid">
+
+						<div class="span3 responsive" data-tablet="span6" data-desktop="span3">
+
+							<div class="dashboard-stat blue">
+
+								<div class="visual">
+
+									<i class="icon-comments"></i>
+
+								</div>
+
+								<div class="details">
+									<div class="number">
+										 @flash.get("parkingProdCount")
+									</div>
+
+									<div class="desc">                           
+										签约停车场
+									</div>
+
+								</div>
+
+								<a class="more" href="#">
+
+								详情 <i class="m-icon-swapright m-icon-white"></i>
+
+								</a>                 
+
+							</div>
+
+						</div>
+
+						<div class="span3 responsive" data-tablet="span6" data-desktop="span3">
+
+							<div class="dashboard-stat green">
+
+								<div class="visual">
+
+									<i class="icon-shopping-cart"></i>
+
+								</div>
+
+								<div class="details">
+
+									<div class="number"> @flash.get("orderCount")</div>
+
+									<div class="desc">停车订单</div>
+
+								</div>
+
+								<a class="more" href="#">
+
+								详情 <i class="m-icon-swapright m-icon-white"></i>
+
+								</a>                 
+
+							</div>
+
+						</div>
+
+						<div class="span3 responsive" data-tablet="span6  fix-offset" data-desktop="span3">
+
+							<div class="dashboard-stat purple">
+
+								<div class="visual">
+
+									<i class="icon-globe"></i>
+
+								</div>
+
+								<div class="details">
+
+									<div class="number">@flash.get("userCount")</div>
+
+									<div class="desc">车泊乐用户</div>
+
+								</div>
+
+								<a class="more" href="#">
+
+								详情<i class="m-icon-swapright m-icon-white"></i>
+
+								</a>                 
+
+							</div>
+
+						</div>
+
+						<div class="span3 responsive" data-tablet="span6" data-desktop="span3">
+
+							<div class="dashboard-stat yellow">
+
+								<div class="visual">
+
+									<i class="icon-bar-chart"></i>
+
+								</div>
+
+								<div class="details">
+
+									<div class="number">@flash.get("paymentCount")</div>
+
+									<div class="desc">交易金额</div>
+
+								</div>
+
+								<a class="more" href="#">
+
+								详情<i class="m-icon-swapright m-icon-white"></i>
+
+								</a>                 
+
+							</div>
+
+						</div>
+						
+						<div class="alert">
+
+									<button class="close" data-dismiss="alert"></button>
+
+									<strong>注意!</strong>签约停车场仅统计审批通过的数据.
+
+								</div>
+						
+                             
+
+					</div>
+					<!-- END DASHBOARD STATS -->
+				
+				

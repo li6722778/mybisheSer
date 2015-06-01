@@ -159,6 +159,14 @@ public class TParkInfoProd extends Model {
 			Long.class, TParkInfoProd.class);
 
 	/**
+	 * 得到总数
+	 * @return
+	 */
+	public static int findCount(){
+		return find.findRowCount();
+	}
+	
+	/**
 	 * 查询所有数据，并且分页
 	 * 
 	 * @param currentPage

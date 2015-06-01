@@ -14,6 +14,7 @@ import javax.persistence.Table;
 import play.data.format.Formats;
 import play.db.ebean.Model;
 import utils.CommFindEntity;
+import utils.Constants;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Page;
@@ -74,6 +75,14 @@ public class TOrder extends Model {
 		return find.byId(id);
 	}
 
+	/**
+	 * 得到总数
+	 * @return
+	 */
+	public static int findDoneCount(){
+		return find.where().eq("orderStatus", Constants.ORDER_TYPE_FINISH).findRowCount();
+	}
+	
 	/**
 	 * 新建或更新数据
 	 * 

@@ -88,7 +88,15 @@ public class TuserInfo extends Model implements Serializable {
 
 	//查询finder，用于其他方法中需要查询的场景 
 	public static Finder<Long,TuserInfo> find = new Finder<Long,TuserInfo>(Long.class, TuserInfo.class); 
-	 	
+	
+	/**
+	 * 得到总数
+	 * @return
+	 */
+	public static int findCount(){
+		return find.findRowCount();
+	}
+	
 	/**
 	 * 登录http header认证
 	 * @param username
