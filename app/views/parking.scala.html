@@ -106,7 +106,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 											<td class="hidden-480">@TParkInfo.address</td>
 											<td class="hidden-480">@TParkInfo.owner</td>
 											<td class="hidden-480">@TParkInfo.vender</td>
-											<td class="center hidden-480">@TParkInfo.updateDate</td>
+											<td class="center hidden-480">@TParkInfo.updateDate.format("yyyy-MM-dd HH:mm:ss")</td>
 											<td ><span class="label label-success">@TParkInfo.updatePerson</span></td>
 										</tr>
                               }
