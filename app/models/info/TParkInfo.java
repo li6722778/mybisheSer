@@ -149,7 +149,8 @@ public class TParkInfo extends Model {
 	// 查询finder，用于其他方法中需要查询的场景
 	public static Finder<Long, TParkInfo> find = new Finder<Long, TParkInfo>(
 			Long.class, TParkInfo.class);
-
+	
+	
 	/**
 	 * 
 	 * @param page

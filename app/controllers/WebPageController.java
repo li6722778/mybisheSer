@@ -1,19 +1,18 @@
 package controllers;
 
-import com.avaje.ebean.Page;
-import com.fasterxml.jackson.databind.JsonNode;
-
 import models.info.TOrder;
 import models.info.TParkInfo;
 import models.info.TParkInfoProd;
 import models.info.TParkInfo_Py;
 import models.info.TuserInfo;
 import play.Logger;
-import play.libs.Json;
+import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
-import utils.CommFindEntity;
+
+import com.avaje.ebean.Page;
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class WebPageController extends Controller {
 
@@ -55,5 +54,27 @@ public class WebPageController extends Controller {
 		Logger.debug("goto gotoDetailParking");
 		TParkInfo allData = TParkInfo.findDataById(parking);
 		return ok(views.html.parkingdetail.render(allData));
+	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result saveParkingData(){
+		Logger.debug("goto saveParkingData");
+		//DynamicForm dynamicForm = Form.form().bindFromRequest();
+		Form<TParkInfo> form = Form.form(TParkInfo.class).bindFromRequest();
+		if (form.hasErrors()) {
+			
+			JsonNode message = form.errorsAsJson();
+			Logger.error("###########getglobalError:"+message);
+			return ok(message);
+		}
+		TParkInfo parkinfo = form.get();
+		if(parkinfo!=null){
+			Logger.debug("###########get parkname:"+parkinfo.parkname);
+			Logger.debug("###########get parkId:"+parkinfo.parkId);
+			Logger.debug("###########get feeType:"+parkinfo.feeType);
+			Logger.debug("###########get feeTypeSecInScopeHours:"+parkinfo.feeTypeSecInScopeHours);
+		}
+		
+		return ok();
 	}
 }

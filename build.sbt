@@ -11,5 +11,6 @@ libraryDependencies ++= Seq(
   javaEbean,
   cache,
   javaWs,
-   "cglib"  % "cglib-nodep"  % "2.1_3" 
+   "cglib"  % "cglib-nodep"  % "2.1_3",
+   "org.mindrot" % "jbcrypt" % "0.3m"
 )
