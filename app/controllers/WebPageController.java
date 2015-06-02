@@ -62,19 +62,16 @@ public class WebPageController extends Controller {
 		//DynamicForm dynamicForm = Form.form().bindFromRequest();
 		Form<TParkInfo> form = Form.form(TParkInfo.class).bindFromRequest();
 		if (form.hasErrors()) {
-			
-			JsonNode message = form.errorsAsJson();
-			Logger.error("###########getglobalError:"+message);
-			return ok(message);
+			JsonNode node= form.errorsAsJson();
+			Logger.error("###########getglobalError:"+node);
+			return badRequest(node.toString());
 		}
 		TParkInfo parkinfo = form.get();
 		if(parkinfo!=null){
-			Logger.debug("###########get parkname:"+parkinfo.parkname);
 			Logger.debug("###########get parkId:"+parkinfo.parkId);
-			Logger.debug("###########get feeType:"+parkinfo.feeType);
-			Logger.debug("###########get feeTypeSecInScopeHours:"+parkinfo.feeTypeSecInScopeHours);
+			TParkInfo.saveData(parkinfo);
 		}
 		
-		return ok();
+		return ok("提交成功.");
 	}
 }
