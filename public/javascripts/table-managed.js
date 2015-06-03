@@ -4,44 +4,9 @@ var TableManaged = function () {
 
         //main function to initiate the module
         init: function () {
-            
             if (!jQuery().dataTable) {
                 return;
             }
-
-            // begin first table
-            $('#sample_1').dataTable({
-                "aoColumns": [
-                  { "bSortable": false },
-                  null,
-                  { "bSortable": false },
-                  null,
-                  { "bSortable": false },
-                  { "bSortable": false }
-                ],
-                "aLengthMenu": [
-                    [5, 15, 20, -1],
-                    [5, 15, 20, "All"] // change per page values here
-                ],
-                "bProcessing": true,
-                "sAjaxSource": './arrays.txt'
-                // set the initial value
-                "iDisplayLength": 5,
-                "sDom": "<'row-fluid'<'span6'l><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
-                "sPaginationType": "bootstrap",
-                "oLanguage": {
-                    "sLengthMenu": "_MENU_ 条/页",
-                    "oPaginate": {
-                        "sPrevious": "上一页",
-                        "sNext": "下一页"
-                    }
-                },
-                "aoColumnDefs": [{
-                        'bSortable': false,
-                        'aTargets': [0]
-                    }
-                ]
-            });
 
             jQuery('#sample_1 .group-checkable').change(function () {
                 var set = jQuery(this).attr("data-set");

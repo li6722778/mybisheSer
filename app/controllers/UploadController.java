@@ -96,12 +96,11 @@ public class UploadController extends Controller {
 	}
 	
 	/**
-	 * 图片上传
+	 * 图片上传到指定的parking
 	 * 
 	 * @return
 	 * @throws IOException
 	 */
-	@Security.Authenticated(SecurityController.class)
 	public static Result uploadToParking(long parkingId) throws IOException {
 		List<String> imagepaths = getUploadNode();
 		
@@ -116,12 +115,14 @@ public class UploadController extends Controller {
 			imgBean.updateDate = new Date();
 			imgBean.updatePerson = userName;
 			imgBean.createPerson = userName;
+			imgBean.detail="web";
 			
 			TParkInfo parkInfo  = new TParkInfo();
 			parkInfo.parkId = parkingId;
 			imgBean.parkInfo = parkInfo;
 
-			TParkInfo_Img.saveData(imgBean);			
+			TParkInfo_Img.saveData(imgBean);
+			imagepath=urlHeader+imagepath;
 		}
 		
 		JsonNode json = Json.toJson(imagepaths);

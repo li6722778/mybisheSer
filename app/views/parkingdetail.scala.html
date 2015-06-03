@@ -80,7 +80,7 @@
 													
 														<!-- BEGIN GALLERY MANAGER PANEL-->
 						
-						<form id="fileupload" action="/a/image/upload/@entityBean.parkId" method="POST" enctype="multipart/form-data">
+						<form id="fileupload" action="/w/image/upload/@entityBean.parkId" method="POST" enctype="multipart/form-data">
 
 							<!-- Redirect browsers with JavaScript disabled to the origin page -->
 
@@ -300,7 +300,7 @@
 						
 														<!-- BEGIN GALLERY MANAGER LISTING-->
 						
-														<div class="row-fluid">
+														<div class="row-fluid" id="imagepreview">
 						
 						                                   @for(TParkInfo_Img <- entityBean.imgUrlArray) {
 															<div class="span3">

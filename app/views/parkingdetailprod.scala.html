@@ -1,0 +1,246 @@
+@(entityBean: models.info.TParkInfoProd)
+
+
+	<link href="@routes.Assets.at("stylesheets/jquery.fancybox.css")" rel="stylesheet" type="text/css"/>
+	<link href="@routes.Assets.at("stylesheets/jquery.fileupload-ui.css")" rel="stylesheet" type="text/css"/>
+	<link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/timepicker.css")" />
+
+
+	
+	
+
+             <!-- BEGIN PAGE HEADER-->
+				<div class="row-fluid">
+
+					<div class="span12">
+
+						<!-- BEGIN STYLE CUSTOMIZER -->
+						<!-- END BEGIN STYLE CUSTOMIZER --> 
+
+						<!-- BEGIN PAGE TITLE & BREADCRUMB-->
+
+						<h3 class="page-title">
+							地图数据 <small>显示地图停车场数据</small>
+						</h3>
+
+						<ul class="breadcrumb">
+
+							<li>
+
+								<i class="icon-home"></i>
+
+								<a href="/">主页</a> 
+
+								<i class="icon-angle-right"></i>
+
+							</li>
+
+							<li><a class="ajaxify" href="javascript:;" post="/w/parking">地图停车场数据</a><i class="icon-angle-right"></i></li>
+							
+							<li><a href="javascript:;">@entityBean.parkname</a></li>
+							
+						</ul>
+
+						<!-- END PAGE TITLE & BREADCRUMB-->
+					</div>
+				</div>
+				<!-- END PAGE HEADER-->
+		
+				
+				<div class="row-fluid margin-bottom-30">
+
+					<div class="span6">
+
+                          <div>
+											 <h3 class="form-section">基本信息</h3> 
+											 <blockquote class="hero">
+							                      <small>ID:@entityBean.parkId [审核人:@entityBean.approvePerson,@entityBean.approveDate.format("yyyy-MM-dd HH:mm:ss")]</small>
+						                     </blockquote>
+
+                                                 <div class="row-fluid">
+													
+													<!--/span-->
+
+													<div class="span6 ">
+                                                         <label class="control-label" >停车场名称:@entityBean.parkname</label>
+													</div>
+													
+													<div class="span6 ">
+                                                         <label class="control-label" for="contactphone">联系电话:@entityBean.ownerPhone</label>
+													</div>
+
+													<!--/span-->
+
+												</div>
+
+												<!--/row-->        
+
+												<div class="row-fluid">
+
+													<div class="span12 ">
+                                                          <label class="control-label" >停车场地址:@entityBean.address</label>
+													</div>
+
+								
+												</div>
+
+                                               
+												<div class="row-fluid">
+													<div class="span6 ">
+															<label class="control-label" for="firstName">管理公司:@entityBean.vender</label>
+													</div>
+
+													<!--/span-->
+
+													<div class="span6 ">
+                                                          <label class="control-label" for="lastName">联系人:@entityBean.owner</label>
+													</div>
+
+													<!--/span-->
+												</div>
+												
+												<div class="row-fluid">
+													<div class="span6 ">
+															<label class="control-label" for="firstName">创建人:@entityBean.createPerson,@entityBean.createDate.format("yyyy-MM-dd HH:mm:ss")</label>
+													</div>
+
+													<!--/span-->
+
+													<div class="span6 ">
+                                                          <label class="control-label" for="lastName">更新人:@entityBean.updatePerson,@entityBean.updateDate.format("yyyy-MM-dd HH:mm:ss")</label>
+													</div>
+
+													<!--/span-->
+												</div>
+
+												<!--/row-->
+
+												
+
+												<!--/row--> 
+
+												<h3 class="form-section">计费标准</h3>
+
+												<div class="row-fluid">
+
+													<div class="span12 ">
+
+													<div class="control-group">
+														<div class="controls">
+				                                          <div class="span6 ">
+				                                          
+				                                          @if(entityBean.feeType==1){
+				                                           <label class="control-label" >分段收费: @entityBean.feeTypeSecInScopeHourMoney 元/@entityBean.feeTypeSecInScopeHours 小时。超过后 @entityBean.feeTypeSecOutScopeHourMoney 元/小时</label>
+				                                          }else{
+				                                             <label class="control-label" >计次收费: @entityBean.feeTypefixedHourMoney 元/次</label>
+				                                          }   
+														</div>
+														
+                                                 </div>
+                                                 
+									         </div>
+											</div>
+
+										</div>
+		
+												<div class="row-fluid">
+
+													<div class="span6 ">
+                                                           @if(entityBean.isDiscountAllday==1){
+                                                              <label class="control-label" >全天优惠:@entityBean.discountHourAlldayMoney 元/天</label>
+                                                           }
+													
+													</div>
+
+													<!--/span-->
+
+												</div>
+
+												<!--/row-->           
+
+												<div class="row-fluid">
+
+													<div class="span6 ">
+
+                                                           @if(entityBean.isDiscountSec==1){
+                                                                <label class="control-label" >优惠时段:@if(entityBean.discountSecStartHour!=null){entityBean.discountSecStartHour}~@if(entityBean.discountSecEndHour!=null){entityBean.discountSecEndHour},@entityBean.discountSecHourMoney 元/小时</label>
+                                                           }
+
+													</div>
+
+													<!--/span-->
+
+												</div>
+								 
+								</div>
+						
+
+					</div>
+
+					<div class="span6">
+
+						<img src="http://api.map.baidu.com/staticimage?width=500&height=400&zoom=18&markers=@flash.get("makerString")&markerStyles=l,A|m,B|l,C|l,D|m,E|,|l,G|m,H" />
+						
+					</div>
+
+				</div>
+				
+				
+				<div class="headline">
+					<h3 class="form-section">停车场图片</h3>
+                                      <div class="row-fluid" id="imagepreview">
+						
+						                                   @for(TParkInfo_Img <- entityBean.imgUrlArray) {
+															<div class="span3">
+																<div class="item" id="item@TParkInfo_Img.parkImgId">
+																	<a class="fancybox-button" data-rel="fancybox-button" title="停车场" href="@TParkInfo_Img.imgUrlHeader@TParkInfo_Img.imgUrlPath">
+																		<div class="zoom">
+																			<img src="@TParkInfo_Img.imgUrlHeader@TParkInfo_Img.imgUrlPath" alt="停车场" />                    
+																			<div class="zoom-icon"></div>
+																		</div>
+																	</a>
+						
+																	<div class="details">
+																		<a href="javascript:deleteRemoteImage(@TParkInfo_Img.parkImgId);" class="icon"><i class="icon-remove"></i></a>   
+																	</div>
+																</div>
+															</div>
+						                                 }
+										</div>
+				</div>
+				
+				<div class="media">
+
+<h3 class="form-section">评论</h3>
+									<a href="#" class="pull-left">
+									   <img alt="" src="" class="media-object">
+									</a>
+
+									<div class="media-body">
+										<h4 class="media-heading">xs2015</h4>
+										<p>测试 </p>
+									</div>
+
+								</div>
+				
+				
+				
+				
+				<script>
+		$('.ajaxify').on('click', '', function (e) {
+            e.preventDefault();
+            App.scrollTop();
+            var url = $(this).attr("post");
+            var pageContent = $('.page-content');
+            var pageContentBody = $('.page-content .page-content-body');
+
+            App.blockUI(pageContent, false);
+
+            $.post(url, {}, function (res) {
+                    App.unblockUI(pageContent);
+                    pageContentBody.html(res);
+                    App.fixContentHeight(); // fix content height
+                    App.initUniform(); // initialize uniform elements
+                });
+           });
+		</script>	
