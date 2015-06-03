@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
+import models.info.TParkInfo;
 import models.info.TParkInfo_Img;
 import play.Logger;
 import play.libs.Json;
@@ -14,6 +16,7 @@ import play.mvc.Controller;
 import play.mvc.Http.MultipartFormData;
 import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
+import play.mvc.Security;
 import utils.ComResponse;
 import utils.ConfigHelper;
 
@@ -85,6 +88,50 @@ public class UploadController extends Controller {
 	 * @throws IOException
 	 */
 	public static Result upload() throws IOException {
+		List<String> imagepaths = getUploadNode();
+		JsonNode json = Json.toJson(imagepaths);
+		Logger.info("abb:" + json.toString());
+		return ok(json.toString());
+
+	}
+	
+	/**
+	 * 图片上传
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
+	@Security.Authenticated(SecurityController.class)
+	public static Result uploadToParking(long parkingId) throws IOException {
+		List<String> imagepaths = getUploadNode();
+		
+		
+		String userName = session("username");
+		String urlHeader = ConfigHelper.getString("image.url.header");
+		for(String imagepath:imagepaths){
+			TParkInfo_Img imgBean = new TParkInfo_Img();
+			imgBean.imgUrlPath = imagepath;
+			imgBean.imgUrlHeader = urlHeader;
+			imgBean.createDate = new Date();
+			imgBean.updateDate = new Date();
+			imgBean.updatePerson = userName;
+			imgBean.createPerson = userName;
+			
+			TParkInfo parkInfo  = new TParkInfo();
+			parkInfo.parkId = parkingId;
+			imgBean.parkInfo = parkInfo;
+
+			TParkInfo_Img.saveData(imgBean);			
+		}
+		
+		JsonNode json = Json.toJson(imagepaths);
+		
+		Logger.info("abb:" + json.toString());
+
+		return ok(json.toString());
+	}
+
+	private static List<String> getUploadNode()  throws IOException{
 		MultipartFormData body = request().body().asMultipartFormData();
 
 		Logger.info(">>>>image.store.path:" + image_store_path);
@@ -150,12 +197,9 @@ public class UploadController extends Controller {
 			}
 
 		}
-		JsonNode json = Json.toJson(imagepaths);
-		Logger.info("abb:" + json.toString());
-		return ok(json.toString());
-
+		return imagepaths;
 	}
-
+	
 	/**
 	 * 判断当前图片类型是否接受
 	 * 

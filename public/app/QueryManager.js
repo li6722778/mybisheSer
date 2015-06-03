@@ -1,9 +1,4 @@
-/*C O P Y R I G H T    N O T I C E
- (c) Copyright 2013 GE Healthcare
 
- All Rights Reserved.
- No portions of this source code or the resulting compiled program may be
- used without express written consent and licensing by GE Healthcare, Inc. */
 
 /*******************************************************************************
  * FILE QueryManager.js
@@ -13,9 +8,7 @@
  * DESIGN DOCUMENTS
  * 
  * 
- * REV DATE BY SPR & REMARKS ---- -------------- ---------------
- * --------------------------------------- 1.0 Dec 27,2013 fz031403 Original
- * --------------------------------------- 2.0 Jan 13,2015 Youlu    N/A Added ajax call for bandwidth calculation.
+ * REV DATE ---- -------------- ---------------
  ******************************************************************************/
 define([ "log4javascript"], function() {
 	var networkConnectionStatus = 0;
@@ -129,11 +122,11 @@ define([ "log4javascript"], function() {
 								MainController.showNetworkNotAvailablePopUp();
 							}
 							if (data.status == 0) {
-								LOGGER.debug("Network not available so retrying till network available");
+								window.console && console.log("Network not available so retrying till network available");
 								MainController.sleep();
 								networkConnectionStatus++;
 							} else if (data.status == 404) {
-								LOGGER.debug("Network not available so retrying till network available");
+								window.console && console.log("Network not available so retrying till network available");
 								MainController.sleep();
 								networkConnectionStatus++;
 							}

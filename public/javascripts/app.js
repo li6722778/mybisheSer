@@ -156,13 +156,14 @@ var App = function () {
 
     var handleSidebarMenu = function () {
         jQuery('.page-sidebar').on('click', 'li > a', function (e) {
+        	
                 if ($(this).next().hasClass('sub-menu') == false) {
                     if ($('.btn-navbar').hasClass('collapsed') == false) {
                         $('.btn-navbar').click();
                     }
                     return;
                 }
-
+                
                 var parent = $(this).parent().parent();
 
                 parent.children('li.open').children('a').children('.arrow').removeClass('open');
@@ -188,14 +189,9 @@ var App = function () {
             });
 
         // handle ajax links
-        jQuery('.page-sidebar,.pagination,.breadcrumb').on('click', ' li > a.ajaxify', function (e) {
+        jQuery('.page-sidebar').on('click', ' li > a.ajaxify', function (e) {
                 e.preventDefault();
-                App.scrollTop();
-
-                var url = $(this).attr("href");
                 var menuContainer = jQuery('.page-sidebar ul');
-                var pageContent = $('.page-content');
-                var pageContentBody = $('.page-content .page-content-body');
 
                 menuContainer.children('li.active').removeClass('active');
                 menuContainer.children('arrow.open').removeClass('open');
@@ -206,35 +202,7 @@ var App = function () {
                     });
                 $(this).parents('li').addClass('active');
 
-                App.blockUI(pageContent, false);
-
-                $.post(url, {}, function (res) {
-                        App.unblockUI(pageContent);
-                        pageContentBody.html(res);
-                        App.fixContentHeight(); // fix content height
-                        App.initUniform(); // initialize uniform elements
-                    });
             });
-        
-        jQuery('.table').on('click', ' td > a.ajaxify', function (e) {
-            e.preventDefault();
-            App.scrollTop();
-
-            var url = $(this).attr("href");
-            var menuContainer = jQuery('.page-sidebar ul');
-            var pageContent = $('.page-content');
-            var pageContentBody = $('.page-content .page-content-body');
-
-            App.blockUI(pageContent, false);
-
-            $.post(url, {}, function (res) {
-                    App.unblockUI(pageContent);
-                    pageContentBody.html(res);
-                    App.fixContentHeight(); // fix content height
-                    App.initUniform(); // initialize uniform elements
-                });
-        });
-        
         
     
     }

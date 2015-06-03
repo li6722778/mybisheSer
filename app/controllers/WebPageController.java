@@ -1,8 +1,11 @@
 package controllers;
 
+import java.util.List;
+
 import models.info.TOrder;
 import models.info.TParkInfo;
 import models.info.TParkInfoProd;
+import models.info.TParkInfo_Loc;
 import models.info.TParkInfo_Py;
 import models.info.TuserInfo;
 import play.Logger;
@@ -53,6 +56,25 @@ public class WebPageController extends Controller {
 	public static Result gotoDetailParking(long parking) {
 		Logger.debug("goto gotoDetailParking");
 		TParkInfo allData = TParkInfo.findDataById(parking);
+		
+		String makerString = "";
+		if(allData!=null){
+			List<TParkInfo_Loc> locAarray = allData.latLngArray;
+			if(locAarray!=null){
+				
+				for(TParkInfo_Loc loc:locAarray){
+					makerString +=loc.longitude+","+loc.latitude+"|";
+				}
+				
+				if(makerString.length()>0){
+					makerString = makerString.substring(0,makerString.length()-2);
+				}
+			}
+		}
+		
+		flash("makerString",makerString);
+		
+		
 		return ok(views.html.parkingdetail.render(allData));
 	}
 	

@@ -49,6 +49,7 @@ GET /a/comments/delete/:id                         controllers.CommentsControlle
 
 
 POST /a/parkinfo/savepic                           controllers.UploadController.upload()
+POST /a/image/upload/:id                           controllers.UploadController.uploadToParking(id:Long)
 GET /a/image/delete/:id                            controllers.UploadController.deleteRemoteImage(id:Long)
 GET /a/parkinfo/deleteLocdata/:id                  controllers.ParkController.deleteLocData(id:Long)
 

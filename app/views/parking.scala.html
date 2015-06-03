@@ -102,7 +102,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 										<tr class="odd gradeX">
 											<td class="hidden-480"><input type="checkbox" class="checkboxes" value="@TParkInfo.parkId" /></td>
 											<td>@TParkInfo.parkId</td>
-											<td ><a class="ajaxify" href="/w/parking/@TParkInfo.parkId">@TParkInfo.parkname</a></td>
+											<td ><a class="ajaxify"  href="javascript:;" post="/w/parking/@TParkInfo.parkId">@TParkInfo.parkname</a></td>
 											<td class="hidden-480">@TParkInfo.address</td>
 											<td class="hidden-480">@TParkInfo.owner</td>
 											<td class="hidden-480">@TParkInfo.vender</td>
@@ -119,7 +119,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 					               <ul>
 						                @if(entityBean.hasPrev) {
 						                    <li class="prev">
-						                        <a class="ajaxify" href="/w/parking?p=@(entityBean.getPageIndex - 1)">&larr; 上一页</a>
+						                        <a class="ajaxify" href="javascript:;" post="/w/parking?p=@(entityBean.getPageIndex - 1)">&larr; 上一页</a>
 						                    </li>
 						                } else {
 						                    <li class="prev disabled">
@@ -131,7 +131,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 						                </li>
 						                @if(entityBean.hasNext) {
 						                    <li class="next">
-						                        <a class="ajaxify" href="/w/parking?p=@(entityBean.getPageIndex + 1)">下一页 &rarr;</a>
+						                        <a class="ajaxify"  href="javascript:;" post="/w/parking?p=@(entityBean.getPageIndex + 1)">下一页 &rarr;</a>
 						                    </li>
 						                } else {
 						                    <li class="next disabled">
@@ -154,17 +154,23 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 							</div>
 
 						</div>
+						
+		<script>
+		$('.ajaxify').on('click', '', function (e) {
+            e.preventDefault();
+            App.scrollTop();
+            var url = $(this).attr("post");
+            var pageContent = $('.page-content');
+            var pageContentBody = $('.page-content .page-content-body');
 
+            App.blockUI(pageContent, false);
 
-	<script src="@routes.Assets.at("javascripts/app.js")"></script>      
-
-	<script>
-
-		jQuery(document).ready(function() {    
-
-		   App.init();
-
-		});
-
-	</script>
+            $.post(url, {}, function (res) {
+                    App.unblockUI(pageContent);
+                    pageContentBody.html(res);
+                    App.fixContentHeight(); // fix content height
+                    App.initUniform(); // initialize uniform elements
+                });
+           });
+		</script>				
 				
