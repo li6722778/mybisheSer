@@ -15,6 +15,7 @@ import play.api.Play;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.Security;
 import utils.ComResponse;
 import utils.CommFindEntity;
 import action.BasicAuth;
@@ -109,7 +110,7 @@ public class ParkProdController extends Controller {
 		return ok(jsonNode);
 	}
 
-	@BasicAuth
+	@Security.Authenticated(SecurityController.class)
 	public static Result copyData(Long parkId) {
 		Logger.info("start to copy data based on approved:" + parkId);
 
@@ -158,7 +159,7 @@ public class ParkProdController extends Controller {
 		return ok(jsonNode);
 	}
 
-	@BasicAuth
+	@Security.Authenticated(SecurityController.class)
 	public static Result copyDataToOringal(Long parkProdId) {
 		Logger.info("start to copy data to oringal creator,park prod id:" + parkProdId);
 

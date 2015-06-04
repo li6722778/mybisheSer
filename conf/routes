@@ -66,9 +66,13 @@ POST     /w/dashboard                      controllers.WebPageController.gotoDas
 POST     /w/parking                        controllers.WebPageController.gotoParking(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc")
 POST     /w/parking/:parkId                controllers.WebPageController.gotoDetailParking(parkId:Long)
 POST     /w/parkingsave                    controllers.WebPageController.saveParkingData()
-POST     /w/image/upload/:id               controllers.WebPageController.uploadImage(id:Long)
+GET     /w/parking/delete                 controllers.WebPageController.deleteParking(p ?= "")
+GET      /w/parking/task                   controllers.WebPageController.getTaskOfParking(p:Int ?= 0, s:Int ?= 6, o ?= "updateDate desc")
+GET     /w/parking/approve                 controllers.WebPageController.approveParking(p ?= "")
 
 POST     /w/parkingprod                        controllers.WebPageController.gotoParkingProd(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc")
 POST     /w/parkingprod/:parkId                controllers.WebPageController.gotoDetailParkingProd(parkId:Long)
+
+POST     /w/image/upload/:id               controllers.WebPageController.uploadImage(id:Long)
 
 POST     /w/user                           controllers.WebPageController.gotoUser(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc")

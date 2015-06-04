@@ -59,6 +59,22 @@ public class WebPageController extends Controller {
 	}
 	
 	@Security.Authenticated(SecurityController.class)
+	public static Result getTaskOfParking(int currentPage, int pageSize, String orderBy) {
+		Logger.debug("goto getTaskOfParking");
+		CommFindEntity<TParkInfo> allData = TParkInfo.findData(currentPage, pageSize, orderBy);
+		List<TParkInfo> result = new ArrayList<TParkInfo>();
+		if(allData!=null&&allData.getResult()!=null){
+			result = allData.getResult();
+		}
+
+		String json = ParkController.gsonBuilderWithExpose.toJson(result);
+		JsonNode jsonNode = Json.parse(json);
+		return ok(jsonNode);
+		
+	}
+	
+	
+	@Security.Authenticated(SecurityController.class)
 	public static Result gotoParkingProd(int currentPage, int pageSize, String orderBy) {
 		Logger.debug("goto gotoParking");
 		Page<TParkInfoProd> allData = TParkInfoProd.page(currentPage,pageSize, orderBy);
@@ -115,6 +131,51 @@ public class WebPageController extends Controller {
 		
 		
 		return ok(views.html.parkingdetail.render(allData));
+	}
+	
+	/**
+	 * 删除多个数据
+	 * @param parkingIdArray
+	 * @return
+	 */
+	@Security.Authenticated(SecurityController.class)
+	public static Result deleteParking(String pidarray){
+		Logger.info("GOTO deleteParking,FOR"+pidarray);
+		if(pidarray!=null&&pidarray.length()>0){
+		  String[] pids = pidarray.split(",");
+		  for(String pidString:pids){
+			  try{
+				  long pid = Long.parseLong(pidString);
+				  Logger.info("try to delete pid:"+pid);
+				  TParkInfo.deleteData(pid);
+			  }catch(Exception e){
+				  Logger.error("deleteParking:"+pidString, e);
+			  }
+		  }
+		  return ok(""+pids.length);
+		}
+		
+		return ok("0");
+	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result approveParking(String pidarray){
+		Logger.info("GOTO deleteParking,FOR"+pidarray);
+		if(pidarray!=null&&pidarray.length()>0){
+		  String[] pids = pidarray.split(",");
+		  for(String pidString:pids){
+			  try{
+				  long pid = Long.parseLong(pidString);
+				  Logger.info("try to delete pid:"+pid);
+				  ParkProdController.copyData(pid);
+			  }catch(Exception e){
+				  Logger.error("deleteParking:"+pidString, e);
+			  }
+		  }
+		  return ok(""+pids.length);
+		}
+		
+		return ok("0");
 	}
 	
 	@Security.Authenticated(SecurityController.class)

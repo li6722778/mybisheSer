@@ -76,13 +76,25 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 
 										<ul class="dropdown-menu pull-right">
 
-											<li><a href="#">删除数据</a></li>
-											<li><a href="#">审核通过</a></li>
+											<li><a href="#" id="button_delete">删除数据</a></li>
+											<li><a href="#" id="button_verify">审核通过</a></li>
 
 										</ul>
 
 									</div>
 
+								</div>
+								
+								<div id="dialog_confirm" title="确认删除停车场信息吗?" class="hide">
+									<p><span class="icon icon-warning-sign"></span>
+										删除的停车场不可恢复，确认操作码?
+									</p>
+								</div>
+								
+								<div id="dialog_confirm_approve" title="审批通过?" class="hide">
+									<p><span class="icon icon-warning-sign"></span>
+										审批通过所选数据后,停车场数据将会发布到正式环境地图上,确认操作码?
+									</p>
 								</div>
 
 								<table class="table table-striped table-bordered table-hover" id="sample_1">

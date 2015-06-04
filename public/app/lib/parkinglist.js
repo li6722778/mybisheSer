@@ -40,13 +40,28 @@ var ParkingList = function () {
                });
         	
         	
-        	
+        	//delete data
         	 $('#button_delete').click(function(){
-        		 alert("test delete!!!");
+        		 var checked = "";
+        		 $('input:checkbox:checked').each(function() {
+        	            checked+=$(this).val()+",";
+        	        });
+        	      
+        	
+        		 $( "#dialog_confirm" ).data("parkingIdArray",checked).dialog( "open" );
+        		 
+        		
         	 });
         	 
+        	 
+        	 //approve data
        	      $('#button_verify').click(function(){
-        		 
+       	    	var checked = "";
+       		     $('input:checkbox:checked').each(function() {
+       	            checked+=$(this).val()+",";
+       	        });
+       		    $( "#dialog_confirm_approve" ).data("parkingIdArray",checked).dialog( "open" );
+       		 
         	 });
         	 
         	 
@@ -102,17 +117,18 @@ var ParkingList = function () {
         	      		"text" : "删除",
         	      		click: function() {
         	      			var pageContent = $('.page-content');
-        	      			var imgId = $(this).data("imgId");
+        	      			var parkingIdArray = $(this).data("parkingIdArray");
         	      			var warndialog = $(this);
-        	      			 App.blockUI(pageContent, false);
-        	      			 
-        	      			 $.get("/a/image/delete/"+imgId,function(){
-        	      				var imgItem = $('#item'+imgId);
-        	      				imgItem.remove();
-        	      				warndialog.dialog( "close" );
-        	      				App.unblockUI(pageContent);
-        	      			});
-
+        	      			App.blockUI(pageContent, false);
+        	      			window.console && console.log("uri:"+parkingIdArray)
+        	      			 $.get("/w/parking/delete?p="+parkingIdArray,function(data){
+        	      				window.console && console.log("delete total:"+data)
+          	      				App.unblockUI(pageContent);
+          	      			    warndialog.dialog( "close" );
+          	      			    $('#parking').click();
+          	      			});
+   
+        	      		
         	  			}
         	      	},
         	      	{
@@ -124,6 +140,44 @@ var ParkingList = function () {
         	      	}
         	      ]
         	    });
+        	 
+        	 
+        	 $("#dialog_confirm_approve" ).dialog({
+       	      dialogClass: 'ui-dialog-green',
+       	      autoOpen: false,
+       	      resizable: false,
+       	      height: 210,
+       	      modal: true,
+       	      buttons: [
+       	      	{
+       	      		'class' : 'btn red',	
+       	      		"text" : "审批通过",
+       	      		click: function() {
+       	      			var pageContent = $('.page-content');
+       	      			var parkingIdArray = $(this).data("parkingIdArray");
+       	      			var warndialog = $(this);
+       	      			App.blockUI(pageContent, false);
+       	      			window.console && console.log("uri:"+parkingIdArray)
+       	      			
+       	      			 $.get("/w/parking/approve?p="+parkingIdArray,function(data){
+       	      				window.console && console.log("delete total:"+data)
+         	      				App.unblockUI(pageContent);
+         	      			    warndialog.dialog( "close" );
+         	      			    $('#parking').click();
+         	      			});
+  
+       	      		
+       	  			}
+       	      	},
+       	      	{
+       	      		'class' : 'btn',
+       	      		"text" : "取消",
+       	      		click: function() {
+       	    			$(this).dialog( "close" );
+       	  			}
+       	      	}
+       	      ]
+       	    });
         	        
         }
 
@@ -131,10 +185,6 @@ var ParkingList = function () {
 
 }();
 
-function deleteRemoteImage(imgId){
-    //confirm dialog
-	$( "#dialog_confirm" ).data("imgId",imgId).dialog( "open" );
-}
 
 jQuery(document).ready(function() {    
 	ParkingList.init();
