@@ -70,3 +70,5 @@ POST     /w/image/upload/:id               controllers.WebPageController.uploadI
 
 POST     /w/parkingprod                        controllers.WebPageController.gotoParkingProd(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc")
 POST     /w/parkingprod/:parkId                controllers.WebPageController.gotoDetailParkingProd(parkId:Long)
+
+POST     /w/user                           controllers.WebPageController.gotoUser(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc")

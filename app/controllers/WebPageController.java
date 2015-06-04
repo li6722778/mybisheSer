@@ -157,4 +157,12 @@ public class WebPageController extends Controller {
 		}
 
 	}
+	
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoUser(int currentPage, int pageSize, String orderBy) {
+		Logger.debug("goto gotoParking");
+		Page<TuserInfo> allData = TuserInfo.page(currentPage,pageSize, orderBy);
+		return ok(views.html.users.render(allData,currentPage,pageSize,orderBy));
+	}
 }
