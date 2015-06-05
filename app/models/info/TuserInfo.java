@@ -17,6 +17,8 @@ import play.db.ebean.Model;
 import utils.CommFindEntity;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.Expr;
+import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Page;
 import com.google.gson.annotations.Expose;
 
@@ -47,17 +49,16 @@ public class TuserInfo extends Model implements Serializable {
 	@Expose
 	public String userName;
 	
+	@Constraints.Required
 	@Expose
 	public String passwd;
 	
 
 	@Column(nullable = false, length = 30)
-	@Size(max=30)
 	@Expose
 	public long userPhone;
 
 	//@Column(columnDefinition = "TEXT")
-	@Email
 	@Expose
 	public String email;
 
@@ -67,7 +68,7 @@ public class TuserInfo extends Model implements Serializable {
 	public int userType;
 	
 	@Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-	@Column(columnDefinition = "timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+	@Column(columnDefinition = "timestamp NULL")
 	@Expose
 	public Date createDate;
 	
@@ -126,6 +127,21 @@ public class TuserInfo extends Model implements Serializable {
         return allData;
     }
 	
+
+	public static Page<TuserInfo> pageByTypeAndFilter(int currentPage,int pageSize, String orderBy,int type,String filter) {
+		
+		ExpressionList<TuserInfo> elist = find.where().between("userType", type, type+9);
+		if(filter!=null&&!filter.trim().equals("")){
+			elist.or(Expr.ilike("userPhone", "%"+filter+"%"), Expr.ilike("userName", "%"+filter+"%"));
+		}
+		Page<TuserInfo> allData=elist.orderBy(orderBy)
+        .findPagingList(pageSize)
+        .setFetchAhead(false)
+        .getPage(currentPage);
+		
+        return allData;
+    }
+	
 	/**
 	 * 得到所有的数据
 	 * @param page
@@ -178,6 +194,7 @@ public class TuserInfo extends Model implements Serializable {
 		//------------生成主键，所有插入数据的方法都需要这个-----------
 		if(userinfo.userid==null||userinfo.userid<=0){
 			userinfo.userid = TPKGenerator.getPrimaryKey(TuserInfo.class.getName(), "userid");
+			userinfo.createDate = new Date();
 			 Ebean.save(userinfo);
 		}else{
 			userinfo.updateDate = new Date();

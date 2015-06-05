@@ -8,7 +8,7 @@ var Parking = function () {
         init: function () {
         	
         	
-        	 $('#submitbutton').click(function(){
+        	 $('#submituserbutton').click(function(){
         		 App.scrollTop();
         		 var pageContent = $('.page-content');
         		 App.blockUI(pageContent, false);
@@ -29,25 +29,8 @@ var Parking = function () {
    		       	        }
   		       	    };
   			   
-  			       if($("#feeTypeSec").is(':checked')){
-  			    	 $("#feeType").val("1");
-  			       }else{
-  			    	 $("#feeType").val("0");
-  			       }
-  			       
-  			       if($("#isDiscountAllday").is(':checked')){
-  			    	 $("#isDiscountAllday").val("1");
-  			       }else{
-  			    	 $("#isDiscountAllday").val("0");
-  			       }
-  			       
-			       if($("#isDiscountSec").is(':checked')){
-	  			    	 $("#isDiscountSec").val("1");
-	  			   }else{
-	  			    	 $("#isDiscountSec").val("0");
-	  			   }
 
-  				   $("#dataForm").ajaxSubmit(options);
+  				   $("#dataFormUser").ajaxSubmit(options);
   		   });
         	 
         	

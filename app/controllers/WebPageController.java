@@ -2,6 +2,7 @@ package controllers;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import models.info.TOrder;
@@ -241,10 +242,17 @@ public class WebPageController extends Controller {
 	
 	
 	@Security.Authenticated(SecurityController.class)
-	public static Result gotoUser(int currentPage, int pageSize, String orderBy) {
-		Logger.debug("goto gotoParking");
-		Page<TuserInfo> allData = TuserInfo.page(currentPage,pageSize, orderBy);
-		return ok(views.html.users.render(allData,currentPage,pageSize,orderBy));
+	public static Result gotoUser(int currentPage, int pageSize, String orderBy,int type, String filter) {
+		Logger.debug("goto gotoUser,type"+type);
+		Page<TuserInfo> allData = TuserInfo.pageByTypeAndFilter(currentPage,pageSize, orderBy,type,filter);
+		
+		flash("type",""+type);
+		flash("filter",filter);
+		if(allData!=null){
+			Logger.debug("##########goto gotoUser,total:"+allData.getTotalRowCount());
+		}
+		
+		return ok(views.html.users.render(allData,currentPage,pageSize,orderBy,filter));
 	}
 	
 	/**
@@ -270,9 +278,57 @@ public class WebPageController extends Controller {
 		TuserInfo info = form.get();
 		if(info!=null){
 			Logger.debug("###########get parkId:"+info.userName);
+			Date current = new Date();
+			String userName = session("username");
+			info.updateDate = current;
+			info.createPerson=userName;
+			info.updatePerson = userName;
 			TuserInfo.saveData(info);
 		}
 		
 		return ok("提交成功.");
 	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result deleteUser(String pidarray){
+		Logger.info("GOTO deleteParking,FOR"+pidarray);
+		if(pidarray!=null&&pidarray.length()>0){
+		  String[] pids = pidarray.split(",");
+		  for(String pidString:pids){
+			  try{
+				  long pid = Long.parseLong(pidString);
+				  Logger.info("try to delete userid:"+pid);
+				  TuserInfo.deleteData(pid);
+			  }catch(Exception e){
+				  Logger.error("deleteUser:"+pidString, e);
+			  }
+		  }
+		  return ok(""+pids.length);
+		}
+		
+		return ok("0");
+	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result updateUser(int type, String pidarray){
+		Logger.info("GOTO updateUser,FOR"+pidarray);
+		if(pidarray!=null&&pidarray.length()>0){
+		  String[] pids = pidarray.split(",");
+		  for(String pidString:pids){
+			  try{
+				  long pid = Long.parseLong(pidString);
+				  Logger.info("try to update userid:"+pid);
+				  TuserInfo user= TuserInfo.findDataById(pid);
+				  user.userType = type;
+				  TuserInfo.saveData(user);
+			  }catch(Exception e){
+				  Logger.error("updateUser:"+pidString, e);
+			  }
+		  }
+		  return ok(""+pids.length);
+		}
+		
+		return ok("0");
+	}
+	
 }

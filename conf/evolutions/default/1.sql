@@ -181,10 +181,12 @@ create table tb_parking_adm (
 ;
 
 create table tb_client_ver (
+  version_id                bigint auto_increment not null,
   force_update              integer(2) default 0,
   version                   bigint,
   update_url                varchar(100),
-  updates_content           varchar(100))
+  updates_content           varchar(100),
+  constraint pk_tb_client_ver primary key (version_id))
 ;
 
 create table tb_user (
@@ -194,7 +196,7 @@ create table tb_user (
   user_phone                bigint(30) not null,
   email                     varchar(255),
   user_type                 integer(3) default 10,
-  create_date               timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  create_date               timestamp NULL,
   update_date               timestamp NULL,
   create_person             varchar(50),
   update_person             varchar(50),

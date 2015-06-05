@@ -49,7 +49,7 @@ public class TOrder extends Model {
 
 	@Expose
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
-	@Column(columnDefinition = "timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+	@Column(columnDefinition = "timestamp NOT NULL")
 	public Date orderDate;
 
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -101,7 +101,7 @@ public class TOrder extends Model {
 //						bean.pay.torder = bean;
 						bean.pay.createPerson=bean.userInfo==null?"":bean.userInfo.userName;
 					}
-					
+					bean.orderDate = new Date();
 					Ebean.save(bean);
 				} else {
 					Ebean.update(bean);

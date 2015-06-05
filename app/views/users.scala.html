@@ -1,5 +1,5 @@
 @(entityBean: com.avaje.ebean.Page[models.info.TuserInfo], 
-currentPage: Integer, pageSize: Integer,orderBy: String)
+currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
 
              <!-- BEGIN PAGE HEADER-->
 				<div class="row-fluid">
@@ -12,7 +12,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 						<!-- BEGIN PAGE TITLE & BREADCRUMB-->
 
 						<h3 class="page-title">
-							用户数据 <small>显示所有注册用户</small>
+							用户数据 <small>显示用户数据</small>
 						</h3>
 
 						<ul class="breadcrumb">
@@ -27,7 +27,17 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 
 							</li>
 
-							<li><a href="javascript:;">用户数据</a></li>
+							<li><a href="javascript:;">
+							  @if(flash.get("type")>="20"&&flash.get("type")<"30"){
+								  车场管理员
+								}
+								@if(flash.get("type")>="30"&&flash.get("type")<"40"){
+								   车泊乐内部用户
+								}
+								@if(flash.get("type")>="10"&&flash.get("type")<"20"){
+								  注册用户
+								} 
+							</a></li>
 							
 						</ul>
 
@@ -43,7 +53,18 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 
 							<div class="portlet-title">
 
-								<div class="caption"><i class="icon-map-marker"></i>用户数据</div>
+								<div class="caption"><i class="icon-user"></i>
+								@if(flash.get("type")>="20"&&flash.get("type")<"30"){
+								  车场管理员
+								}
+								@if(flash.get("type")>="30"&&flash.get("type")<"40"){
+								   车泊乐内部用户
+								}
+								@if(flash.get("type")>="10"&&flash.get("type")<"20"){
+								  注册用户
+								} 
+								
+								</div>
 
 								<div class="tools">
 									<a href="javascript:;" class="reload"></a>
@@ -54,15 +75,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 							<div class="portlet-body">
                                <div class="btn-group pull-left">    
 								<div class="input-append">
-												
-									<select class="small m-wrap" tabindex="1">
-															<option value="Category 1">请选择类型</option>
-															<option value="Category 2">普通用户</option>
-															<option value="Category 3">车场管理员</option>
-															<option value="Category 4">数据采集员</option>
-									</select>			
-
-									<input class="m-wrap" size="10" type="text" placeholder="请输入用户名或电话号码" /><button class="btn green">搜索</button>
+									   <input class="m-wrap" size="10" id="key_search_user" value="@filter" type="text" placeholder="请输入用户名或电话号码" /><button class="btn green" type=@flash.get("type") id="searchUserButton">搜索</button>
 									</div>
 						       </div>  
 						 
@@ -73,16 +86,23 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 										</button>
 
 										<ul class="dropdown-menu pull-right">
-										    <li><a href="#">删除数据</a></li>
-											<li><a href="#">设为普通用户</a></li>
-											<li><a href="#">设为车场管理员</a></li>
-											<li><a href="#">设为数据采集员</a></li>
+										    <li><a href="javascript:;" id="button_delete_user" type=@flash.get("type")>删除数据</a></li>
+											<li><a href="javascript:;" class="button_update_user" type="10">设为普通用户</a></li>
+											<li><a href="javascript:;" class="button_update_user" type="20">设为车场管理员</a></li>
+											<li><a href="javascript:;" class="button_update_user" type="21">设为车场负责人</a></li>
+											<li><a href="javascript:;" class="button_update_user" type="30">设为数据采集员</a></li>
 										</ul>
 
 									</div>
 									
 						</div>
 
+                                <div id="dialog_confirm_user" title="确认删除用户吗?" class="hide">
+									<p><span class="icon icon-warning-sign"></span>
+										删除的用户不可恢复，确认操作码?
+									</p>
+								</div>
+								
 								<table class="table table-striped table-bordered table-hover" id="sample_1">
 
 									<thead>
@@ -116,7 +136,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 											<td >@TuserInfo.userName</td>
 											<td class="hidden-480">@TuserInfo.userPhone</td>
 											<td class="hidden-480">@TuserInfo.createDate.format("yyyy-MM-dd HH:mm:ss")</td>
-											<td class="center hidden-480">@if(TuserInfo.updateDate!=null){ TuserInfo.updateDate }</td>
+											<td class="center hidden-480">@if(TuserInfo.updateDate!=null){@TuserInfo.updateDate.format("yyyy-MM-dd HH:mm:ss")}</td>
 											<td >
 										      @if(TuserInfo.userType>=10&&TuserInfo.userType<20){
 											    <span class="label label-success">普通用户</span>
@@ -139,7 +159,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 					               <ul>
 						                @if(entityBean.hasPrev) {
 						                    <li class="prev">
-						                        <a class="ajaxify" href="javascript:;" post="/w/user?p=@(entityBean.getPageIndex - 1)">&larr; 上一页</a>
+						                        <a class="ajaxify" href="javascript:;" post="/w/user?p=@(entityBean.getPageIndex - 1)&t=@flash.get("type")&&f=@flash.get("filter") ">&larr; 上一页</a>
 						                    </li>
 						                } else {
 						                    <li class="prev disabled">
@@ -151,7 +171,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 						                </li>
 						                @if(entityBean.hasNext) {
 						                    <li class="next">
-						                        <a class="ajaxify"  href="javascript:;" post="/w/user?p=@(entityBean.getPageIndex + 1)">下一页 &rarr;</a>
+						                        <a class="ajaxify"  href="javascript:;" post="/w/user?p=@(entityBean.getPageIndex + 1)&t=@flash.get("type")&&f=@flash.get("filter") ">下一页 &rarr;</a>
 						                    </li>
 						                } else {
 						                    <li class="next disabled">
