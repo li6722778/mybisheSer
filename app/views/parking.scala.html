@@ -39,7 +39,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 				
 				<!-- BEGIN EXAMPLE TABLE PORTLET-->
 
-						<div class="portlet box grey">
+						<div class="portlet box grey" id="packingcontent">
 
 							<div class="portlet-title">
 
@@ -114,9 +114,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 											<th class="hidden-480">联系人</th>
 											
 											<th class="hidden-480">管理公司</th>
-
-											<th class="hidden-480">采集时间</th>
-
+											
 											<th >采集人</th>
 
 										</tr>
@@ -133,8 +131,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 											<td class="hidden-480">@TParkInfo.address</td>
 											<td class="hidden-480">@TParkInfo.owner</td>
 											<td class="hidden-480">@TParkInfo.vender</td>
-											<td class="center hidden-480">@TParkInfo.updateDate.format("yyyy-MM-dd HH:mm:ss")</td>
-											<td ><span class="label label-success">@TParkInfo.updatePerson</span></td>
+											<td ><span class="label label-success">@TParkInfo.updatePerson</span>, @TParkInfo.updateDate.format("yyyy-MM-dd HH:mm:ss")</td>
 										</tr>
                               }
 										

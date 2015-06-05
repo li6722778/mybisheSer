@@ -160,14 +160,34 @@ public class WebPageController extends Controller {
 	
 	@Security.Authenticated(SecurityController.class)
 	public static Result approveParking(String pidarray){
-		Logger.info("GOTO deleteParking,FOR"+pidarray);
+		Logger.info("GOTO approveParking,FOR"+pidarray);
 		if(pidarray!=null&&pidarray.length()>0){
 		  String[] pids = pidarray.split(",");
 		  for(String pidString:pids){
 			  try{
 				  long pid = Long.parseLong(pidString);
-				  Logger.info("try to delete pid:"+pid);
+				  Logger.info("try to approve pid:"+pid);
 				  ParkProdController.copyData(pid);
+			  }catch(Exception e){
+				  Logger.error("deleteParking:"+pidString, e);
+			  }
+		  }
+		  return ok(""+pids.length);
+		}
+		
+		return ok("0");
+	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result retrieveParking(String pidarray){
+		Logger.info("GOTO retrieveParking,FOR"+pidarray);
+		if(pidarray!=null&&pidarray.length()>0){
+		  String[] pids = pidarray.split(",");
+		  for(String pidString:pids){
+			  try{
+				  long pid = Long.parseLong(pidString);
+				  Logger.info("try to copy2orin pid:"+pid);
+				  ParkProdController.copyDataToOringal(pid);
 			  }catch(Exception e){
 				  Logger.error("deleteParking:"+pidString, e);
 			  }
@@ -225,5 +245,34 @@ public class WebPageController extends Controller {
 		Logger.debug("goto gotoParking");
 		Page<TuserInfo> allData = TuserInfo.page(currentPage,pageSize, orderBy);
 		return ok(views.html.users.render(allData,currentPage,pageSize,orderBy));
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoUserAdd() {
+		Logger.debug("goto gotoUserAdd");
+		return ok(views.html.useradd.render());
+	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result saveUserData(){
+		Logger.debug("goto saveUserData");
+		//DynamicForm dynamicForm = Form.form().bindFromRequest();
+		Form<TuserInfo> form = Form.form(TuserInfo.class).bindFromRequest();
+		if (form.hasErrors()) {
+			JsonNode node= form.errorsAsJson();
+			Logger.error("###########getglobalError:"+node);
+			return badRequest(node.toString());
+		}
+		TuserInfo info = form.get();
+		if(info!=null){
+			Logger.debug("###########get parkId:"+info.userName);
+			TuserInfo.saveData(info);
+		}
+		
+		return ok("提交成功.");
 	}
 }

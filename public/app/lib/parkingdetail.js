@@ -19,7 +19,7 @@ var Parking = function () {
                 }
             }
         	
-        	$('.ajaxify').on('click', '', function (e) {
+        	$('#parkingtitle .ajaxify').on('click', '', function (e) {
                 e.preventDefault();
                 App.scrollTop();
                 var url = $(this).attr("post");
@@ -27,7 +27,7 @@ var Parking = function () {
                 var pageContentBody = $('.page-content .page-content-body');
 
                 App.blockUI(pageContent, false);
-
+                window.console && console.log("post url:"+url);
                 $.post(url, {}, function (res) {
                         App.unblockUI(pageContent);
                         pageContentBody.html(res);

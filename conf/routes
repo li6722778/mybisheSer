@@ -58,8 +58,8 @@ GET /a/parkinfo/deleteLocdata/:id                  controllers.ParkController.de
 
 GET     /w/login                      controllers.Application.login()
 GET     /                             controllers.Application.index()
-POST    /login                                                   controllers.AuthController.authenticate()
-GET		/logout                                                  controllers.AuthController.logout()
+POST    /login                        controllers.AuthController.authenticate()
+GET		/logout                       controllers.AuthController.logout()
 
 #BELOW for menu jump
 POST     /w/dashboard                      controllers.WebPageController.gotoDashboard()
@@ -69,10 +69,13 @@ POST     /w/parkingsave                    controllers.WebPageController.savePar
 GET     /w/parking/delete                 controllers.WebPageController.deleteParking(p ?= "")
 GET      /w/parking/task                   controllers.WebPageController.getTaskOfParking(p:Int ?= 0, s:Int ?= 6, o ?= "updateDate desc")
 GET     /w/parking/approve                 controllers.WebPageController.approveParking(p ?= "")
+GET     /w/parking/retrieve                 controllers.WebPageController.retrieveParking(p ?= "")
 
 POST     /w/parkingprod                        controllers.WebPageController.gotoParkingProd(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc")
 POST     /w/parkingprod/:parkId                controllers.WebPageController.gotoDetailParkingProd(parkId:Long)
 
 POST     /w/image/upload/:id               controllers.WebPageController.uploadImage(id:Long)
 
+POST      /w/user/add                       controllers.WebPageController.gotoUserAdd()
 POST     /w/user                           controllers.WebPageController.gotoUser(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc")
+POST     /w/user/add/submit                controllers.WebPageController.saveUserData()

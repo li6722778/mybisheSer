@@ -1,28 +1,14 @@
 /**
  * 停车场类
  */
-var UserList = function () {
+var ParkingProd = function () {
     
     return {
         //main function to initiate the module
         init: function () {
         	
-        	if (jQuery().dataTable) {
-        		jQuery('#sample_1 .group-checkable').change(function () {
-                    var set = jQuery(this).attr("data-set");
-                    var checked = jQuery(this).is(":checked");
-                    jQuery(set).each(function () {
-                        if (checked) {
-                            $(this).attr("checked", true);
-                        } else {
-                            $(this).attr("checked", false);
-                        }
-                    });
-                    jQuery.uniform.update(set);
-                });
-            }
-
-        	$('#userlist .ajaxify').on('click', '', function (e) {
+        	
+    		$('#parkingprodcontent .ajaxify').on('click', '', function (e) {
                 e.preventDefault();
                 App.scrollTop();
                 var url = $(this).attr("post");
@@ -30,7 +16,9 @@ var UserList = function () {
                 var pageContentBody = $('.page-content .page-content-body');
 
                 App.blockUI(pageContent, false);
+
                 window.console && console.log("post url:"+url);
+                
                 $.post(url, {}, function (res) {
                         App.unblockUI(pageContent);
                         pageContentBody.html(res);
@@ -38,21 +26,19 @@ var UserList = function () {
                         App.initUniform(); // initialize uniform elements
                     });
                });
+
+        	 $('#button_retrieve').click(function(){
+        		 var checked = "";
+        		 $('input:checkbox:checked').each(function() {
+        	            checked+=$(this).val()+",";
+        	        });
+        	      
         	
-        	
-        	
-        	 $('#button_delete').click(function(){
-        		 alert("test delete!!!");
+        		 $( "#dialog_confirm_retrieve" ).data("parkingIdArray",checked).dialog( "open" );
+
         	 });
-        	 
-       	      $('#button_verify').click(function(){
-        		 
-        	 });
-        	 
-        	 
-        
-        	 
-        	 $("#dialog_confirm" ).dialog({
+        	
+        	 $("#dialog_confirm_retrieve" ).dialog({
         	      dialogClass: 'ui-dialog-green',
         	      autoOpen: false,
         	      resizable: false,
@@ -61,20 +47,19 @@ var UserList = function () {
         	      buttons: [
         	      	{
         	      		'class' : 'btn red',	
-        	      		"text" : "删除",
+        	      		"text" : "退回",
         	      		click: function() {
         	      			var pageContent = $('.page-content');
-        	      			var imgId = $(this).data("imgId");
+        	      			var parkingIdArray = $(this).data("parkingIdArray");
         	      			var warndialog = $(this);
-        	      			 App.blockUI(pageContent, false);
-        	      			 
-        	      			 $.get("/a/image/delete/"+imgId,function(){
-        	      				var imgItem = $('#item'+imgId);
-        	      				imgItem.remove();
-        	      				warndialog.dialog( "close" );
-        	      				App.unblockUI(pageContent);
-        	      			});
-
+        	      			App.blockUI(pageContent, false);
+        	      			window.console && console.log("uri:"+parkingIdArray)
+        	      			 $.get("/w/parking/retrieve?p="+parkingIdArray,function(data){
+        	      				window.console && console.log("retrieve total:"+data)
+          	      				App.unblockUI(pageContent);
+          	      			    warndialog.dialog( "close" );
+          	      			    $('#parkingprod').click();
+          	      			});
         	  			}
         	      	},
         	      	{
@@ -86,20 +71,17 @@ var UserList = function () {
         	      	}
         	      ]
         	    });
-        	        
+
         }
 
     };
 
 }();
 
-function deleteRemoteImage(imgId){
-    //confirm dialog
-	$( "#dialog_confirm" ).data("imgId",imgId).dialog( "open" );
-}
 
 jQuery(document).ready(function() {    
-	UserList.init();
+	ParkingProd.init();
+	
 });
 
 

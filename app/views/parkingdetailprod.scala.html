@@ -10,7 +10,7 @@
 	
 
              <!-- BEGIN PAGE HEADER-->
-				<div class="row-fluid">
+				<div class="row-fluid" id="parkingdetailprod">
 
 					<div class="span12">
 
@@ -23,7 +23,7 @@
 							地图数据 <small>显示地图停车场数据</small>
 						</h3>
 
-						<ul class="breadcrumb">
+						<ul class="breadcrumb" >
 
 							<li>
 
@@ -35,7 +35,7 @@
 
 							</li>
 
-							<li><a class="ajaxify" href="javascript:;" post="/w/parking">地图停车场数据</a><i class="icon-angle-right"></i></li>
+							<li><a class="ajaxify" href="javascript:;" post="/w/parkingprod">地图停车场数据</a><i class="icon-angle-right"></i></li>
 							
 							<li><a href="javascript:;">@entityBean.parkname</a></li>
 							
@@ -163,7 +163,7 @@
 													<div class="span6 ">
 
                                                            @if(entityBean.isDiscountSec==1){
-                                                                <label class="control-label" >优惠时段:@if(entityBean.discountSecStartHour!=null){entityBean.discountSecStartHour}~@if(entityBean.discountSecEndHour!=null){entityBean.discountSecEndHour},@entityBean.discountSecHourMoney 元/小时</label>
+                                                                <label class="control-label" >优惠时段:@entityBean.discountSecStartHour.format("HH:mm:ss")~@entityBean.discountSecEndHour.format("HH:mm:ss"),@entityBean.discountSecHourMoney 元/小时</label>
                                                            }
 
 													</div>
@@ -227,7 +227,7 @@
 				
 				
 				<script>
-		$('.ajaxify').on('click', '', function (e) {
+		$('#parkingdetailprod .ajaxify').on('click', '', function (e) {
             e.preventDefault();
             App.scrollTop();
             var url = $(this).attr("post");
@@ -235,7 +235,7 @@
             var pageContentBody = $('.page-content .page-content-body');
 
             App.blockUI(pageContent, false);
-
+            window.console && console.log("post url:"+url);
             $.post(url, {}, function (res) {
                     App.unblockUI(pageContent);
                     pageContentBody.html(res);

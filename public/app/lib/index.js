@@ -7,13 +7,13 @@ var Index = function () {
         //main function to initiate the module
         init: function () {
 
-             $('.ajaxify').on('click', '', function (e) {
+             $('#menuclick .ajaxify,notificationbar .ajaxify').on('click', '', function (e) {
               e.preventDefault();
               App.scrollTop();
               var url = $(this).attr("post");
               var pageContent = $('.page-content');
               var pageContentBody = $('.page-content .page-content-body');
-
+              window.console && console.log("post url:"+url);
               App.blockUI(pageContent, false);
 
               $.post(url, {}, function (res) {

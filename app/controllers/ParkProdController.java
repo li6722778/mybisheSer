@@ -1,6 +1,7 @@
 package controllers;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import models.info.TParkInfo;
@@ -11,7 +12,6 @@ import models.info.TParkInfo_Img;
 import models.info.TParkInfo_Loc;
 import net.sf.cglib.beans.BeanCopier;
 import play.Logger;
-import play.api.Play;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -143,6 +143,7 @@ public class ParkProdController extends Controller {
 			}
 			Logger.debug(">>>>location bean copy end");
 
+			parkProdInfo.approvePerson = session("username");
 			TParkInfoProd.approveDataWithoutIDPolicy(parkProdInfo);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(parkProdInfo);
