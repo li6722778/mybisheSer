@@ -68,7 +68,7 @@ public class TestOrderControllerTest extends WithApplication {
 			TuserInfo user = con2.getResult().get(0);
 			
 			dataBean.orderId = 0l;
-			dataBean.orderCity="成都";
+			dataBean.orderCity="沈阳";
 			//dataBean.orderDate = currentDate;
 			dataBean.orderName="unit test order";
 			dataBean.orderStatus = Constants.ORDER_TYPE_START;

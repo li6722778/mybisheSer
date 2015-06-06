@@ -17,6 +17,8 @@ import utils.CommFindEntity;
 import utils.Constants;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.Expr;
+import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Page;
 import com.avaje.ebean.TxRunnable;
 import com.google.gson.annotations.Expose;
@@ -96,7 +98,7 @@ public class TOrder extends Model {
 					bean.orderId = TPKGenerator.getPrimaryKey(
 							TOrder.class.getName(), "orderId");
 					
-					if(bean.pay!=null){
+					if(bean.pay!=null&&(bean.pay.parkPyId==null||bean.pay.parkPyId<=0)){
 						bean.pay.parkPyId = TPKGenerator.getPrimaryKey(TParkInfo_Py.class.getName(), "parkPyId");
 //						bean.pay.torder = bean;
 						bean.pay.createPerson=bean.userInfo==null?"":bean.userInfo.userName;
@@ -141,6 +143,29 @@ public class TOrder extends Model {
 		result.setPageCount(allData.getTotalPageCount());
 		return result;
 	}
+	
+	/**
+	 * 
+	 * @param currentPage
+	 * @param pageSize
+	 * @param orderBy
+	 * @param city
+	 * @param filter
+	 * @return
+	 */
+	public static Page<TOrder> pageByFilter(int currentPage,int pageSize, String orderBy,String city,String filter) {
+		ExpressionList<TOrder> elist = find.where();
+		if(city!=null&&!city.trim().equals("")){
+			elist.ilike("orderCity", "%"+city+"%");
+		}
+		if(filter!=null&&!filter.trim().equals("")){
+			elist.ilike("orderName", "%"+filter+"%");
+		}
+		Page<TOrder> allData = elist.orderBy(orderBy)
+				.findPagingList(pageSize).setFetchAhead(false)
+				.getPage(currentPage);
+        return allData;
+    }
 
 	/**
 	 * 得到所有数据，有分页

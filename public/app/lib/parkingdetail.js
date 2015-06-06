@@ -87,6 +87,7 @@ var Parking = function () {
         	      		'class' : 'btn red',	
         	      		"text" : "删除",
         	      		click: function() {
+        	      			App.scrollTop();
         	      			var pageContent = $('.page-content');
         	      			var imgId = $(this).data("imgId");
         	      			var warndialog = $(this);

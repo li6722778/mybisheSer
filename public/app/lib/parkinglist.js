@@ -40,6 +40,27 @@ var ParkingList = function () {
                });
         	
         	
+        	//search
+        	$('#searchParkingButton').click(function(){
+        		App.scrollTop();
+      		     var key = $("#key_search_parking").val();
+      		     var value = $("#value_search_parking").val();
+      		   
+      		     var pageContent = $('.page-content');
+      		     var pageContentBody = $('.page-content .page-content-body');
+      		  
+   		     App.blockUI(pageContent, false);
+   		     
+      		  $.post("/w/parking?k="+key+"&v="+value, {}, function (res) {
+                 App.unblockUI(pageContent);
+                 pageContentBody.html(res);
+                 App.fixContentHeight(); // fix content height
+                 App.initUniform(); // initialize uniform elements
+                
+             });
+       		 
+       	 });
+        	
         	//delete data
         	 $('#button_delete').click(function(){
         		 var checked = "";
@@ -116,6 +137,7 @@ var ParkingList = function () {
         	      		'class' : 'btn red',	
         	      		"text" : "删除",
         	      		click: function() {
+        	      			App.scrollTop();
         	      			var pageContent = $('.page-content');
         	      			var parkingIdArray = $(this).data("parkingIdArray");
         	      			var warndialog = $(this);
@@ -153,6 +175,7 @@ var ParkingList = function () {
        	      		'class' : 'btn red',	
        	      		"text" : "审批通过",
        	      		click: function() {
+       	      		    App.scrollTop();
        	      			var pageContent = $('.page-content');
        	      			var parkingIdArray = $(this).data("parkingIdArray");
        	      			var warndialog = $(this);

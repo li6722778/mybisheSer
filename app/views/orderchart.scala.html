@@ -1,0 +1,80 @@
+
+             <!-- BEGIN PAGE HEADER-->
+				<div class="row-fluid">
+
+					<div class="span12">
+
+						<!-- BEGIN STYLE CUSTOMIZER -->
+						<!-- END BEGIN STYLE CUSTOMIZER --> 
+
+						<!-- BEGIN PAGE TITLE & BREADCRUMB-->
+
+						<h3 class="page-title">
+							订单图表 <small>车位订单最近30天内图表</small>
+						</h3>
+
+						<ul class="breadcrumb">
+
+							<li>
+
+								<i class="icon-home"></i>
+
+								<a href="/">主页</a> 
+
+								<i class="icon-angle-right"></i>
+
+							</li>
+
+							<li><a href="javascript:;">
+							  订单图表
+							</a></li>
+							
+						</ul>
+
+						<!-- END PAGE TITLE & BREADCRUMB-->
+					</div>
+				</div>
+				<!-- END PAGE HEADER-->
+				
+				
+				<!-- BEGIN EXAMPLE TABLE PORTLET-->
+
+						<div class="portlet box grey" id="orderlist">
+
+							<div class="portlet-title">
+
+								<div class="caption"><i class="icon-list"></i>
+								过去三十天订单数量
+								</div>
+
+								<div class="tools">
+									<a href="javascript:;" class="reload"></a>
+								</div>
+
+							</div>
+
+							<div class="portlet-body">
+                              
+						       
+						       
+							 <div class="row-fluid" id="chartarea">  
+                                <div id="chart_2" class="chart span12 news-page blog-page"></div>
+                            </div>
+						</div>
+
+                         
+  
+						</div>
+						
+	<script src="@routes.Assets.at("javascripts/jquery.flot.js")"></script>
+
+	<script src="@routes.Assets.at("javascripts/jquery.flot.resize.js")"></script>
+
+	<script src="@routes.Assets.at("javascripts/jquery.flot.pie.js")"></script>
+
+	<script src="@routes.Assets.at("javascripts/jquery.flot.stack.js")"></script>
+
+	<script src="@routes.Assets.at("javascripts/jquery.flot.crosshair.js")"></script>
+						
+	<script src="@routes.Assets.at("app/lib/orderchart.js")" type="text/javascript" ></script>
+							

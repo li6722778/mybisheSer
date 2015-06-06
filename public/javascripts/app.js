@@ -322,7 +322,7 @@ var App = function () {
         // handle the search query submit on enter press
         $('.page-sidebar').on('keypress', '.sidebar-search input', function (e) {
             if (e.which == 13) {
-                window.location.href = "extra_search.html";
+                //window.location.href = "extra_search.html";
                 return false; //<---- Add this line
             }
         });
@@ -338,10 +338,10 @@ var App = function () {
                         }
                         $('.sidebar-search').addClass("open");
                     } else {
-                        window.location.href = "extra_search.html";
+                        //window.location.href = "extra_search.html";
                     }
                 } else {
-                    window.location.href = "extra_search.html";
+                   // window.location.href = "extra_search.html";
                 }
         });
     }

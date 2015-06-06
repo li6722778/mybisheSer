@@ -127,7 +127,7 @@
 
 													<div class="control-group">
 														<div class="controls">
-				                                          <div class="span6 ">
+				                                          <div class="span12 ">
 				                                          
 				                                          @if(entityBean.feeType==1){
 				                                           <label class="control-label" >分段收费: @entityBean.feeTypeSecInScopeHourMoney 元/@entityBean.feeTypeSecInScopeHours 小时。超过后 @entityBean.feeTypeSecOutScopeHourMoney 元/小时</label>
@@ -145,9 +145,9 @@
 		
 												<div class="row-fluid">
 
-													<div class="span6 ">
+													<div class="span12">
                                                            @if(entityBean.isDiscountAllday==1){
-                                                              <label class="control-label" >全天优惠:@entityBean.discountHourAlldayMoney 元/天</label>
+                                                              <label class="control-label" >全天优惠: @entityBean.discountHourAlldayMoney 元/天</label>
                                                            }
 													
 													</div>
@@ -160,10 +160,10 @@
 
 												<div class="row-fluid">
 
-													<div class="span6 ">
+													<div class="span12 ">
 
                                                            @if(entityBean.isDiscountSec==1){
-                                                                <label class="control-label" >优惠时段:@entityBean.discountSecStartHour.format("HH:mm:ss")~@entityBean.discountSecEndHour.format("HH:mm:ss"),@entityBean.discountSecHourMoney 元/小时</label>
+                                                                <label class="control-label" >优惠时段: @entityBean.discountSecStartHour.format("HH:mm:ss")~@entityBean.discountSecEndHour.format("HH:mm:ss"),@entityBean.discountSecHourMoney 元/小时</label>
                                                            }
 
 													</div>
@@ -199,10 +199,7 @@
 																			<div class="zoom-icon"></div>
 																		</div>
 																	</a>
-						
-																	<div class="details">
-																		<a href="javascript:deleteRemoteImage(@TParkInfo_Img.parkImgId);" class="icon"><i class="icon-remove"></i></a>   
-																	</div>
+													
 																</div>
 															</div>
 						                                 }

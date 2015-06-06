@@ -63,21 +63,36 @@ GET		/logout                       controllers.AuthController.logout()
 
 #BELOW for menu jump
 POST     /w/dashboard                      controllers.WebPageController.gotoDashboard()
-POST     /w/parking                        controllers.WebPageController.gotoParking(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc")
+POST     /w/parking                        controllers.WebPageController.gotoParking(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc",k?="",v?="")
 POST     /w/parking/:parkId                controllers.WebPageController.gotoDetailParking(parkId:Long)
 POST     /w/parkingsave                    controllers.WebPageController.saveParkingData()
 GET     /w/parking/delete                 controllers.WebPageController.deleteParking(p ?= "")
 GET      /w/parking/task                   controllers.WebPageController.getTaskOfParking(p:Int ?= 0, s:Int ?= 6, o ?= "updateDate desc")
 GET     /w/parking/approve                 controllers.WebPageController.approveParking(p ?= "")
 GET     /w/parking/retrieve                 controllers.WebPageController.retrieveParking(p ?= "")
+POST     /w/parkingchart                    controllers.WebPageController.gotoParkingChart()
 
-POST     /w/parkingprod                        controllers.WebPageController.gotoParkingProd(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc")
+POST     /w/parkingprod                        controllers.WebPageController.gotoParkingProd(p:Int ?= 0, s:Int ?= 10, o ?= "approveDate desc",k?="",v?="")
 POST     /w/parkingprod/:parkId                controllers.WebPageController.gotoDetailParkingProd(parkId:Long)
 
 POST     /w/image/upload/:id               controllers.WebPageController.uploadImage(id:Long)
 
-POST      /w/user/add                       controllers.WebPageController.gotoUserAdd()
-POST     /w/user                           controllers.WebPageController.gotoUser(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc", t:Int ?= 10, f ?="")
-POST     /w/user/add/submit                controllers.WebPageController.saveUserData()
-POST      /w/user/delete                   controllers.WebPageController.deleteUser(p ?= "")
-POST      /w/user/update                    controllers.WebPageController.updateUser(t:Int ?= 10, p ?= "")
+POST      /w/user/add                          controllers.WebPageController.gotoUserAdd()
+POST      /w/user                              controllers.WebPageController.gotoUser(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc", t:Int ?= 10, f ?="")
+POST      /w/user/add/submit                   controllers.WebPageController.saveUserData()
+POST      /w/user/delete                       controllers.WebPageController.deleteUser(p ?= "")
+POST      /w/user/update                       controllers.WebPageController.updateUser(t:Int ?= 10, p ?= "")
+
+POST      /w/user/changepw/:phone/:type          controllers.WebPageController.updatedUserPasswdData(phone:String,type:Integer)
+POST      /w/user/gotomulitpasswd               controllers.WebPageController.gotoMutipPasswd(p?="")
+POST      /w/user/gotopasswd/:phone/:type          controllers.WebPageController.gotoPasswd(phone:String,type:Integer)
+
+POST      /w/order                                 controllers.WebPageController.gotoOrder(p:Int ?= 0, s:Int ?= 10, o ?= "orderDate desc",c?="",f?="")
+POST      /w/order/:orderid                        controllers.WebPageController.gotoDetailOrder(orderid:Long)
+POST      /w/order/setexception                       controllers.WebPageController.setExceptionOrder(p ?= "")
+POST      /w/orderchart                          controllers.WebPageController.gotoOrderChart()
+
+
+GET      /w/chart/caiji                          controllers.WebPageController.getPersonOrderChart(p ?= "")
+GET      /w/chart/order                          controllers.WebPageController.getCityOrderChart(p ?= "")
+

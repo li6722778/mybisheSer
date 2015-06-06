@@ -53,7 +53,7 @@ public class ParkingProdControllerTest extends WithApplication {
 			
 			TParkInfo parkInfoPre = con2.getResult().get(0);
 			
-			FakeRequest testRequest = new FakeRequest(Helpers.GET, "/a/parkinfoprod/copy/"+parkInfoPre.parkId).withHeader("Authorization", auth);
+			FakeRequest testRequest = new FakeRequest(Helpers.GET, "/a/parkinfoprod/copy/"+parkInfoPre.parkId).withSession("userphone", "13551190701");;
 			Result result = Helpers.route(testRequest);
 
 			assertThat(Helpers.status(result)).isEqualTo(Helpers.OK);
@@ -119,7 +119,7 @@ public class ParkingProdControllerTest extends WithApplication {
 			
 			TParkInfoProd parkInfoProd = con2.getResult().get(0);
 			
-			FakeRequest testRequest = new FakeRequest(Helpers.GET, "/a/parkinfoprod/copy2orin/"+parkInfoProd.parkId).withHeader("Authorization", auth);
+			FakeRequest testRequest = new FakeRequest(Helpers.GET, "/a/parkinfoprod/copy2orin/"+parkInfoProd.parkId).withSession("userphone", "13551190701");
 			Result result = Helpers.route(testRequest);
 
 			assertThat(Helpers.status(result)).isEqualTo(Helpers.OK);

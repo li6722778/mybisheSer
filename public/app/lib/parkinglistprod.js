@@ -7,6 +7,20 @@ var ParkingProd = function () {
         //main function to initiate the module
         init: function () {
         	
+        	if (jQuery().dataTable) {
+        		jQuery('#sample_1_prod .group-checkable').change(function () {
+                    var set = jQuery(this).attr("data-set");
+                    var checked = jQuery(this).is(":checked");
+                    jQuery(set).each(function () {
+                        if (checked) {
+                            $(this).attr("checked", true);
+                        } else {
+                            $(this).attr("checked", false);
+                        }
+                    });
+                    jQuery.uniform.update(set);
+                });
+            }
         	
     		$('#parkingprodcontent .ajaxify').on('click', '', function (e) {
                 e.preventDefault();
@@ -27,6 +41,27 @@ var ParkingProd = function () {
                     });
                });
 
+    		//search
+        	$('#searchParkingProdButton').click(function(){
+        		App.scrollTop();
+      		     var key = $("#key_search_parkingprod").val();
+      		     var value = $("#value_search_parkingprod").val();
+      		   
+      		     var pageContent = $('.page-content');
+      		     var pageContentBody = $('.page-content .page-content-body');
+      		  
+   		     App.blockUI(pageContent, false);
+   		     
+      		  $.post("/w/parkingprod?k="+key+"&v="+value, {}, function (res) {
+                 App.unblockUI(pageContent);
+                 pageContentBody.html(res);
+                 App.fixContentHeight(); // fix content height
+                 App.initUniform(); // initialize uniform elements
+                
+             });
+       		 
+       	 });
+    		
         	 $('#button_retrieve').click(function(){
         		 var checked = "";
         		 $('input:checkbox:checked').each(function() {
@@ -49,6 +84,7 @@ var ParkingProd = function () {
         	      		'class' : 'btn red',	
         	      		"text" : "退回",
         	      		click: function() {
+        	      			App.scrollTop();
         	      			var pageContent = $('.page-content');
         	      			var parkingIdArray = $(this).data("parkingIdArray");
         	      			var warndialog = $(this);

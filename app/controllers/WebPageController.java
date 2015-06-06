@@ -3,8 +3,10 @@ package controllers;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
+import models.info.ChartCityEntity;
 import models.info.TOrder;
 import models.info.TParkInfo;
 import models.info.TParkInfoPro_Loc;
@@ -14,12 +16,14 @@ import models.info.TParkInfo_Loc;
 import models.info.TParkInfo_Py;
 import models.info.TuserInfo;
 import play.Logger;
+import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
 import utils.CommFindEntity;
+import utils.Constants;
 
 import com.avaje.ebean.Page;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -41,220 +45,230 @@ public class WebPageController extends Controller {
 		int userCount = TuserInfo.findCount();
 
 		double paymentCount = TParkInfo_Py.findDonePayment();
-		
-		Logger.debug("summary information,parkingProdCount->"+parkingProdCount+",orderCount->"+orderCount+",userCount->"+userCount+",paymentCount->"+paymentCount);
 
-		flash("parkingProdCount",""+parkingProdCount);
-		flash("orderCount",""+orderCount);
-		flash("userCount",""+userCount);
-		flash("paymentCount",""+paymentCount);
-		
+		Logger.debug("summary information,parkingProdCount->"
+				+ parkingProdCount + ",orderCount->" + orderCount
+				+ ",userCount->" + userCount + ",paymentCount->" + paymentCount);
+
+		flash("parkingProdCount", "" + parkingProdCount);
+		flash("orderCount", "" + orderCount);
+		flash("userCount", "" + userCount);
+		flash("paymentCount", "" + paymentCount);
+
 		return ok(views.html.dashboard.render());
 	}
-	
-	@Security.Authenticated(SecurityController.class)
-	public static Result gotoParking(int currentPage, int pageSize, String orderBy) {
-		Logger.debug("goto gotoParking");
-		Page<TParkInfo> allData = TParkInfo.page(currentPage,pageSize, orderBy);
-		return ok(views.html.parking.render(allData,currentPage,pageSize,orderBy));
-	}
-	
-	@Security.Authenticated(SecurityController.class)
-	public static Result getTaskOfParking(int currentPage, int pageSize, String orderBy) {
-		Logger.debug("goto getTaskOfParking");
-		CommFindEntity<TParkInfo> allData = TParkInfo.findData(currentPage, pageSize, orderBy);
-		List<TParkInfo> result = new ArrayList<TParkInfo>();
-		if(allData!=null&&allData.getResult()!=null){
-			result = allData.getResult();
-		}
 
-		String json = ParkController.gsonBuilderWithExpose.toJson(result);
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoParking(int currentPage, int pageSize,
+			String orderBy, String key, String searchObj) {
+		Logger.debug("goto gotoParking");
+		Page<TParkInfo> allData = TParkInfo.pageByFilter(currentPage, pageSize,
+				orderBy, key, searchObj);
+		return ok(views.html.parking.render(allData, currentPage, pageSize,
+				orderBy, key, searchObj));
+	}
+
+	@Security.Authenticated(SecurityController.class)
+	public static Result getTaskOfParking(int currentPage, int pageSize,
+			String orderBy) {
+		Logger.debug("goto getTaskOfParking");
+		CommFindEntity<TParkInfo> allData = TParkInfo.findData(currentPage,
+				pageSize, orderBy);
+
+		String json = ParkController.gsonBuilderWithExpose.toJson(allData);
 		JsonNode jsonNode = Json.parse(json);
 		return ok(jsonNode);
-		
+
 	}
-	
-	
+
 	@Security.Authenticated(SecurityController.class)
-	public static Result gotoParkingProd(int currentPage, int pageSize, String orderBy) {
+	public static Result gotoParkingProd(int currentPage, int pageSize,
+			String orderBy, String key, String searchObj) {
 		Logger.debug("goto gotoParking");
-		Page<TParkInfoProd> allData = TParkInfoProd.page(currentPage,pageSize, orderBy);
-		return ok(views.html.parkingprod.render(allData,currentPage,pageSize,orderBy));
+		Page<TParkInfoProd> allData = TParkInfoProd.pageByFilter(currentPage,
+				pageSize, orderBy, key, searchObj);
+		return ok(views.html.parkingprod.render(allData, currentPage, pageSize,
+				orderBy, key, searchObj));
 	}
-	
+
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoDetailParkingProd(long parking) {
 		Logger.debug("goto gotoDetailParking");
 		TParkInfoProd allData = TParkInfoProd.findDataById(parking);
-		
+
 		String makerString = "";
-		if(allData!=null){
+		if (allData != null) {
 			List<TParkInfoPro_Loc> locAarray = allData.latLngArray;
-			if(locAarray!=null){
-				
-				for(TParkInfoPro_Loc loc:locAarray){
-					makerString +=loc.longitude+","+loc.latitude+"|";
+			if (locAarray != null) {
+
+				for (TParkInfoPro_Loc loc : locAarray) {
+					makerString += loc.longitude + "," + loc.latitude + "|";
 				}
-				
-				if(makerString.length()>0){
-					makerString = makerString.substring(0,makerString.length()-2);
+
+				if (makerString.length() > 0) {
+					makerString = makerString.substring(0,
+							makerString.length() - 2);
 				}
 			}
 		}
-		
-		flash("makerString",makerString);
-		
-		
+
+		flash("makerString", makerString);
+
 		return ok(views.html.parkingdetailprod.render(allData));
 	}
-	
+
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoDetailParking(long parking) {
 		Logger.debug("goto gotoDetailParking");
 		TParkInfo allData = TParkInfo.findDataById(parking);
-		
+
 		String makerString = "";
-		if(allData!=null){
+		if (allData != null) {
 			List<TParkInfo_Loc> locAarray = allData.latLngArray;
-			if(locAarray!=null){
-				
-				for(TParkInfo_Loc loc:locAarray){
-					makerString +=loc.longitude+","+loc.latitude+"|";
+			if (locAarray != null) {
+
+				for (TParkInfo_Loc loc : locAarray) {
+					makerString += loc.longitude + "," + loc.latitude + "|";
 				}
-				
-				if(makerString.length()>0){
-					makerString = makerString.substring(0,makerString.length()-2);
+
+				if (makerString.length() > 0) {
+					makerString = makerString.substring(0,
+							makerString.length() - 2);
 				}
 			}
 		}
-		
-		flash("makerString",makerString);
-		
-		
+
+		flash("makerString", makerString);
+
 		return ok(views.html.parkingdetail.render(allData));
 	}
-	
+
 	/**
 	 * 删除多个数据
+	 * 
 	 * @param parkingIdArray
 	 * @return
 	 */
 	@Security.Authenticated(SecurityController.class)
-	public static Result deleteParking(String pidarray){
-		Logger.info("GOTO deleteParking,FOR"+pidarray);
-		if(pidarray!=null&&pidarray.length()>0){
-		  String[] pids = pidarray.split(",");
-		  for(String pidString:pids){
-			  try{
-				  long pid = Long.parseLong(pidString);
-				  Logger.info("try to delete pid:"+pid);
-				  TParkInfo.deleteData(pid);
-			  }catch(Exception e){
-				  Logger.error("deleteParking:"+pidString, e);
-			  }
-		  }
-		  return ok(""+pids.length);
+	public static Result deleteParking(String pidarray) {
+		Logger.info("GOTO deleteParking,FOR" + pidarray);
+		if (pidarray != null && pidarray.length() > 0) {
+			String[] pids = pidarray.split(",");
+			for (String pidString : pids) {
+				try {
+					long pid = Long.parseLong(pidString);
+					Logger.info("try to delete pid:" + pid);
+					TParkInfo.deleteData(pid);
+				} catch (Exception e) {
+					Logger.error("deleteParking:" + pidString, e);
+				}
+			}
+			return ok("" + pids.length);
 		}
-		
+
 		return ok("0");
 	}
-	
+
 	@Security.Authenticated(SecurityController.class)
-	public static Result approveParking(String pidarray){
-		Logger.info("GOTO approveParking,FOR"+pidarray);
-		if(pidarray!=null&&pidarray.length()>0){
-		  String[] pids = pidarray.split(",");
-		  for(String pidString:pids){
-			  try{
-				  long pid = Long.parseLong(pidString);
-				  Logger.info("try to approve pid:"+pid);
-				  ParkProdController.copyData(pid);
-			  }catch(Exception e){
-				  Logger.error("deleteParking:"+pidString, e);
-			  }
-		  }
-		  return ok(""+pids.length);
+	public static Result approveParking(String pidarray) {
+		Logger.info("GOTO approveParking,FOR" + pidarray);
+		if (pidarray != null && pidarray.length() > 0) {
+			String[] pids = pidarray.split(",");
+			for (String pidString : pids) {
+				try {
+					long pid = Long.parseLong(pidString);
+					Logger.info("try to approve pid:" + pid);
+					ParkProdController.copyData(pid);
+				} catch (Exception e) {
+					Logger.error("deleteParking:" + pidString, e);
+				}
+			}
+			return ok("" + pids.length);
 		}
-		
+
 		return ok("0");
 	}
-	
+
 	@Security.Authenticated(SecurityController.class)
-	public static Result retrieveParking(String pidarray){
-		Logger.info("GOTO retrieveParking,FOR"+pidarray);
-		if(pidarray!=null&&pidarray.length()>0){
-		  String[] pids = pidarray.split(",");
-		  for(String pidString:pids){
-			  try{
-				  long pid = Long.parseLong(pidString);
-				  Logger.info("try to copy2orin pid:"+pid);
-				  ParkProdController.copyDataToOringal(pid);
-			  }catch(Exception e){
-				  Logger.error("deleteParking:"+pidString, e);
-			  }
-		  }
-		  return ok(""+pids.length);
+	public static Result retrieveParking(String pidarray) {
+		Logger.info("GOTO retrieveParking,FOR" + pidarray);
+		if (pidarray != null && pidarray.length() > 0) {
+			String[] pids = pidarray.split(",");
+			for (String pidString : pids) {
+				try {
+					long pid = Long.parseLong(pidString);
+					Logger.info("try to copy2orin pid:" + pid);
+					ParkProdController.copyDataToOringal(pid);
+				} catch (Exception e) {
+					Logger.error("deleteParking:" + pidString, e);
+				}
+			}
+			return ok("" + pids.length);
 		}
-		
+
 		return ok("0");
 	}
-	
+
 	@Security.Authenticated(SecurityController.class)
-	public static Result saveParkingData(){
+	public static Result saveParkingData() {
 		Logger.debug("goto saveParkingData");
-		//DynamicForm dynamicForm = Form.form().bindFromRequest();
+		// DynamicForm dynamicForm = Form.form().bindFromRequest();
 		Form<TParkInfo> form = Form.form(TParkInfo.class).bindFromRequest();
 		if (form.hasErrors()) {
-			JsonNode node= form.errorsAsJson();
-			Logger.error("###########getglobalError:"+node);
+			JsonNode node = form.errorsAsJson();
+			Logger.error("###########getglobalError:" + node);
 			return badRequest(node.toString());
 		}
 		TParkInfo parkinfo = form.get();
-		if(parkinfo!=null){
-			Logger.debug("###########get parkId:"+parkinfo.parkId);
+		if (parkinfo != null) {
+			Logger.debug("###########get parkId:" + parkinfo.parkId);
 			TParkInfo.saveData(parkinfo);
 		}
-		
+
 		return ok("提交成功.");
 	}
-	
+
 	@Security.Authenticated(SecurityController.class)
-	public static Result uploadImage(long parkingId){
+	public static Result uploadImage(long parkingId) {
 		Logger.debug("goto uploadImage");
 		try {
 			UploadController.uploadToParking(parkingId);
-			
-			CommFindEntity<TParkInfo_Img> imageArray = TParkInfo_Img.findData(parkingId);
+
+			CommFindEntity<TParkInfo_Img> imageArray = TParkInfo_Img
+					.findData(parkingId);
 			List<TParkInfo_Img> array = new ArrayList<TParkInfo_Img>();
-			if(imageArray!=null&&imageArray.getResult()!=null){
+			if (imageArray != null && imageArray.getResult() != null) {
 				array = imageArray.getResult();
 			}
 			String json = ParkController.gsonBuilderWithExpose.toJson(array);
 			JsonNode jsonNode = Json.parse(json);
 			return ok(jsonNode);
-			
+
 		} catch (IOException e) {
-			Logger.error("uploadImage:",e);
+			Logger.error("uploadImage:", e);
 			return badRequest();
 		}
 
 	}
-	
-	
+
 	@Security.Authenticated(SecurityController.class)
-	public static Result gotoUser(int currentPage, int pageSize, String orderBy,int type, String filter) {
-		Logger.debug("goto gotoUser,type"+type);
-		Page<TuserInfo> allData = TuserInfo.pageByTypeAndFilter(currentPage,pageSize, orderBy,type,filter);
-		
-		flash("type",""+type);
-		flash("filter",filter);
-		if(allData!=null){
-			Logger.debug("##########goto gotoUser,total:"+allData.getTotalRowCount());
+	public static Result gotoUser(int currentPage, int pageSize,
+			String orderBy, int type, String filter) {
+		Logger.debug("goto gotoUser,type" + type);
+		Page<TuserInfo> allData = TuserInfo.pageByTypeAndFilter(currentPage,
+				pageSize, orderBy, type, filter);
+
+		flash("type", "" + type);
+		flash("filter", filter);
+		if (allData != null) {
+			Logger.debug("##########goto gotoUser,total:"
+					+ allData.getTotalRowCount());
 		}
-		
-		return ok(views.html.users.render(allData,currentPage,pageSize,orderBy,filter));
+
+		return ok(views.html.users.render(allData, currentPage, pageSize,
+				orderBy, filter));
 	}
-	
+
 	/**
 	 * 
 	 * @return
@@ -264,71 +278,257 @@ public class WebPageController extends Controller {
 		Logger.debug("goto gotoUserAdd");
 		return ok(views.html.useradd.render());
 	}
-	
+
 	@Security.Authenticated(SecurityController.class)
-	public static Result saveUserData(){
+	public static Result saveUserData() {
 		Logger.debug("goto saveUserData");
-		//DynamicForm dynamicForm = Form.form().bindFromRequest();
+		// DynamicForm dynamicForm = Form.form().bindFromRequest();
 		Form<TuserInfo> form = Form.form(TuserInfo.class).bindFromRequest();
 		if (form.hasErrors()) {
-			JsonNode node= form.errorsAsJson();
-			Logger.error("###########getglobalError:"+node);
+			JsonNode node = form.errorsAsJson();
+			Logger.error("###########getglobalError:" + node);
 			return badRequest(node.toString());
 		}
 		TuserInfo info = form.get();
-		if(info!=null){
-			Logger.debug("###########get parkId:"+info.userName);
+		if (info != null) {
+			Logger.debug("###########get parkId:" + info.userName);
 			Date current = new Date();
 			String userName = session("username");
 			info.updateDate = current;
-			info.createPerson=userName;
+			info.createPerson = userName;
 			info.updatePerson = userName;
 			TuserInfo.saveData(info);
 		}
-		
+
 		return ok("提交成功.");
 	}
-	
+
 	@Security.Authenticated(SecurityController.class)
-	public static Result deleteUser(String pidarray){
-		Logger.info("GOTO deleteParking,FOR"+pidarray);
-		if(pidarray!=null&&pidarray.length()>0){
-		  String[] pids = pidarray.split(",");
-		  for(String pidString:pids){
-			  try{
-				  long pid = Long.parseLong(pidString);
-				  Logger.info("try to delete userid:"+pid);
-				  TuserInfo.deleteData(pid);
-			  }catch(Exception e){
-				  Logger.error("deleteUser:"+pidString, e);
-			  }
-		  }
-		  return ok(""+pids.length);
+	public static Result gotoPasswd(String userPhone, int type) {
+		Logger.debug("goto gotoUserAdd");
+		return ok(views.html.userpass.render(userPhone, type));
+	}
+
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoMutipPasswd(String idArray) {
+		Logger.debug("goto gotoUserAdd");
+		return ok(views.html.userpass.render(idArray, 2));
+	}
+
+	@Security.Authenticated(SecurityController.class)
+	public static Result updatedUserPasswdData(String userPhone, int type) {
+		Logger.debug("goto updatedUserPasswdData");
+		DynamicForm dynamicForm = Form.form().bindFromRequest();
+
+		String newpasswd = dynamicForm.get("newpasswd");
+		String newpasswd2 = dynamicForm.get("newpasswd2");
+
+		if (!newpasswd.equals(newpasswd2)) {
+			return badRequest("二次新密码输入不一致,请重新输入.");
 		}
-		
+
+		if (type == 1) {
+			try {
+				long userPhoneLong = Long.parseLong(userPhone);
+				TuserInfo userinfo = TuserInfo.findDataByPhoneId(userPhoneLong);
+				String currentpasswd = dynamicForm.get("passwd");
+				if (userinfo != null) {
+					if (!userinfo.passwd.equals(currentpasswd)) {
+						return badRequest("当前密码输入错误，请重新输入.");
+					}
+				} else {
+					return badRequest("当前用户不存在");
+				}
+
+				userinfo.passwd = newpasswd;
+				TuserInfo.saveData(userinfo);
+
+				return ok(type == 1 ? "密码修改成功" : "密码重置成功");
+			} catch (Exception e) {
+				Logger.error("updatedUserPasswdData", e);
+				return badRequest(e.getMessage());
+			}
+
+		} else {
+			String resetobject = dynamicForm.get("resetobject");
+
+			if (resetobject != null) {
+				String[] resetIds = resetobject.split(",");
+				String succussString = "";
+				for (String resetId : resetIds) {
+					try {
+						long id = Long.parseLong(resetId);
+						TuserInfo userinfo = TuserInfo.findDataById(id);
+
+						userinfo.passwd = newpasswd;
+						TuserInfo.saveData(userinfo);
+						succussString += userinfo.userName + " ";
+					} catch (Exception e) {
+						Logger.error("updatedUserPasswdData", e);
+					}
+				}
+				return ok(succussString + "密码重置成功");
+			} else {
+				return ok("没有获取到重置对象");
+			}
+		}
+
+	}
+
+	@Security.Authenticated(SecurityController.class)
+	public static Result deleteUser(String pidarray) {
+		Logger.info("GOTO deleteParking,FOR" + pidarray);
+		if (pidarray != null && pidarray.length() > 0) {
+			String[] pids = pidarray.split(",");
+			for (String pidString : pids) {
+				try {
+					long pid = Long.parseLong(pidString);
+					Logger.info("try to delete userid:" + pid);
+					TuserInfo.deleteData(pid);
+				} catch (Exception e) {
+					Logger.error("deleteUser:" + pidString, e);
+				}
+			}
+			return ok("" + pids.length);
+		}
+
+		return ok("0");
+	}
+
+	@Security.Authenticated(SecurityController.class)
+	public static Result updateUser(int type, String pidarray) {
+		Logger.info("GOTO updateUser,FOR" + pidarray);
+		if (pidarray != null && pidarray.length() > 0) {
+			String[] pids = pidarray.split(",");
+			for (String pidString : pids) {
+				try {
+					long pid = Long.parseLong(pidString);
+					Logger.info("try to update userid:" + pid);
+					TuserInfo user = TuserInfo.findDataById(pid);
+					user.userType = type;
+					TuserInfo.saveData(user);
+				} catch (Exception e) {
+					Logger.error("updateUser:" + pidString, e);
+				}
+			}
+			return ok("" + pids.length);
+		}
+
 		return ok("0");
 	}
 	
+	
 	@Security.Authenticated(SecurityController.class)
-	public static Result updateUser(int type, String pidarray){
-		Logger.info("GOTO updateUser,FOR"+pidarray);
-		if(pidarray!=null&&pidarray.length()>0){
-		  String[] pids = pidarray.split(",");
-		  for(String pidString:pids){
-			  try{
-				  long pid = Long.parseLong(pidString);
-				  Logger.info("try to update userid:"+pid);
-				  TuserInfo user= TuserInfo.findDataById(pid);
-				  user.userType = type;
-				  TuserInfo.saveData(user);
-			  }catch(Exception e){
-				  Logger.error("updateUser:"+pidString, e);
-			  }
-		  }
-		  return ok(""+pids.length);
+	public static Result gotoOrder(int currentPage, int pageSize,
+			String orderBy, String city, String filter) {
+		Logger.debug("goto gotoOrder,city" + city);
+		Page<TOrder> allData = TOrder.pageByFilter(currentPage,
+				pageSize, orderBy, city, filter);
+
+		if (allData != null) {
+			Logger.debug("##########goto gotoUser,total:"
+					+ allData.getTotalRowCount());
 		}
+
+		return ok(views.html.order.render(allData, currentPage, pageSize,
+				orderBy,city,filter));
+	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoDetailOrder(long orderId) {
+		Logger.debug("goto gotoDetailOrder");
+		TOrder allData = TOrder.findDataById(orderId);
+
+//		String makerString = "";
+//		if (allData != null) {
+//			List<TParkInfo_Loc> locAarray = allData.latLngArray;
+//			if (locAarray != null) {
+//
+//				for (TParkInfo_Loc loc : locAarray) {
+//					makerString += loc.longitude + "," + loc.latitude + "|";
+//				}
+//
+//				if (makerString.length() > 0) {
+//					makerString = makerString.substring(0,
+//							makerString.length() - 2);
+//				}
+//			}
+//		}
+//
+//		flash("makerString", makerString);
+
+		return ok(views.html.orderdetail.render(allData));
+	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result setExceptionOrder(String pidarray){
+		Logger.debug("goto setExceptionOrder");
 		
+		if (pidarray != null && pidarray.length() > 0) {
+			String[] pids = pidarray.split(",");
+			for (String pidString : pids) {
+				try {
+					long pid = Long.parseLong(pidString);
+					Logger.info("try to set exception for:" + pid);
+					TOrder allData = TOrder.findDataById(pid);
+					if(allData!=null){
+						allData.orderStatus = Constants.ORDER_TYPE_EXCPTION;
+						TOrder.saveData(allData);
+						Logger.debug("done for set exception:" + pid);
+					}
+				} catch (Exception e) {
+					Logger.error("deleteUser:" + pidString, e);
+				}
+			}
+			return ok("" + pids.length);
+		}
+
 		return ok("0");
 	}
 	
+	/**
+	 * 跳转到订单图
+	 * @return
+	 */
+	public static Result gotoOrderChart(){
+		Logger.debug("goto gotoOrderChart");
+		return ok(views.html.orderchart.render());
+	}
+	
+	public static Result gotoParkingChart(){
+		Logger.debug("goto gotoParkingChart");
+		return ok(views.html.chartparking.render());
+	}
+	
+	/**
+	 * 返回json的城市订单数据
+	 * @param city
+	 * @return
+	 */
+	public static Result getCityOrderChart(String city){
+		Logger.debug("goto getCityOrderChart:"+city);
+		HashMap<String,List<ChartCityEntity>> map = ChartCityEntity.getTop30OrderForEachCity(city);
+		
+		String json = OrderController.gsonBuilderWithExpose.toJson(map);
+		JsonNode jsonNode = Json.parse(json);
+		Logger.debug("return json:"+json);
+		return ok(jsonNode);
+	}
+
+	/**
+	 * 返回json的城市订单数据
+	 * @param city
+	 * @return
+	 */
+	public static Result getPersonOrderChart(String createPerson){
+		Logger.debug("goto getPersonOrderChart:"+createPerson);
+		HashMap<String,List<ChartCityEntity>> map = ChartCityEntity.getTop30OrderForEachCaiji(createPerson);
+		
+		String json = OrderController.gsonBuilderWithExpose.toJson(map);
+		JsonNode jsonNode = Json.parse(json);
+		Logger.debug("return json:"+json);
+		return ok(jsonNode);
+	}
+	
+
 }

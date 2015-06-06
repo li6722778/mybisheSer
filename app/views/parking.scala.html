@@ -1,5 +1,5 @@
 @(entityBean: com.avaje.ebean.Page[models.info.TParkInfo], 
-currentPage: Integer, pageSize: Integer,orderBy: String)
+currentPage: Integer, pageSize: Integer,orderBy: String, key:String,searchObj:String)
 
              <!-- BEGIN PAGE HEADER-->
 				<div class="row-fluid">
@@ -55,16 +55,16 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 						
 						<div class="btn-group pull-left">    
 								<div class="input-append">												
-									<select class="small m-wrap" tabindex="1">
-															<option value="Category 1">请选择分类</option>
-															<option value="Category 2">停车场名</option>
-															<option value="Category 3">地址</option>
-															<option value="Category 4">联系人</option>
-                                                            <option value="Category 4">管理公司</option>
-                                                            <option value="Category 4">采集员</option>
+									<select class="small m-wrap" tabindex="1" id="key_search_parking">
+															<option value="">请选择分类</option>
+															<option value="parkname" @if(key=="parkname"){ selected }>停车场名</option>
+															<option value="address" @if(key=="address"){ selected }>地址</option>
+															<option value="owner" @if(key=="owner"){ selected }>联系人</option>
+                                                            <option value="vender" @if(key=="vender"){ selected }>管理公司</option>
+                                                            <option value="createPerson" @if(key=="createPerson" || key=="updatePerson"){ selected }>采集员</option>
 									</select>
-									<input class="m-wrap" size="10" type="text" placeholder="请输入关键字" /><button class="btn green">搜索</button>
-									</div>
+									<input class="m-wrap" size="10" type="text" placeholder="请输入关键字" value="@searchObj" id="value_search_parking" /><button class="btn green" id="searchParkingButton">搜索</button>
+								</div>
 						       </div>
 						       
 
@@ -97,7 +97,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 									</p>
 								</div>
 
-								<table class="table table-striped table-bordered table-hover" id="sample_1">
+								<table class="table table-striped table-bordered table-advance table-hover" id="sample_1">
 
 									<thead>
 
@@ -105,7 +105,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 
 											<th style="width:8px;"><input type="checkbox" class="group-checkable" data-set="#sample_1 .checkboxes" /></th>
 
-											<th class="hidden-480">编号</th>
+											<th >缩略图</th>
 
 											<th >停车场名</th>
 
@@ -115,7 +115,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 											
 											<th class="hidden-480">管理公司</th>
 											
-											<th >采集人</th>
+											<th >采集/更新</th>
 
 										</tr>
 
@@ -125,13 +125,21 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 
                             @for(TParkInfo <- entityBean.getList) {
 										<tr class="odd gradeX">
-											<td class="hidden-480"><input type="checkbox" class="checkboxes" value="@TParkInfo.parkId" /></td>
-											<td>@TParkInfo.parkId</td>
+											<td ><input type="checkbox" class="checkboxes" value="@TParkInfo.parkId" /></td>
+											<td>
+											  
+											    <a href="#" class="thumbnail" >
+											        @if(TParkInfo.imgUrlArray!=null&&TParkInfo.imgUrlArray.length>0){
+                                                      <img style="max-width:80px;max-height:120px" src="@TParkInfo.imgUrlArray.get(0).imgUrlHeader@TParkInfo.imgUrlArray.get(0).imgUrlPath" alt="">
+                                                    }
+                                               </a>
+                                             
+                                            </td>
 											<td ><a class="ajaxify"  href="javascript:;" post="/w/parking/@TParkInfo.parkId">@TParkInfo.parkname</a></td>
 											<td class="hidden-480">@TParkInfo.address</td>
 											<td class="hidden-480">@TParkInfo.owner</td>
 											<td class="hidden-480">@TParkInfo.vender</td>
-											<td ><span class="label label-success">@TParkInfo.updatePerson</span>, @TParkInfo.updateDate.format("yyyy-MM-dd HH:mm:ss")</td>
+											<td ><span class="label label-success">@TParkInfo.createPerson</span>/<span class="label-warning">@TParkInfo.updatePerson</span>, @TParkInfo.createDate.format("yyyy-MM-dd HH:mm:ss")/@TParkInfo.updateDate.format("yyyy-MM-dd HH:mm:ss")</td>
 										</tr>
                               }
 										
@@ -143,7 +151,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 					               <ul>
 						                @if(entityBean.hasPrev) {
 						                    <li class="prev">
-						                        <a class="ajaxify" href="javascript:;" post="/w/parking?p=@(entityBean.getPageIndex - 1)">&larr; 上一页</a>
+						                        <a class="ajaxify" href="javascript:;" post="/w/parking?p=@(entityBean.getPageIndex - 1)&k=@key&v=@searchObj">&larr; 上一页</a>
 						                    </li>
 						                } else {
 						                    <li class="prev disabled">
@@ -155,7 +163,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 						                </li>
 						                @if(entityBean.hasNext) {
 						                    <li class="next">
-						                        <a class="ajaxify"  href="javascript:;" post="/w/parking?p=@(entityBean.getPageIndex + 1)">下一页 &rarr;</a>
+						                        <a class="ajaxify"  href="javascript:;" post="/w/parking?p=@(entityBean.getPageIndex + 1)&k=@key&v=@searchObj">下一页 &rarr;</a>
 						                    </li>
 						                } else {
 						                    <li class="next disabled">

@@ -110,7 +110,7 @@
 
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 
-						<img alt="" src="@routes.Assets.at("image/avatar1_small.jpg")" />
+						<img alt="" src="@routes.Assets.at("image/avatar.png")" />
 
 						<span class="username">@session.get("username")[@session.get("userphone")]</span>
 
@@ -120,13 +120,11 @@
 
 						<ul class="dropdown-menu">
 
-							<li><a href="extra_profile.html"><i class="icon-user"></i> 个人资料</a></li>
+							<li><a class="ajaxify" id="passwd" href="javascript:;" post="/w/user/gotopasswd/@session.get("userphone")/1"><i class="icon-key"></i> 密码修改</a></li>
 
 							<li class="divider"></li>
 
-							<li><a href="extra_lock.html"><i class="icon-lock"></i> 锁定屏幕</a></li>
-
-							<li><a href="/logout"><i class="icon-key"></i> 退出</a></li>
+							<li><a href="/logout"><i class="icon-signout"></i> 退出</a></li>
 
 						</ul>
 
@@ -219,10 +217,41 @@
 							 当前采集数据               
 							</a>
 						</li>
+						
+						<li>
+							<a class="ajaxify" id="index_caijireport" href="javascript:;" post="/w/parkingchart">
+							  采集统计图表             
+							</a>
+						</li>
 
 						<li>
 							<a class="ajaxify" id="parkingprod" href="javascript:;" post="/w/parkingprod">
 							  地图显示数据             
+							</a>
+						</li>
+
+					</ul>
+
+				</li>
+				
+				<li class="">
+					<a href="javascript:;">
+					<i class="icon-list"></i> 
+					<span class="title">订单数据</span>
+					<span class="selected"></span>
+					<span class="arrow open"></span>
+					</a>
+					<ul class="sub-menu">
+
+						<li>
+							<a class="ajaxify" id="index_order" href="javascript:;" post="/w/order">
+							 订单列表               
+							</a>
+						</li>
+
+						<li>
+							<a class="ajaxify" id="index_orderreport" href="javascript:;" post="/w/orderchart">
+							  统计图表             
 							</a>
 						</li>
 

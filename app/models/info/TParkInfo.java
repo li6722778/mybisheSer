@@ -22,6 +22,7 @@ import utils.ConfigHelper;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Expr;
+import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Page;
 import com.avaje.ebean.TxRunnable;
 import com.google.gson.annotations.Expose;
@@ -162,6 +163,32 @@ public class TParkInfo extends Model {
 	 */
 	public static Page<TParkInfo> page(int currentPage,int pageSize, String orderBy) {
 		Page<TParkInfo> allData = find.where().orderBy(orderBy)
+				.findPagingList(pageSize).setFetchAhead(false)
+				.getPage(currentPage);
+        return allData;
+    }
+	
+	/**
+	 * 
+	 * @param page
+	 * @param pageSize
+	 * @param sortBy
+	 * @param order
+	 * @param filter
+	 * @return
+	 */
+	public static Page<TParkInfo> pageByFilter(int currentPage,int pageSize, String orderBy,String key,String searchObj) {
+		
+		ExpressionList<TParkInfo> elist = find.where();
+		
+		if(key!=null&&searchObj!=null&&!searchObj.trim().equals("")&&!key.trim().equals("")){
+			if(key.trim().toLowerCase().equals("createperson")){
+				elist.or(Expr.ilike("createPerson",  "%"+searchObj+"%"), Expr.ilike("updatePerson",  "%"+searchObj+"%"));
+			}else{
+			   elist.ilike(key, "%"+searchObj+"%");
+			}
+		}
+		Page<TParkInfo> allData = elist.orderBy(orderBy)
 				.findPagingList(pageSize).setFetchAhead(false)
 				.getPage(currentPage);
         return allData;

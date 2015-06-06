@@ -86,6 +86,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
 										</button>
 
 										<ul class="dropdown-menu pull-right">
+										    <li><a href="javascript:;" id="button_reset_passwd" type=@flash.get("type")>重置密码</a></li>
 										    <li><a href="javascript:;" id="button_delete_user" type=@flash.get("type")>删除数据</a></li>
 											<li><a href="javascript:;" class="button_update_user" type="10">设为普通用户</a></li>
 											<li><a href="javascript:;" class="button_update_user" type="20">设为车场管理员</a></li>
@@ -103,7 +104,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
 									</p>
 								</div>
 								
-								<table class="table table-striped table-bordered table-hover" id="sample_1">
+								<table class="table table-striped table-bordered table-advance table-hover" id="sample_1">
 
 									<thead>
 
@@ -132,7 +133,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
                             @for(TuserInfo <- entityBean.getList) {
 										<tr class="odd gradeX">
 											<td><input type="checkbox" class="checkboxes" value="@TuserInfo.userid" /></td>
-											<td>@TuserInfo.userid</td>
+											<td class="hidden-480">@TuserInfo.userid</td>
 											<td >@TuserInfo.userName</td>
 											<td class="hidden-480">@TuserInfo.userPhone</td>
 											<td class="hidden-480">@TuserInfo.createDate.format("yyyy-MM-dd HH:mm:ss")</td>

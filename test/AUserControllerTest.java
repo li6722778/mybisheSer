@@ -2,16 +2,12 @@ import static org.fest.assertions.Assertions.assertThat;
 
 import java.util.Date;
 
-import models.info.TParkInfo;
-import models.info.TParkInfo_Loc;
 import models.info.TuserInfo;
 
-import org.eclipse.jetty.util.log.Log;
 import org.junit.Test;
 
 import play.libs.Json;
 import play.mvc.Result;
-import play.test.FakeApplication;
 import play.test.FakeRequest;
 import play.test.Helpers;
 import play.test.WithApplication;
@@ -23,6 +19,7 @@ import com.google.gson.reflect.TypeToken;
 import com.ning.http.util.Base64;
 
 import controllers.ParkController;
+import controllers.UserController;
 
 /**
  * Junit test for Usercontroller
@@ -52,9 +49,9 @@ public class AUserControllerTest extends WithApplication {
 		userinfo.userName = "junit test";
 		userinfo.userPhone = 13551190701l;
 		userinfo.userType = RoleConstants.USER_TYPE_NORMAL;
-		
-		JsonNode json = Json.toJson(userinfo);
-		String jsonString = Json.stringify(json);
+
+		String newString=UserController.gsonBuilderWithExpose.toJson(userinfo);
+		JsonNode json = Json.parse(newString);
 
 		FakeRequest testRequest = new FakeRequest(Helpers.POST, "/a/user/save").withHeader("Authorization", auth).withJsonBody(json);
 		Result result = Helpers.route(testRequest);
@@ -72,8 +69,9 @@ public class AUserControllerTest extends WithApplication {
 		System.out.println("--------get new userid:"+testId+",test upload this data-----------");
 		
 		newUser.userName="junit update";
-
-		JsonNode jsonUpdate = Json.toJson(newUser);
+		
+		String updateString=UserController.gsonBuilderWithExpose.toJson(newUser);
+		JsonNode jsonUpdate = Json.parse(updateString);
 		FakeRequest testUpdateRequest = new FakeRequest(Helpers.POST, "/a/user/save").withHeader("Authorization", auth).withJsonBody(jsonUpdate);
 		Result resultUpdate = Helpers.route(testUpdateRequest);
 

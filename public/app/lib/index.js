@@ -7,7 +7,7 @@ var Index = function () {
         //main function to initiate the module
         init: function () {
 
-             $('#menuclick .ajaxify,notificationbar .ajaxify').on('click', '', function (e) {
+             $('#menuclick .ajaxify,#notificationbar .ajaxify,#passwd').on('click', '', function (e) {
               e.preventDefault();
               App.scrollTop();
               var url = $(this).attr("post");
@@ -31,18 +31,19 @@ var Index = function () {
         	 $.get("/w/parking/task",function(result){
         		 if(result){
         			//total
-        			 $("#header_notification_bar .badge").text(result.length);
+        			 $("#header_notification_bar .badge").text(result.rowCount);
         			 
-        			var taskHeader="<li><p>目前有"+result.length+"条采集记录等待审批</p></li>";
+        			var taskHeader="<li><p>目前有"+result.rowCount+"条采集记录等待审批</p></li>";
         			$("#header_notification_bar .notification").html(taskHeader);
         			
-        			 $.each(result, function (index, entity) {  
+        			if(result.result){
+        			 $.each(result.result, function (index, entity) {  
         				 var taskmessage="<a class=\"ajaxify\"  href=\"javascript:$('#parking').click();\" post=\"/w/parking/"+entity.parkId+"\"><span class=\"label label-info\"><i class=\"icon-plus\"></i></span>"+entity.parkname+"" +
      					" <span class=\"time\">"+entity.createPerson+"</span></a>";
         				 
         				 $('<li/>').html(taskmessage).appendTo($("#header_notification_bar .notification"));
         			 });
-        			 
+        			}
         			 var footer = "<a class=\"ajaxify\"  href=\"javascript:$('#parking').click();\" post=\"/w/parking\">查看更多<i class=\"m-icon-swapright\"></i></a>";
         			 $('<li class=\"external\" />').html(footer).appendTo($("#header_notification_bar .notification"));
         			
