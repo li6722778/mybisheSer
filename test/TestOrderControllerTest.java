@@ -32,7 +32,7 @@ public class TestOrderControllerTest extends WithApplication {
 	// return Helpers.fakeApplication(Helpers.inMemoryDatabase(),
 	// Helpers.fakeGlobal());
 	// }
-	String creds = String.format("%s:%s",TestConstants.AUTH_USERNAME, TestConstants.AUTH_PASSWD);
+	String creds = String.format("%s:%s","13551190701", TestConstants.AUTH_PASSWD);
 	String auth = "Basic "+ Base64.encode(creds.getBytes());
 	@Test
 	public void addOrderTest() {

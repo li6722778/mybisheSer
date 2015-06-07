@@ -37,8 +37,9 @@ var OrderChartList = function () {
                          },
                          colors: ["#d12610", "#37b7f3", "#52e136"],
                          xaxis: {
-                             ticks: 11,
-                             tickDecimals: 0
+                        	 mode: "time",
+                             timeformat: "%m/%d"
+                            
                          },
                          yaxis: {
                              ticks: 11,
@@ -72,7 +73,7 @@ var OrderChartList = function () {
                              previousPoint = item.dataIndex;
 
                              $("#tooltip").remove();
-                             var x = item.datapoint[0],
+                             var x = $.datepicker.formatDate('yy/mm/dd', new Date(item.datapoint[0])),
                                  y = item.datapoint[1];
 
                              showTooltip(item.pageX, item.pageY, item.series.label+ y + "订单[" + x + "]");
@@ -90,9 +91,8 @@ var OrderChartList = function () {
         			 var plotData = [];
         			 $.each(result, function(key, value) {
         				 var chartData=$.map(value, function(obj,i){
-        			           return [[ obj.dateString, obj.countOrder]];                            
+        			           return [[ new Date(obj.dateString), obj.countOrder]];                            
         			      });
- 
         				 var jsonTextF={
         						 data:chartData,
         						 label:key

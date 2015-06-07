@@ -42,7 +42,7 @@ public class ChartCityEntity{
 		HashMap<String,List<ChartCityEntity>> map =new HashMap<String,List<ChartCityEntity>>();
 		
 		if(city!=null&&!city.trim().equals("")){
-			String sql = "select count(order_id) as countorder, date_format(order_date,'%Y%m%d') as datestring from tb_order	where date_format(order_date,'%m%d') "
+			String sql = "select count(order_id) as countorder, date_format(order_date,'%m/%d/%Y') as datestring from tb_order	where date_format(order_date,'%m%d') "
 					+ "between date_format(date_sub(now(), interval 30 day),'%m%d') and "
 					+ "date_format(now(),'%m%d') and order_city like\"%"+city+"%\" group by date_format(order_date,'%Y%m%d') order by order_date desc";
 			
@@ -57,7 +57,7 @@ public class ChartCityEntity{
 		}else{
 		List<ChartCityEntity> cities = getTop30City();
 			for(ChartCityEntity c:cities){
-				String sql = "select count(order_id) as countorder, date_format(order_date,'%Y%m%d') as datestring from tb_order	where date_format(order_date,'%m%d') "
+				String sql = "select count(order_id) as countorder, date_format(order_date,'%m/%d/%Y') as datestring from tb_order	where date_format(order_date,'%m%d') "
 						+ "between date_format(date_sub(now(), interval 30 day),'%m%d') and "
 						+ "date_format(now(),'%m%d') and order_city like\"%"+c.descri+"%\" group by date_format(order_date,'%Y%m%d') order by order_date desc";
 				final RawSql rawSql = RawSqlBuilder.unparsed(sql)
@@ -84,7 +84,7 @@ public class ChartCityEntity{
 		HashMap<String,List<ChartCityEntity>> map =new HashMap<String,List<ChartCityEntity>>();
 		
 		if(createPerson!=null&&!createPerson.trim().equals("")){
-			String sql = "select count(park_id) as countorder, date_format(create_date,'%Y%m%d') as datestring from tb_parking "
+			String sql = "select count(park_id) as countorder, date_format(create_date,'%m/%d/%Y') as datestring from tb_parking "
 					+ "where date_format(create_date,'%m%d') between date_format(date_sub(now(), interval 30 day),'%m%d') "
 					+ "and date_format(now(),'%m%d') and create_person like \"%"+createPerson+"%\" group by date_format(create_date,'%Y%m%d') order by create_date desc";
 			
@@ -99,7 +99,7 @@ public class ChartCityEntity{
 		}else{
 		List<ChartCityEntity> guys = getTop30Person();
 			for(ChartCityEntity c:guys){
-				String sql = "select count(park_id) as countorder, date_format(create_date,'%Y%m%d') as datestring from tb_parking "
+				String sql = "select count(park_id) as countorder, date_format(create_date,'%m/%d/%Y') as datestring from tb_parking "
 						+ "where date_format(create_date,'%m%d') between date_format(date_sub(now(), interval 30 day),'%m%d') "
 						+ "and date_format(now(),'%m%d') and create_person like \"%"+c.descri+"%\" group by date_format(create_date,'%Y%m%d') order by create_date desc";
 				
@@ -127,17 +127,17 @@ public class ChartCityEntity{
 			
 			if(ls.size()>0){
 				String maxQueryDateString = ls.get(0).dateString;
-				Date maxQueryDate = DateHelper.getStringtoDate(maxQueryDateString, "yyyyMMdd");
+				Date maxQueryDate = DateHelper.getStringtoDate(maxQueryDateString, "MM/dd/yyyy");
 				
-				String currentDayString = DateHelper.format(new Date(), "yyyyMMdd");
-				Date currentDate = DateHelper.getStringtoDate(currentDayString, "yyyyMMdd");
+				String currentDayString = DateHelper.format(new Date(), "MM/dd/yyyy");
+				Date currentDate = DateHelper.getStringtoDate(currentDayString, "MM/dd/yyyy");
 				
 				int days = DateHelper.diffDate(currentDate, maxQueryDate);
 				if(days>0){
 					for(int i=0;i<days;i++){
 						ChartCityEntity cityEntity = new ChartCityEntity();
 						cityEntity.countOrder=0;
-						String _dayString = DateHelper.format(DateHelper.addDate(new Date(), 0-(i+1)), "yyyyMMdd");
+						String _dayString = DateHelper.format(DateHelper.addDate(new Date(), 0-(i+1)), "MM/dd/yyyy");
 						cityEntity.dateString=_dayString;
 						newArray.add(cityEntity);
 					}
