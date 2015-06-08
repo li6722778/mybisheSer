@@ -72,6 +72,13 @@ public class LogController extends Controller {
 			String userphone = flash("userphone");
 			String username = flash("username");
 			String userid = flash("userid");
+			
+			if(userphone==null){
+				userphone = session("userphone");
+				username = session("username");
+				userid = session("usertype");
+			}
+			
 			log.operateName = username + "[" + userid + "," + userphone + "]";
 			TLog.saveData(log);
 		} catch (Exception e) {

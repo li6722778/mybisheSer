@@ -10,6 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import play.data.format.Formats;
 import play.data.validation.Constraints;
 import play.db.ebean.Model;
@@ -109,27 +111,43 @@ public class TuserInfo extends Model implements Serializable {
 	 */
 	public static TuserInfo authenticate(String userPhone, String password) {
 
-		List<TuserInfo> userInfos = find.where().eq("userPhone", userPhone)
-				.eq("passwd", password).findList();
+		//String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
+		List<TuserInfo> userInfos = find.where().eq("userPhone", userPhone).findList();
 
-		return (userInfos == null || userInfos.size() <= 0) ? null : userInfos
-				.get(0);
+		if(userInfos!=null&&userInfos.size()>0){
+			TuserInfo userinfo = userInfos.get(0);
+			
+			if(password.equals(userinfo.passwd)){
+				return userinfo;
+			}else{
+				return null;
+			}
+//			
+//			if(BCrypt.checkpw(password, userinfo.passwd)){
+//				return userinfo;
+//			}else{
+//				return null;
+//			}
+		}else{
+			return null;
+		}
+		
 	}
 	
 	
-	/**
-	 * 登录后台认证
-	 * @param userPhone
-	 * @param password
-	 * @param type
-	 * @return
-	 */
-	public static TuserInfo authenticateWebAdmin(String userPhone, String password) {
-		List<TuserInfo> userInfos = find.where().eq("userPhone", userPhone)
-				.eq("passwd", password).eq("userType", Constants.USER_TYPE_MSADMIN).findList();
-		return (userInfos == null || userInfos.size() <= 0) ? null : userInfos
-				.get(0);
-	}
+//	/**
+//	 * 登录后台认证
+//	 * @param userPhone
+//	 * @param password
+//	 * @param type
+//	 * @return
+//	 */
+//	public static TuserInfo authenticateWebAdmin(String userPhone, String password) {
+//		List<TuserInfo> userInfos = find.where().eq("userPhone", userPhone)
+//				.eq("passwd", password).eq("userType", Constants.USER_TYPE_MSADMIN).findList();
+//		return (userInfos == null || userInfos.size() <= 0) ? null : userInfos
+//				.get(0);
+//	}
 
 	/**
 	 * 
@@ -178,7 +196,6 @@ public class TuserInfo extends Model implements Serializable {
 		CommFindEntity<TuserInfo> result = new CommFindEntity<TuserInfo>();
 
 		Page<TuserInfo> allData = page(currentPage, pageSize, orderBy);
-		;
 
 		result.setResult(allData.getList());
 		result.setRowCount(allData.getTotalRowCount());
@@ -224,9 +241,13 @@ public class TuserInfo extends Model implements Serializable {
 					userinfo.userid = TPKGenerator.getPrimaryKey(
 							TuserInfo.class.getName(), "userid");
 					userinfo.createDate = new Date();
+//					String passwordHash = BCrypt.hashpw(userinfo.passwd, BCrypt.gensalt());
+//					userinfo.passwd = passwordHash;
 					Ebean.save(userinfo);
 				} else {
 					userinfo.updateDate = new Date();
+//					String passwordHash = BCrypt.hashpw(userinfo.passwd, BCrypt.gensalt());
+//					userinfo.passwd = passwordHash;
 					Ebean.update(userinfo);
 				}
 			}
