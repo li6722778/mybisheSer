@@ -114,6 +114,22 @@ var UserList = function () {
        	     }
        	    	
         	 });
+       	      
+       	      
+       	      $('.popup_select_parking').click(function(){
+        	    	 var type = jQuery(this).attr("type");
+        	    	 var p = jQuery(this).attr("p");
+        	    	 var k = jQuery(this).attr("k");
+        	    	 var v = jQuery(this).attr("v");
+        	    	 //get total of parking
+                	 $.get("/w/parkingprodpopup?p="+p+"&k="+k+"&v"+v,function(result){
+                		 if(result){
+                			 alert(result);
+                			$("#form_modal3 .modal-body").html(result);
+                		 }
+           			});
+        	    	
+         	 });
         	 
         	 
         

@@ -74,6 +74,7 @@ POST     /w/parkingchart                    controllers.WebPageController.gotoPa
 
 POST     /w/parkingprod                        controllers.WebPageController.gotoParkingProd(p:Int ?= 0, s:Int ?= 10, o ?= "approveDate desc",k?="",v?="")
 POST     /w/parkingprod/:parkId                controllers.WebPageController.gotoDetailParkingProd(parkId:Long)
+GET     /w/parkingprodpopup                   controllers.WebPageController.gotoParkingProdForPopup(p:Int ?= 0, s:Int ?= 5, o ?= "approveDate desc",k?="",v?="")
 
 POST     /w/image/upload/:id               controllers.WebPageController.uploadImage(id:Long)
 

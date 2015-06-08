@@ -90,6 +90,16 @@ public class WebPageController extends Controller {
 		return ok(views.html.parkingprod.render(allData, currentPage, pageSize,
 				orderBy, key, searchObj));
 	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoParkingProdForPopup(int currentPage, int pageSize,
+			String orderBy, String key, String searchObj) {
+		Logger.debug("goto gotoParking");
+		Page<TParkInfoProd> allData = TParkInfoProd.pageByFilter(currentPage,
+				pageSize, orderBy, key, searchObj);
+		return ok(views.html.popupparkprod.render(allData, currentPage, pageSize,
+				orderBy, key, searchObj));
+	}
 
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoDetailParkingProd(long parking) {
