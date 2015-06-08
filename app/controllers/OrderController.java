@@ -1,5 +1,7 @@
 package controllers;
 
+import java.util.Date;
+
 import models.info.TOrder;
 import models.info.TuserInfo;
 import play.Logger;
@@ -8,6 +10,7 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import utils.ComResponse;
 import utils.CommFindEntity;
+import utils.Constants;
 import action.BasicAuth;
 
 import com.avaje.ebean.annotation.Transactional;
@@ -106,6 +109,51 @@ public class OrderController extends Controller {
 		return ok(json);
 	}
 	
+	@BasicAuth
+	public static Result savestartDate(){
+		String request = request().body().asJson().toString();
+		Logger.info("start to post data:" + request);
+		
+		TOrder data = gsonBuilderWithExpose.fromJson(request, TOrder.class);
+		ComResponse<TOrder>  response = new ComResponse<TOrder>();
+		try {
+			data.startDate = new Date();
+			TOrder.saveData(data);
+			response.setResponseStatus(ComResponse.STATUS_OK);
+			response.setResponseEntity(data);
+			response.setExtendResponseContext("更新数据成功.");
+		} catch (Exception e) {
+			response.setResponseStatus(ComResponse.STATUS_FAIL);
+			response.setErrorMessage(e.getMessage());
+			Logger.error("", e);
+		}
+		String tempJsonString = gsonBuilderWithExpose.toJson(response);
+		JsonNode json = Json.parse(tempJsonString);
+		return ok(json);
+	}
+	@BasicAuth
+	public static Result saveendDate(){
+		String request = request().body().asJson().toString();
+		Logger.info("start to post data:" + request);
+		
+		TOrder data = gsonBuilderWithExpose.fromJson(request, TOrder.class);
+		ComResponse<TOrder>  response = new ComResponse<TOrder>();
+		try {
+			data.endDate = new Date();
+			data.orderStatus = Constants.ORDER_TYPE_FINISH;
+			TOrder.saveData(data);
+			response.setResponseStatus(ComResponse.STATUS_OK);
+			response.setResponseEntity(data);
+			response.setExtendResponseContext("更新数据成功.");
+		} catch (Exception e) {
+			response.setResponseStatus(ComResponse.STATUS_FAIL);
+			response.setErrorMessage(e.getMessage());
+			Logger.error("", e);
+		}
+		String tempJsonString = gsonBuilderWithExpose.toJson(response);
+		JsonNode json = Json.parse(tempJsonString);
+		return ok(json);
+	}
 	
 	/**
 	 * 根据ID删除数据，如果有其他条件，就需要仿照TOrder.deleteData，写类似的方法
