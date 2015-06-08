@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Page;
 import com.google.gson.annotations.Expose;
 
@@ -81,5 +82,21 @@ public class TLog extends Model{
 		result.setRowCount(allData.getTotalRowCount());
 		result.setPageCount(allData.getTotalPageCount());
 		return result;
+	}
+	
+	public static Page<TLog> findWebLog(int currentPage,int pageSize, String orderBy,String filter){
+
+		if(filter!=null&&!filter.trim().equals("")){
+			Page<TLog> allData =	find.where().ilike("operateName", "%"+filter+"%").orderBy(orderBy)
+			.findPagingList(pageSize).setFetchAhead(false)
+			.getPage(currentPage);
+			return allData;
+		}else{
+		    Page<TLog> allData = find.where().orderBy(orderBy)
+				.findPagingList(pageSize).setFetchAhead(false)
+				.getPage(currentPage);
+		
+		    return allData;
+		}
 	}
 }

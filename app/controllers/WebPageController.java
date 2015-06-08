@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import models.info.ChartCityEntity;
+import models.info.TLog;
 import models.info.TOrder;
 import models.info.TParkInfo;
 import models.info.TParkInfoPro_Loc;
@@ -588,6 +589,16 @@ public class WebPageController extends Controller {
 		JsonNode jsonNode = Json.parse(json);
 		Logger.debug("return json:" + json);
 		return ok(jsonNode);
+	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoLog(int currentPage, int pageSize,
+			String orderBy, String filter) {
+		Logger.debug("goto gotoLog");
+		Page<TLog> allData = TLog.findWebLog(currentPage,
+				pageSize, orderBy, filter);
+		return ok(views.html.log.render(allData, currentPage, pageSize,
+				orderBy, filter));
 	}
 
 }
