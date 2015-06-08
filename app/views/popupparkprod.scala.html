@@ -10,9 +10,11 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
 						<div class="portlet box grey" id="popupparkingprodcontent">
 
 							<div class="portlet-body">
+							
+							@if(flash.get("onlyshow")!="true"){
                               <div class="btn-group pull-left">    
 								<div class="input-append">												
-									<select class="small m-wrap" tabindex="1" id="key_search_parkingprod">
+									<select class="small m-wrap" tabindex="1" id="key_search_parkingprodpopup">
 															<option value="">请选择分类</option>
 															<option value="parkname" @if(key=="parkname"){ selected }>停车场名</option>
 															<option value="address" @if(key=="address"){ selected }>地址</option>
@@ -21,19 +23,21 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
                                                             <option value="createPerson" @if(key=="createPerson" || key=="updatePerson"){ selected }>采集人</option>
                                                             <option value="approvePerson" @if(key=="approvePerson"){ selected }>审核人</option>
 									</select>
-									<input class="m-wrap" size="10" type="text" placeholder="请输入关键字" value="@searchObj" id="value_search_parkingprod" /><button class="btn green" id="searchParkingProdButton">搜索</button>
+									<input class="m-wrap" size="10" type="text" placeholder="请输入关键字" value="@searchObj" id="value_search_parkingprodpopup" /><button class="btn green" id="searchParkingProdPopupButton">搜索</button>
 								</div>
 						       </div>
-				
+				              }
 								</div>
 
-								<table class="table table-striped table-bordered table-advance table-hover" id="sample_1_prod">
+                              
+
+								<table class="table table-striped table-bordered table-advance table-hover" id="sample_1_selectpopup">
 
 									<thead>
 
 										<tr>
 
-											<th style="width:8px;"><input type="checkbox" class="group-checkable" data-set="#sample_1_prod .checkboxes" /></th>
+											<th style="width:8px;"><input type="checkbox" class="group-checkable" data-set="#sample_1_selectpopup .checkboxes" /></th>
 
 											<th>缩略图</th>
 
@@ -75,7 +79,12 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
 					               <ul>
 						                @if(entityBean.hasPrev) {
 						                    <li class="prev">
-						                        <a  class="popup_select_parking" href="javascript:;" p="@(entityBean.getPageIndex - 1)" k="@key" v="@searchObj">&larr; 上一页</a>
+						                    @if(flash.get("onlyshow")!="true"){
+						                        <a  class="popup_select_parking_page" href="javascript:;" p="@(entityBean.getPageIndex - 1)" k="@key" v="@searchObj">&larr; 上一页</a>
+						                    }
+						                    @if(flash.get("onlyshow")=="true"){
+						                     <a  class="popup_show_parking_page" href="javascript:;" p="@(entityBean.getPageIndex - 1)">&larr; 上一页</a>
+						                    }
 						                    </li>
 						                } else {
 						                    <li class="prev disabled">
@@ -87,7 +96,12 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
 						                </li>
 						                @if(entityBean.hasNext) {
 						                    <li class="next">
-						                        <a class="popup_select_parking"  href="javascript:;" p="@(entityBean.getPageIndex+1)" k="@key" v="@searchObj">下一页 &rarr;</a>
+						                     @if(flash.get("onlyshow")!="true"){
+						                        <a class="popup_select_parking_page"  href="javascript:;" p="@(entityBean.getPageIndex+1)" k="@key" v="@searchObj">下一页 &rarr;</a>
+						                     }
+						                    @if(flash.get("onlyshow")=="true"){
+						                     <a class="popup_show_parking_page"  href="javascript:;" p="@(entityBean.getPageIndex+1)">下一页 &rarr;</a>
+						                    }
 						                    </li>
 						                } else {
 						                    <li class="next disabled">
@@ -102,5 +116,68 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
 	<script type="text/javascript" src="@routes.Assets.at("javascripts/select2.min.js")"></script>
 	<script type="text/javascript" src="@routes.Assets.at("javascripts/jquery.dataTables.js")"></script>
 	<script type="text/javascript" src="@routes.Assets.at("javascripts/DT_bootstrap.js")"></script>					
-	<script src="@routes.Assets.at("app/lib/parkinglistprod.js")"></script> 
+	<script>
+	
+	if (jQuery().dataTable) {
+		jQuery('#sample_1_selectpopup .group-checkable').change(function () {
+            var set = jQuery(this).attr("data-set");
+            var checked = jQuery(this).is(":checked");
+            jQuery(set).each(function () {
+                if (checked) {
+                    $(this).attr("checked", true);
+                } else {
+                    $(this).attr("checked", false);
+                }
+            });
+            jQuery.uniform.update(set);
+        });
+    }
+	
+	 $('.popup_select_parking_page').click(function(){
+    	 var type = $('#popuptype').val();
+    	 var p = jQuery(this).attr("p");
+    	 var k = jQuery(this).attr("k");
+    	 var v = jQuery(this).attr("v");
+    	 //get total of parking
+    	 $.get("/w/parkingprodpopup?p="+p+"&k="+k+"&v="+v,function(result){
+    		 if(result){
+    			$("#form_modal3 .modal-body").html(result);
+    			$("<input  type=hidden value="+type+" id=popuptype />").appendTo("#form_modal3 .modal-body");
+    		 }
+			});
+    	
+	 });
+	      
+	      $('.popup_show_parking_page').click(function(){
+	    	  var userid = $('#usertype').val();
+  	    	 var p = jQuery(this).attr("p");
+  	    	 //get total of parking
+  	    	$.get("/w/adm/park/"+userid+"?p="+p,function(result){
+          		 if(result){
+          			$("#form_modal3_adm .modal-body").html(result);
+          			$("<input  type=hidden value="+userid+" id=usertype />").appendTo("#form_modal3_adm .modal-body");
+          		 }
+     			});
+  	    	
+   	       });
+	      
+	      $('#searchParkingProdPopupButton').click(function(){
+
+    		     var key = $("#key_search_parkingprodpopup").val();
+    		     var value = $("#value_search_parkingprodpopup").val();
+    		   
+    		     var pageContent = $('.page-content');
+    		     var pageContentBody = $('.page-content .page-content-body');
+    		  
+    		     $("#form_modal3 .modal-body").html("请等待...");
+ 		    $.get("/w/parkingprodpopup?p=0&k="+key+"&v="+value,function(result){
+       		 if(result){
+       			
+       			$("#form_modal3 .modal-body").html(result);
+       		 }
+  			});
+ 		     
+     		 
+     	 });
+	</script>
 				

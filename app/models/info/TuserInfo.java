@@ -12,9 +12,9 @@ import javax.validation.constraints.Size;
 
 import play.data.format.Formats;
 import play.data.validation.Constraints;
-import play.data.validation.Constraints.Email;
 import play.db.ebean.Model;
 import utils.CommFindEntity;
+import utils.Constants;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Expr;
@@ -112,6 +112,21 @@ public class TuserInfo extends Model implements Serializable {
 		List<TuserInfo> userInfos = find.where().eq("userPhone", userPhone)
 				.eq("passwd", password).findList();
 
+		return (userInfos == null || userInfos.size() <= 0) ? null : userInfos
+				.get(0);
+	}
+	
+	
+	/**
+	 * 登录后台认证
+	 * @param userPhone
+	 * @param password
+	 * @param type
+	 * @return
+	 */
+	public static TuserInfo authenticateWebAdmin(String userPhone, String password) {
+		List<TuserInfo> userInfos = find.where().eq("userPhone", userPhone)
+				.eq("passwd", password).eq("userType", Constants.USER_TYPE_MSADMIN).findList();
 		return (userInfos == null || userInfos.size() <= 0) ? null : userInfos
 				.get(0);
 	}

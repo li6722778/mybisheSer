@@ -1,6 +1,5 @@
 package utils;
 
-import play.Play;
 
 public class Constants {
 
@@ -19,4 +18,11 @@ public class Constants {
 	public static final int PAYMENT_TYPE_ZFB=1;
 	public static final int PAYMENT_TYPE_WEIXIN=2;
 	public static final int PAYMENT_TYPE_YL=3;	
+	
+	public static final int USER_TYPE_NORMAL=10;
+	public static final int USER_TYPE_PADMIN=20;
+	public static final int USER_TYPE_PSADMIN=21;
+	public static final int USER_TYPE_MADMIN=30;
+	public static final int USER_TYPE_MSADMIN=31;
+	public static final int USER_TYPE_SADMIN=999;
 }

@@ -5,6 +5,7 @@ import play.Logger;
 import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Result;
+import utils.Constants;
 
 public class AuthController extends Controller {
 	
@@ -36,6 +37,11 @@ public class AuthController extends Controller {
 	    }
 	}
 	
+	/**
+	 * web后台登录
+	 * @author woderchen
+	 *
+	 */
 	public static class LoginEntity{
 		public String userPhone;
 		public String passwd;
@@ -51,6 +57,11 @@ public class AuthController extends Controller {
 
 			    if ( users == null) {
 			      return "用户名密码错误.";
+			    }else{
+			    	int  type = users.userType;
+			    	if(type!= Constants.USER_TYPE_MSADMIN){
+			    		 return "权限不允许.";
+			    	}
 			    }
 				 userName = users.userName;
 				 userType = users.userType;

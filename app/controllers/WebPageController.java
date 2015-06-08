@@ -14,6 +14,7 @@ import models.info.TParkInfoProd;
 import models.info.TParkInfo_Img;
 import models.info.TParkInfo_Loc;
 import models.info.TParkInfo_Py;
+import models.info.TParkInfo_adm;
 import models.info.TuserInfo;
 import play.Logger;
 import play.data.DynamicForm;
@@ -25,7 +26,9 @@ import play.mvc.Security;
 import utils.CommFindEntity;
 import utils.Constants;
 
+import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Page;
+import com.avaje.ebean.TxRunnable;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class WebPageController extends Controller {
@@ -84,26 +87,38 @@ public class WebPageController extends Controller {
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoParkingProd(int currentPage, int pageSize,
 			String orderBy, String key, String searchObj) {
-		Logger.debug("goto gotoParking");
+		Logger.debug("goto gotoParkingProd");
 		Page<TParkInfoProd> allData = TParkInfoProd.pageByFilter(currentPage,
 				pageSize, orderBy, key, searchObj);
 		return ok(views.html.parkingprod.render(allData, currentPage, pageSize,
 				orderBy, key, searchObj));
 	}
-	
+
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoParkingProdForPopup(int currentPage, int pageSize,
 			String orderBy, String key, String searchObj) {
-		Logger.debug("goto gotoParking");
+		Logger.debug("goto gotoParkingProdForPopup");
 		Page<TParkInfoProd> allData = TParkInfoProd.pageByFilter(currentPage,
 				pageSize, orderBy, key, searchObj);
-		return ok(views.html.popupparkprod.render(allData, currentPage, pageSize,
-				orderBy, key, searchObj));
+		flash("onlyshow","false");
+		return ok(views.html.popupparkprod.render(allData, currentPage,
+				pageSize, orderBy, key, searchObj));
+	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoParkingProdForPopupByAdmin(int currentPage, int pageSize,
+			String orderBy, long userid) {
+		Logger.debug("goto gotoParkingProdForPopupByAdmin");
+		Page<TParkInfoProd> allData = TParkInfo_adm.findDataByUserId(currentPage,
+				pageSize, orderBy, userid);
+		flash("onlyshow","true");
+		return ok(views.html.popupparkprod.render(allData, currentPage,
+				pageSize, orderBy, "", ""));
 	}
 
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoDetailParkingProd(long parking) {
-		Logger.debug("goto gotoDetailParking");
+		Logger.debug("goto gotoDetailParkingProd");
 		TParkInfoProd allData = TParkInfoProd.findDataById(parking);
 
 		String makerString = "";
@@ -406,34 +421,64 @@ public class WebPageController extends Controller {
 	}
 
 	@Security.Authenticated(SecurityController.class)
-	public static Result updateUser(int type, String pidarray) {
-		Logger.info("GOTO updateUser,FOR" + pidarray);
+	public static Result updateUser(final int type, final String pidarray,final String admpark) {
+		Logger.info("GOTO updateUser,FOR " + pidarray);
 		if (pidarray != null && pidarray.length() > 0) {
 			String[] pids = pidarray.split(",");
-			for (String pidString : pids) {
-				try {
-					long pid = Long.parseLong(pidString);
-					Logger.info("try to update userid:" + pid);
-					TuserInfo user = TuserInfo.findDataById(pid);
-					user.userType = type;
-					TuserInfo.saveData(user);
-				} catch (Exception e) {
-					Logger.error("updateUser:" + pidString, e);
-				}
+			for (final String pidString : pids) {
+
+				Ebean.execute(new TxRunnable() {
+					public void run() {
+						try {
+							long pid = Long.parseLong(pidString);
+							Logger.info("------------------------try to update userid:"
+									+ pid);
+							TuserInfo user = TuserInfo.findDataById(pid);
+							user.userType = type;
+							TuserInfo.saveData(user);
+
+							// 是一个车位管理员
+							if (type >= Constants.USER_TYPE_PADMIN
+									&& type < (Constants.USER_TYPE_PADMIN * 10)) {
+								if (admpark != null && admpark.length() > 0) {
+									String[] parkIds = admpark.split(",");
+									Logger.info("--------try to update admin for "
+											+ admpark);
+									for (String parid : parkIds) {
+										
+										TParkInfo_adm adm = TParkInfo_adm.findByUserAndPark(pid, Long.parseLong(parid));
+										if(adm==null){
+										  adm = new TParkInfo_adm();
+										}
+										adm.userInfo = user;
+										TParkInfoProd parkprod = new TParkInfoProd();
+										parkprod.parkId = Long.parseLong(parid);
+										adm.parkInfo = parkprod;
+										TParkInfo_adm.saveData(adm);
+									}
+								}
+							}else{
+								TParkInfo_adm.deleteDataByUser(pid);
+							}
+
+						} catch (Exception e) {
+							Logger.error("updateUser:" + pidString, e);
+						}
+					}
+				});
 			}
 			return ok("" + pids.length);
 		}
 
 		return ok("0");
 	}
-	
-	
+
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoOrder(int currentPage, int pageSize,
 			String orderBy, String city, String filter) {
 		Logger.debug("goto gotoOrder,city" + city);
-		Page<TOrder> allData = TOrder.pageByFilter(currentPage,
-				pageSize, orderBy, city, filter);
+		Page<TOrder> allData = TOrder.pageByFilter(currentPage, pageSize,
+				orderBy, city, filter);
 
 		if (allData != null) {
 			Logger.debug("##########goto gotoUser,total:"
@@ -441,39 +486,39 @@ public class WebPageController extends Controller {
 		}
 
 		return ok(views.html.order.render(allData, currentPage, pageSize,
-				orderBy,city,filter));
+				orderBy, city, filter));
 	}
-	
+
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoDetailOrder(long orderId) {
 		Logger.debug("goto gotoDetailOrder");
 		TOrder allData = TOrder.findDataById(orderId);
 
-//		String makerString = "";
-//		if (allData != null) {
-//			List<TParkInfo_Loc> locAarray = allData.latLngArray;
-//			if (locAarray != null) {
-//
-//				for (TParkInfo_Loc loc : locAarray) {
-//					makerString += loc.longitude + "," + loc.latitude + "|";
-//				}
-//
-//				if (makerString.length() > 0) {
-//					makerString = makerString.substring(0,
-//							makerString.length() - 2);
-//				}
-//			}
-//		}
-//
-//		flash("makerString", makerString);
+		// String makerString = "";
+		// if (allData != null) {
+		// List<TParkInfo_Loc> locAarray = allData.latLngArray;
+		// if (locAarray != null) {
+		//
+		// for (TParkInfo_Loc loc : locAarray) {
+		// makerString += loc.longitude + "," + loc.latitude + "|";
+		// }
+		//
+		// if (makerString.length() > 0) {
+		// makerString = makerString.substring(0,
+		// makerString.length() - 2);
+		// }
+		// }
+		// }
+		//
+		// flash("makerString", makerString);
 
 		return ok(views.html.orderdetail.render(allData));
 	}
-	
+
 	@Security.Authenticated(SecurityController.class)
-	public static Result setExceptionOrder(String pidarray){
+	public static Result setExceptionOrder(String pidarray) {
 		Logger.debug("goto setExceptionOrder");
-		
+
 		if (pidarray != null && pidarray.length() > 0) {
 			String[] pids = pidarray.split(",");
 			for (String pidString : pids) {
@@ -481,7 +526,7 @@ public class WebPageController extends Controller {
 					long pid = Long.parseLong(pidString);
 					Logger.info("try to set exception for:" + pid);
 					TOrder allData = TOrder.findDataById(pid);
-					if(allData!=null){
+					if (allData != null) {
 						allData.orderStatus = Constants.ORDER_TYPE_EXCPTION;
 						TOrder.saveData(allData);
 						Logger.debug("done for set exception:" + pid);
@@ -495,50 +540,54 @@ public class WebPageController extends Controller {
 
 		return ok("0");
 	}
-	
+
 	/**
 	 * 跳转到订单图
+	 * 
 	 * @return
 	 */
-	public static Result gotoOrderChart(){
+	public static Result gotoOrderChart() {
 		Logger.debug("goto gotoOrderChart");
 		return ok(views.html.orderchart.render());
 	}
-	
-	public static Result gotoParkingChart(){
+
+	public static Result gotoParkingChart() {
 		Logger.debug("goto gotoParkingChart");
 		return ok(views.html.chartparking.render());
 	}
-	
+
 	/**
 	 * 返回json的城市订单数据
+	 * 
 	 * @param city
 	 * @return
 	 */
-	public static Result getCityOrderChart(String city){
-		Logger.debug("goto getCityOrderChart:"+city);
-		HashMap<String,List<ChartCityEntity>> map = ChartCityEntity.getTop30OrderForEachCity(city);
-		
+	public static Result getCityOrderChart(String city) {
+		Logger.debug("goto getCityOrderChart:" + city);
+		HashMap<String, List<ChartCityEntity>> map = ChartCityEntity
+				.getTop30OrderForEachCity(city);
+
 		String json = OrderController.gsonBuilderWithExpose.toJson(map);
 		JsonNode jsonNode = Json.parse(json);
-		Logger.debug("return json:"+json);
+		Logger.debug("return json:" + json);
 		return ok(jsonNode);
 	}
 
 	/**
 	 * 返回json的城市订单数据
+	 * 
 	 * @param city
 	 * @return
 	 */
-	public static Result getPersonOrderChart(String createPerson){
-		Logger.debug("goto getPersonOrderChart:"+createPerson);
-		HashMap<String,List<ChartCityEntity>> map = ChartCityEntity.getTop30OrderForEachCaiji(createPerson);
-		
+	public static Result getPersonOrderChart(String createPerson) {
+		Logger.debug("goto getPersonOrderChart:" + createPerson);
+		HashMap<String, List<ChartCityEntity>> map = ChartCityEntity
+				.getTop30OrderForEachCaiji(createPerson);
+
 		String json = OrderController.gsonBuilderWithExpose.toJson(map);
 		JsonNode jsonNode = Json.parse(json);
-		Logger.debug("return json:"+json);
+		Logger.debug("return json:" + json);
 		return ok(jsonNode);
 	}
-	
 
 }

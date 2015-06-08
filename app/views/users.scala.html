@@ -2,6 +2,9 @@
 currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
 
 
+	<link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/select2_metro.css")" />
+
+	<link rel="stylesheet" href="@routes.Assets.at("stylesheets/DT_bootstrap.css")" />
 	<link href="@routes.Assets.at("stylesheets/bootstrap-modal.css")" rel="stylesheet" type="text/css"/>
 
              <!-- BEGIN PAGE HEADER-->
@@ -95,6 +98,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
 											<li><a href="#form_modal3" class="popup_select_parking" data-toggle="modal" type="20" p="0" k="" v="">设为车场管理员</a></li>
 											<li><a href="#form_modal3" class="popup_select_parking" data-toggle="modal"  type="21" p="0" k="" v="">设为车场负责人</a></li>
 											<li><a href="javascript:;" class="button_update_user" type="30">设为数据采集员</a></li>
+											<li><a href="javascript:;" class="button_update_user" type="31">设为后台用户</a></li>
 										</ul>
 
 									</div>
@@ -116,19 +120,30 @@ currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
 
 									<div class="modal-footer">
 										<button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
-										<button class="btn green btn-primary" data-dismiss="modal">提交</button>
+										<button class="btn green btn-primary" id ="button_update_user_selected"data-dismiss="modal">提交</button>
 									</div>
-								</div>
+							</div>
+							
+							<div id="form_modal3_adm" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel3" aria-hidden="true">
+
+									<div class="modal-body">
+										请等待...
+									</div>
+
+									<div class="modal-footer">
+										<button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
+									</div>
+							</div>
 
 								<!-- END FORM--> 
 							
-								<table class="table table-striped table-bordered table-advance table-hover" id="sample_1">
+								<table class="table table-striped table-bordered table-advance table-hover" id="sample_1_userlist">
 
 									<thead>
 
 										<tr>
 
-											<th style="width:8px;"><input type="checkbox" class="group-checkable" data-set="#sample_1 .checkboxes" /></th>
+											<th style="width:8px;"><input type="checkbox" name="userselect" class="group-checkable" data-set="#sample_1_userlist .checkboxes" /></th>
 
 											<th class="hidden-480">ID</th>
 
@@ -148,23 +163,33 @@ currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
 
 									<tbody>
 
-                            @for(TuserInfo <- entityBean.getList) {
+                                @for(TuserInfo <- entityBean.getList) {
 										<tr class="odd gradeX">
-											<td><input type="checkbox" class="checkboxes" value="@TuserInfo.userid" /></td>
+											<td><input type="checkbox" name="userselect" class="checkboxes" value="@TuserInfo.userid" /></td>
 											<td class="hidden-480">@TuserInfo.userid</td>
-											<td >@TuserInfo.userName</td>
+											<td >@TuserInfo.userName
+											  @if(TuserInfo.userType>=20&&TuserInfo.userType<30){
+											     <a href="#form_modal3_adm" class="popup_show_parking" data-toggle="modal" usertype="@TuserInfo.userid" p="0" k="" v=""><i class="icon-picture" ></i></a>
+											   }
+											 </td>
 											<td class="hidden-480">@TuserInfo.userPhone</td>
 											<td class="hidden-480">@TuserInfo.createDate.format("yyyy-MM-dd HH:mm:ss")</td>
 											<td class="center hidden-480">@if(TuserInfo.updateDate!=null){@TuserInfo.updateDate.format("yyyy-MM-dd HH:mm:ss")}</td>
 											<td >
 										      @if(TuserInfo.userType>=10&&TuserInfo.userType<20){
-											    <span class="label label-success">普通用户</span>
+											    <span class="label label-info">普通用户</span>
 											   }
 											   @if(TuserInfo.userType>=20&&TuserInfo.userType<30){
 											    <span class="label label-inverse">车场管理@if(TuserInfo.userType==21){ + }</span>
+											   
 											    }
 											    @if(TuserInfo.userType>=30&&TuserInfo.userType<40){
-											    <span class="label label-warning">信息采集</span>
+											   
+											      @if(TuserInfo.userType==31){ 
+											            <span class="label label-inverse">后台用户</span>
+											      }else{
+											            <span class="label label-warning"> 数据采集</span>
+											      }
 											    }
 											</td>
 										</tr>
@@ -211,4 +236,4 @@ currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
 	<script src="@routes.Assets.at("javascripts/bootstrap-modalmanager.js")" type="text/javascript" ></script> 
 				
 	<script src="@routes.Assets.at("app/lib/userlist.js")" type="text/javascript" ></script>
-							
+						

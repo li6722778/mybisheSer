@@ -76,13 +76,15 @@ POST     /w/parkingprod                        controllers.WebPageController.got
 POST     /w/parkingprod/:parkId                controllers.WebPageController.gotoDetailParkingProd(parkId:Long)
 GET     /w/parkingprodpopup                   controllers.WebPageController.gotoParkingProdForPopup(p:Int ?= 0, s:Int ?= 5, o ?= "approveDate desc",k?="",v?="")
 
+GET     /w/adm/park/:userId                      controllers.WebPageController.gotoParkingProdForPopupByAdmin(p:Int ?= 0, s:Int ?= 5, o ?= "parkAdmId desc",userId:Long)
+
 POST     /w/image/upload/:id               controllers.WebPageController.uploadImage(id:Long)
 
 POST      /w/user/add                          controllers.WebPageController.gotoUserAdd()
 POST      /w/user                              controllers.WebPageController.gotoUser(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc", t:Int ?= 10, f ?="")
 POST      /w/user/add/submit                   controllers.WebPageController.saveUserData()
 POST      /w/user/delete                       controllers.WebPageController.deleteUser(p ?= "")
-POST      /w/user/update                       controllers.WebPageController.updateUser(t:Int ?= 10, p ?= "")
+POST      /w/user/update                       controllers.WebPageController.updateUser(t:Int ?= 10, p ?= "",admpark?="")
 
 POST      /w/user/changepw/:phone/:type          controllers.WebPageController.updatedUserPasswdData(phone:String,type:Integer)
 POST      /w/user/gotomulitpasswd               controllers.WebPageController.gotoMutipPasswd(p?="")
