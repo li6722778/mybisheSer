@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import play.Logger;
 import play.data.format.Formats;
 import play.db.ebean.Model;
 import utils.CommFindEntity;
@@ -47,7 +48,7 @@ public class TParkInfo_Loc extends Model {
 	@Expose
 	public int parkFreeCount;
 
-	/* 类型,1:出口,2:入口 */
+	/* 类型,1:入口,2:出口 */
 	@Expose
 	@Column(columnDefinition = "integer(2) default 1")
 	public int type;
@@ -159,4 +160,6 @@ public class TParkInfo_Loc extends Model {
 		result.setPageCount(1);
 		return result;
 	}
+	
+
 }

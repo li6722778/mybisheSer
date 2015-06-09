@@ -63,6 +63,8 @@ GET     /                             controllers.Application.index()
 POST    /login                        controllers.AuthController.authenticate()
 GET		/logout                       controllers.AuthController.logout()
 
+GET		/a/ans                       controllers.MapFindController.findNearbyParking(a:Double?= 0, n:Double?=0, s:Float?=2)
+
 POST    /w/log                        controllers.WebPageController.gotoLog(p:Int ?= 0, s:Int ?= 10, o ?= "operateDate desc",f?="")
 
 #BELOW for menu jump

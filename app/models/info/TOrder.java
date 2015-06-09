@@ -74,7 +74,7 @@ public class TOrder extends Model {
 			Long.class, TOrder.class);
 
 	public static TOrder findDataById(long id) {
-		return find.byId(id);
+		return find.fetch("userInfo").fetch("pay").fetch("parkInfo").setId(id).findUnique();
 	}
 
 	/**
@@ -134,7 +134,7 @@ public class TOrder extends Model {
 
 		CommFindEntity<TOrder> result = new CommFindEntity<TOrder>();
 
-		Page<TOrder> allData = find.where().orderBy(orderBy)
+		Page<TOrder> allData = find.where().orderBy(orderBy).fetch("userInfo").fetch("pay").fetch("parkInfo")
 				.findPagingList(pageSize).setFetchAhead(false)
 				.getPage(currentPage);
 
@@ -161,7 +161,7 @@ public class TOrder extends Model {
 		if(filter!=null&&!filter.trim().equals("")){
 			elist.ilike("orderName", "%"+filter+"%");
 		}
-		Page<TOrder> allData = elist.orderBy(orderBy)
+		Page<TOrder> allData = elist.orderBy(orderBy).fetch("userInfo").fetch("pay").fetch("parkInfo")
 				.findPagingList(pageSize).setFetchAhead(false)
 				.getPage(currentPage);
         return allData;
@@ -180,7 +180,7 @@ public class TOrder extends Model {
 
 		CommFindEntity<TOrder> result = new CommFindEntity<TOrder>();
 
-		Page<TOrder> allData = find.where().eq("userid", userid)
+		Page<TOrder> allData = find.fetch("userInfo").fetch("pay").fetch("parkInfo").where().eq("userid", userid)
 				.orderBy(orderBy).findPagingList(pageSize).setFetchAhead(false)
 				.getPage(currentPage);
 
