@@ -82,6 +82,9 @@ public class CommentsController extends Controller {
 		TParkInfo_Comment data = gsonBuilderWithExpose.fromJson(request, TParkInfo_Comment.class);
 		ComResponse<TParkInfo_Comment>  response = new ComResponse<TParkInfo_Comment>();
 		try {
+			
+			String username = session("username");
+			data.createPerson = username;
 			TParkInfo_Comment.saveData(data);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(data);

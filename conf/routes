@@ -34,6 +34,7 @@ POST /a/order/save                              controllers.OrderController.save
 POST /a/order/savestartdate                              controllers.OrderController.savestartDate()
 POST /a/order/saveenddate                              controllers.OrderController.saveendDate()
 GET /a/order/delete/:id                         controllers.OrderController.deleteData(id:Long)
+GET /a/order/changestatue                       controllers.OrderController.changeorderstatue()
 
 GET  /a/parkinfoprod/find/:parkid                 controllers.ParkProdController.getDataById(parkid:Long)
 GET  /a/parkinfoprod                              controllers.ParkProdController.getAllData(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc")
