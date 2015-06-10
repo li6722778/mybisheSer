@@ -111,11 +111,11 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
 										<tr class="odd gradeX">
 											<td ><input type="checkbox" class="checkboxes" value="@TParkInfo.parkId" /></td>
 											<td>
-											     <a href="#" class="thumbnail" >
-											        @if(TParkInfo.imgUrlArray!=null&&TParkInfo.imgUrlArray.length>0){
+											 @if(TParkInfo.imgUrlArray!=null&&TParkInfo.imgUrlArray.length>0){
+											     <a class="ajaxify thumbnail"  href="javascript:;" post="/w/parkingprod/@TParkInfo.parkId" >
                                                       <img style="max-width:80px;max-height:120px" src="@TParkInfo.imgUrlArray.get(0).imgUrlHeader@TParkInfo.imgUrlArray.get(0).imgUrlPath" alt="">
-                                                    }
                                                </a>
+                                                }
 											</td>
 											<td ><a class="ajaxify"  href="javascript:;" post="/w/parkingprod/@TParkInfo.parkId">@TParkInfo.parkname</a></td>
 											<td >@TParkInfo.owner</td>

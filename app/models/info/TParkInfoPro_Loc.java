@@ -18,6 +18,7 @@ import play.db.ebean.Model;
 import utils.CommFindEntity;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Page;
 import com.avaje.ebean.TxRunnable;
 import com.avaje.ebean.annotation.Transactional;
@@ -36,6 +37,7 @@ public class TParkInfoPro_Loc extends Model {
 	@Expose
 	public Long parkLocId;
 
+	@Expose
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "parkId")
 	public TParkInfoProd parkInfo;
@@ -194,6 +196,14 @@ public class TParkInfoPro_Loc extends Model {
 		Logger.debug("-------minLng:"+minLng+",maxLng:"+maxLng+"");
 		
 		List<TParkInfoPro_Loc> result = find.where().eq("type",1).eq("isOpen", 1).between("latitude", minLat, maxLat).between("longitude", minLng, maxLng).findList();
+		
+		//未来可以再次优化优化？？？？？？？？
+		if(result!=null){
+			for(TParkInfoPro_Loc loc:result){
+				long parkid = loc.parkInfo.parkId;
+				loc.parkInfo = TParkInfoProd.findDataById(parkid);
+			}
+		}
 		
 		return result;
 	}
