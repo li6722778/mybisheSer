@@ -83,7 +83,7 @@ public class CommentsController extends Controller {
 		ComResponse<TParkInfo_Comment>  response = new ComResponse<TParkInfo_Comment>();
 		try {
 			
-			String username = session("username");
+			String username = flash("username");
 			data.createPerson = username;
 			TParkInfo_Comment.saveData(data);
 			response.setResponseStatus(ComResponse.STATUS_OK);
