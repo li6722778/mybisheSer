@@ -11,11 +11,7 @@ var Parking = function () {
                 
                 if (jQuery().timepicker) {
                     $('.timepicker-default').timepicker();
-                    $('.timepicker-24').timepicker({
-                        minuteStep: 1,
-                        showSeconds: true,
-                        showMeridian: false
-                    });
+                  
                 }
             }
         	

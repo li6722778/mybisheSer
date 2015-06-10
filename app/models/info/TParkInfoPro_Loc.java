@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import play.Logger;
 import play.data.format.Formats;
 import play.db.ebean.Model;
 import utils.CommFindEntity;
@@ -169,6 +170,31 @@ public class TParkInfoPro_Loc extends Model {
 		result.setResult(allData);
 		result.setRowCount(allData.size());
 		result.setPageCount(1);
+		return result;
+	}
+	
+	/**
+	 * latitude 和 longitude建立复合索引
+	 * @param myLat
+	 * @param myLng
+	 * @param scope
+	 * @return
+	 */
+	public static List<TParkInfoPro_Loc> findNearbyParking(double myLat,double myLng, float scope){
+		
+		//先计算经纬度范围
+		double range = 180 / Math.PI * scope / 6372.797;  
+		double lngR = range / Math.cos(myLat * Math.PI / 180.0);
+		double maxLat = myLat + range;
+		double minLat = myLat - range;
+		double maxLng = myLng + lngR;
+		double minLng = myLng - lngR;
+		
+		Logger.debug("-------minLat:"+minLat+",maxLat:"+maxLat+"");
+		Logger.debug("-------minLng:"+minLng+",maxLng:"+maxLng+"");
+		
+		List<TParkInfoPro_Loc> result = find.where().eq("type",1).eq("isOpen", 1).between("latitude", minLat, maxLat).between("longitude", minLng, maxLng).findList();
+		
 		return result;
 	}
 }
