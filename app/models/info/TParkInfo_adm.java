@@ -36,9 +36,16 @@ public class TParkInfo_adm  extends Model{
 	//查询finder，用于其他方法中需要查询的场景 
 	public static Finder<Long,TParkInfo_adm> find = new Finder<Long,TParkInfo_adm>(Long.class, TParkInfo_adm.class);
 	
-	public static TParkInfoProd findAdmPartInfo(long userId){
-		TParkInfo_adm adm = find.where().eq("userid", userId).findUnique();
-		return adm==null?null:adm.parkInfo;
+	public static List<TParkInfoProd> findAdmPartInfo(long userId){
+		List<TParkInfo_adm> adm = find.where().eq("userid", userId).findList();
+        List<TParkInfoProd> prodArray = new ArrayList<TParkInfoProd>();		
+		
+		if(adm!=null){
+		   for(TParkInfo_adm a : adm){
+			   prodArray.add(a.parkInfo);
+		   }
+		}
+		return prodArray;
 	}
 	
 	public static Page<TParkInfoProd> findDataByUserId(int currentPage,
