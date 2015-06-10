@@ -163,7 +163,7 @@
 													<div class="span12 ">
 
                                                            @if(entityBean.isDiscountSec==1){
-                                                                <label class="control-label" >优惠时段: @entityBean.discountSecStartHour.format("HH:mm:ss")~@entityBean.discountSecEndHour.format("HH:mm:ss"),@entityBean.discountSecHourMoney 元/小时</label>
+                                                                <label class="control-label" >优惠时段: @if(entityBean.discountSecStartHour!=null) { @entityBean.discountSecStartHour.format("HH:mm:ss") }~ @if(entityBean.discountSecEndHour!=null) {  @entityBean.discountSecEndHour.format("HH:mm:ss") },@entityBean.discountSecHourMoney 元/小时</label>
                                                            }
 
 													</div>
@@ -214,8 +214,7 @@
 									</a>
 
 									<div class="media-body">
-										<h4 class="media-heading">xs2015</h4>
-										<p>测试 </p>
+										
 									</div>
 
 								</div>

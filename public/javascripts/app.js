@@ -121,7 +121,7 @@ var App = function () {
                     clearTimeout(resize);
                 }   
                 resize = setTimeout(function() {
-                    console.log('resize');
+                	window.console &&console.log('resize');
                     handleResponsive();    
                 }, 50); // wait 50ms until window resize finishes.
             });
@@ -228,6 +228,7 @@ var App = function () {
         }
 
         if ($('.page-sidebar-fixed').size() === 0) {
+        	menu.parent().css({position:'absolute',left:'0px'});
             handleSidebarAndContentHeight();
             return;
         }

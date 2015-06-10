@@ -268,5 +268,12 @@ public class ParkProdController extends Controller {
 		Logger.debug("got Data:" + json);
 		return ok(jsonNode);
 	}
+	
+	public static Result disQRImage(String content) {
+		Logger.info("start to disQRImage");
+
+		
+		return ok("");
+	}
 
 }

@@ -1,13 +1,9 @@
 
 
 <!DOCTYPE html>
-
 <!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
-
 <!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->
-
 <!--[if !IE]><!--> <html lang="en"> <!--<![endif]-->
-
 <!-- BEGIN HEAD -->
 
 <head>
@@ -17,7 +13,7 @@
 	<title>车泊乐--您的私人停车专家</title>
 
 	<meta content="width=device-width, initial-scale=1.0" name="viewport" />
-
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
 	<meta content="" name="description" />
 
 	<meta content="" name="author" />
@@ -42,7 +38,9 @@
 </head>
 
 <!-- BEGIN BODY -->
-
+<!--[if lt IE 9]>
+<script src="@routes.Assets.at("app/html5shiv.js")"></script> 
+<![endif]-->
 <body class="page-header-fixed">
 
 	<!-- BEGIN HEADER -->
@@ -226,7 +224,7 @@
 
 						<li>
 							<a class="ajaxify" id="parkingprod" href="javascript:;" post="/w/parkingprod">
-							  地图显示数据             
+							  签约停车场            
 							</a>
 						</li>
 
@@ -382,22 +380,21 @@
 	<script src="@routes.Assets.at("javascripts/bootstrap.min.js")" type="text/javascript"></script>
 	<!--[if lt IE 9]>
 
-	<script src="media/js/excanvas.min.js"></script>
-
-	<script src="media/js/respond.min.js"></script>  
-
+	<script src="@routes.Assets.at("javascripts/excanvas.min.js")"></script>
+    <script src="@routes.Assets.at("javascripts/respond.min.js")"></script> 
+ 
 	<![endif]-->   
 	<script src="@routes.Assets.at("javascripts/jquery.slimscroll.min.js")" type="text/javascript"></script>
 	<script src="@routes.Assets.at("javascripts/jquery.blockui.min.js")" type="text/javascript"></script>  
 	<script src="@routes.Assets.at("javascripts/jquery.cookie.min.js")" type="text/javascript"></script>
 	<script src="@routes.Assets.at("javascripts/jquery.uniform.min.js")" type="text/javascript" ></script>
+	<script src="@routes.Assets.at("app/jquery.uniform.min.js")" type="text/javascript" ></script>
 	<!-- END CORE PLUGINS -->
 
 	<script type="text/javascript" src="@routes.Assets.at("javascripts/select2.min.js")"></script>
 	<script src="@routes.Assets.at("javascripts/app.js")"></script>      
     <script src="@routes.Assets.at("app/lib/index.js")"></script> 
-    
-	
+
 	<!-- END JAVASCRIPTS -->
 
 </body>
