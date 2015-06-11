@@ -130,7 +130,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String, key:String,searchObj:St
 											   @if(TParkInfo.imgUrlArray!=null&&TParkInfo.imgUrlArray.length>0){
 											    <a class="ajaxify thumbnail"  href="javascript:;" post="/w/parking/@TParkInfo.parkId"  >
 											       
-                                                      <img style="max-width:60px;max-height:100px" src="@TParkInfo.imgUrlArray.get(0).imgUrlHeader@TParkInfo.imgUrlArray.get(0).imgUrlPath" alt="">
+                                                      <img class="img-thumbnail" style="max-width:60px;max-height:100px" src="@TParkInfo.imgUrlArray.get(0).imgUrlHeader@TParkInfo.imgUrlArray.get(0).imgUrlPath" alt="">
                                                     
                                                </a>
                                              }

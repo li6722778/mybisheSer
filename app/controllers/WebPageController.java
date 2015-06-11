@@ -16,6 +16,7 @@ import models.info.TParkInfo_Img;
 import models.info.TParkInfo_Loc;
 import models.info.TParkInfo_Py;
 import models.info.TParkInfo_adm;
+import models.info.TVersion;
 import models.info.TuserInfo;
 import play.Logger;
 import play.data.DynamicForm;
@@ -185,6 +186,7 @@ public class WebPageController extends Controller {
 					long pid = Long.parseLong(pidString);
 					Logger.info("try to delete pid:" + pid);
 					TParkInfo.deleteData(pid);
+					LogController.info("delete parking for id:"+pidarray);
 				} catch (Exception e) {
 					Logger.error("deleteParking:" + pidString, e);
 				}
@@ -205,6 +207,7 @@ public class WebPageController extends Controller {
 					long pid = Long.parseLong(pidString);
 					Logger.info("try to approve pid:" + pid);
 					ParkProdController.copyData(pid);
+					LogController.info("approve parking for submitted parking id:"+pidarray);
 				} catch (Exception e) {
 					Logger.error("deleteParking:" + pidString, e);
 				}
@@ -225,6 +228,7 @@ public class WebPageController extends Controller {
 					long pid = Long.parseLong(pidString);
 					Logger.info("try to copy2orin pid:" + pid);
 					ParkProdController.copyDataToOringal(pid);
+					LogController.info("move produce data to temp box for parking id:"+pidarray);
 				} catch (Exception e) {
 					Logger.error("deleteParking:" + pidString, e);
 				}
@@ -249,6 +253,7 @@ public class WebPageController extends Controller {
 		if (parkinfo != null) {
 			Logger.debug("###########get parkId:" + parkinfo.parkId);
 			TParkInfo.saveData(parkinfo);
+			LogController.info("save parking data for "+parkinfo.parkname);
 		}
 
 		return ok("提交成功.");
@@ -297,6 +302,8 @@ public class WebPageController extends Controller {
 					Logger.error("updateParkingOpenClose:" + pidString, e);
 				}
 			}
+			
+			LogController.debug("updated status open/close for "+pidarray);
 		}
 		
 		
@@ -324,6 +331,8 @@ public class WebPageController extends Controller {
 			}
 			String json = ParkController.gsonBuilderWithExpose.toJson(array);
 			JsonNode jsonNode = Json.parse(json);
+			
+			LogController.debug("upload image for parking id "+parkingId);
 			return ok(jsonNode);
 
 		} catch (IOException e) {
@@ -393,6 +402,7 @@ public class WebPageController extends Controller {
 			info.createPerson = userName;
 			info.updatePerson = userName;
 			TuserInfo.saveData(info);
+			LogController.info("save user for "+info.userPhone);
 		}
 
 		return ok("提交成功.");
@@ -454,7 +464,7 @@ public class WebPageController extends Controller {
 
 				userinfo.passwd = newpasswd;
 				TuserInfo.saveData(userinfo);
-
+				LogController.info("change passsword for "+userPhone);
 				return ok(type == 1 ? "密码修改成功" : "密码重置成功");
 			} catch (Exception e) {
 				Logger.error("updatedUserPasswdData", e);
@@ -479,6 +489,7 @@ public class WebPageController extends Controller {
 						Logger.error("updatedUserPasswdData", e);
 					}
 				}
+				LogController.info("reset passsword for "+userPhone);
 				return ok(succussString + "密码重置成功");
 			} else {
 				return ok("没有获取到重置对象");
@@ -502,6 +513,7 @@ public class WebPageController extends Controller {
 					long pid = Long.parseLong(pidString);
 					Logger.info("try to delete userid:" + pid);
 					TuserInfo.deleteData(pid);
+					LogController.info("delete user:"+pidarray);
 				} catch (Exception e) {
 					Logger.error("deleteUser:" + pidString, e);
 				}
@@ -556,10 +568,12 @@ public class WebPageController extends Controller {
 										TParkInfo_adm.saveData(adm);
 									}
 								}
+								
+								
 							}else{
 								TParkInfo_adm.deleteDataByUser(pid);
 							}
-
+							LogController.info("updated user:"+pidString);
 						} catch (Exception e) {
 							Logger.error("updateUser:" + pidString, e);
 						}
@@ -629,6 +643,7 @@ public class WebPageController extends Controller {
 						allData.orderStatus = Constants.ORDER_TYPE_EXCPTION;
 						TOrder.saveData(allData);
 						Logger.debug("done for set exception:" + pid);
+						LogController.info("done for set exception:"+pid);
 					}
 				} catch (Exception e) {
 					Logger.error("deleteUser:" + pidString, e);
@@ -655,6 +670,43 @@ public class WebPageController extends Controller {
 		return ok(views.html.chartparking.render());
 	}
 
+	
+	/**
+	 * 跳转版本界面
+	 * @return
+	 */
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoVersion() {
+		Logger.debug("goto gotoVersion");
+		
+		TVersion tversion = TVersion.findVersion();
+		
+		return ok(views.html.version.render(tversion));
+	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result saveVersionData() {
+		Logger.debug("goto saveVersionData");
+		// DynamicForm dynamicForm = Form.form().bindFromRequest();
+		Form<TVersion> form = Form.form(TVersion.class).bindFromRequest();
+		if (form.hasErrors()) {
+			JsonNode node = form.errorsAsJson();
+			Logger.error("###########getglobalError:" + node);
+			return badRequest(node.toString());
+		}
+		TVersion info = form.get();
+		if (info != null) {
+			if(info.versionId==null||info.versionId<=0){
+			   TVersion.saveData(info);
+			}else{
+			   TVersion.updateData(info);
+			}
+			LogController.info("version delivery:"+info.version);
+		}
+
+		return ok("提交成功.");
+	}
+	
 	/**
 	 * 返回json的城市订单数据
 	 * 

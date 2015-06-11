@@ -148,7 +148,7 @@ public class ParkProdController extends Controller {
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(parkProdInfo);
 			response.setExtendResponseContext("更新数据成功.");
-			LogController.info("copy prod park data from submited park:"+parkInfo.parkname);
+			LogController.info("approved. copy data from submitted park:"+parkInfo.parkname);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());

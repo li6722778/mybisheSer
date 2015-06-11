@@ -97,7 +97,7 @@ var OrderChartList = function () {
         						 data:chartData,
         						 label:key
         				 }
-        				 
+        				 //alert("json:"+chartData);
         				 plotData.push(jsonTextF);
         			 });
         	

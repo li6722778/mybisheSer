@@ -108,3 +108,6 @@ POST      /w/orderchart                          controllers.WebPageController.g
 GET      /w/chart/caiji                          controllers.WebPageController.getPersonOrderChart(p ?= "")
 GET      /w/chart/order                          controllers.WebPageController.getCityOrderChart(p ?= "")
 
+POST      /w/version                          controllers.WebPageController.gotoVersion()
+POST      /w/version/submit                   controllers.WebPageController.saveVersionData()
+

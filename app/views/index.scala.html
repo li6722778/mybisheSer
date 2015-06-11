@@ -305,11 +305,29 @@
 				</li>
 				
              <li class="last">
-					<a class="ajaxify"  href="javascript:;" post="/w/log ">
-					<i class="icon-dashboard"></i> 
-					<span class="title">系统日志</span>
+                    
+                    <a href="javascript:;">
+					<i class="icon-info-sign"></i> 
+					<span class="title">系统设置</span>
 					<span class="selected"></span>
+					<span class="arrow open"></span>
 					</a>
+					<ul class="sub-menu">
+
+						<li>
+							<a class="ajaxify" id="index_version" href="javascript:;" post="/w/version">
+							      移动端版本       
+							</a>
+						</li>
+
+						<li>
+							<a class="ajaxify" id="index_log"  href="javascript:;" post="/w/log ">
+							 系统日志      
+							</a>
+						</li>
+
+					</ul>
+             
 				</li>
 			</ul>
 
@@ -388,7 +406,7 @@
 	<script src="@routes.Assets.at("javascripts/jquery.blockui.min.js")" type="text/javascript"></script>  
 	<script src="@routes.Assets.at("javascripts/jquery.cookie.min.js")" type="text/javascript"></script>
 	<script src="@routes.Assets.at("javascripts/jquery.uniform.min.js")" type="text/javascript" ></script>
-	<script src="@routes.Assets.at("app/jquery.uniform.min.js")" type="text/javascript" ></script>
+	
 	<!-- END CORE PLUGINS -->
 
 	<script type="text/javascript" src="@routes.Assets.at("javascripts/select2.min.js")"></script>

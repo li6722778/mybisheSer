@@ -99,6 +99,7 @@ public class OrderController extends Controller {
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(data);
 			response.setExtendResponseContext("更新数据成功.");
+			LogController.info("save order data:"+data.orderName);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
@@ -121,7 +122,8 @@ public class OrderController extends Controller {
 			TOrder.saveData(data);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(data);
-			response.setExtendResponseContext("更新数据成功.");
+			response.setExtendResponseContext("更新订单开始时间成功.");
+			LogController.info("save start time:"+data.orderName);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
@@ -144,7 +146,8 @@ public class OrderController extends Controller {
 			TOrder.saveData(data);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(data);
-			response.setExtendResponseContext("更新数据成功.");
+			response.setExtendResponseContext("更新订单结束时间.");
+			LogController.info("save end time:"+data.orderName);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
@@ -168,6 +171,7 @@ public class OrderController extends Controller {
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(data);
 			response.setExtendResponseContext("更新数据成功.");
+			LogController.info("save end time:"+data.orderName);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
@@ -191,6 +195,7 @@ public class OrderController extends Controller {
 			TOrder.deleteData(id);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setExtendResponseContext("删除数据成功.");
+			LogController.info("delete order:"+id);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());

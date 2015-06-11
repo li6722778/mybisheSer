@@ -133,12 +133,14 @@ public class ChartCityEntity{
 				Date currentDate = DateHelper.getStringtoDate(currentDayString, "MM/dd/yyyy");
 				
 				int days = DateHelper.diffDate(currentDate, maxQueryDate);
+
 				if(days>0){
-					for(int i=0;i<days;i++){
+					for(int i=0;i<days-1;i++){
 						ChartCityEntity cityEntity = new ChartCityEntity();
 						cityEntity.countOrder=0;
 						String _dayString = DateHelper.format(DateHelper.addDate(new Date(), 0-(i+1)), "MM/dd/yyyy");
 						cityEntity.dateString=_dayString;
+
 						newArray.add(cityEntity);
 					}
 				}
