@@ -3,6 +3,12 @@
 
 # --- !Ups
 
+create table chart_city_entity (
+  date_string               varchar(255),
+  count_order               integer,
+  descri                    varchar(255))
+;
+
 create table tb_log (
   log_id                    bigint auto_increment not null,
   level                     integer(2) default 1,
@@ -20,7 +26,7 @@ create table tb_order (
   parkId                    bigint,
   pay_park_py_id            bigint,
   order_status              integer,
-  order_date                timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  order_date                timestamp NOT NULL,
   start_date                timestamp NULL,
   end_date                  timestamp NULL,
   userid                    bigint,
@@ -180,6 +186,13 @@ create table tb_parking_adm (
   constraint pk_tb_parking_adm primary key (park_adm_id))
 ;
 
+create table tb_verify_code (
+  phone                     bigint auto_increment not null,
+  verifycode                varchar(10) not null,
+  create_date               timestamp,
+  constraint pk_tb_verify_code primary key (phone))
+;
+
 create table tb_client_ver (
   version_id                bigint auto_increment not null,
   force_update              integer(2) default 0,
@@ -230,6 +243,8 @@ create index ix_tb_parking_adm_userInfo_10 on tb_parking_adm (userid);
 
 SET FOREIGN_KEY_CHECKS=0;
 
+drop table chart_city_entity;
+
 drop table tb_log;
 
 drop table tb_order;
@@ -253,6 +268,8 @@ drop table tb_parking_loc;
 drop table tb_parking_py;
 
 drop table tb_parking_adm;
+
+drop table tb_verify_code;
 
 drop table tb_client_ver;
 

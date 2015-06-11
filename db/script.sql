@@ -202,6 +202,13 @@ update_person             varchar(50),
 constraint pk_tb_user primary key (userid))
 ;
 
+create table tb_verify_code (
+phone                     bigint auto_increment not null,
+verifycode                varchar(10) not null,
+create_date               timestamp,
+constraint pk_tb_verify_code primary key (phone))
+;
+
 alter table tb_order add constraint fk_tb_order_parkInfo_1 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
 create index ix_tb_order_parkInfo_1 on tb_order (parkId);
 alter table tb_order add constraint fk_tb_order_pay_2 foreign key (pay_park_py_id) references tb_parking_py (park_py_id) on delete restrict on update restrict;

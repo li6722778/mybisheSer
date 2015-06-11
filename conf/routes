@@ -17,8 +17,7 @@ GET  /a/user/phone/:phone                      controllers.UserController.findDa
 GET  /a/user/adm/:userid                      controllers.UserController.getAdmDataById(userid:Long)
 GET  /a/user                                   controllers.UserController.getAllData(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc")
 POST /a/user/save                              controllers.UserController.saveData()
-POST /a/user/reg                              controllers.UserController.regUser()
-POST /a/user/sendsms/:phone                    controllers.UserController.requestSMSVerify(phone:Long)
+POST /a/user/reg                              controllers.UserController.regUser(c?="0000")
 GET /a/user/delete/:id                         controllers.UserController.deleteData(id:Long)
 GET /a/user/role/:id/:role                     controllers.UserController.updateRole(id:Long,role:Int)
 
@@ -65,6 +64,7 @@ GET     /                             controllers.Application.index()
 POST    /login                        controllers.AuthController.authenticate()
 GET		/logout                       controllers.AuthController.logout()
 
+POST     /a/reg/sendsms/:phone          controllers.SMSController.requestSMSVerify(phone:Long)
 GET		/a/ans                       controllers.MapFindController.findNearbyParking(a:Double?= 0, n:Double?=0, s:Float?=2)
 
 POST    /w/log                        controllers.WebPageController.gotoLog(p:Int ?= 0, s:Int ?= 10, o ?= "operateDate desc",f?="")

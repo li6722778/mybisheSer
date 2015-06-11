@@ -17,6 +17,7 @@ import play.data.format.Formats;
 import play.data.validation.Constraints;
 import play.db.ebean.Model;
 import utils.CommFindEntity;
+import utils.DateHelper;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Expr;
@@ -273,6 +274,25 @@ public class TParkInfoProd extends Model {
 		Ebean.execute(new TxRunnable() {
 			public void run() {
 
+				String feeDetail ="";
+				if(bean.feeType==1){//分段收费
+					 feeDetail += bean.feeTypeSecInScopeHours+"小时内收费为"+bean.feeTypeSecInScopeHourMoney+"元/小时";
+					 feeDetail+=",超过"+bean.feeTypeSecInScopeHours+"小时后,收费为"+ bean.feeTypeSecOutScopeHourMoney+"元/小时";
+				}else{
+					feeDetail += "按次收费,每次"+bean.feeTypefixedHourMoney+"元/小时";
+				}
+				if(bean.isDiscountAllday==1){
+					feeDetail+=",全天优惠:"+ bean.discountHourAlldayMoney+"元/天";
+				}
+				
+				if(bean.isDiscountSec==1){
+					if(bean.discountSecStartHour!=null&&bean.discountSecEndHour!=null){
+						feeDetail+=DateHelper.format(bean.discountSecStartHour, "HH:mm:00")+"至"+DateHelper.format(bean.discountSecEndHour, "HH:mm:00")+"收费为"+bean.discountSecHourMoney+"元/小时";
+					}
+					
+				}
+				bean.detail = feeDetail;
+				
 					// ------------生成主键，所有插入数据的方法都需要这个-----------
 					if (bean.parkId == null || bean.parkId <= 0) {
 						bean.parkId = TPKGenerator.getPrimaryKey(
@@ -309,6 +329,25 @@ public class TParkInfoProd extends Model {
 	public static void approveDataWithoutIDPolicy(final TParkInfoProd parkProdInfo) {
 		Ebean.execute(new TxRunnable() {
 			public void run() {
+				
+				String feeDetail ="";
+				if(parkProdInfo.feeType==1){//分段收费
+					 feeDetail += parkProdInfo.feeTypeSecInScopeHours+"小时内收费为"+parkProdInfo.feeTypeSecInScopeHourMoney+"元/小时";
+					 feeDetail+=",超过"+parkProdInfo.feeTypeSecInScopeHours+"小时后,收费为"+ parkProdInfo.feeTypeSecOutScopeHourMoney+"元/小时";
+				}else{
+					feeDetail += "按次收费,每次"+parkProdInfo.feeTypefixedHourMoney+"元/小时";
+				}
+				if(parkProdInfo.isDiscountAllday==1){
+					feeDetail+=",全天优惠:"+ parkProdInfo.discountHourAlldayMoney+"元/天";
+				}
+				
+				if(parkProdInfo.isDiscountSec==1){
+					if(parkProdInfo.discountSecStartHour!=null&&parkProdInfo.discountSecEndHour!=null){
+						feeDetail+=DateHelper.format(parkProdInfo.discountSecStartHour, "HH:mm:00")+"至"+DateHelper.format(parkProdInfo.discountSecEndHour, "HH:mm:00")+"收费为"+parkProdInfo.discountSecHourMoney+"元/小时";
+					}
+					
+				}
+				parkProdInfo.detail = feeDetail;
 				
 				Ebean.save(parkProdInfo);
 			

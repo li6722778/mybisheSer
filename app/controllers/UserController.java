@@ -1,6 +1,7 @@
 package controllers;
 
 import models.info.TParkInfo_adm;
+import models.info.TVerifyCode;
 import models.info.TuserInfo;
 import play.Logger;
 import play.libs.Json;
@@ -92,17 +93,29 @@ public class UserController extends Controller {
 	 * 注册用户，不需要权限认证
 	 * @return
 	 */
-	public static Result regUser() {
+	public static Result regUser(String code) {
 		String request = request().body().asJson().toString();
 		Logger.info("start to post data:" + request);
 		
-		//这里首先需要检查SMS verification
-		//....
-		//检查完毕
+		
 		
 		TuserInfo user = gsonBuilderWithExpose.fromJson(request, TuserInfo.class);
+
 		ComResponse<TuserInfo>  response = new ComResponse<TuserInfo>();
 		try {
+			
+			//这里首先需要检查SMS verification
+			TVerifyCode verficode =  TVerifyCode.getCode(user.userPhone);
+			if(!verficode.verifycode.trim().equals(code.trim())){
+				throw new Exception("注册验证码有误,请重新获取");
+			}else{
+				//有效的情况下
+				TVerifyCode.deletePhone(user.userPhone);
+				//三分钟有效用存储过程来删除？？
+				Logger.info("verified code successfully,delete verification code " + verficode.verifycode);
+			}
+			//检查完毕
+			
 			user.userType=RoleConstants.USER_TYPE_NORMAL;
 			TuserInfo.saveData(user);
 			response.setResponseStatus(ComResponse.STATUS_OK);
