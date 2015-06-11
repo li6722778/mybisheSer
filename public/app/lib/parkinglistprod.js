@@ -72,6 +72,32 @@ var ParkingProd = function () {
         		 $( "#dialog_confirm_retrieve" ).data("parkingIdArray",checked).dialog( "open" );
 
         	 });
+        	 
+        	 /**
+        	  * 关闭打开停车场
+        	  */
+        	 $('#button_openclose').click(function(){
+        		 var checked = "";
+        		 $('input:checkbox:checked').each(function() {
+        	            checked+=$(this).val()+",";
+        	        });
+        		 var p = $(this).attr("p");
+        		 var s = $(this).attr("s");
+        		 var o = $(this).attr("o");
+        		 var k = $(this).attr("k");
+        		 var v = $(this).attr("v");
+        		 
+        		 var pageContent = $('.page-content');
+      		     var pageContentBody = $('.page-content .page-content-body');
+      		     
+      		   App.blockUI(pageContent, false);
+        		 $.get("/w/parkingprod/open?p="+p+"&s="+s+"&o="+o+"&k="+k+"&v="+v+"&pid="+checked,function(data){
+	      				App.unblockUI(pageContent);
+	      				pageContentBody.html(data);
+	                    App.fixContentHeight(); // fix content height
+	                    App.initUniform(); // initialize uniform elements
+	      			});
+        	 });
         	
         	 $("#dialog_confirm_retrieve" ).dialog({
         	      dialogClass: 'ui-dialog-green',

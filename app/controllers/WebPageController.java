@@ -253,7 +253,63 @@ public class WebPageController extends Controller {
 
 		return ok("提交成功.");
 	}
+	
+	/**
+	 * 打开关闭停车场
+	 * @param currentPage
+	 * @param pageSize
+	 * @param orderBy
+	 * @param key
+	 * @param searchObj
+	 * @param parkingId
+	 * @return
+	 */
+	@Security.Authenticated(SecurityController.class)
+	public static Result updateParkingOpenClose(int currentPage, int pageSize,
+			String orderBy, String key, String searchObj, String pidarray){
+		Logger.debug("goto updateParkingOpenClose,pidarray:"+pidarray);
+		
+		if (pidarray != null && pidarray.length() > 0) {
+			String[] pids = pidarray.split(",");
+			for (String pidString : pids) {
+				try {
+					long pid = Long.parseLong(pidString);
+					Logger.debug("update for parkingprod:"+pid);
+					List<TParkInfoPro_Loc> result = TParkInfoPro_Loc.getLocationPointByParkingId(pid);
+					if(result!=null&&result.size()>0){
+						TParkInfoPro_Loc loc = result.get(0);
+						//判断其中一个点是否开放
+						int isopen = loc.isOpen;
+						for(TParkInfoPro_Loc tmp : result){
+							Logger.debug("update TParkInfoPro_Loc status:"+isopen+" to new status");
+							if(isopen==0){
+								tmp.isOpen=1;
+								TParkInfoPro_Loc.saveData(tmp);
+							}else if(isopen==1){
+								tmp.isOpen=0;
+								TParkInfoPro_Loc.saveData(tmp);
+							}
+						}
+					}
+					
+					
+				} catch (Exception e) {
+					Logger.error("updateParkingOpenClose:" + pidString, e);
+				}
+			}
+		}
+		
+		
+		
+		return gotoParkingProd(currentPage, pageSize,
+				orderBy, key, searchObj);
+	}
 
+	/**
+	 * 为停车场上传图片
+	 * @param parkingId
+	 * @return
+	 */
 	@Security.Authenticated(SecurityController.class)
 	public static Result uploadImage(long parkingId) {
 		Logger.debug("goto uploadImage");
@@ -277,6 +333,15 @@ public class WebPageController extends Controller {
 
 	}
 
+	/**
+	 * 打开用户页面
+	 * @param currentPage
+	 * @param pageSize
+	 * @param orderBy
+	 * @param type
+	 * @param filter
+	 * @return
+	 */
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoUser(int currentPage, int pageSize,
 			String orderBy, int type, String filter) {
@@ -296,7 +361,7 @@ public class WebPageController extends Controller {
 	}
 
 	/**
-	 * 
+	 * 打开新增用户页面
 	 * @return
 	 */
 	@Security.Authenticated(SecurityController.class)
@@ -305,6 +370,10 @@ public class WebPageController extends Controller {
 		return ok(views.html.useradd.render());
 	}
 
+	/**
+	 * 保存用户
+	 * @return
+	 */
 	@Security.Authenticated(SecurityController.class)
 	public static Result saveUserData() {
 		Logger.debug("goto saveUserData");
@@ -329,18 +398,35 @@ public class WebPageController extends Controller {
 		return ok("提交成功.");
 	}
 
+	/**
+	 * 打开用户密码页面
+	 * @param userPhone
+	 * @param type
+	 * @return
+	 */
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoPasswd(String userPhone, int type) {
 		Logger.debug("goto gotoUserAdd");
 		return ok(views.html.userpass.render(userPhone, type));
 	}
 
+	/**
+	 * 打开用户修改页面
+	 * @param idArray
+	 * @return
+	 */
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoMutipPasswd(String idArray) {
-		Logger.debug("goto gotoUserAdd");
+		Logger.debug("goto gotoMutipPasswd");
 		return ok(views.html.userpass.render(idArray, 2));
 	}
 
+	/**
+	 * 更新密码
+	 * @param userPhone
+	 * @param type
+	 * @return
+	 */
 	@Security.Authenticated(SecurityController.class)
 	public static Result updatedUserPasswdData(String userPhone, int type) {
 		Logger.debug("goto updatedUserPasswdData");
@@ -401,6 +487,11 @@ public class WebPageController extends Controller {
 
 	}
 
+	/**
+	 * 删除用户
+	 * @param pidarray
+	 * @return
+	 */
 	@Security.Authenticated(SecurityController.class)
 	public static Result deleteUser(String pidarray) {
 		Logger.info("GOTO deleteParking,FOR" + pidarray);
@@ -421,6 +512,13 @@ public class WebPageController extends Controller {
 		return ok("0");
 	}
 
+	/**
+	 * 更新用户
+	 * @param type
+	 * @param pidarray
+	 * @param admpark
+	 * @return
+	 */
 	@Security.Authenticated(SecurityController.class)
 	public static Result updateUser(final int type, final String pidarray,final String admpark) {
 		Logger.info("GOTO updateUser,FOR " + pidarray);

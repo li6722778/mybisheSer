@@ -18,6 +18,7 @@ GET  /a/user/adm/:userid                      controllers.UserController.getAdmD
 GET  /a/user                                   controllers.UserController.getAllData(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc")
 POST /a/user/save                              controllers.UserController.saveData()
 POST /a/user/reg                              controllers.UserController.regUser()
+POST /a/user/sendsms/:phone                    controllers.UserController.requestSMSVerify(phone:Long)
 GET /a/user/delete/:id                         controllers.UserController.deleteData(id:Long)
 GET /a/user/role/:id/:role                     controllers.UserController.updateRole(id:Long,role:Int)
 
@@ -82,6 +83,7 @@ POST     /w/parkingchart                    controllers.WebPageController.gotoPa
 POST     /w/parkingprod                        controllers.WebPageController.gotoParkingProd(p:Int ?= 0, s:Int ?= 10, o ?= "approveDate desc",k?="",v?="")
 POST     /w/parkingprod/:parkId                controllers.WebPageController.gotoDetailParkingProd(parkId:Long)
 GET     /w/parkingprodpopup                   controllers.WebPageController.gotoParkingProdForPopup(p:Int ?= 0, s:Int ?= 5, o ?= "approveDate desc",k?="",v?="")
+GET    /w/parkingprod/open                   controllers.WebPageController.updateParkingOpenClose(p:Int ?= 0, s:Int ?= 10, o ?= "approveDate desc",k?="",v?="",pid?="")
 
 GET     /w/adm/park/:userId                      controllers.WebPageController.gotoParkingProdForPopupByAdmin(p:Int ?= 0, s:Int ?= 5, o ?= "parkAdmId desc",userId:Long)
 

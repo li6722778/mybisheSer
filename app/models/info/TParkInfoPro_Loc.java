@@ -154,6 +154,16 @@ public class TParkInfoPro_Loc extends Model {
 		result.setPageCount(allData.getTotalPageCount());
 		return result;
 	}
+	
+	/**
+	 * 得到所有的点
+	 * @param parkId
+	 * @return
+	 */
+	public static List<TParkInfoPro_Loc> getLocationPointByParkingId(long parkId){
+		List<TParkInfoPro_Loc> result = find.where().eq("parkId", parkId).findList();
+		return result;
+	}
 
 	/**
 	 * 根据parkid得到所有的车位坐标

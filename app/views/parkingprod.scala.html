@@ -72,6 +72,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
 										</button>
 										<ul class="dropdown-menu pull-right">
 										    <li><a href="javascript:;" id="">打印二维码标签</a></li>
+										    <li><a href="javascript:;" id="button_openclose" p="@currentPage" s="@pageSize" o="@orderBy" k="@key" v="@searchObj" >打开/关闭停车场</a></li>
 											<li><a href="javascript:;" id="button_retrieve">退回修改</a></li>
 										</ul>
 									</div>
@@ -113,14 +114,26 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
 											<td>
 											 @if(TParkInfo.imgUrlArray!=null&&TParkInfo.imgUrlArray.length>0){
 											     <a class="ajaxify thumbnail"  href="javascript:;" post="/w/parkingprod/@TParkInfo.parkId" >
-                                                      <img style="max-width:80px;max-height:120px" src="@TParkInfo.imgUrlArray.get(0).imgUrlHeader@TParkInfo.imgUrlArray.get(0).imgUrlPath" alt="">
+                                                      <img style="max-width:60px;max-height:100px" src="@TParkInfo.imgUrlArray.get(0).imgUrlHeader@TParkInfo.imgUrlArray.get(0).imgUrlPath" alt="">
                                                </a>
                                                 }
 											</td>
-											<td ><a class="ajaxify"  href="javascript:;" post="/w/parkingprod/@TParkInfo.parkId">@TParkInfo.parkname</a></td>
+											<td ><a class="ajaxify"  href="javascript:;" post="/w/parkingprod/@TParkInfo.parkId">@TParkInfo.parkname</a>
+											
+											@if(TParkInfo.latLngArray!=null&&TParkInfo.latLngArray.length>0){
+												@if(TParkInfo.latLngArray.get(0).isOpen==1){
+												   <span class="label label-success">开放</span>
+												}else{
+												  <span class="label label-important">关闭</span>
+												}
+											}else{
+											     <span class="label  label-warning">无采集坐标</span>
+											}
+											
+											</td>
 											<td >@TParkInfo.owner</td>
 											<td class="hidden-480">@TParkInfo.vender</td>
-											<td class="hidden-480"><span class="label label-success">@TParkInfo.approvePerson</span>, @TParkInfo.approveDate.format("yyyy-MM-dd HH:mm:ss")</td>
+											<td class="hidden-480">@TParkInfo.approvePerson /@TParkInfo.approveDate.format("yyyy-MM-dd HH:mm:ss")</td>
 										</tr>
                               }
 										

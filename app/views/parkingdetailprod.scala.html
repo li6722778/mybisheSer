@@ -52,7 +52,19 @@
 					<div class="span6">
 
                           <div>
-											 <h3 class="form-section">基本信息</h3> 
+											 <h3 class="form-section">基本信息
+											 
+											 @if(entityBean.latLngArray!=null&&entityBean.latLngArray.length>0){
+												@if(entityBean.latLngArray.get(0).isOpen==1){
+												   <span class="label label-success">开放</span>
+												}else{
+												  <span class="label label-important">关闭</span>
+												}
+											}else{
+											     <span class="label  label-warning">无采集坐标</span>
+											}
+											 
+											 </h3> 
 											 <blockquote class="hero">
 							                      <small>ID:@entityBean.parkId [审核人:@entityBean.approvePerson,@entityBean.approveDate.format("yyyy-MM-dd HH:mm:ss")]</small>
 						                     </blockquote>
@@ -179,7 +191,7 @@
 
 					<div class="span6">
 
-						<img src="http://api.map.baidu.com/staticimage?width=500&height=400&zoom=18&markers=@flash.get("makerString")&markerStyles=l,A|m,B|l,C|l,D|m,E|,|l,G|m,H" />
+						<img src="http://api.map.baidu.com/staticimage?width=500&height=400&zoom=16&markers=@flash.get("makerString")&markerStyles=l,A|m,B|l,C|l,D|m,E|,|l,G|m,H" />
 						
 					</div>
 

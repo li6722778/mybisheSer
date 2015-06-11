@@ -96,6 +96,10 @@ public class UserController extends Controller {
 		String request = request().body().asJson().toString();
 		Logger.info("start to post data:" + request);
 		
+		//这里首先需要检查SMS verification
+		//....
+		//检查完毕
+		
 		TuserInfo user = gsonBuilderWithExpose.fromJson(request, TuserInfo.class);
 		ComResponse<TuserInfo>  response = new ComResponse<TuserInfo>();
 		try {
@@ -171,5 +175,16 @@ public class UserController extends Controller {
 		JsonNode jsonNode = Json.parse(json);
 		Logger.debug("got Data:" + json);
 		return ok(jsonNode);
+	}
+	
+	/**
+	 * 请求验证码
+	 * @return
+	 */
+	public static Result requestSMSVerify(Long phone){
+		Logger.info("start to request SMS verification");
+		//这里发送短信
+		
+		return ok("1");
 	}
 }

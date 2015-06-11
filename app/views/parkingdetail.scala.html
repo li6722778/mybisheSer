@@ -58,9 +58,9 @@
 
 								<li class="active"><a href="#tab_1" data-toggle="tab">数据</a></li>
 
-								<li><a class="" href="#tab_2" data-toggle="tab">图片</a></li>
+								<li><a class="" href="#tab_2" data-toggle="tab">图片<span class="label label-important">[@if(entityBean.imgUrlArray!=null){ @entityBean.imgUrlArray.length } else { 0 }]</span></a></li>
 								
-                                <li><a class="" href="#tab_3" data-toggle="tab">采集点</a></li>
+                                <li><a class="" href="#tab_3" data-toggle="tab">采集点<span class="label label-important">[@if(entityBean.latLngArray!=null){ @entityBean.latLngArray.length } else { 0 }]</span></a></li>
 							</ul>
 
 							<div class="tab-content">
@@ -630,7 +630,7 @@
 								   </div>
 						
 									<div class="zoom">
-											<img src="http://api.map.baidu.com/staticimage?width=500&height=400&zoom=18&markers=@flash.get("makerString")&markerStyles=l,A|m,B|l,C|l,D|m,E|,|l,G|m,H" />
+											<img src="http://api.map.baidu.com/staticimage?width=500&height=400&zoom=16&markers=@flash.get("makerString")&markerStyles=l,A|m,B|l,C|l,D|m,E|,|l,G|m,H" />
 									</div>
 
 							</div>
