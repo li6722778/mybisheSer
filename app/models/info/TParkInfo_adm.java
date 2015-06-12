@@ -37,7 +37,7 @@ public class TParkInfo_adm  extends Model{
 	public static Finder<Long,TParkInfo_adm> find = new Finder<Long,TParkInfo_adm>(Long.class, TParkInfo_adm.class);
 	
 	public static List<TParkInfoProd> findAdmPartInfo(long userId){
-		List<TParkInfo_adm> adm = find.where().eq("userid", userId).findList();
+		List<TParkInfo_adm> adm = find.fetch("parkInfo").where().eq("userid", userId).findList();
         List<TParkInfoProd> prodArray = new ArrayList<TParkInfoProd>();		
 		
 		if(adm!=null){
