@@ -3,31 +3,40 @@ package controllers;
 import java.util.Date;
 import java.util.Random;
 
-import javax.inject.Inject;
-
 import models.info.TVerifyCode;
 import models.info.TuserInfo;
 import play.Logger;
+import play.libs.F.Function;
 import play.libs.Json;
+import play.libs.ws.WS;
 import play.libs.ws.WSClient;
+import play.libs.ws.WSResponse;
 import play.mvc.Controller;
 import play.mvc.Result;
 import utils.ConfigHelper;
+import utils.DateHelper;
+import utils.EncryptUtil;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.Gson;
 
 public class SMSController extends Controller{
-	static @Inject WSClient ws;
+	static  WSClient ws=WS.client();
 	
 	public static String rest_3part_smsuri = ConfigHelper
 			.getString("rest.3part.sms.uri");
 	
+	public static String rest_3part_accountsid = ConfigHelper
+			.getString("rest.3part.sms.accountsid");
 	public static String rest_3part_smsappid = ConfigHelper
 			.getString("rest.3part.sms.appid");
 	public static String rest_3part_smsparam = ConfigHelper
 			.getString("rest.3part.sms.param");
 	public static String rest_3part_smstmpid = ConfigHelper
 			.getString("rest.3part.sms.templateId");
+	public static String rest_3part_token = ConfigHelper
+			.getString("rest.3part.sms.token");
+	
 	/**
 	 * 请求验证码
 	 * @return
@@ -63,18 +72,60 @@ public class SMSController extends Controller{
 		}
 		
 		
-		
+		Logger.debug("-----rest_3part_accountsid:"+rest_3part_accountsid);
 		Logger.debug("-----rest_3part_smsuri:"+rest_3part_smsuri);
 		Logger.debug("-----rest_3part_smsappid:"+rest_3part_smsappid);
+		Logger.debug("-----rest_3part_smstmpid:"+rest_3part_smstmpid);
 		Logger.debug("-----rest_3part_smsparam:"+param);
-		
-		TemplateSMS sms = new TemplateSMS(rest_3part_smsappid,param,rest_3part_smstmpid,phoneString);
-		JsonNode smsjson =  Json.toJson(sms);
-       // ws.url(rest_3part_smsuri).post(smsjson);
-          
-		return ok("验证码请求中,请注意短信查收");
+		Logger.debug("-----rest_3part_token:"+rest_3part_token);
+	
+
+		try {
+			//组合json bean
+			TemplateSMS templateSMS = new TemplateSMS(rest_3part_smsappid,param,rest_3part_smstmpid,phoneString);
+			Gson gson = new Gson();
+			String body = gson.toJson(templateSMS);
+			body="{\"templateSMS\":"+body+"}";
+			
+			Date currentDate = new Date();
+			String timestamp = DateHelper.format(currentDate, "yyyyMMddHHmmss");
+			
+			String src = rest_3part_accountsid + ":" + timestamp;
+			String auth = EncryptUtil.base64Encoder(src);
+			
+			String signature =getSignature(rest_3part_accountsid,rest_3part_token,timestamp);
+			
+			String realUrl = rest_3part_smsuri+"?sig="+signature;
+			
+			Logger.debug("-----real url:"+realUrl);
+			Logger.debug("-----real body:"+body);
+			
+			ws.url(realUrl).setHeader("Content-Type", "application/json;;charset=utf-8")
+	         .setHeader("Accept","application/json").setHeader("Authorization", auth).setTimeout(5000)
+	         .post(body).map(new Function<WSResponse, Result>() {
+		        @Override
+		        public Result apply(WSResponse response) {
+		        	JsonNode jsonString = response.asJson();
+		        	
+		            Logger.info("SMS Response:"+jsonString);
+		        	
+		            return ok();
+		        }});
+			 
+			 return ok("验证码请求中,请注意短信查收");
+		} catch (Exception e) {
+			Logger.error("requestSMSVerify", e);
+			return ok("验证码短信发送失败，请联系管理员.");
+		}
+
 	}
 	
+	
+	private static String getSignature(String accountSid, String authToken,String timestamp) throws Exception{
+		String sig = accountSid + authToken + timestamp;
+		String signature = EncryptUtil.md5Digest(sig);
+		return signature;
+	}
 	
 	private static String getRandomChar(){
 		Random r=new Random();
