@@ -254,6 +254,7 @@ public class WebPageController extends Controller {
 		TParkInfo parkinfo = form.get();
 		if (parkinfo != null) {
 			Logger.debug("###########get parkId:" + parkinfo.parkId);
+			parkinfo.updatePerson=session("username");
 			TParkInfo.saveData(parkinfo);
 			LogController.info("save parking data for "+parkinfo.parkname);
 		}

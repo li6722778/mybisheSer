@@ -126,12 +126,12 @@ public class TParkInfoProd extends Model {
 	public List<TParkInfoPro_Loc> latLngArray;
 
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
-	@Column(columnDefinition = "timestamp")
+	@Column(columnDefinition = "timestamp NULL")
 	@Expose
 	public Date createDate;
 
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
-	@Column(columnDefinition = "timestamp")
+	@Column(columnDefinition = "timestamp NULL")
 	@Expose
 	public Date updateDate;
 
@@ -279,7 +279,7 @@ public class TParkInfoProd extends Model {
 					 feeDetail += bean.feeTypeSecInScopeHours+"小时内收费为"+bean.feeTypeSecInScopeHourMoney+"元/小时";
 					 feeDetail+=",超过"+bean.feeTypeSecInScopeHours+"小时后,收费为"+ bean.feeTypeSecOutScopeHourMoney+"元/小时";
 				}else{
-					feeDetail += "按次收费,每次"+bean.feeTypefixedHourMoney+"元/小时";
+					feeDetail += "按次收费,每次"+bean.feeTypefixedHourMoney+"元/次";
 				}
 				if(bean.isDiscountAllday==1){
 					feeDetail+=",全天优惠:"+ bean.discountHourAlldayMoney+"元/天";
@@ -307,14 +307,18 @@ public class TParkInfoProd extends Model {
 
 				if (bean.imgUrlArray != null && bean.imgUrlArray.size() > 0) {
 					for (TParkInfoPro_Img imgBean : bean.imgUrlArray) {
-						imgBean.parkInfo = bean;
+						TParkInfoProd prod = new TParkInfoProd();
+						prod.parkId = bean.parkId;
+						imgBean.parkInfo = prod;
 						TParkInfoPro_Img.saveData(imgBean);
 					}
 				}
 
 				if (bean.latLngArray != null && bean.latLngArray.size() > 0) {
 					for (TParkInfoPro_Loc loc : bean.latLngArray) {
-						loc.parkInfo = bean;
+						TParkInfoProd prod = new TParkInfoProd();
+						prod.parkId = bean.parkId;
+						loc.parkInfo = prod;
 						TParkInfoPro_Loc.saveData(loc);
 					}
 				}
@@ -335,7 +339,7 @@ public class TParkInfoProd extends Model {
 					 feeDetail += parkProdInfo.feeTypeSecInScopeHours+"小时内收费为"+parkProdInfo.feeTypeSecInScopeHourMoney+"元/小时";
 					 feeDetail+=",超过"+parkProdInfo.feeTypeSecInScopeHours+"小时后,收费为"+ parkProdInfo.feeTypeSecOutScopeHourMoney+"元/小时";
 				}else{
-					feeDetail += "按次收费,每次"+parkProdInfo.feeTypefixedHourMoney+"元/小时";
+					feeDetail += "按次收费,每次"+parkProdInfo.feeTypefixedHourMoney+"元";
 				}
 				if(parkProdInfo.isDiscountAllday==1){
 					feeDetail+=",全天优惠:"+ parkProdInfo.discountHourAlldayMoney+"元/天";
@@ -353,14 +357,18 @@ public class TParkInfoProd extends Model {
 			
 				if (parkProdInfo.imgUrlArray != null && parkProdInfo.imgUrlArray.size() > 0) {
 					for (TParkInfoPro_Img imgBean : parkProdInfo.imgUrlArray) {
-						imgBean.parkInfo = parkProdInfo;
+						TParkInfoProd prod = new TParkInfoProd();
+						prod.parkId = parkProdInfo.parkId;
+						imgBean.parkInfo = prod;
 						TParkInfoPro_Img.saveDataWithoutIDPolicy(imgBean);
 					}
 				}
 
 				if (parkProdInfo.latLngArray != null && parkProdInfo.latLngArray.size() > 0) {
 					for (TParkInfoPro_Loc loc : parkProdInfo.latLngArray) {
-						loc.parkInfo = parkProdInfo;
+						TParkInfoProd prod = new TParkInfoProd();
+						prod.parkId = parkProdInfo.parkId;
+						loc.parkInfo = prod;
 						TParkInfoPro_Loc.saveDataWithoutIDPolicy(loc);
 					}
 				}

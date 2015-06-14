@@ -50,6 +50,14 @@ GET  /a/comments/:parkId                           controllers.CommentsControlle
 POST /a/comments/save                              controllers.CommentsController.saveData()
 GET /a/comments/delete/:id                         controllers.CommentsController.deleteData(id:Long)
 
+GET /a/counpon/getcounpon                              controllers.CounponController.getcounpon(p ?="",s:Long ?=0)
+##GET /a/counpon/insetdata                             controllers.CounponController.setcounpon()####
+GET /a/counpon/findcounponbyuserid/:userid             controllers.CounponController.getAllDataByUser(p:Int ?= 0, s:Int ?= 10, o ?= "scanDate desc",userid:Long)
+GET /a/counpon/usecounpon                              controllers.CounponController.usecounpon(p:Long ?=0,s:Long ?=0)
+
+
+POST /a/pay/generator/:parkid                      controllers.PayController.generatorOrderStringAndGetPayInfo(parkid:Long,c?= "", m?= "")
+POST /a/pay/update/:payid/:status                      controllers.PayController.updatePayment(payid:Long,status:Integer)
 
 POST /a/parkinfo/savepic                           controllers.UploadController.upload()
 POST /a/image/upload/:id                           controllers.UploadController.uploadToParking(id:Long)

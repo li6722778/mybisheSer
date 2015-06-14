@@ -7,15 +7,13 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.ExpressionList;
-import com.avaje.ebean.Page;
-import com.google.gson.annotations.Expose;
-
 import play.data.format.Formats;
 import play.db.ebean.Model;
-import play.db.ebean.Model.Finder;
 import utils.CommFindEntity;
+
+import com.avaje.ebean.Ebean;
+import com.avaje.ebean.Page;
+import com.google.gson.annotations.Expose;
 
 @Entity
 @Table(name = "tb_log")
@@ -35,7 +33,7 @@ public class TLog extends Model{
 
 	@Expose
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
-	@Column(columnDefinition = "timestamp")
+	@Column(columnDefinition = "timestamp null")
 	public Date operateDate;
 
 	@Expose
@@ -54,6 +52,7 @@ public class TLog extends Model{
 	 * @param log
 	 */
 	public static void saveData(TLog log) {
+		log.operateDate=new Date();
 		Ebean.save(log);
 	}
 	

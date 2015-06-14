@@ -2,8 +2,8 @@ import static org.fest.assertions.Assertions.assertThat;
 import models.info.TParkInfo;
 import models.info.TParkInfoPro_Loc;
 import models.info.TParkInfoProd;
+import models.info.TParkInfo_Loc;
 
-import org.eclipse.jetty.util.log.Log;
 import org.junit.Test;
 
 import play.libs.Json;
@@ -13,6 +13,7 @@ import play.test.Helpers;
 import play.test.WithApplication;
 import utils.ComResponse;
 import utils.CommFindEntity;
+import utils.Constants;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.reflect.TypeToken;
@@ -53,7 +54,7 @@ public class ParkingProdControllerTest extends WithApplication {
 			
 			TParkInfo parkInfoPre = con2.getResult().get(0);
 			
-			FakeRequest testRequest = new FakeRequest(Helpers.GET, "/a/parkinfoprod/copy/"+parkInfoPre.parkId).withSession("userphone", "13551190701");;
+			FakeRequest testRequest = new FakeRequest(Helpers.GET, "/a/parkinfoprod/copy/"+parkInfoPre.parkId).withSession("userphone", "13551190701").withSession("username", "unit test");
 			Result result = Helpers.route(testRequest);
 
 			assertThat(Helpers.status(result)).isEqualTo(Helpers.OK);
@@ -84,9 +85,9 @@ public class ParkingProdControllerTest extends WithApplication {
 			Result result2 = Helpers.route(testRequest2);		
 			assertThat(Helpers.status(result2)).isEqualTo(Helpers.OK);
 			
-			
-			String jsonStr2 = Helpers.contentAsString(result2);
-			
+//			
+//			String jsonStr2 = Helpers.contentAsString(result2);
+//			
 //			TParkInfo parkInfo2 = ParkController.gsonBuilderWithExpose.fromJson(jsonStr2, TParkInfo.class);
 //			long id = parkInfo2.parkId;
 //			FakeRequest test2Request = new FakeRequest(Helpers.GET, "/a/parkinfo/delete/"+id).withHeader("Authorization", auth);
@@ -119,7 +120,7 @@ public class ParkingProdControllerTest extends WithApplication {
 			
 			TParkInfoProd parkInfoProd = con2.getResult().get(0);
 			
-			FakeRequest testRequest = new FakeRequest(Helpers.GET, "/a/parkinfoprod/copy2orin/"+parkInfoProd.parkId).withSession("userphone", "13551190701");
+			FakeRequest testRequest = new FakeRequest(Helpers.GET, "/a/parkinfoprod/copy2orin/"+parkInfoProd.parkId).withSession("userphone", "13551190701").withSession("username", "unit test");;
 			Result result = Helpers.route(testRequest);
 
 			assertThat(Helpers.status(result)).isEqualTo(Helpers.OK);
@@ -142,27 +143,27 @@ public class ParkingProdControllerTest extends WithApplication {
 	}
 	
 	
-//	@Test
-//	public void addParkLocalTest() {
-//
-//		TParkInfo_Loc info = new TParkInfo_Loc();
-//		info.createPerson="junit";
-//		info.isOpen=Constants.PARKING_STATUS_OPEN;
-//		info.parkFreeCount=188;
-//		info.type=Constants.PARKING_TYPE_IN;
-//		info.latitude=99.99;
-//		info.longitude=88.88;
-//		
-//		JsonNode json = Json.toJson(info);
-//
-//		String creds = String.format("%s:%s","root", "123");
-//		String auth = "Basic "+ Base64.encode(creds.getBytes());
-//		
-//		FakeRequest testRequest = new FakeRequest(Helpers.POST, "/a/user/save").withHeader("Authorization", auth).withJsonBody(json);
-//		Result result = Helpers.route(testRequest);
-//
-//		assertThat(Helpers.status(result)).isEqualTo(Helpers.OK);
-//	}
+	@Test
+	public void addParkLocalTest() {
+
+		TParkInfo_Loc info = new TParkInfo_Loc();
+		info.createPerson="junit";
+		info.isOpen=Constants.PARKING_STATUS_OPEN;
+		info.parkFreeCount=188;
+		info.type=Constants.PARKING_TYPE_IN;
+		info.latitude=99.99;
+		info.longitude=88.88;
+		
+		JsonNode json = Json.toJson(info);
+
+		String creds = String.format("%s:%s","13551190701", "123");
+		String auth = "Basic "+ Base64.encode(creds.getBytes());
+		
+		FakeRequest testRequest = new FakeRequest(Helpers.POST, "/a/user/save").withHeader("Authorization", auth).withJsonBody(json);
+		Result result = Helpers.route(testRequest);
+
+		assertThat(Helpers.status(result)).isEqualTo(Helpers.OK);
+	}
 	
 	
 

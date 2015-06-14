@@ -144,6 +144,7 @@ public class ParkProdController extends Controller {
 			}
 			Logger.debug(">>>>location bean copy end");
 
+			parkProdInfo.approveDate = new Date();
 			parkProdInfo.approvePerson = session("username");
 			TParkInfoProd.approveDataWithoutIDPolicy(parkProdInfo);
 			response.setResponseStatus(ComResponse.STATUS_OK);

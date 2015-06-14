@@ -129,23 +129,13 @@
 								<li><strong>停车开始时间:</strong>@entityBean.startDate</li>
 								<li><strong>停车结束时间:</strong>@entityBean.endDate</li>
 								
-								<li><strong>付款方式:</strong>
-								@if(entityBean.pay.payMethod==1){ 
-								 支付宝
-								}else{
-								  其他
-								}
+								<li><strong>实际计费方式:</strong>
+								   @entityBean.orderDetail
 								</li>
 								<li>
-								<strong>付款状态:</strong> 
-								@if(entityBean.pay.ackStatus==0){ 
-								 未付款
-								}else{
-								  付款成功
-								}
+								<strong>使用优惠劵ID:</strong> 
+								    @entityBean.couponIds
 								</li>
-								<li><strong>付款日期:</strong>@entityBean.pay.ackDate</li>
-								<li><strong>付款人:</strong> @entityBean.pay.createPerson</li>
 							</ul>
 
 						</div>
@@ -161,27 +151,63 @@
 								<tr>
 
 									<th>#</th>
-
-									<th>项目</th>
-
-									<th class="hidden-480">次数</th>
-
-									<th>总价(元)</th>
-
+									<th>应付(元)</th>
+									<th>实际付(元)</th>
+									<th class="hidden-480">付款方式</th>
+									<th>付款状态</th>
+									<th class="hidden-480">付款时间</th>
+									<th class="hidden-480">银行响应时间</th>
+									<th>付款人</th>
 								</tr>
 
 							</thead>
 
 							<tbody>
 
+                @for(TParkInfo_Py <- entityBean.pay) {
 								<tr>
-									<td>1</td>
-									<td>标准停车</td>
-									<td class="hidden-480">1</td>
-									<td>@entityBean.pay.payTotal</td>
+									<th>@TParkInfo_Py.parkPyId</th>
+									<th>@TParkInfo_Py.payTotal</th>
+									<th>@TParkInfo_Py.payActu</th>
+									<th class="hidden-480">
+									@if(TParkInfo_Py.payMethod==1){ 
+								            支付宝
+								    }
+								    @if(TParkInfo_Py.payMethod==9){
+								           现金
+								    }
+								    @if(TParkInfo_Py.payMethod!=9&&TParkInfo_Py.payMethod!=1){
+								            其他
+								    }
+									</th>
+									<th>
+									@if(TParkInfo_Py.ackStatus==0){ 
+								            未付款
+								    }
+								    @if(TParkInfo_Py.ackStatus==1){
+								            付款成功
+								    }
+								    @if(TParkInfo_Py.ackStatus==2){
+								            等待银行响应
+								    }
+								    @if(TParkInfo_Py.ackStatus==3){
+								            付款失败
+								    }
+									</th>
+									<th class="hidden-480">
+									@if(TParkInfo_Py.payDate!=null){
+									   @TParkInfo_Py.payDate.format("yyyy-MM-dd HH:mm:ss")
+									}
+									</th>
+									<th class="hidden-480">
+									 @if(TParkInfo_Py.ackDate!=null){
+									    @TParkInfo_Py.ackDate.format("yyyy-MM-dd HH:mm:ss")
+									}
+									</th>
+									<th>@TParkInfo_Py.createPerson</th>
 								</tr>
                               <!-- 停车场优惠项目，该项目和上面的总价相减，就是实际付费项目 -->
-				
+				  }
 
 							</tbody>
 
@@ -204,7 +230,7 @@
 												
 												
                                                            @if(entityBean.parkInfo.isDiscountAllday==1){
-                                                              全天优惠: @entityBean.parkInfo.discountHourAlldayMoney 元/天
+                                                                                                                             全天优惠: @entityBean.parkInfo.discountHourAlldayMoney 元/天
                                                            }
 												<br />
 
@@ -232,8 +258,7 @@
 				
 						<div class="span8 invoice-block">
 							<ul class="unstyled amounts">
-                                <li><strong>总共付费:</strong> @entityBean.pay.payTotal</li>
-								<li><strong>实际付费:</strong> @entityBean.pay.payActu</li>
+                            
 							</ul>
 
 							<br />

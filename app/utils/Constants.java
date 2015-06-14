@@ -12,8 +12,15 @@ public class Constants {
 	
 	public static final int ORDER_TYPE_START=1;
 	public static final int ORDER_TYPE_FINISH=2;
+	public static final int ORDER_TYPE_PENDING=5;
 	public static final int ORDER_TYPE_OVERDUE=3;
 	public static final int ORDER_TYPE_EXCPTION=4;
+	
+	public static final int PAYMENT_STATUS_START=1;
+	public static final int PAYMENT_STATUS_FINISH=2;
+	public static final int PAYMENT_STATUS_PENDING=5;
+	public static final int PAYMENT_STATUS_EXCPTION=3;
+	
 	
 	public static final int PAYMENT_TYPE_ZFB=1;
 	public static final int PAYMENT_TYPE_WEIXIN=2;

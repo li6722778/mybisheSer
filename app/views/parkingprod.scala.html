@@ -133,7 +133,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
 											</td>
 											<td >@TParkInfo.owner</td>
 											<td class="hidden-480">@TParkInfo.vender</td>
-											<td class="hidden-480">@TParkInfo.approvePerson /@TParkInfo.approveDate.format("yyyy-MM-dd HH:mm:ss")</td>
+											<td class="hidden-480">@TParkInfo.approvePerson / @if(TParkInfo.approveDate!=null) {@TParkInfo.approveDate.format("yyyy-MM-dd HH:mm:ss")}</td>
 										</tr>
                               }
 										

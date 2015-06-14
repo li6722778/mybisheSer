@@ -119,7 +119,14 @@ currentPage: Integer, pageSize: Integer,orderBy: String, city:String,filter:Stri
 											<td class="hidden-480">@TOrder.orderId</td>
 											<td ><a class="ajaxify"  href="javascript:;" post="/w/order/@TOrder.orderId">@TOrder.orderName</a></td>
 											<td class="hidden-480">@TOrder.orderCity</td>
-											<td class="hidden-480">@TOrder.pay.payTotal</td>
+											<td class="hidden-480">
+											@if(TOrder.pay!=null&&TOrder.pay.length>0){
+												     @for(TParkInfo_Py <- TOrder.pay) {
+												          @TParkInfo_Py.payActu++
+												     }
+											     
+											}
+											</td>
 											<td >@TOrder.orderDate.format("yyyy-MM-dd HH:mm:ss")</td>
 											<td>
 											@if(TOrder.orderStatus==1){

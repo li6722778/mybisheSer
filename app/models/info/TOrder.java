@@ -1,6 +1,7 @@
 package models.info;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -8,7 +9,9 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 import play.data.format.Formats;
@@ -17,7 +20,6 @@ import utils.CommFindEntity;
 import utils.Constants;
 
 import com.avaje.ebean.Ebean;
-import com.avaje.ebean.Expr;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Page;
 import com.avaje.ebean.TxRunnable;
@@ -42,12 +44,21 @@ public class TOrder extends Model {
 	@JoinColumn(name = "parkId")
 	public TParkInfoProd parkInfo;
 	
-	@OneToOne(fetch = FetchType.EAGER,cascade=CascadeType.ALL)
+	@OneToMany(cascade = { CascadeType.REMOVE }, fetch = FetchType.LAZY, mappedBy = "order")
+	@OrderBy("parkPyId DESC")
 	@Expose
-	public TParkInfo_Py pay;
+	public List<TParkInfo_Py> pay;
 
 	@Expose
 	public int orderStatus;
+	
+	@Expose
+	@Column(length = 1000)
+	public String orderDetail;
+	
+	@Expose
+	@Column(length = 200)
+	public String couponIds;
 
 	@Expose
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -98,13 +109,18 @@ public class TOrder extends Model {
 					bean.orderId = TPKGenerator.getPrimaryKey(
 							TOrder.class.getName(), "orderId");
 					
-					if(bean.pay!=null&&(bean.pay.parkPyId==null||bean.pay.parkPyId<=0)){
-						bean.pay.parkPyId = TPKGenerator.getPrimaryKey(TParkInfo_Py.class.getName(), "parkPyId");
-//						bean.pay.torder = bean;
-						bean.pay.createPerson=bean.userInfo==null?"":bean.userInfo.userName;
-					}
 					bean.orderDate = new Date();
 					Ebean.save(bean);
+					
+					if(bean.pay!=null&&bean.pay.size()>0){
+						for(TParkInfo_Py py:bean.pay){
+							TOrder order = new TOrder();
+							order.orderId = bean.orderId;
+							py.order = order;
+							TParkInfo_Py.saveData(py);
+						}
+					}
+					
 				} else {
 					Ebean.update(bean);
 				}

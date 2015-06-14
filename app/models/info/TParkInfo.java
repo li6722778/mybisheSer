@@ -128,12 +128,12 @@ public class TParkInfo extends Model {
 	public List<TParkInfo_Loc> latLngArray;
 
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
-	@Column(columnDefinition = "timestamp")
+	@Column(columnDefinition = "timestamp NULL")
 	@Expose
 	public Date createDate;
 
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
-	@Column(columnDefinition = "timestamp")
+	@Column(columnDefinition = "timestamp NULL")
 	@Expose
 	public Date updateDate;
 
