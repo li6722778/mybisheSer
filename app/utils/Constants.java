@@ -25,6 +25,7 @@ public class Constants {
 	public static final int PAYMENT_TYPE_ZFB=1;
 	public static final int PAYMENT_TYPE_WEIXIN=2;
 	public static final int PAYMENT_TYPE_YL=3;	
+	public static final int PAYMENT_TYPE_CASH=9;	
 	
 	public static final int USER_TYPE_NORMAL=10;
 	public static final int USER_TYPE_PADMIN=20;

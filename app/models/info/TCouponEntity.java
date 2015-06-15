@@ -33,7 +33,7 @@ public class TCouponEntity extends Model{
 	
 	@Column(columnDefinition = "decimal(12,2) default 0.0")
 	@Expose
-	public  Double  money;
+	public  double  money;
 	
 	@Column(columnDefinition = "integer default 1")
 	@Expose

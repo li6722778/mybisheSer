@@ -57,8 +57,7 @@ public class TOrder extends Model {
 	public String orderDetail;
 	
 	@Expose
-	@Column(length = 200)
-	public String couponIds;
+	public long couponId;
 
 	@Expose
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
