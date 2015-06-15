@@ -31,8 +31,8 @@ GET  /a/order/find/:id                          controllers.OrderController.getD
 GET  /a/order                                   controllers.OrderController.getAllData(p:Int ?= 0, s:Int ?= 10, o ?= "orderDate desc")
 GET  /a/order/me                                controllers.OrderController.getAllDataForSelf(p:Int ?= 0, s:Int ?= 10, o ?= "orderDate desc")
 POST /a/order/save                              controllers.OrderController.saveData()
-POST /a/order/savestartdate                              controllers.OrderController.savestartDate()
-POST /a/order/saveenddate                              controllers.OrderController.saveendDate()
+GET /a/order/savestartdate                              controllers.OrderController.savestartDate()
+GET /a/order/saveenddate                              controllers.OrderController.saveendDate()
 GET /a/order/delete/:id                         controllers.OrderController.deleteData(id:Long)
 GET /a/order/changestatue                       controllers.OrderController.changeorderstatue()
 
