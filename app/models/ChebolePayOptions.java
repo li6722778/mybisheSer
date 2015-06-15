@@ -12,5 +12,16 @@ public class ChebolePayOptions {
 	public long orderId;
 	@Expose
 	public long paymentId;
+	@Expose
+    public double payOrginalPrice;
 	
+	@Expose
+    public double payActualPrice;
+	
+	@Expose
+    public boolean isDiscount;
+	@Expose
+	public boolean useCounpon;
+	@Expose
+	public long counponId;
 }
