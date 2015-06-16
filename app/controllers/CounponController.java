@@ -26,7 +26,6 @@ public class CounponController extends Controller{
 		CommFindEntity<TUseCouponEntity> allData = TUseCouponEntity.findPageDataByuserid(currentPage,
 				pageSize, orderBy,user);
 		String json = gsonBuilderWithExpose.toJson(allData);
-		Logger.debug("user @@@@@@@@@@@@"+allData.getResult().get(0).counponentity.scancount);
 		JsonNode jsonNode = Json.parse(json);
 		// String jsonString = Json.stringify(json);
 		Logger.info("CommFindEntity result:" + json);
