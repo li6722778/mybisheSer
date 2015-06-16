@@ -62,7 +62,7 @@ public class TestOrderPaymentControllerTest extends WithApplication{
 			        
 			        String optionString = PayController.gsonBuilderWithExpose.toJson(options);
 			        JsonNode jsonUpdate = Json.parse(optionString);
-					FakeRequest testPayRequest = new FakeRequest(Helpers.POST, "/a/pay/generator/"+part.parkId+"?c=成都").withJsonBody(jsonUpdate).withHeader("Authorization", auth);
+					FakeRequest testPayRequest = new FakeRequest(Helpers.POST, "/a/pay/in/"+part.parkId+"?c=成都").withJsonBody(jsonUpdate).withHeader("Authorization", auth);
 					Result resultPayOrder = Helpers.route(testPayRequest);
 					assertThat(Helpers.status(resultPayOrder)).isEqualTo(Helpers.OK);
 					

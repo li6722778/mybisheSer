@@ -158,7 +158,7 @@ public class PayController extends Controller{
 	 * @return
 	 */
 	@BasicAuth
-	public static Result generatorOrderStringAndGetPayInfo(long parkingProdId,String city){
+	public static Result payForIn(long parkingProdId,String city){
 		Logger.info("start to generator order and generator aili pay for:"+parkingProdId+",city:"+city);
 		String request = request().body().asJson().toString();
 		Logger.debug("start to post data:" + request);
@@ -267,7 +267,7 @@ public class PayController extends Controller{
 	 * @return
 	 */
 	@BasicAuth
-	public static Result payForOrderDone(long orderId){
+	public static Result payForOut(long parkProdId,long orderId){
 		ComResponse<ChebolePayOptions>  response = new ComResponse<ChebolePayOptions>();
 		try {
 			TOrder order = TOrder.findDataById(orderId);
@@ -278,6 +278,8 @@ public class PayController extends Controller{
 			TParkInfoProd parkinfo = order.parkInfo;
 			if(parkinfo==null){
 				throw new Exception("该订单无有效停车场");
+			}else if(parkinfo.parkId!=parkProdId){
+				throw new Exception("该停车场无此订单，请检查");
 			}
 			
 			
@@ -598,6 +600,7 @@ public class PayController extends Controller{
 					response.setExtendResponseContext("完成订单付款状态.");
 					LogController.info("payment done for "+payId);
 				}else if(status == Constants.PAYMENT_STATUS_PENDING){
+					order.ackDate = new Date();
 					order.ackStatus = Constants.PAYMENT_STATUS_PENDING;
 					TParkInfo_Py.saveData(order);
 					response.setExtendResponseContext("订单付款等待远程银行响应.");
