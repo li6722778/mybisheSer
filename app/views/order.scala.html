@@ -141,6 +141,9 @@ currentPage: Integer, pageSize: Integer,orderBy: String, city:String,filter:Stri
 											     @if(TOrder.orderStatus==4){
 											    <span class="label label-important">异常</span>
 											    }
+											     @if(TOrder.orderStatus==5){
+											    <span class="label label-warning">Pending</span>
+											    }
 											</td>
 										</tr>
                               }

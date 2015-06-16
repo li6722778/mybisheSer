@@ -195,6 +195,9 @@ public class ParkProdController extends Controller {
 			}
 			Logger.debug(">>>>location bean copy end");
 
+			parkInfo.updateDate=new Date();
+			parkInfo.updatePerson=session("username");
+			
 			TParkInfo.retrieveDataWithoutIDPolicy(parkInfo);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(parkInfo);

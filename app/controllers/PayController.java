@@ -268,6 +268,9 @@ public class PayController extends Controller{
 	 */
 	@BasicAuth
 	public static Result payForOut(long parkProdId,long orderId){
+		
+		Logger.info("pay for out, park id:"+parkProdId+",order id:"+orderId);
+		
 		ComResponse<ChebolePayOptions>  response = new ComResponse<ChebolePayOptions>();
 		try {
 			TOrder order = TOrder.findDataById(orderId);
@@ -286,7 +289,8 @@ public class PayController extends Controller{
 			//剩下优惠卷的钱
 			double canbeUsedCoupon =0.0;
 			//总共付了多少钱（没有优惠后或打折的价格）
-			double totalHasPayed = 0.0;
+			double totalAlreadyPay = 0.0;
+			double actuAlreadyPay = 0.0;
 			boolean isDiscount = false;
 			boolean useCounpon = false;
 			
@@ -309,19 +313,22 @@ public class PayController extends Controller{
 			if(py!=null&&py.size()>0){
 				double couponUsed=0.0;
 				for(TParkInfo_Py p:py){
-					totalHasPayed+=p.payTotal;	
+					totalAlreadyPay+=p.payTotal;	
+					actuAlreadyPay+=p.payActu;
 					couponUsed+=p.couponUsed;
 				}
 				canbeUsedCoupon = Arith.decimalPrice(Math.abs(couponPrice-couponUsed));
 			}
 			
+			Logger.debug("pay for out:::::::::::show pay money:"+totalAlreadyPay);
+			
 			//计算价格
 			if(parkinfo.feeType!=1){//计次收费
 				double realPayPrice = parkinfo.feeTypefixedHourMoney;
 				
-				newpriceWithoutCouponAndDiscount = Arith.decimalPrice(realPayPrice-totalHasPayed); //还多少钱没有付
+				newpriceWithoutCouponAndDiscount = Arith.decimalPrice(realPayPrice-totalAlreadyPay); //还多少钱没有付
 				if(newpriceWithoutCouponAndDiscount<=0.1){ //还差1毛钱
-					throw new Exception("您已经付款"+Arith.decimalPrice(totalHasPayed)+",无需再次付款。");
+					throw new Exception("您已经付款"+Arith.decimalPrice(totalAlreadyPay)+"[实际付款:"+Arith.decimalPrice(actuAlreadyPay)+"],无需再次付款。");
 				}
 
 			}else if(parkinfo.feeType==1){//分段收费
@@ -340,19 +347,14 @@ public class PayController extends Controller{
 				double mhour = mins/60.0;
 				double spentHour = Math.ceil(mhour);  //总共停车这么多小时
 				
-				//这里我们要剔除第一个小时的时间
-				double realSpentHour = spentHour-1;
+				//这里我们要剔除起步价时间
+				double realSpentHour = spentHour-feeTypeSecInScopeHours;
 				if(realSpentHour>0){
-					if(spentHour>feeTypeSecInScopeHours){ //在起步价里面
-						newpriceWithoutCouponAndDiscount = realSpentHour*parkinfo.feeTypeSecInScopeHourMoney;
-					}else{ //超过起步价
 						newpriceWithoutCouponAndDiscount = realSpentHour*parkinfo.feeTypeSecOutScopeHourMoney;
-					}
-					
 				}else{//还在一个小时以内不用付款了。。。
 					
 				}
-				
+				Logger.debug("pay for out:::::::::::parkinfo.feeTypeSecInScopeHourMoney:"+parkinfo.feeTypeSecInScopeHourMoney+", realSpentHour:"+realSpentHour);
 			}
 			
 			
@@ -362,7 +364,7 @@ public class PayController extends Controller{
 			if(newprice<newpriceWithoutCouponAndDiscount){
 				isDiscount = true;
 			}
-
+			Logger.debug("pay for out:::::::::::getNewPriceAfterDiscount:"+newprice);
 			if(newprice>0){
 				//计算使用优惠卷后的的价格
 				newpriceWithCouponAndDiscount = Arith.decimalPrice(Math.abs(newprice-canbeUsedCoupon));
@@ -371,6 +373,9 @@ public class PayController extends Controller{
 					useCounpon = true;
 				}
 			}
+			
+			Logger.debug("pay for out:::::::::::show Actual Price:"+newpriceWithCouponAndDiscount);
+			Logger.debug("pay for out:::::::::::show Orginal Price:"+newpriceWithoutCouponAndDiscount);
 			
 			/******************************生成新的付款单*************************/
 			/****************************************************************/
@@ -384,7 +389,7 @@ public class PayController extends Controller{
 			payOption.counponUsedMoney=canbeUsedCoupon;
 			payOption.orderId = order.orderId;
 			
-			if(newpriceWithCouponAndDiscount<=0){
+			if(newpriceWithCouponAndDiscount>0){
 				TParkInfo_Py newpay = new TParkInfo_Py();
 				newpay.payActu=newpriceWithCouponAndDiscount;
 				newpay.payMethod=newpriceWithCouponAndDiscount==0?Constants.PAYMENT_TYPE_CASH:Constants.PAYMENT_TYPE_ZFB;
@@ -419,11 +424,11 @@ public class PayController extends Controller{
 				payOption.payInfo = payInfo;
 				payOption.paymentId=newpay.parkPyId;
 				
-				response.setExtendResponseContext("二次付款单数据生成成功，并且返回支付串.");
+				response.setExtendResponseContext("出场付款单数据生成成功，并且返回支付串.");
 				
 				LogController.info("generator order successfully:"+order.orderName+",from "+username);
 			}else{
-				response.setExtendResponseContext("二次付款金额小于0,不用生成订单");
+				response.setExtendResponseContext("出场付款金额小于0,不用生成订单");
 			}
 
 			/*********************************************************************

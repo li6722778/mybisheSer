@@ -100,7 +100,7 @@
 						</div>
 						<div class="span4">
 
-							<h4>停车详细:</h4>
+							<h4>停车场:</h4>
 
 							<ul class="unstyled">
 
@@ -122,19 +122,19 @@
 
 						<div class="span4 invoice-payment">
 
-							<h4>付款:</h4>
+							<h4>停车详情:</h4>
 
 							<ul class="unstyled">
                               
-								<li><strong>停车开始时间:</strong>@entityBean.startDate</li>
-								<li><strong>停车结束时间:</strong>@entityBean.endDate</li>
+								<li><strong>开始时间:</strong>@if(entityBean.startDate!=null){ @entityBean.startDate.format("yyyy-MM-dd HH:mm:ss") }</li>
+								<li><strong>结束时间:</strong>@if(entityBean.endDate!=null){ @entityBean.endDate.format("yyyy-MM-dd HH:mm:ss") }</li>
 								
-								<li><strong>实际计费方式:</strong>
+								<li><strong>订单计费方式:</strong>
 								   @entityBean.orderDetail
 								</li>
 								<li>
 								<strong>使用优惠劵ID:</strong> 
-								    @entityBean.couponId
+								    @if(entityBean.couponId>0) {@entityBean.couponId} else { 无优惠劵 }
 								</li>
 							</ul>
 
@@ -156,7 +156,7 @@
 									<th class="hidden-480">付款方式</th>
 									<th>付款状态</th>
 									<th class="hidden-480">付款时间</th>
-									<th class="hidden-480">银行响应时间</th>
+									<th class="hidden-480">支付响应时间</th>
 									<th>付款人</th>
 								</tr>
 
@@ -182,16 +182,19 @@
 									</th>
 									<th>
 									@if(TParkInfo_Py.ackStatus==0){ 
-								            未付款
+								           未付款    
 								    }
 								    @if(TParkInfo_Py.ackStatus==1){
-								            付款成功
+								            正在付款
 								    }
 								    @if(TParkInfo_Py.ackStatus==2){
-								            等待银行响应
+								             付款成功
 								    }
 								    @if(TParkInfo_Py.ackStatus==3){
 								            付款失败
+								    } 
+								    @if(TParkInfo_Py.ackStatus==5){
+								            支付连接中
 								    }
 									</th>
 									<th class="hidden-480">
