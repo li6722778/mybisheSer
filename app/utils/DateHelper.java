@@ -368,11 +368,24 @@ public class DateHelper {
         return (int) ((getMillis(date) - getMillis(date1)) / (24 * 3600 * 1000));
 
     }
+    
+    //得到分钟数
+    public static int diffDateForMin(java.util.Date date, java.util.Date date1) {
+        return (int) ((getMillis(date) - getMillis(date1)) / (60 * 1000));
+
+    }
 
     public static Date currentDateAdd(int days) {
         // 日期处理模块 (将日期加上某些天或减去天数)返回字符串
         Calendar canlendar = Calendar.getInstance(); // java.util包
         canlendar.add(Calendar.DATE, days); // 日期减 如果不够减会将月变动
         return canlendar.getTime();
+    }
+    
+    
+    public static void main(String[] args){
+    	int mins = DateHelper.diffDateForMin(DateHelper.getStringtoTimestamp("2015/06/16 16:50:00"), DateHelper.getStringtoTimestamp("2015/06/16 15:30:00"));
+    	double mm = mins/60.0;
+    	System.out.println("@@@@:"+Math.ceil(mins/60.0)+",mm:"+mm);
     }
 }

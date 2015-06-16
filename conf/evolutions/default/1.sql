@@ -187,6 +187,7 @@ create table tb_parking_py (
   orderId                   bigint,
   pay_total                 decimal(12,2) default 0.0,
   pay_actu                  decimal(12,2) default 0.0,
+  coupon_used               decimal(12,2) default 0.0,
   pay_method                integer default 1,
   ack_status                integer default 0,
   pay_date                  timestamp NULL,

@@ -13,6 +13,7 @@ import javax.validation.constraints.Size;
 
 import play.data.format.Formats;
 import play.db.ebean.Model;
+import utils.Constants;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.SqlQuery;
@@ -40,6 +41,10 @@ public class TParkInfo_Py extends Model{
 	@Column(columnDefinition = "decimal(12,2) default 0.0")
 	@Expose
 	public double payActu;
+	
+	@Column(columnDefinition = "decimal(12,2) default 0.0")
+	@Expose
+	public double couponUsed;
 	
 	@Expose
 	@Column(columnDefinition = "integer default 1")
@@ -78,7 +83,7 @@ public class TParkInfo_Py extends Model{
 	 * @return
 	 */
 	public static double findDonePayment(){
-		String sql = "SELECT sum(pay_total) as count FROM tb_parking_py where ack_status=1";
+		String sql = "SELECT sum(pay_total) as count FROM tb_parking_py where ack_status="+Constants.ORDER_TYPE_FINISH;
 		
 		SqlQuery sq = Ebean.createSqlQuery(sql);
 		SqlRow sqlRow = sq.findUnique();

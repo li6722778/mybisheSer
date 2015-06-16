@@ -93,7 +93,6 @@ public class TestOrderControllerTest extends WithApplication {
 			
 			List<TParkInfo_Py> pays= new ArrayList<TParkInfo_Py>();
 			pays.add(py);
-			pays.add(py2);
 			dataBean.pay=pays;
 
 			//-----------------------test insert------------------------------

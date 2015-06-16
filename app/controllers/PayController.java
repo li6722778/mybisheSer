@@ -21,6 +21,7 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import utils.Arith;
 import utils.ComResponse;
+import utils.ConfigHelper;
 import utils.Constants;
 import utils.DateHelper;
 import action.BasicAuth;
@@ -37,13 +38,13 @@ import com.google.gson.GsonBuilder;
 public class PayController extends Controller{
 	public static Gson gsonBuilderWithExpose = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 	//商户PID
-	public static final String PARTNER = "";
+	public static final String PARTNER = ConfigHelper.getString("bank.ailipay.pid");
 	//商户收款账号
-	public static final String SELLER = "";
+	public static final String SELLER = ConfigHelper.getString("bank.ailipay.account");
 	//商户私钥，pkcs8格式
-	public static final String RSA_PRIVATE = "";
+	public static final String RSA_PRIVATE = ConfigHelper.getString("bank.ailipay.rsaprivate");
 	//支付宝公钥
-	public static final String RSA_PUBLIC = "";
+	public static final String RSA_PUBLIC = ConfigHelper.getString("bank.ailipay.rsapublic");
 	
 	/**
 	 * sign the order info. 对订单信息进行签名
@@ -52,6 +53,7 @@ public class PayController extends Controller{
 	 *            待签名订单信息
 	 */
 	private static String sign(String content) {
+		Logger.debug("RSA_PRIVATE", RSA_PRIVATE);
 		return sign(content, RSA_PRIVATE);
 	}
 
@@ -97,7 +99,7 @@ public class PayController extends Controller{
 	 * create the order info. 创建订单信息
 	 * 
 	 */
-	private static String getOrderInfo(TOrder Torder,double price) {
+	private static String getOrderInfo(TOrder Torder,long payId, double price) {
 		// 签约合作者身份ID
 		String orderInfo = "partner=" + "\"" + PARTNER + "\"";
 
@@ -105,7 +107,7 @@ public class PayController extends Controller{
 		orderInfo += "&seller_id=" + "\"" + SELLER + "\"";
 
 		// 商户网站唯一订单号
-		orderInfo += "&out_trade_no=" + "\"" + Torder.orderId + "\"";
+		orderInfo += "&out_trade_no=" + "\"" + payId + "\"";
 
 		// 商品名称
 		orderInfo += "&subject=" + "\"" + Torder.orderName + "\"";
@@ -149,7 +151,9 @@ public class PayController extends Controller{
 	}
 	
 	/**
-	 * web 接口
+	 * 第一次付款。
+	 * 计次收费原则上只有一次付款
+	 * 分段收费有二次付款
 	 * @param parkingProdId
 	 * @return
 	 */
@@ -193,6 +197,7 @@ public class PayController extends Controller{
 					py.ackStatus=Constants.PAYMENT_STATUS_START;
 					py.createPerson=user.userName;
 					py.payDate = new Date();
+					py.couponUsed=data.counponUsedMoney;
 					
 					List<TParkInfo_Py> pays= new ArrayList<TParkInfo_Py>();
 					pays.add(py);
@@ -210,7 +215,7 @@ public class PayController extends Controller{
 					 * 这里生成aili pay String
 					 ***********************************************************************/
 					// 订单
-					String orderInfo = getOrderInfo(dataBean,py.payActu);
+					String orderInfo = getOrderInfo(dataBean,py.parkPyId,py.payActu);
 					Logger.debug(" ******ali pay ******order info:"+orderInfo);
 					// 对订单做RSA 签名
 					String sign = sign(orderInfo);
@@ -256,6 +261,184 @@ public class PayController extends Controller{
 	}
 	
 	
+	/**
+	 * 第二次付款
+	 * @param orderId
+	 * @return
+	 */
+	@BasicAuth
+	public static Result payForOrderDone(long orderId){
+		ComResponse<ChebolePayOptions>  response = new ComResponse<ChebolePayOptions>();
+		try {
+			TOrder order = TOrder.findDataById(orderId);
+			if(order==null){
+				throw new Exception("系统无法找到该订单:"+orderId);
+			}
+			
+			TParkInfoProd parkinfo = order.parkInfo;
+			if(parkinfo==null){
+				throw new Exception("该订单无有效停车场");
+			}
+			
+			
+			//剩下优惠卷的钱
+			double canbeUsedCoupon =0.0;
+			//总共付了多少钱（没有优惠后或打折的价格）
+			double totalHasPayed = 0.0;
+			boolean isDiscount = false;
+			boolean useCounpon = false;
+			
+			//最总改付多少钱
+			double newpriceWithCouponAndDiscount=0.0d;
+			//最总改付多少钱
+			double newpriceWithoutCouponAndDiscount=0.0d;
+			
+			//得到当前优惠卷价值
+			double couponPrice = 0.0;
+			if(order.couponId>0){
+				   TCouponEntity  couponEntity = TCouponEntity.findDataById(order.couponId);
+				   if(couponEntity!=null){
+					   couponPrice = couponEntity.money;
+				   }
+			}
+			
+			//先看已经付款多少了
+			List<TParkInfo_Py> py = order.pay;
+			if(py!=null&&py.size()>0){
+				double couponUsed=0.0;
+				for(TParkInfo_Py p:py){
+					totalHasPayed+=p.payTotal;	
+					couponUsed+=p.couponUsed;
+				}
+				canbeUsedCoupon = Arith.decimalPrice(Math.abs(couponPrice-couponUsed));
+			}
+			
+			//计算价格
+			if(parkinfo.feeType!=1){//计次收费
+				double realPayPrice = parkinfo.feeTypefixedHourMoney;
+				
+				newpriceWithoutCouponAndDiscount = Arith.decimalPrice(realPayPrice-totalHasPayed); //还多少钱没有付
+				if(newpriceWithoutCouponAndDiscount<=0.1){ //还差1毛钱
+					throw new Exception("您已经付款"+Arith.decimalPrice(totalHasPayed)+",无需再次付款。");
+				}
+
+			}else if(parkinfo.feeType==1){//分段收费
+				//头几个小时
+				int feeTypeSecInScopeHours = parkinfo.feeTypeSecInScopeHours;
+	
+				//先计算总共停了多少小时
+				if(order.startDate==null){ //没有刷开始时间，这下遭了。。。。。。
+					throw new Exception("无进场时间记录，请联系车位管理员.");
+				}
+				
+				Date startDate = order.startDate;
+				Date endDate = new Date();
+				
+				int mins = DateHelper.diffDateForMin(endDate,startDate);
+				double mhour = mins/60.0;
+				double spentHour = Math.ceil(mhour);  //总共停车这么多小时
+				
+				//这里我们要剔除第一个小时的时间
+				double realSpentHour = spentHour-1;
+				if(realSpentHour>0){
+					if(spentHour>feeTypeSecInScopeHours){ //在起步价里面
+						newpriceWithoutCouponAndDiscount = realSpentHour*parkinfo.feeTypeSecInScopeHourMoney;
+					}else{ //超过起步价
+						newpriceWithoutCouponAndDiscount = realSpentHour*parkinfo.feeTypeSecOutScopeHourMoney;
+					}
+					
+				}else{//还在一个小时以内不用付款了。。。
+					
+				}
+				
+			}
+			
+			
+			
+			//得到当前情况下优惠后的价格
+			double newprice = getNewPriceAfterDiscount(parkinfo,newpriceWithoutCouponAndDiscount);
+			if(newprice<newpriceWithoutCouponAndDiscount){
+				isDiscount = true;
+			}
+
+			if(newprice>0){
+				//计算使用优惠卷后的的价格
+				newpriceWithCouponAndDiscount = Arith.decimalPrice(Math.abs(newprice-canbeUsedCoupon));
+				
+				if(newpriceWithCouponAndDiscount<newprice){
+					useCounpon = true;
+				}
+			}
+			
+			/******************************生成新的付款单*************************/
+			/****************************************************************/
+			String username = flash("username");
+			
+			ChebolePayOptions payOption = new ChebolePayOptions();
+			payOption.payActualPrice=Arith.decimalPrice(newpriceWithCouponAndDiscount);
+			payOption.payOrginalPrice=Arith.decimalPrice(newpriceWithoutCouponAndDiscount);
+			payOption.isDiscount=isDiscount;
+			payOption.useCounpon=useCounpon;
+			payOption.counponUsedMoney=canbeUsedCoupon;
+			payOption.orderId = order.orderId;
+			
+			if(newpriceWithCouponAndDiscount<=0){
+				TParkInfo_Py newpay = new TParkInfo_Py();
+				newpay.payActu=newpriceWithCouponAndDiscount;
+				newpay.payMethod=newpriceWithCouponAndDiscount==0?Constants.PAYMENT_TYPE_CASH:Constants.PAYMENT_TYPE_ZFB;
+				newpay.payTotal=newpriceWithoutCouponAndDiscount;
+				newpay.ackStatus=Constants.PAYMENT_STATUS_START;
+				newpay.createPerson=username;
+				newpay.payDate = new Date();
+				newpay.order = order;
+				newpay.couponUsed=canbeUsedCoupon;
+				
+				TParkInfo_Py.saveData(newpay);
+			
+	
+				//生成alipay的info
+				// 订单
+				String orderInfo = getOrderInfo(order,newpay.parkPyId,newpay.payActu);
+				Logger.debug(" ******ali pay ******order info:"+orderInfo);
+				// 对订单做RSA 签名
+				String sign = sign(orderInfo);
+				Logger.debug(" ******ali pay ******sign:"+sign);
+				try {
+					// 仅需对sign 做URL编码
+					sign = URLEncoder.encode(sign, "UTF-8");
+				} catch (UnsupportedEncodingException e) {
+					Logger.error("generatorOrderStringAndGetPayInfo", e);
+				}
+				// 完整的符合支付宝参数规范的订单信息
+				final String payInfo = orderInfo + "&sign=\"" + sign + "\"&"+ getSignType();
+				
+				Logger.debug(" ******ali pay ******payInfo:"+payInfo);
+			
+				payOption.payInfo = payInfo;
+				payOption.paymentId=newpay.parkPyId;
+				
+				response.setExtendResponseContext("二次付款单数据生成成功，并且返回支付串.");
+				
+				LogController.info("generator order successfully:"+order.orderName+",from "+username);
+			}else{
+				response.setExtendResponseContext("二次付款金额小于0,不用生成订单");
+			}
+
+			/*********************************************************************
+			 * 生成完毕
+			 ***********************************************************************/
+			response.setResponseStatus(ComResponse.STATUS_OK);
+			response.setResponseEntity(payOption);
+		} catch (Exception e) {
+			response.setResponseStatus(ComResponse.STATUS_FAIL);
+			response.setErrorMessage(e.getMessage());
+			Logger.error("updatePayment", e);
+		}
+		String tempJsonString = gsonBuilderWithExpose.toJson(response);
+		JsonNode json = Json.parse(tempJsonString);
+		return ok(json);
+	}
+	
 	
 	/**
 	 * 得到当前停车场的准备价格信息
@@ -278,6 +461,7 @@ public class PayController extends Controller{
 				double orginalPrice = 0.0d;
 				boolean isDiscount=false;
 				boolean useCounpon = false;
+				double couponUsedMoney=0.0d;
 				
 				//计算价格
 				if(infoPark.feeType!=1){//计次收费,就先付了
@@ -290,45 +474,25 @@ public class PayController extends Controller{
 				   //先收1个小时内的钱
 				}
 				
-				if(infoPark.isDiscountAllday==1){
-					double discountHourAlldayMoney = infoPark.discountHourAlldayMoney;
-					if(realPayPrice>discountHourAlldayMoney){ //如果用户选择了全天优惠，那么，这里就收最少的那个钱.
-						realPayPrice=discountHourAlldayMoney;
-						isDiscount = true;
-					}
+				//得到当前情况下优惠后的价格
+				double newprice = getNewPriceAfterDiscount(infoPark,realPayPrice);
+				if(newprice<realPayPrice){
+					isDiscount = true;
+					realPayPrice = newprice;
 				}
 				
-				if(infoPark.isDiscountSec==1){//又勾选了优惠时段，那么
-					if(infoPark.discountSecStartHour!=null&&infoPark.discountSecEndHour!=null){
-						String currentDate = DateHelper.format(new Date(), "yyyy/MM/dd HH:mm:00");
-						String startdate = DateHelper.format(infoPark.discountSecStartHour, "yyyy/MM/dd HH:mm:00");
-						String endDate = DateHelper.format(infoPark.discountSecEndHour, "yyyy/MM/dd HH:mm:00");
-						
-						long currentDateDD = DateHelper.getStringtoDate(currentDate, "yyyy/MM/dd HH:mm:ss").getTime();
-						long startdateDD = DateHelper.getStringtoDate(startdate, "yyyy/MM/dd HH:mm:ss").getTime();
-						long endDateDD = DateHelper.getStringtoDate(endDate, "yyyy/MM/dd HH:mm:ss").getTime();
-						if(endDateDD<startdateDD){//证明这里是过了24点
-							endDateDD  = DateHelper.addDate(new Date(endDateDD), 1).getTime();
-						}
-						
-						//在优惠时间内，就用优惠价格
-						if(currentDateDD>=startdateDD&&currentDateDD<=endDateDD){
-							if(realPayPrice>infoPark.discountSecHourMoney){
-								realPayPrice = infoPark.discountSecHourMoney;
-								isDiscount = true;
-							}
-						}
-						
-					}
-				}
-				
+				//是否能够使用用户选择的优惠卷
 				if(counponId>0){
 					TCouponEntity couponEntity = TCouponEntity.findDataById(counponId);
 					if(couponEntity!=null){
 						realPayPrice = realPayPrice-couponEntity.money;
 						if(realPayPrice<0){
+							couponUsedMoney = realPayPrice;
 							realPayPrice = 0;
+						}else{
+							couponUsedMoney = couponEntity.money;
 						}
+						
 						useCounpon = true;
 					}
 				}
@@ -339,6 +503,7 @@ public class PayController extends Controller{
 				payOption.payOrginalPrice=Arith.decimalPrice(orginalPrice);
 				payOption.isDiscount=isDiscount;
 				payOption.useCounpon=useCounpon;
+				payOption.counponUsedMoney=couponUsedMoney;
 				
 				//***************组合订单完毕******************
 				response.setResponseStatus(ComResponse.STATUS_OK);
@@ -372,12 +537,58 @@ public class PayController extends Controller{
 	}
 	
 	
+	/**
+	 * 得到当前时间段或者后台设置优惠属性后的最新价格
+	 * @param infoPark
+	 * @param planedPrice
+	 * @return
+	 */
+	private static double getNewPriceAfterDiscount(TParkInfoProd infoPark,double planedPrice){
+		
+		if(planedPrice<=0){
+			return 0.0;
+		}
+		
+		double newPrice = planedPrice;
+		if(infoPark.isDiscountAllday==1){
+			double discountHourAlldayMoney = infoPark.discountHourAlldayMoney;
+			if(newPrice>discountHourAlldayMoney){ //如果用户选择了全天优惠，那么，这里就收最少的那个钱.
+				newPrice=discountHourAlldayMoney;
+			}
+		}
+		
+		if(infoPark.isDiscountSec==1){//又勾选了优惠时段，那么
+			if(infoPark.discountSecStartHour!=null&&infoPark.discountSecEndHour!=null){
+				String currentDate = DateHelper.format(new Date(), "yyyy/MM/dd HH:mm:00");
+				String startdate = DateHelper.format(infoPark.discountSecStartHour, "yyyy/MM/dd HH:mm:00");
+				String endDate = DateHelper.format(infoPark.discountSecEndHour, "yyyy/MM/dd HH:mm:00");
+				
+				long currentDateDD = DateHelper.getStringtoDate(currentDate, "yyyy/MM/dd HH:mm:ss").getTime();
+				long startdateDD = DateHelper.getStringtoDate(startdate, "yyyy/MM/dd HH:mm:ss").getTime();
+				long endDateDD = DateHelper.getStringtoDate(endDate, "yyyy/MM/dd HH:mm:ss").getTime();
+				if(endDateDD<startdateDD){//证明这里是过了24点
+					endDateDD  = DateHelper.addDate(new Date(endDateDD), 1).getTime();
+				}
+				
+				//在优惠时间内，就用优惠价格
+				if(currentDateDD>=startdateDD&&currentDateDD<=endDateDD){
+					if(newPrice>infoPark.discountSecHourMoney){
+						newPrice = infoPark.discountSecHourMoney;
+					}
+				}
+				
+			}
+		}
+		return newPrice;
+	}
+	
+	
 	@BasicAuth
-	public static Result updatePayment(long parkPyId,int status){
+	public static Result updatePayment(long payId,int status){
 		
 		ComResponse<TParkInfo_Py>  response = new ComResponse<TParkInfo_Py>();
 		try {
-			TParkInfo_Py order = TParkInfo_Py.findDataById(parkPyId);
+			TParkInfo_Py order = TParkInfo_Py.findDataById(payId);
 			if(order!=null){
 				if(status == Constants.PAYMENT_STATUS_FINISH){
 					order.ackDate = new Date();
@@ -385,18 +596,18 @@ public class PayController extends Controller{
 					TParkInfo_Py.saveData(order);
 					
 					response.setExtendResponseContext("完成订单付款状态.");
-					LogController.info("payment done for "+parkPyId);
+					LogController.info("payment done for "+payId);
 				}else if(status == Constants.PAYMENT_STATUS_PENDING){
 					order.ackStatus = Constants.PAYMENT_STATUS_PENDING;
 					TParkInfo_Py.saveData(order);
 					response.setExtendResponseContext("订单付款等待远程银行响应.");
-					LogController.info("payment pending as alibaba for "+parkPyId);
+					LogController.info("payment pending as alibaba for "+payId);
 				}else{
 					order.ackDate = new Date();
 					order.ackStatus = Constants.PAYMENT_STATUS_EXCPTION;
 					TParkInfo_Py.saveData(order);
 					response.setExtendResponseContext("订单付款异常.");
-					LogController.info("payment excption:"+parkPyId);
+					LogController.info("payment excption:"+payId);
 				}
 				response.setResponseStatus(ComResponse.STATUS_OK);
 				response.setResponseEntity(order);

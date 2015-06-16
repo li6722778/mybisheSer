@@ -19,6 +19,9 @@ public class ChebolePayOptions {
     public double payActualPrice;
 	
 	@Expose
+	public double counponUsedMoney;
+	
+	@Expose
     public boolean isDiscount;
 	@Expose
 	public boolean useCounpon;
