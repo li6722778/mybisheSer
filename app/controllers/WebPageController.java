@@ -14,7 +14,7 @@ import models.info.TParkInfoPro_Loc;
 import models.info.TParkInfoProd;
 import models.info.TParkInfo_Img;
 import models.info.TParkInfo_Loc;
-import models.info.TParkInfo_Py;
+import models.info.TOrder_Py;
 import models.info.TParkInfo_adm;
 import models.info.TVersion;
 import models.info.TuserInfo;
@@ -49,7 +49,7 @@ public class WebPageController extends Controller {
 
 		int userCount = TuserInfo.findCount();
 
-		double paymentCount = TParkInfo_Py.findDonePayment();
+		double paymentCount = TOrder_Py.findDonePayment();
 
 		Logger.debug("summary information,parkingProdCount->"
 				+ parkingProdCount + ",orderCount->" + orderCount

@@ -129,20 +129,26 @@ public class ParkProdController extends Controller {
 			List<TParkInfoPro_Loc> locArray = new ArrayList<TParkInfoPro_Loc>();
 			parkProdInfo.imgUrlArray = imgArray;
 			parkProdInfo.latLngArray = locArray;
-			Logger.debug(">>>>img bean copy start");
-			for (TParkInfo_Img oldImgArray : parkInfo.imgUrlArray) {
-				TParkInfoPro_Img img = new TParkInfoPro_Img();
-				copierImg.copy(oldImgArray, img, null);
-				imgArray.add(img);
+			
+			if(parkInfo.imgUrlArray!=null){
+				Logger.debug(">>>>img bean copy start");
+				for (TParkInfo_Img oldImgArray : parkInfo.imgUrlArray) {
+					TParkInfoPro_Img img = new TParkInfoPro_Img();
+					copierImg.copy(oldImgArray, img, null);
+					imgArray.add(img);
+				}
+				Logger.debug(">>>>img bean copy end");
 			}
-			Logger.debug(">>>>img bean copy end");
-			Logger.debug(">>>>location bean copy start");
-			for (TParkInfo_Loc oldLocArray : parkInfo.latLngArray) {
-				TParkInfoPro_Loc loc = new TParkInfoPro_Loc();
-				copierLoc.copy(oldLocArray, loc, null);
-				locArray.add(loc);
+			
+			if(parkInfo.latLngArray!=null){
+				Logger.debug(">>>>location bean copy start");
+				for (TParkInfo_Loc oldLocArray : parkInfo.latLngArray) {
+					TParkInfoPro_Loc loc = new TParkInfoPro_Loc();
+					copierLoc.copy(oldLocArray, loc, null);
+					locArray.add(loc);
+				}
+				Logger.debug(">>>>location bean copy end");
 			}
-			Logger.debug(">>>>location bean copy end");
 
 			parkProdInfo.approveDate = new Date();
 			parkProdInfo.approvePerson = session("username");

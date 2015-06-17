@@ -13,7 +13,7 @@ import models.ChebolePayOptions;
 import models.info.TCouponEntity;
 import models.info.TOrder;
 import models.info.TParkInfoProd;
-import models.info.TParkInfo_Py;
+import models.info.TOrder_Py;
 import models.info.TuserInfo;
 import play.Logger;
 import play.libs.Json;
@@ -190,7 +190,7 @@ public class PayController extends Controller{
 					dataBean.couponId = data.counponId;
 					dataBean.orderDetail=infoPark.detail;
 					
-					TParkInfo_Py py = new TParkInfo_Py();
+					TOrder_Py py = new TOrder_Py();
 					py.payActu=data.payActualPrice;
 					py.payMethod=data.payActualPrice==0?Constants.PAYMENT_TYPE_CASH:Constants.PAYMENT_TYPE_ZFB;
 					py.payTotal=data.payOrginalPrice;
@@ -199,7 +199,7 @@ public class PayController extends Controller{
 					py.payDate = new Date();
 					py.couponUsed=data.counponUsedMoney;
 					
-					List<TParkInfo_Py> pays= new ArrayList<TParkInfo_Py>();
+					List<TOrder_Py> pays= new ArrayList<TOrder_Py>();
 					pays.add(py);
 					
 					dataBean.pay=pays;
@@ -309,10 +309,10 @@ public class PayController extends Controller{
 			}
 			
 			//先看已经付款多少了
-			List<TParkInfo_Py> py = order.pay;
+			List<TOrder_Py> py = order.pay;
 			if(py!=null&&py.size()>0){
 				double couponUsed=0.0;
-				for(TParkInfo_Py p:py){
+				for(TOrder_Py p:py){
 					totalAlreadyPay+=p.payTotal;	
 					actuAlreadyPay+=p.payActu;
 					couponUsed+=p.couponUsed;
@@ -328,6 +328,7 @@ public class PayController extends Controller{
 				
 				newpriceWithoutCouponAndDiscount = Arith.decimalPrice(realPayPrice-totalAlreadyPay); //还多少钱没有付
 				if(newpriceWithoutCouponAndDiscount<=0.1){ //还差1毛钱
+					response.setExtendResponseContext("pass");
 					throw new Exception("您已经付款"+Arith.decimalPrice(totalAlreadyPay)+"[实际付款:"+Arith.decimalPrice(actuAlreadyPay)+"],无需再次付款。");
 				}
 
@@ -390,7 +391,7 @@ public class PayController extends Controller{
 			payOption.orderId = order.orderId;
 			
 			if(newpriceWithCouponAndDiscount>0){
-				TParkInfo_Py newpay = new TParkInfo_Py();
+				TOrder_Py newpay = new TOrder_Py();
 				newpay.payActu=newpriceWithCouponAndDiscount;
 				newpay.payMethod=newpriceWithCouponAndDiscount==0?Constants.PAYMENT_TYPE_CASH:Constants.PAYMENT_TYPE_ZFB;
 				newpay.payTotal=newpriceWithoutCouponAndDiscount;
@@ -400,7 +401,7 @@ public class PayController extends Controller{
 				newpay.order = order;
 				newpay.couponUsed=canbeUsedCoupon;
 				
-				TParkInfo_Py.saveData(newpay);
+				TOrder_Py.saveData(newpay);
 			
 	
 				//生成alipay的info
@@ -428,7 +429,8 @@ public class PayController extends Controller{
 				
 				LogController.info("generator order successfully:"+order.orderName+",from "+username);
 			}else{
-				response.setExtendResponseContext("出场付款金额小于0,不用生成订单");
+				response.setExtendResponseContext("pass");
+				throw new Exception("没有产生其他费用，请出场");
 			}
 
 			/*********************************************************************
@@ -593,27 +595,27 @@ public class PayController extends Controller{
 	@BasicAuth
 	public static Result updatePayment(long payId,int status){
 		
-		ComResponse<TParkInfo_Py>  response = new ComResponse<TParkInfo_Py>();
+		ComResponse<TOrder_Py>  response = new ComResponse<TOrder_Py>();
 		try {
-			TParkInfo_Py order = TParkInfo_Py.findDataById(payId);
+			TOrder_Py order = TOrder_Py.findDataById(payId);
 			if(order!=null){
 				if(status == Constants.PAYMENT_STATUS_FINISH){
 					order.ackDate = new Date();
 					order.ackStatus = Constants.PAYMENT_STATUS_FINISH;
-					TParkInfo_Py.saveData(order);
+					TOrder_Py.saveData(order);
 					
 					response.setExtendResponseContext("完成订单付款状态.");
 					LogController.info("payment done for "+payId);
 				}else if(status == Constants.PAYMENT_STATUS_PENDING){
 					order.ackDate = new Date();
 					order.ackStatus = Constants.PAYMENT_STATUS_PENDING;
-					TParkInfo_Py.saveData(order);
+					TOrder_Py.saveData(order);
 					response.setExtendResponseContext("订单付款等待远程银行响应.");
 					LogController.info("payment pending as alibaba for "+payId);
 				}else{
 					order.ackDate = new Date();
 					order.ackStatus = Constants.PAYMENT_STATUS_EXCPTION;
-					TParkInfo_Py.saveData(order);
+					TOrder_Py.saveData(order);
 					response.setExtendResponseContext("订单付款异常.");
 					LogController.info("payment excption:"+payId);
 				}

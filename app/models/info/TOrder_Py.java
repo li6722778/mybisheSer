@@ -22,8 +22,8 @@ import com.avaje.ebean.TxRunnable;
 import com.google.gson.annotations.Expose;
 
 @Entity
-@Table(name = "tb_parking_py")
-public class TParkInfo_Py extends Model{
+@Table(name = "tb_order_py")
+public class TOrder_Py extends Model{
 
 	@Id
 	@Expose
@@ -71,10 +71,10 @@ public class TParkInfo_Py extends Model{
 	public String createPerson;
 
 	// 查询finder，用于其他方法中需要查询的场景
-	public static Finder<Long, TParkInfo_Py> find = new Finder<Long, TParkInfo_Py>(
-			Long.class, TParkInfo_Py.class);
+	public static Finder<Long, TOrder_Py> find = new Finder<Long, TOrder_Py>(
+			Long.class, TOrder_Py.class);
 	
-	public static TParkInfo_Py findDataById(long id) {
+	public static TOrder_Py findDataById(long id) {
 		return find.byId(id);
 	}
 	
@@ -83,7 +83,7 @@ public class TParkInfo_Py extends Model{
 	 * @return
 	 */
 	public static double findDonePayment(){
-		String sql = "SELECT sum(pay_total) as count FROM tb_parking_py where ack_status="+Constants.ORDER_TYPE_FINISH;
+		String sql = "SELECT sum(pay_total) as count FROM tb_order_py where ack_status="+Constants.ORDER_TYPE_FINISH;
 		
 		SqlQuery sq = Ebean.createSqlQuery(sql);
 		SqlRow sqlRow = sq.findUnique();
@@ -95,11 +95,11 @@ public class TParkInfo_Py extends Model{
 	 * 保存付款
 	 * @param bean
 	 */
-	public static void saveData(final TParkInfo_Py bean) {
+	public static void saveData(final TOrder_Py bean) {
 		Ebean.execute(new TxRunnable() {
 			public void run() {
 				if (bean.parkPyId == null || bean.parkPyId <= 0) {
-					bean.parkPyId = TPKGenerator.getPrimaryKey(TParkInfo_Py.class.getName(), "parkPyId");
+					bean.parkPyId = TPKGenerator.getPrimaryKey(TOrder_Py.class.getName(), "parkPyId");
 					Ebean.save(bean);
 				}else{
 					Ebean.update(bean);

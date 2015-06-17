@@ -7,7 +7,7 @@ import java.util.List;
 import models.ChebolePayOptions;
 import models.info.TOrder;
 import models.info.TParkInfoProd;
-import models.info.TParkInfo_Py;
+import models.info.TOrder_Py;
 import models.info.TuserInfo;
 
 import org.junit.Test;
@@ -81,17 +81,17 @@ public class TestOrderControllerTest extends WithApplication {
 			dataBean.parkInfo = part;
 			dataBean.userInfo = user;
 			
-			TParkInfo_Py py = new TParkInfo_Py();
+			TOrder_Py py = new TOrder_Py();
 			py.payActu=33.3;
 			py.payMethod=1;
 			py.payTotal=44.4;
 			
-			TParkInfo_Py py2 = new TParkInfo_Py();
+			TOrder_Py py2 = new TOrder_Py();
 			py2.payActu=22;
-			py.payMethod=9;
+			py2.payMethod=9;
 			py2.payTotal=22;
 			
-			List<TParkInfo_Py> pays= new ArrayList<TParkInfo_Py>();
+			List<TOrder_Py> pays= new ArrayList<TOrder_Py>();
 			pays.add(py);
 			dataBean.pay=pays;
 
@@ -155,6 +155,26 @@ public class TestOrderControllerTest extends WithApplication {
 		Result result = Helpers.route(testRequest);
 
 		assertThat(Helpers.status(result)).isEqualTo(Helpers.OK);
+	}
+	
+	@Test
+	public void moveDate(){
+		FakeRequest testRequest2 = new FakeRequest(Helpers.GET, "/a/order").withHeader("Authorization", auth);
+		Result result2 = Helpers.route(testRequest2);		
+		assertThat(Helpers.status(result2)).isEqualTo(Helpers.OK);
+		
+		String con2resultString = Helpers.contentAsString(result2);
+		//System.out.println("con2Request:"+con2resultString);
+		CommFindEntity<TOrder> con1 = OrderController.gsonBuilderWithExpose.fromJson(con2resultString, new TypeToken<CommFindEntity<TOrder>>() {  
+        }.getType());
+		
+	
+		if(con1!=null&&con1.getResult()!=null&&con1.getResult().size()>0){
+			TOrder part=con1.getResult().get(0);
+			
+			
+			
+		}
 	}
 
 }

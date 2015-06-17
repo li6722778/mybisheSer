@@ -47,7 +47,7 @@ public class TOrder extends Model {
 	@OneToMany(cascade = { CascadeType.REMOVE }, fetch = FetchType.LAZY, mappedBy = "order")
 	@OrderBy("parkPyId DESC")
 	@Expose
-	public List<TParkInfo_Py> pay;
+	public List<TOrder_Py> pay;
 
 	@Expose
 	public int orderStatus;
@@ -112,11 +112,11 @@ public class TOrder extends Model {
 					Ebean.save(bean);
 					
 					if(bean.pay!=null&&bean.pay.size()>0){
-						for(TParkInfo_Py py:bean.pay){
+						for(TOrder_Py py:bean.pay){
 							TOrder order = new TOrder();
 							order.orderId = bean.orderId;
 							py.order = order;
-							TParkInfo_Py.saveData(py);
+							TOrder_Py.saveData(py);
 						}
 					}
 					
