@@ -85,6 +85,14 @@ public class TParkInfoProd extends Model {
 	@Expose
 	public double feeTypeSecOutScopeHourMoney;
 
+	@Column(columnDefinition = "integer default 0")
+	@Expose
+	public int feeTypeSecMinuteOfActivite;
+
+	@Column(columnDefinition = "integer default 0")
+	@Expose
+	public int feeTypeFixedMinuteOfInActivite;
+	
 	@Column(columnDefinition = "decimal(12,2) default 0.0")
 	@Expose
 	public double feeTypefixedHourMoney;
