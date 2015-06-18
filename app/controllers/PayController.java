@@ -12,6 +12,7 @@ import java.util.List;
 import models.ChebolePayOptions;
 import models.info.TCouponEntity;
 import models.info.TOrder;
+import models.info.TOrderHis;
 import models.info.TParkInfoProd;
 import models.info.TOrder_Py;
 import models.info.TuserInfo;
@@ -163,7 +164,7 @@ public class PayController extends Controller{
 		String request = request().body().asJson().toString();
 		Logger.debug("start to post data:" + request);
 		
-		ChebolePayOptions data = gsonBuilderWithExpose.fromJson(request, ChebolePayOptions.class);
+		ChebolePayOptions chebolePayOptions = gsonBuilderWithExpose.fromJson(request, ChebolePayOptions.class);
 
 		ComResponse<ChebolePayOptions>  response = new ComResponse<ChebolePayOptions>();
 		try {
@@ -176,31 +177,65 @@ public class PayController extends Controller{
 					user = TuserInfo.findDataById(Long.parseLong(useridString));
 				}catch(Exception e){
 					Logger.error("", e);
-					throw new Exception("fetch session id fail.");
+					throw new Exception("获取当前操作用户失败");
 				}
 				if(infoPark!=null&&user!=null){
 					//开始组合订单
-					TOrder dataBean = new TOrder();
+					
+					
+					//首先判断一下是否需要新建订单
+					TOrder dataBean = null;
+					//付款单
+					TOrder_Py payment = null;
+					if(chebolePayOptions.orderId>0){ //该订单已经存在
+						dataBean = TOrder.findDataById(chebolePayOptions.orderId);
+						if(dataBean.orderStatus==Constants.ORDER_TYPE_FINISH){//订单已经完成了
+							throw new Exception("订单已经完成，不能再次付款");
+						}
+						//查看当前状态下是否有付款单
+						if(dataBean.pay!=null){
+							//付款单
+							long payID = chebolePayOptions.paymentId;
+							payment = TOrder_Py.findDataById(payID);
+							if(payment!=null){
+								if(payment.ackStatus==Constants.PAYMENT_STATUS_FINISH){
+									throw new Exception("该订单付款单已经支付完成");
+								}
+	                            if(payment.ackStatus==Constants.PAYMENT_STATUS_PENDING){
+	                            	throw new Exception("付款单正在等待支付接口响应,请不要重复付款");
+								}
+							}
+
+						}
+						
+					}
+					if(dataBean==null){
+						dataBean = new TOrder(); //生成一个新的订单
+					}
+					if(payment==null){
+						payment = new TOrder_Py();
+					}
+					
+					
 					dataBean.orderCity=city;
 					dataBean.orderDate = new Date();
 					dataBean.orderName="停车费:"+infoPark.parkname;
 					dataBean.orderStatus = Constants.ORDER_TYPE_START;
 					dataBean.parkInfo = infoPark;
 					dataBean.userInfo = user;
-					dataBean.couponId = data.counponId;
+					dataBean.couponId = chebolePayOptions.counponId;
 					dataBean.orderDetail=infoPark.detail;
 					
-					TOrder_Py py = new TOrder_Py();
-					py.payActu=data.payActualPrice;
-					py.payMethod=data.payActualPrice==0?Constants.PAYMENT_TYPE_CASH:Constants.PAYMENT_TYPE_ZFB;
-					py.payTotal=data.payOrginalPrice;
-					py.ackStatus=Constants.PAYMENT_STATUS_START;
-					py.createPerson=user.userName;
-					py.payDate = new Date();
-					py.couponUsed=data.counponUsedMoney;
+					payment.payActu=chebolePayOptions.payActualPrice;
+					payment.payMethod=chebolePayOptions.payActualPrice==0?Constants.PAYMENT_TYPE_CASH:Constants.PAYMENT_TYPE_ZFB;
+					payment.payTotal=chebolePayOptions.payOrginalPrice;
+					payment.ackStatus=Constants.PAYMENT_STATUS_START;
+					payment.createPerson=user.userName;
+					payment.payDate = new Date();
+					payment.couponUsed=chebolePayOptions.counponUsedMoney;
 					
 					List<TOrder_Py> pays= new ArrayList<TOrder_Py>();
-					pays.add(py);
+					pays.add(payment);
 					
 					dataBean.pay=pays;
 					
@@ -209,13 +244,13 @@ public class PayController extends Controller{
 					
 					TOrder.saveData(dataBean);
 					
-					Logger.debug("本次实际付款金额:"+py.payActu+"元,orderId:"+dataBean.orderId+",payment id:"+py.parkPyId);
+					Logger.debug("本次实际付款金额:"+payment.payActu+"元,orderId:"+dataBean.orderId+",payment id:"+payment.parkPyId);
 					
 					/*********************************************************************
 					 * 这里生成aili pay String
 					 ***********************************************************************/
 					// 订单
-					String orderInfo = getOrderInfo(dataBean,py.parkPyId,py.payActu);
+					String orderInfo = getOrderInfo(dataBean,payment.parkPyId,payment.payActu);
 					Logger.debug(" ******ali pay ******order info:"+orderInfo);
 					// 对订单做RSA 签名
 					String sign = sign(orderInfo);
@@ -231,15 +266,15 @@ public class PayController extends Controller{
 					
 					Logger.debug(" ******ali pay ******payInfo:"+payInfo);
 					
-					data.payInfo = payInfo;
-					data.orderId = dataBean.orderId;
-					data.paymentId=py.parkPyId;
+					chebolePayOptions.payInfo = payInfo;
+					chebolePayOptions.orderId = dataBean.orderId;
+					chebolePayOptions.paymentId=payment.parkPyId;
 					
 					/*********************************************************************
 					 * 生成完毕
 					 ***********************************************************************/
 					response.setResponseStatus(ComResponse.STATUS_OK);
-					response.setResponseEntity(data);
+					response.setResponseEntity(chebolePayOptions);
 					response.setExtendResponseContext("订单数据生成成功，并且返回支付串.");
 					LogController.info("generator order successfully:"+dataBean.orderName+",from "+user.userPhone);
 				}else{
@@ -247,7 +282,7 @@ public class PayController extends Controller{
 				}
 
 			}else{
-				throw new Exception("无效的停车场ID");
+				throw new Exception("无效的停车场ID:"+parkingProdId);
 			}
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
@@ -282,7 +317,7 @@ public class PayController extends Controller{
 			if(parkinfo==null){
 				throw new Exception("该订单无有效停车场");
 			}else if(parkinfo.parkId!=parkProdId){
-				throw new Exception("该停车场无此订单，请检查");
+				throw new Exception("该订单不属于此停车场，请检查");
 			}
 			
 			
@@ -327,9 +362,12 @@ public class PayController extends Controller{
 				double realPayPrice = parkinfo.feeTypefixedHourMoney;
 				
 				newpriceWithoutCouponAndDiscount = Arith.decimalPrice(realPayPrice-totalAlreadyPay); //还多少钱没有付
-				if(newpriceWithoutCouponAndDiscount<=0.1){ //还差1毛钱
+				if(newpriceWithoutCouponAndDiscount<=0.1){ //不差钱
 					response.setExtendResponseContext("pass");
-					throw new Exception("您已经付款"+Arith.decimalPrice(totalAlreadyPay)+"[实际付款:"+Arith.decimalPrice(actuAlreadyPay)+"],无需再次付款。");
+					//***********已经完成的订单需要移到历史表**************/
+					TOrderHis.moveToHisFromOrder(orderId);
+					
+					throw new Exception("已经付款"+Arith.decimalPrice(totalAlreadyPay)+"[实际付款:"+Arith.decimalPrice(actuAlreadyPay)+"],无需再次付款。");
 				}
 
 			}else if(parkinfo.feeType==1){//分段收费
@@ -430,6 +468,9 @@ public class PayController extends Controller{
 				LogController.info("generator order successfully:"+order.orderName+",from "+username);
 			}else{
 				response.setExtendResponseContext("pass");
+				//***********已经完成的订单需要移到历史表**************/
+				TOrderHis.moveToHisFromOrder(orderId);
+				
 				throw new Exception("没有产生其他费用，请出场");
 			}
 

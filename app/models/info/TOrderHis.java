@@ -137,6 +137,9 @@ public class TOrderHis extends Model {
 				if(order!=null){
 					Logger.debug(">>>>order moving start");
 					
+					order.endDate = new Date();
+					order.orderStatus = Constants.ORDER_TYPE_FINISH;
+					
 					TOrderHis orderHis = new TOrderHis();
 					copier.copy(order, orderHis, null);
 					

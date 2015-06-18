@@ -110,18 +110,17 @@ public class TOrder extends Model {
 					
 					bean.orderDate = new Date();
 					Ebean.save(bean);
-					
-					if(bean.pay!=null&&bean.pay.size()>0){
-						for(TOrder_Py py:bean.pay){
-							TOrder order = new TOrder();
-							order.orderId = bean.orderId;
-							py.order = order;
-							TOrder_Py.saveData(py);
-						}
-					}
-					
 				} else {
 					Ebean.update(bean);
+				}
+				
+				if(bean.pay!=null&&bean.pay.size()>0){
+					for(TOrder_Py py:bean.pay){
+						TOrder order = new TOrder();
+						order.orderId = bean.orderId;
+						py.order = order;
+						TOrder_Py.saveData(py);
+					}
 				}
 			}
 		});
