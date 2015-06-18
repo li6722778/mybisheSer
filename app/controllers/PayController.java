@@ -232,6 +232,7 @@ public class PayController extends Controller{
 					payment.ackStatus=Constants.PAYMENT_STATUS_START;
 					payment.createPerson=user.userName;
 					payment.payDate = new Date();
+					payment.ackDate=null;
 					payment.couponUsed=chebolePayOptions.counponUsedMoney;
 					
 					List<TOrder_Py> pays= new ArrayList<TOrder_Py>();
