@@ -348,9 +348,12 @@ public class PayController extends Controller{
 			if(py!=null&&py.size()>0){
 				double couponUsed=0.0;
 				for(TOrder_Py p:py){
-					totalAlreadyPay+=p.payTotal;	
-					actuAlreadyPay+=p.payActu;
-					couponUsed+=p.couponUsed;
+					//状态为完成和处理中的，总价都要计算上，因为“处理中”可能是支付接口问题，单根据支付宝协议，会在几个小时内post结果信息
+					if(p.ackStatus==Constants.ORDER_TYPE_FINISH||p.ackStatus==Constants.ORDER_TYPE_PENDING){
+						totalAlreadyPay+=p.payTotal;	
+						actuAlreadyPay+=p.payActu;
+						couponUsed+=p.couponUsed;
+					}
 				}
 				canbeUsedCoupon = Arith.decimalPrice(Math.abs(couponPrice-couponUsed));
 			}
@@ -429,6 +432,25 @@ public class PayController extends Controller{
 			payOption.orderId = order.orderId;
 			
 			if(newpriceWithCouponAndDiscount>0){
+				
+				if(order.orderStatus==Constants.ORDER_TYPE_FINISH){//订单已经完成了
+					throw new Exception("订单已经完成，不能再次付款");
+				}
+				//查看当前状态下是否有付款单
+				if(order.pay!=null){
+					
+					List<TOrder_Py> orderPys = order.pay;
+					
+					if(orderPys!=null){
+						//只需要判断当前pending的付款单
+						for(TOrder_Py payment:orderPys){
+		                    if(payment.ackStatus==Constants.PAYMENT_STATUS_PENDING){
+		                       throw new Exception("当前订单已经有一笔付款["+payment.payActu+"元]正在等待支付接口响应");
+							}
+						}
+					}
+				}
+				
 				TOrder_Py newpay = new TOrder_Py();
 				newpay.payActu=newpriceWithCouponAndDiscount;
 				newpay.payMethod=newpriceWithCouponAndDiscount==0?Constants.PAYMENT_TYPE_CASH:Constants.PAYMENT_TYPE_ZFB;

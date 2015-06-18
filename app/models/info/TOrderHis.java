@@ -156,6 +156,7 @@ public class TOrderHis extends Model {
 						}
 						Logger.debug(">>>>>>>>>>>TOrder_Py moving end");
 					}
+					saveDataWithoutIDPolicy(orderHis);
 					Logger.debug(">>>>order moving end");
 
 					TOrder.deleteData(orderId);

@@ -96,6 +96,6 @@ public class TOrderHis_Py extends Model{
 	 * @param bean
 	 */
 	public static void saveDataWithoutIDPolicy(final TOrderHis_Py bean) {
-		Ebean.update(bean);
+		Ebean.save(bean);
 	}
 }

@@ -28,6 +28,7 @@ public class TestOrderPaymentControllerTest extends WithApplication{
 	String creds = String.format("%s:%s",TestConstants.AUTH_USERNAME, TestConstants.AUTH_PASSWD);
 	String auth = "Basic "+ Base64.encode(creds.getBytes());
 	
+
 	@Test
 	public void testPayOrder(){
 		
@@ -111,6 +112,14 @@ public class TestOrderPaymentControllerTest extends WithApplication{
 						Result resultPayOrder2 = Helpers.route(testPayRequest2);
 						assertThat(Helpers.status(resultPayOrder2)).isEqualTo(Helpers.OK);
 						
+						
+						System.out.println("[************************* OUT TEST*************************]");
+						FakeRequest testPayRequest3 = new FakeRequest(Helpers.POST, "/a/pay/out/"+part.parkInfo.parkId+"/"+part.orderId+"").withHeader("Authorization", auth);
+						Result resultPayOrder3 = Helpers.route(testPayRequest3);
+						
+						assertThat(Helpers.status(resultPayOrder3)).isEqualTo(Helpers.OK);
+						
+						System.out.println("[************************* OUT TEST RESULT");
 					}else{
 						System.out.println("[***WARN***]TParkInfo_Py table is null");
 					}
