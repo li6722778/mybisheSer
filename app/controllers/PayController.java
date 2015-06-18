@@ -666,20 +666,16 @@ public class PayController extends Controller{
 					order.ackDate = new Date();
 					order.ackStatus = Constants.PAYMENT_STATUS_FINISH;
 					TOrder_Py.saveData(order);
-					
-					response.setExtendResponseContext("完成订单付款状态.");
 					LogController.info("payment done for "+payId);
 				}else if(status == Constants.PAYMENT_STATUS_PENDING){
 					order.ackDate = new Date();
 					order.ackStatus = Constants.PAYMENT_STATUS_PENDING;
 					TOrder_Py.saveData(order);
-					response.setExtendResponseContext("订单付款等待远程银行响应.");
 					LogController.info("payment pending as alibaba for "+payId);
 				}else{
 					order.ackDate = new Date();
 					order.ackStatus = Constants.PAYMENT_STATUS_EXCPTION;
 					TOrder_Py.saveData(order);
-					response.setExtendResponseContext("订单付款异常.");
 					LogController.info("payment excption:"+payId);
 				}
 				response.setResponseStatus(ComResponse.STATUS_OK);
