@@ -187,8 +187,8 @@ public class PayController extends Controller{
 					TOrder dataBean = null;
 					//付款单
 					TOrder_Py payment = null;
-					if(chebolePayOptions.orderId>0){ //该订单已经存在
-						dataBean = TOrder.findDataById(chebolePayOptions.orderId);
+					if(chebolePayOptions.order!=null&&chebolePayOptions.order.orderId!=null&&chebolePayOptions.order.orderId>0){ //该订单已经存在
+						dataBean = TOrder.findDataById(chebolePayOptions.order.orderId);
 						if(dataBean.orderStatus==Constants.ORDER_TYPE_FINISH){//订单已经完成了
 							throw new Exception("订单已经完成，不能再次付款");
 						}
@@ -267,7 +267,7 @@ public class PayController extends Controller{
 					Logger.debug(" ******ali pay ******payInfo:"+payInfo);
 					
 					chebolePayOptions.payInfo = payInfo;
-					chebolePayOptions.orderId = dataBean.orderId;
+					chebolePayOptions.order = dataBean;
 					chebolePayOptions.paymentId=payment.parkPyId;
 					
 					/*********************************************************************
@@ -429,7 +429,7 @@ public class PayController extends Controller{
 			payOption.isDiscount=isDiscount;
 			payOption.useCounpon=useCounpon;
 			payOption.counponUsedMoney=canbeUsedCoupon;
-			payOption.orderId = order.orderId;
+			payOption.order = order;
 			
 			if(newpriceWithCouponAndDiscount>0){
 				

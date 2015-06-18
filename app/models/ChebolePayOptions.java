@@ -1,5 +1,7 @@
 package models;
 
+import models.info.TOrder;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.gson.annotations.Expose;
 
@@ -9,7 +11,7 @@ public class ChebolePayOptions {
 	@Expose
 	public String payInfo;
 	@Expose
-	public long orderId;
+	public TOrder order;
 	@Expose
 	public long paymentId;
 	@Expose
