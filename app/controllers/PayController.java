@@ -287,6 +287,7 @@ public class PayController extends Controller{
 			}
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
+			response.setResponseEntity(chebolePayOptions);
 			response.setErrorMessage(e.getMessage());
 			Logger.error("", e);
 		}
