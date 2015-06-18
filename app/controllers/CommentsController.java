@@ -20,7 +20,6 @@ public class CommentsController extends Controller {
 	 * @param userid
 	 * @return
 	 */
-	@BasicAuth
 	public static Result getDataById(Long id) {
 		Logger.info("start to get data");
 		String json = gsonBuilderWithExpose.toJson(TParkInfo_Comment.findDataById(id));
@@ -36,7 +35,6 @@ public class CommentsController extends Controller {
 	 * @param orderBy
 	 * @return
 	 */
-	@BasicAuth
 	public static Result getParkCommentsAllData(int currentPage, int pageSize,
 			String orderBy,long parkId) {
 		Logger.info("start to all data");
@@ -56,7 +54,6 @@ public class CommentsController extends Controller {
 	 * @param orderBy
 	 * @return
 	 */
-	@BasicAuth
 	public static Result getAllData(int currentPage, int pageSize,
 			String orderBy) {
 		Logger.info("start to all data");

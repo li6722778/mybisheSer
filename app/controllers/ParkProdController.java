@@ -49,7 +49,6 @@ public class ParkProdController extends Controller {
 	public static BeanCopier copierLocOrin = BeanCopier.create(TParkInfoPro_Loc.class,
 			TParkInfo_Loc.class, false);
 	
-	@BasicAuth
 	public static Result getDataById(Long id) {
 		Logger.info("start to get data");
 
@@ -60,7 +59,6 @@ public class ParkProdController extends Controller {
 		return ok(jsonNode);
 	}
 
-	@BasicAuth
 	public static Result getAllData(int currentPage, int pageSize,
 			String orderBy) {
 		Logger.info("start to get all data");
@@ -73,7 +71,6 @@ public class ParkProdController extends Controller {
 		return ok(jsonNode);
 	}
 
-	@BasicAuth
 	public static Result getAllDataByUser(int currentPage, int pageSize,
 			String orderBy, long user) {
 		Logger.info("start to get all data by user");

@@ -27,7 +27,6 @@ import com.google.gson.GsonBuilder;
 public class ParkController extends Controller{
 	public static Gson gsonBuilderWithExpose = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 
-	@BasicAuth
 	public static Result getDataById(Long id) {
 		Logger.info("start to get data");
 		
@@ -37,7 +36,6 @@ public class ParkController extends Controller{
 		return ok(jsonNode);
 	}
 
-	@BasicAuth
 	public static Result getAllData(int currentPage, int pageSize, String orderBy) {
 		Logger.info("start to get all data");
 		CommFindEntity<TParkInfo> allData = TParkInfo.findData(currentPage,
@@ -49,7 +47,7 @@ public class ParkController extends Controller{
 		return ok(jsonNode);
 	}
 	
-	@BasicAuth
+	
 	public static Result getAllDataByUser(int currentPage, int pageSize, String orderBy,long user) {
 		Logger.info("start to get all data by user");
 		CommFindEntity<TParkInfo> allData = TParkInfo.findData(currentPage,
