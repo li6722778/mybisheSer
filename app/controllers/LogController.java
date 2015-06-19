@@ -29,7 +29,6 @@ public class LogController extends Controller {
 	 * @param orderBy
 	 * @return
 	 */
-	@BasicAuth
 	public static Result getAllData(int currentPage, int pageSize,
 			String orderBy) {
 		Logger.info("start to get all data");
@@ -42,27 +41,26 @@ public class LogController extends Controller {
 		return ok(jsonNode);
 	}
 
-	@BasicAuth
 	public static void debug(String logcontent) {
 		saveData(LogController.DEBUG,logcontent, "");
 	}
 	
-	@BasicAuth
 	public static void info(String logcontent) {
 		saveData(LogController.INFO,logcontent, "");
 	}
+	
+	public static void info(String logcontent,String username) {
+		saveData(LogController.INFO,logcontent, "",username);
+	}
 
-	@BasicAuth
 	public static void warn(String logcontent) {
 		saveData(LogController.WARN,logcontent, "");
 	}
 	
-	@BasicAuth
 	public static void error(String logcontent) {
 		saveData(LogController.ERROR,logcontent, "");
 	}
-	
-	@BasicAuth
+
 	public static void saveData(int level ,String logcontent, String extLog) {
 		try {
 			TLog log = new TLog();
@@ -80,6 +78,20 @@ public class LogController extends Controller {
 			}
 			
 			log.operateName = username + "[" + userid + "," + userphone + "]";
+			TLog.saveData(log);
+		} catch (Exception e) {
+			Logger.warn("save log", e);
+		}
+	}
+	
+	public static void saveData(int level ,String logcontent, String extLog, String username) {
+		try {
+			TLog log = new TLog();
+			log.content = logcontent;
+			log.extraString = extLog;
+			log.level = level;
+
+			log.operateName = username ;
 			TLog.saveData(log);
 		} catch (Exception e) {
 			Logger.warn("save log", e);

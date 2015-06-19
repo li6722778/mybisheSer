@@ -1,4 +1,4 @@
-@(entityBean: com.avaje.ebean.Page[models.info.TOrder], 
+@(entityBean: com.avaje.ebean.Page[models.info.TOrderHis], 
 currentPage: Integer, pageSize: Integer,orderBy: String, city:String,filter:String)
 
              <!-- BEGIN PAGE HEADER-->
@@ -12,7 +12,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String, city:String,filter:Stri
 						<!-- BEGIN PAGE TITLE & BREADCRUMB-->
 
 						<h3 class="page-title">
-							订单数据 <small>车位订单</small>
+							订单历史数据 <small>车位订单已经完成的数据</small>
 						</h3>
 
 						<ul class="breadcrumb">
@@ -28,7 +28,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String, city:String,filter:Stri
 							</li>
 
 							<li><a href="javascript:;">
-							  车位订单
+							  车位历史订单
 							</a></li>
 							
 						</ul>
@@ -46,7 +46,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String, city:String,filter:Stri
 							<div class="portlet-title">
 
 								<div class="caption"><i class="icon-list"></i>
-								车位订单
+								车位历史订单
 								
 								</div>
 
@@ -63,37 +63,13 @@ currentPage: Integer, pageSize: Integer,orderBy: String, city:String,filter:Stri
 								                            <option value="" selected>请选择城市</option>
 															<option value="沈阳">沈阳</option>
 									</select>
-									   <input class="m-wrap" size="10" id="key_search_order" value="@filter" type="text" placeholder="请输入订单关键字" /><button class="btn green"  id="searchOrderButton">搜索</button>
+									   <input class="m-wrap" size="10" id="key_search_order" value="@filter" type="text" placeholder="请输入订单关键字" /><button class="btn green"  id="searchOrderButtonHis">搜索</button>
 									</div>
 						       </div>  
 						 
-						        <div class="btn-group pull-right">
-
-										<button class="btn dropdown-toggle" data-toggle="dropdown">工具 <i class="icon-angle-down"></i>
-
-										</button>
-
-										<ul class="dropdown-menu pull-right">
-										    <li><a href="javascript:;" id="button_delete_order">删除订单</a></li>
-										    <li><a href="javascript:;" id="button_exption_order">设置为异常订单</a></li>
-										</ul>
-
-									</div>
 									
 						</div>
 
-                               <div id="dialog_confirm_deleteorder" title="确认删除订单吗?" class="hide">
-									<p><span class="icon icon-warning-sign"></span>
-										包括该订单中的付款单也将被删除，并且不可恢复，确认操作码?
-									</p>
-								</div>
-								
-                                <div id="dialog_confirm_order" title="确认设置异常订单吗?" class="hide">
-									<p><span class="icon icon-warning-sign"></span>
-										设置异常订单后，订单数据会被移动到订单历史中，不可恢复，确认操作码?
-									</p>
-								</div>
-								
 								<table class="table table-striped table-bordered table-advance table-hover" id="sample_1_order">
 
 									<thead>
@@ -124,12 +100,12 @@ currentPage: Integer, pageSize: Integer,orderBy: String, city:String,filter:Stri
 										<tr class="odd gradeX">
 											<td><input type="checkbox" class="checkboxes" value="@TOrder.orderId" /></td>
 											<td class="hidden-480">@TOrder.orderId</td>
-											<td ><a class="ajaxify"  href="javascript:;" post="/w/order/@TOrder.orderId">@TOrder.orderName</a></td>
+											<td ><a class="ajaxify"  href="javascript:;" post="/w/orderhis/@TOrder.orderId">@TOrder.orderName</a></td>
 											<td class="hidden-480">@TOrder.orderCity</td>
 											<td class="hidden-480">
 											@if(TOrder.pay!=null&&TOrder.pay.length>0){
 												     @for(TParkInfo_Py <- TOrder.pay) {
-												          @TParkInfo_Py.payActu++
+												          @TParkInfo_Py.payActu 
 												     }
 											     
 											}
@@ -163,7 +139,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String, city:String,filter:Stri
 					               <ul>
 						                @if(entityBean.hasPrev) {
 						                    <li class="prev">
-						                        <a class="ajaxify" href="javascript:;" post="/w/order?p=@(entityBean.getPageIndex - 1)&c=@city&&f=@filter ">&larr; 上一页</a>
+						                        <a class="ajaxify" href="javascript:;" post="/w/orderhis?p=@(entityBean.getPageIndex - 1)&c=@city&&f=@filter ">&larr; 上一页</a>
 						                    </li>
 						                } else {
 						                    <li class="prev disabled">
@@ -175,7 +151,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String, city:String,filter:Stri
 						                </li>
 						                @if(entityBean.hasNext) {
 						                    <li class="next">
-						                        <a class="ajaxify"  href="javascript:;" post="/w/order?p=@(entityBean.getPageIndex + 1)&c=@city&&f=@filter ">下一页 &rarr;</a>
+						                        <a class="ajaxify"  href="javascript:;" post="/w/orderhis?p=@(entityBean.getPageIndex + 1)&c=@city&&f=@filter ">下一页 &rarr;</a>
 						                    </li>
 						                } else {
 						                    <li class="next disabled">

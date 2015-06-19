@@ -127,7 +127,7 @@ public class TOrderHis extends Model {
 	 * 已经完成的订单需要转到历史表
 	 * @param orderId
 	 */
-	public static void moveToHisFromOrder(final Long orderId){
+	public static void moveToHisFromOrder(final Long orderId, int status){
 		Logger.info("move to history table");
 		
 		Ebean.execute(new TxRunnable() {
@@ -138,7 +138,7 @@ public class TOrderHis extends Model {
 					Logger.debug(">>>>order moving start");
 					
 					order.endDate = new Date();
-					order.orderStatus = Constants.ORDER_TYPE_FINISH;
+					order.orderStatus = status;
 					
 					TOrderHis orderHis = new TOrderHis();
 					copier.copy(order, orderHis, null);
