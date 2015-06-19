@@ -1,5 +1,7 @@
 package controllers;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import models.info.TParkInfo_adm;
 import models.info.TVerifyCode;
 import models.info.TuserInfo;
@@ -75,6 +77,45 @@ public class UserController extends Controller {
 		TuserInfo user = gsonBuilderWithExpose.fromJson(request, TuserInfo.class);
 		ComResponse<TuserInfo>  response = new ComResponse<TuserInfo>();
 		try {
+			TuserInfo.saveData(user);
+			response.setResponseStatus(ComResponse.STATUS_OK);
+			response.setResponseEntity(user);
+			response.setExtendResponseContext("更新数据成功.");
+			LogController.info("save user data:"+user.userName);
+		} catch (Exception e) {
+			response.setResponseStatus(ComResponse.STATUS_FAIL);
+			response.setErrorMessage(e.getMessage());
+		}
+		String tempJsonString = gsonBuilderWithExpose.toJson(response);
+		JsonNode json = Json.parse(tempJsonString);
+		return ok(json);
+	}
+	
+	/**
+	 * 更新密码
+	 * @return
+	 */
+	@BasicAuth
+	public static Result changePasswdData() {
+		
+		Logger.info("start to changePasswdData:");
+		String request = request().body().asJson().toString();
+		
+		
+		TuserInfo user = gsonBuilderWithExpose.fromJson(request, TuserInfo.class);
+		ComResponse<TuserInfo>  response = new ComResponse<TuserInfo>();
+		try {
+			
+			TuserInfo currentUser = TuserInfo.findDataById(user.userid);
+			
+			//user.updatePerson 这里只是借用一下这个字段存用户传过来的当前密码
+			if(!BCrypt.checkpw(user.updatePerson, currentUser.passwd)){
+				throw new Exception("当前用户密码输入错误");
+			}
+			
+			Logger.debug("#####old pass:"+user.passwd);
+			user.passwd = BCrypt.hashpw(user.passwd, BCrypt.gensalt());;
+			Logger.debug("#####bcrypt pass:"+user.passwd);
 			TuserInfo.saveData(user);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(user);
