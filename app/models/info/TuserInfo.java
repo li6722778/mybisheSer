@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import play.Logger;
 import play.data.format.Formats;
 import play.data.validation.Constraints;
 import play.db.ebean.Model;
@@ -109,45 +110,58 @@ public class TuserInfo extends Model implements Serializable {
 	 */
 	public static TuserInfo authenticate(String userPhone, String password) {
 
-		
-		List<TuserInfo> userInfos = find.where().eq("userPhone", userPhone).findList();
+		List<TuserInfo> userInfos = find.where().eq("userPhone", userPhone)
+				.findList();
 
-		if(userInfos!=null&&userInfos.size()>0){
+		if (userInfos != null && userInfos.size() > 0) {
 			TuserInfo userinfo = userInfos.get(0);
-			//String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
-			
-			if(Crypto.decryptAES(userinfo.passwd).equals(password)){
-			//if(password.equals(userinfo.passwd)){
-				return userinfo;
-			}else{
+			// String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
+
+			try {
+				if (Crypto.decryptAES(userinfo.passwd).equals(password)) {
+					// if(password.equals(userinfo.passwd)){
+
+					userinfo.passwd = Crypto.decryptAES(userinfo.passwd);
+
+					return userinfo;
+				} else {
+					return null;
+				}
+			} catch (Exception e) {
+				Logger.warn("password decryptAES failed.");
+				
+				if (userinfo.passwd.equals(password)) {
+					return userinfo;
+				}
 				return null;
 			}
-//			
-//			if(BCrypt.checkpw(password, userinfo.passwd)){
-//				return userinfo;
-//			}else{
-//				return null;
-//			}
-		}else{
+
+			// if(BCrypt.checkpw(password, userinfo.passwd)){
+			// return userinfo;
+			// }else{
+			// return null;
+			// }
+		} else {
 			return null;
 		}
-		
+
 	}
-	
-	
-//	/**
-//	 * 登录后台认证
-//	 * @param userPhone
-//	 * @param password
-//	 * @param type
-//	 * @return
-//	 */
-//	public static TuserInfo authenticateWebAdmin(String userPhone, String password) {
-//		List<TuserInfo> userInfos = find.where().eq("userPhone", userPhone)
-//				.eq("passwd", password).eq("userType", Constants.USER_TYPE_MSADMIN).findList();
-//		return (userInfos == null || userInfos.size() <= 0) ? null : userInfos
-//				.get(0);
-//	}
+
+	// /**
+	// * 登录后台认证
+	// * @param userPhone
+	// * @param password
+	// * @param type
+	// * @return
+	// */
+	// public static TuserInfo authenticateWebAdmin(String userPhone, String
+	// password) {
+	// List<TuserInfo> userInfos = find.where().eq("userPhone", userPhone)
+	// .eq("passwd", password).eq("userType",
+	// Constants.USER_TYPE_MSADMIN).findList();
+	// return (userInfos == null || userInfos.size() <= 0) ? null : userInfos
+	// .get(0);
+	// }
 
 	/**
 	 * 
@@ -211,7 +225,11 @@ public class TuserInfo extends Model implements Serializable {
 	 */
 	public static TuserInfo findDataById(Long userid) {
 		TuserInfo userInfo = find.byId(userid);
-		userInfo.passwd=Crypto.decryptAES(userInfo.passwd);
+		try {
+			userInfo.passwd = Crypto.decryptAES(userInfo.passwd);
+		} catch (Exception e) {
+			Logger.warn("password decryptAES failed.");
+		}
 		return userInfo;
 	}
 
@@ -224,12 +242,17 @@ public class TuserInfo extends Model implements Serializable {
 	public static TuserInfo findDataByPhoneId(Long userPhone) {
 		List<TuserInfo> userInfos = find.where().eq("userPhone", userPhone)
 				.findList();
-		if(userInfos !=null&& userInfos.size() > 0){
+		if (userInfos != null && userInfos.size() > 0) {
 			TuserInfo user = userInfos.get(0);
-			user.passwd=Crypto.decryptAES(user.passwd);
+			try {
+				user.passwd = Crypto.decryptAES(user.passwd);
+			} catch (Exception e) {
+				Logger.warn("password decryptAES failed.");
+			}
+
 			return user;
 		}
-		
+
 		return null;
 	}
 
@@ -252,8 +275,9 @@ public class TuserInfo extends Model implements Serializable {
 					Ebean.save(userinfo);
 				} else {
 					userinfo.updateDate = new Date();
-//					String passwordHash = BCrypt.hashpw(userinfo.passwd, BCrypt.gensalt());
-//					userinfo.passwd = passwordHash;
+					// String passwordHash = BCrypt.hashpw(userinfo.passwd,
+					// BCrypt.gensalt());
+					// userinfo.passwd = passwordHash;
 					Ebean.update(userinfo);
 				}
 			}

@@ -108,8 +108,14 @@ public class UserController extends Controller {
 			TuserInfo currentUser = TuserInfo.findDataById(user.userid);
 			
 			//user.updatePerson 这里只是借用一下这个字段存用户传过来的当前密码
+			try{
 			if(!Crypto.decryptAES(user.updatePerson).equals(currentUser.passwd)){
 				throw new Exception("用户当前密码输入错误");
+			}
+			}catch(Exception e){
+				if(!user.updatePerson.equals(currentUser.passwd)){
+					throw new Exception("用户当前密码输入错误");
+				}
 			}
 			
 			user.passwd = Crypto.encryptAES(user.passwd);
