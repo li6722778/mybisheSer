@@ -247,7 +247,7 @@ public class ParkProdController extends Controller {
 	 * @return
 	 */
 	@BasicAuth
-	public static Result openCloseParkingData(Long parkId, int status) {
+	public static Result openCloseParkingData(final Long parkId, final int status) {
 		Logger.info("start to openCloseParkingData for " + parkId + ",status:"
 				+ status);
 		ComResponse<TParkInfoProd> response = new ComResponse<TParkInfoProd>();
