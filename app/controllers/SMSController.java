@@ -14,6 +14,7 @@ import play.libs.ws.WSResponse;
 import play.mvc.Controller;
 import play.mvc.Result;
 import utils.ConfigHelper;
+import utils.Constants;
 import utils.DateHelper;
 import utils.EncryptUtil;
 
@@ -36,6 +37,80 @@ public class SMSController extends Controller{
 			.getString("rest.3part.sms.templateId");
 	public static String rest_3part_token = ConfigHelper
 			.getString("rest.3part.sms.token");
+	
+	public static String rest_3part_smsresettmpid = ConfigHelper
+	.getString("rest.3part.sms.reset.templateId");
+	
+	
+	public static Result requestResetPasswd(long phone){
+		Logger.info("start to request SMS reset password to:"+phone);
+		TuserInfo usrinfo = TuserInfo.findDataByPhoneId(phone);
+		if(usrinfo==null){
+			return ok("该手机号码没有注册，请使用APP客户端注册手机号码");
+		}
+		if(usrinfo.userType>=Constants.USER_TYPE_MADMIN
+				&&usrinfo.userType<Constants.USER_TYPE_MADMIN+10){
+			
+			//加密后这里应该先改密码？？？？？？？
+			//得到密码
+			String param = usrinfo.passwd;
+			
+			if(rest_3part_smsparam!=null&&!rest_3part_smsparam.trim().equals("")){
+				param+=","+rest_3part_smsparam;
+			}
+			
+			
+			
+			Logger.debug("-----rest_3part_accountsid:"+rest_3part_accountsid);
+			Logger.debug("-----rest_3part_smsuri:"+rest_3part_smsuri);
+			Logger.debug("-----rest_3part_smsappid:"+rest_3part_smsappid);
+			Logger.debug("-----rest_3part_smsresettmpid:"+rest_3part_smsresettmpid);
+			Logger.debug("-----rest_3part_smsparam:"+param);
+			Logger.debug("-----rest_3part_token:"+rest_3part_token);
+			
+			try {
+				String phoneString = String.valueOf(phone);
+				//组合json bean
+				TemplateSMS templateSMS = new TemplateSMS(rest_3part_smsappid,param,rest_3part_smsresettmpid,phoneString);
+				Gson gson = new Gson();
+				String body = gson.toJson(templateSMS);
+				body="{\"templateSMS\":"+body+"}";
+				
+				Date currentDate = new Date();
+				String timestamp = DateHelper.format(currentDate, "yyyyMMddHHmmss");
+				
+				String src = rest_3part_accountsid + ":" + timestamp;
+				String auth = EncryptUtil.base64Encoder(src);
+				
+				String signature =getSignature(rest_3part_accountsid,rest_3part_token,timestamp);
+				
+				String realUrl = rest_3part_smsuri+"?sig="+signature;
+				
+				Logger.debug("-----real url:"+realUrl);
+				Logger.debug("-----real body:"+body);
+				
+				ws.url(realUrl).setHeader("Content-Type", "application/json;;charset=utf-8")
+		         .setHeader("Accept","application/json").setHeader("Authorization", auth).setTimeout(5000)
+		         .post(body).map(new Function<WSResponse, Result>() {
+			        @Override
+			        public Result apply(WSResponse response) {
+			        	JsonNode jsonString = response.asJson();
+			        	
+			            Logger.info("SMS Response:"+jsonString);
+			        	
+			            return ok();
+			        }});
+				 
+				 return ok("密码重置请求发送成功,请注意短信查收");
+			} catch (Exception e) {
+				Logger.error("requestSMSVerify", e);
+				return ok("密码重置短信发送失败，请联系管理员.");
+			}
+			
+		}else{
+			return ok("该手机号码不能登录后台系统");
+		}
+	}
 	
 	/**
 	 * 请求验证码

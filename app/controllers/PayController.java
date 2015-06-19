@@ -47,6 +47,10 @@ public class PayController extends Controller{
 	//支付宝公钥
 	public static final String RSA_PUBLIC = ConfigHelper.getString("bank.ailipay.rsapublic");
 	
+	//支付完成后的回调
+	public static final String NOTIFY_AILIPAY = ConfigHelper.getString("bank.ailipay.notify");
+	
+	
 	/**
 	 * sign the order info. 对订单信息进行签名
 	 * 
@@ -120,7 +124,7 @@ public class PayController extends Controller{
 		orderInfo += "&total_fee=" + "\"" + price + "\"";
 
 		// 服务器异步通知页面路径
-		orderInfo += "&notify_url=" + "\"" + "http://notify.msp.hk/notify.htm"
+		orderInfo += "&notify_url=" + "\"" + ""+NOTIFY_AILIPAY+""
 				+ "\"";
 
 		// 服务接口名称， 固定值
@@ -370,7 +374,7 @@ public class PayController extends Controller{
 				if(newpriceWithoutCouponAndDiscount<=0.1){ //不差钱
 					response.setExtendResponseContext("pass");
 					//***********已经完成的订单需要移到历史表**************/
-					TOrderHis.moveToHisFromOrder(orderId);
+					TOrderHis.moveToHisFromOrder(orderId,Constants.ORDER_TYPE_FINISH);
 					
 					throw new Exception("已经付款"+Arith.decimalPrice(totalAlreadyPay)+"[实际付款:"+Arith.decimalPrice(actuAlreadyPay)+"],无需再次付款。");
 				}
@@ -493,7 +497,7 @@ public class PayController extends Controller{
 			}else{
 				response.setExtendResponseContext("pass");
 				//***********已经完成的订单需要移到历史表**************/
-				TOrderHis.moveToHisFromOrder(orderId);
+				TOrderHis.moveToHisFromOrder(orderId ,Constants.ORDER_TYPE_FINISH);
 				
 				throw new Exception("没有产生其他费用，请出场");
 			}
@@ -695,5 +699,20 @@ public class PayController extends Controller{
 		JsonNode json = Json.parse(tempJsonString);
 		return ok(json);
 		
+	}
+	
+	/**
+	 * 支付成功后的回调，目前只是写入日志表
+	 * @return
+	 */
+	public static Result notifyPayResult(){
+		Logger.debug("###########get feendback from aili post#############");
+		try {
+			String request = request().body().asXml().toString();
+			LogController.info("pay notify: "+request,"AILIPAY");
+		}catch(Exception e){
+			LogController.info("pay notify:"+e.getMessage(),"AILIPAY");
+		}
+		return ok("success");
 	}
 }

@@ -41,7 +41,17 @@ var UserList = function () {
         	
         	
         	
-        	 $('#button_exption_order').click(function(){
+        	 $('#button_delete_order').click(function(){
+        		 
+        		 var checked = "";
+       		     $('input:checkbox:checked').each(function() {
+       	            checked+=$(this).val()+",";
+       	        });
+       		  $( "#dialog_confirm_deleteorder" ).data("idArray",checked).dialog( "open" );
+        	 });
+        	 
+        	 
+            $('#button_exption_order').click(function(){
         		 
         		 var checked = "";
        		     $('input:checkbox:checked').each(function() {
@@ -51,7 +61,26 @@ var UserList = function () {
         	 });
         	 
         	 
-        	
+            
+            //历史停车搜索
+            $('#searchOrderButtonHis').click(function(){
+            	App.scrollTop();
+        		 var city = $("#city_search_order").val();
+       		     var key = $("#key_search_order").val();
+       		     var pageContent = $('.page-content');
+       		     var pageContentBody = $('.page-content .page-content-body');
+       		  
+    		     App.blockUI(pageContent, false);
+    		     
+       		  $.post("/w/orderhis?c="+city+"&f="+key, {}, function (res) {
+                  App.unblockUI(pageContent);
+                  pageContentBody.html(res);
+                  App.fixContentHeight(); // fix content height
+                  App.initUniform(); // initialize uniform elements
+                 
+              });
+        		 
+        	 });
         	 
             $('#searchOrderButton').click(function(){
             	App.scrollTop();
@@ -93,7 +122,7 @@ var UserList = function () {
         	      				 App.scrollTop();
         	       		    	 var pageContent = $('.page-content');
         	            		 App.blockUI(pageContent, false);
-        		        		 $.post("/w/order/setexception?p="+checked, {}, function (res) {
+        		        		 $.get("/w/order/setexception?p="+checked, function (res) {
         		        			 window.console && console.log("setexception done."+res);
         		                     App.unblockUI(pageContent);
         		                     warndialog.dialog( "close" );
@@ -112,6 +141,44 @@ var UserList = function () {
         	      	}
         	      ]
         	    });
+        	 
+        	 
+        	 $("#dialog_confirm_deleteorder" ).dialog({
+       	      dialogClass: 'ui-dialog-green',
+       	      autoOpen: false,
+       	      resizable: false,
+       	      height: 210,
+       	      modal: true,
+       	      buttons: [
+       	      	{
+       	      		'class' : 'btn red',	
+       	      		"text" : "删除订单",
+       	      		click: function() {
+       	      			var checked = $(this).data("idArray");
+       	      			var warndialog = $(this);
+       	      			 if(checked.length>0){
+       	      				 App.scrollTop();
+       	       		    	 var pageContent = $('.page-content');
+       	            		 App.blockUI(pageContent, false);
+       		        		 $.get("/w/order/delete?p="+checked, function (res) {
+       		        			 window.console && console.log("setexception done."+res);
+       		                     App.unblockUI(pageContent);
+       		                     warndialog.dialog( "close" );
+       		                     $('#index_order').click();
+       		                 });
+       	        	     }
+
+       	  			}
+       	      	},
+       	      	{
+       	      		'class' : 'btn',
+       	      		"text" : "取消",
+       	      		click: function() {
+       	    			$(this).dialog( "close" );
+       	  			}
+       	      	}
+       	      ]
+       	    });
         	 
         	        
         }

@@ -9,12 +9,13 @@ import java.util.List;
 import models.info.ChartCityEntity;
 import models.info.TLog;
 import models.info.TOrder;
+import models.info.TOrderHis;
+import models.info.TOrder_Py;
 import models.info.TParkInfo;
 import models.info.TParkInfoPro_Loc;
 import models.info.TParkInfoProd;
 import models.info.TParkInfo_Img;
 import models.info.TParkInfo_Loc;
-import models.info.TOrder_Py;
 import models.info.TParkInfo_adm;
 import models.info.TVersion;
 import models.info.TuserInfo;
@@ -257,6 +258,31 @@ public class WebPageController extends Controller {
 			parkinfo.updatePerson=session("username");
 			TParkInfo.saveData(parkinfo);
 			LogController.info("save parking data for "+parkinfo.parkname);
+		}
+
+		return ok("提交成功.");
+	}
+	
+	/**
+	 * 调价
+	 * @return
+	 */
+	@Security.Authenticated(SecurityController.class)
+	public static Result saveParkingProdData() {
+		Logger.debug("goto saveParkingProdData");
+		// DynamicForm dynamicForm = Form.form().bindFromRequest();
+		Form<TParkInfoProd> form = Form.form(TParkInfoProd.class).bindFromRequest();
+		if (form.hasErrors()) {
+			JsonNode node = form.errorsAsJson();
+			Logger.error("###########getglobalError:" + node);
+			return badRequest(node.toString());
+		}
+		TParkInfoProd parkinfo = form.get();
+		if (parkinfo != null) {
+			Logger.debug("###########get produce parkId:" + parkinfo.parkId);
+			parkinfo.updatePerson=session("username");
+			TParkInfoProd.saveData(parkinfo);
+			LogController.info("save parking produce data for "+parkinfo.parkname);
 		}
 
 		return ok("提交成功.");
@@ -604,6 +630,22 @@ public class WebPageController extends Controller {
 		return ok(views.html.order.render(allData, currentPage, pageSize,
 				orderBy, city, filter));
 	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoOrderHis(int currentPage, int pageSize,
+			String orderBy, String city, String filter) {
+		Logger.debug("goto gotoOrderHis,city" + city);
+		Page<TOrderHis> allData = TOrderHis.pageByFilter(currentPage, pageSize,
+				orderBy, city, filter);
+
+		if (allData != null) {
+			Logger.debug("##########goto gotoUser,total:"
+					+ allData.getTotalRowCount());
+		}
+
+		return ok(views.html.orderHis.render(allData, currentPage, pageSize,
+				orderBy, city, filter));
+	}
 
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoDetailOrder(long orderId) {
@@ -630,6 +672,32 @@ public class WebPageController extends Controller {
 
 		return ok(views.html.orderdetail.render(allData));
 	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoDetailOrderHis(long orderId) {
+		Logger.debug("goto gotoDetailOrder");
+		TOrderHis allData = TOrderHis.findDataById(orderId);
+
+		// String makerString = "";
+		// if (allData != null) {
+		// List<TParkInfo_Loc> locAarray = allData.latLngArray;
+		// if (locAarray != null) {
+		//
+		// for (TParkInfo_Loc loc : locAarray) {
+		// makerString += loc.longitude + "," + loc.latitude + "|";
+		// }
+		//
+		// if (makerString.length() > 0) {
+		// makerString = makerString.substring(0,
+		// makerString.length() - 2);
+		// }
+		// }
+		// }
+		//
+		// flash("makerString", makerString);
+
+		return ok(views.html.orderdetailhis.render(allData));
+	}
 
 	@Security.Authenticated(SecurityController.class)
 	public static Result setExceptionOrder(String pidarray) {
@@ -643,8 +711,7 @@ public class WebPageController extends Controller {
 					Logger.info("try to set exception for:" + pid);
 					TOrder allData = TOrder.findDataById(pid);
 					if (allData != null) {
-						allData.orderStatus = Constants.ORDER_TYPE_EXCPTION;
-						TOrder.saveData(allData);
+						TOrderHis.moveToHisFromOrder(pid,Constants.ORDER_TYPE_EXCPTION);
 						Logger.debug("done for set exception:" + pid);
 						LogController.info("done for set exception:"+pid);
 					}
@@ -752,6 +819,32 @@ public class WebPageController extends Controller {
 				pageSize, orderBy, filter);
 		return ok(views.html.log.render(allData, currentPage, pageSize,
 				orderBy, filter));
+	}
+	
+	/**
+	 * 删除用户
+	 * @param pidarray
+	 * @return
+	 */
+	@Security.Authenticated(SecurityController.class)
+	public static Result deleteOrder(String pidarray) {
+		Logger.info("GOTO deleteOrder,FOR:" + pidarray);
+		if (pidarray != null && pidarray.length() > 0) {
+			String[] pids = pidarray.split(",");
+			for (String pidString : pids) {
+				try {
+					long pid = Long.parseLong(pidString);
+					Logger.info("try to delete orderid:" + pid);
+					TOrder.deleteData(pid);
+					LogController.info("delete order:"+pidString);
+				} catch (Exception e) {
+					Logger.error("deleteOrder:" + pidString, e);
+				}
+			}
+			return ok("" + pids.length);
+		}
+
+		return ok("0");
 	}
 
 }

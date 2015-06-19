@@ -6,7 +6,12 @@
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
-GET  /a/login/:phone                           controllers.LoginController.loginUser(phone:Long)
+GET      /a/login/:phone                           controllers.LoginController.loginUser(phone:Long)
+POST     /a/reg/sendreset/:phone          controllers.SMSController.requestResetPasswd(phone:Long)
+POST     /a/reg/sendsms/:phone              controllers.SMSController.requestSMSVerify(phone:Long)
+GET		/a/ans                       controllers.MapFindController.findNearbyParking(a:Double?= 0, n:Double?=0, s:Float?=2)
+
+POST    /pay/notify                   controllers.PayController.notifyPayResult()
 
 #######version###############
 GET  /a/version                               controllers.VersionController.getVersion()
@@ -73,9 +78,6 @@ GET     /                             controllers.Application.index()
 POST    /login                        controllers.AuthController.authenticate()
 GET		/logout                       controllers.AuthController.logout()
 
-POST     /a/reg/sendsms/:phone          controllers.SMSController.requestSMSVerify(phone:Long)
-GET		/a/ans                       controllers.MapFindController.findNearbyParking(a:Double?= 0, n:Double?=0, s:Float?=2)
-
 POST    /w/log                        controllers.WebPageController.gotoLog(p:Int ?= 0, s:Int ?= 10, o ?= "operateDate desc",f?="")
 
 #BELOW for menu jump
@@ -93,6 +95,7 @@ POST     /w/parkingprod                        controllers.WebPageController.got
 POST     /w/parkingprod/:parkId                controllers.WebPageController.gotoDetailParkingProd(parkId:Long)
 GET     /w/parkingprodpopup                   controllers.WebPageController.gotoParkingProdForPopup(p:Int ?= 0, s:Int ?= 5, o ?= "approveDate desc",k?="",v?="")
 GET    /w/parkingprod/open                   controllers.WebPageController.updateParkingOpenClose(p:Int ?= 0, s:Int ?= 10, o ?= "approveDate desc",k?="",v?="",pid?="")
+POST   /w/parkingprodsave                    controllers.WebPageController.saveParkingProdData()
 
 GET     /w/adm/park/:userId                      controllers.WebPageController.gotoParkingProdForPopupByAdmin(p:Int ?= 0, s:Int ?= 5, o ?= "parkAdmId desc",userId:Long)
 
@@ -110,8 +113,11 @@ POST      /w/user/gotopasswd/:phone/:type          controllers.WebPageController
 
 POST      /w/order                                 controllers.WebPageController.gotoOrder(p:Int ?= 0, s:Int ?= 10, o ?= "orderDate desc",c?="",f?="")
 POST      /w/order/:orderid                        controllers.WebPageController.gotoDetailOrder(orderid:Long)
-POST      /w/order/setexception                       controllers.WebPageController.setExceptionOrder(p ?= "")
+POST      /w/orderhis                                 controllers.WebPageController.gotoOrderHis(p:Int ?= 0, s:Int ?= 10, o ?= "orderDate desc",c?="",f?="")
+POST      /w/orderhis/:orderid                        controllers.WebPageController.gotoDetailOrderHis(orderid:Long)
+GET      /w/order/setexception                       controllers.WebPageController.setExceptionOrder(p ?= "")
 POST      /w/orderchart                          controllers.WebPageController.gotoOrderChart()
+GET      /w/order/delete                        controllers.WebPageController.deleteOrder(p ?= "")
 
 
 GET      /w/chart/caiji                          controllers.WebPageController.getPersonOrderChart(p ?= "")

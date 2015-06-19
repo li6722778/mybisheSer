@@ -32,6 +32,7 @@
 	<link href="@routes.Assets.at("stylesheets/style-responsive.css")" rel="stylesheet" type="text/css"/>
 	<link href="@routes.Assets.at("stylesheets/default.css")" rel="stylesheet" type="text/css" id="style_color"/>
 	<link href="@routes.Assets.at("stylesheets/uniform.default.css")" rel="stylesheet" type="text/css"/>
+	<link href="@routes.Assets.at("stylesheets/login.css")" rel="stylesheet" type="text/css"/>
 
 	<!-- END GLOBAL MANDATORY STYLES -->
 
@@ -63,7 +64,7 @@
 
 		<!-- BEGIN LOGIN FORM -->
 
-   @helper.form(routes.AuthController.authenticate) {
+      <form class="form-vertical login-form" action="/login" method="POST">
 
 			<h3 class="form-title">使用您的手机号登录</h3>
 			
@@ -84,8 +85,8 @@
 				<label class="control-label visible-ie8 visible-ie9">手机号</label>
 				<div class="controls">
 					<div class="input-icon left">
-						<i class="icon-user"></i>
-						<input class="m-wrap placeholder-no-fix" type="text"  value="@form("userPhone").value" placeholder="用户名" id="userPhone" name="userPhone"/>
+						<i class="icon-mobile-phone"></i>
+						<input class="m-wrap placeholder-no-fix" type="text"  value="@form("userPhone").value" placeholder="手机号码" id="userPhone" name="userPhone"/>
 					</div>
 				</div>
 			</div>
@@ -116,16 +117,16 @@
 				去重置您的密码.
 				</p>
 			</div>
-   }
+		</form>
 		<!-- END LOGIN FORM -->        
 
 		<!-- BEGIN FORGOT PASSWORD FORM -->
 
-		<form class="form-vertical forget-form" action="index.html">
-
+		<form class="form-vertical forget-form" action="#">
+            <div id="remotemessage"></div>
 			<h3 class="">忘记密码 ?</h3>
 
-			<p>请输入您的EMAIL地址.</p>
+			<p>请输入您的手机号码.</p>
 
 			<div class="control-group">
 
@@ -133,9 +134,9 @@
 
 					<div class="input-icon left">
 
-						<i class="icon-envelope"></i>
+						<i class="icon-mobile-phone"></i>
 
-						<input class="m-wrap placeholder-no-fix" type="text" placeholder="Email" name="email" />
+						<input class="m-wrap placeholder-no-fix" type="text" placeholder="手机号码" name="phone" id="phone" />
 
 					</div>
 
@@ -151,7 +152,7 @@
 
 				</button>
 
-				<button type="submit" class="btn green pull-right">
+				<button type="button" id="submitrestPasswd" class="btn green pull-right">
 
 				提交 <i class="m-icon-swapright m-icon-white"></i>
 
