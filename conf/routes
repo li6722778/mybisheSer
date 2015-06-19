@@ -48,6 +48,7 @@ POST /a/parkinfoprod/save                         controllers.ParkProdController
 GET /a/parkinfoprod/delete/:parkid                controllers.ParkProdController.deleteData(parkid:Long)
 GET /a/parkinfoprod/copy/:parkid                  controllers.ParkProdController.copyData(parkid:Long)
 GET /a/parkinfoprod/copy2orin/:parkid             controllers.ParkProdController.copyDataToOringal(parkid:Long)
+GET /a/parkingprod/open/:parkid/:status           controllers.ParkProdController.openCloseParkingData(parkid:Long,status:Int)
 
 GET  /a/comments/find/:id                          controllers.CommentsController.getDataById(id:Long)
 GET  /a/comments                                   controllers.CommentsController.getAllData(p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc")

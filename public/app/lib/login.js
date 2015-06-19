@@ -105,7 +105,13 @@ var Login = function () {
 	        $('.forget-form input').keypress(function (e) {
 	            if (e.which == 13) {
 	                if ($('.forget-form').validate().form()) {
-	                    window.location.href = "index.html";
+	                	 var phone = $("#phone").val();
+	       	             var url="/a/reg/sendreset/"+phone;
+
+	        			  $.post(url, {}, function (res) {
+	        				 var message = "<div class=\"alert alert-info\"><button class=\"close\" data-dismiss=\"alert\"></button><label class=\"control-label\" id=\"errorMessage\">"+res+"</label></div>"
+	             	          $("#remotemessage").html(message);
+	                     });
 	                }
 	                return false;
 	            }

@@ -93,7 +93,6 @@ public class TParkInfoPro_Loc extends Model {
 	 * 
 	 * @param userinfo
 	 */
-	@Transactional
 	public static void saveData(final TParkInfoPro_Loc bean) {
 
 		Ebean.execute(new TxRunnable() {
@@ -118,7 +117,6 @@ public class TParkInfoPro_Loc extends Model {
 	 * 
 	 * @param userinfo
 	 */
-	@Transactional
 	public static void saveDataWithoutIDPolicy(final TParkInfoPro_Loc bean) {
 						Ebean.save(bean);
 	}

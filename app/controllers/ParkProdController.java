@@ -21,6 +21,8 @@ import utils.CommFindEntity;
 import utils.ZXingUtil;
 import action.BasicAuth;
 
+import com.avaje.ebean.Ebean;
+import com.avaje.ebean.TxRunnable;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -42,13 +44,13 @@ public class ParkProdController extends Controller {
 	public static BeanCopier copierLoc = BeanCopier.create(TParkInfo_Loc.class,
 			TParkInfoPro_Loc.class, false);
 
-	public static BeanCopier copierOrin = BeanCopier.create(TParkInfoProd.class,
-			TParkInfo.class, false);
-	public static BeanCopier copierImgOrin = BeanCopier.create(TParkInfoPro_Img.class,
-			TParkInfo_Img.class, false);
-	public static BeanCopier copierLocOrin = BeanCopier.create(TParkInfoPro_Loc.class,
-			TParkInfo_Loc.class, false);
-	
+	public static BeanCopier copierOrin = BeanCopier.create(
+			TParkInfoProd.class, TParkInfo.class, false);
+	public static BeanCopier copierImgOrin = BeanCopier.create(
+			TParkInfoPro_Img.class, TParkInfo_Img.class, false);
+	public static BeanCopier copierLocOrin = BeanCopier.create(
+			TParkInfoPro_Loc.class, TParkInfo_Loc.class, false);
+
 	public static Result getDataById(Long id) {
 		Logger.info("start to get data");
 
@@ -96,7 +98,7 @@ public class ParkProdController extends Controller {
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(info);
 			response.setExtendResponseContext("更新数据成功.");
-			LogController.info("save prod park data:"+info.parkname);
+			LogController.info("save prod park data:" + info.parkname);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
@@ -126,8 +128,8 @@ public class ParkProdController extends Controller {
 			List<TParkInfoPro_Loc> locArray = new ArrayList<TParkInfoPro_Loc>();
 			parkProdInfo.imgUrlArray = imgArray;
 			parkProdInfo.latLngArray = locArray;
-			
-			if(parkInfo.imgUrlArray!=null){
+
+			if (parkInfo.imgUrlArray != null) {
 				Logger.debug(">>>>img bean copy start");
 				for (TParkInfo_Img oldImgArray : parkInfo.imgUrlArray) {
 					TParkInfoPro_Img img = new TParkInfoPro_Img();
@@ -136,8 +138,8 @@ public class ParkProdController extends Controller {
 				}
 				Logger.debug(">>>>img bean copy end");
 			}
-			
-			if(parkInfo.latLngArray!=null){
+
+			if (parkInfo.latLngArray != null) {
 				Logger.debug(">>>>location bean copy start");
 				for (TParkInfo_Loc oldLocArray : parkInfo.latLngArray) {
 					TParkInfoPro_Loc loc = new TParkInfoPro_Loc();
@@ -153,7 +155,8 @@ public class ParkProdController extends Controller {
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(parkProdInfo);
 			response.setExtendResponseContext("更新数据成功.");
-			LogController.info("approved. copy data from submitted park:"+parkInfo.parkname);
+			LogController.info("approved. copy data from submitted park:"
+					+ parkInfo.parkname);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
@@ -167,7 +170,8 @@ public class ParkProdController extends Controller {
 
 	@Security.Authenticated(SecurityController.class)
 	public static Result copyDataToOringal(Long parkProdId) {
-		Logger.info("start to copy data to oringal creator,park prod id:" + parkProdId);
+		Logger.info("start to copy data to oringal creator,park prod id:"
+				+ parkProdId);
 
 		ComResponse<TParkInfo> response = new ComResponse<TParkInfo>();
 		try {
@@ -177,7 +181,7 @@ public class ParkProdController extends Controller {
 			// copy到已经审批表中
 			TParkInfo parkInfo = new TParkInfo();
 			Logger.debug(">>>>park bean copy start");
-			copierOrin.copy(parkProdInfo,parkInfo, null);
+			copierOrin.copy(parkProdInfo, parkInfo, null);
 			Logger.debug(">>>>park bean copy end");
 			List<TParkInfo_Img> imgArray = new ArrayList<TParkInfo_Img>();
 			List<TParkInfo_Loc> locArray = new ArrayList<TParkInfo_Loc>();
@@ -193,19 +197,20 @@ public class ParkProdController extends Controller {
 			Logger.debug(">>>>location bean copy start");
 			for (TParkInfoPro_Loc prodLocArray : parkProdInfo.latLngArray) {
 				TParkInfo_Loc loc = new TParkInfo_Loc();
-				copierLocOrin.copy(prodLocArray,loc, null);
+				copierLocOrin.copy(prodLocArray, loc, null);
 				locArray.add(loc);
 			}
 			Logger.debug(">>>>location bean copy end");
 
-			parkInfo.updateDate=new Date();
-			parkInfo.updatePerson=session("username");
-			
+			parkInfo.updateDate = new Date();
+			parkInfo.updatePerson = session("username");
+
 			TParkInfo.retrieveDataWithoutIDPolicy(parkInfo);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(parkInfo);
 			response.setExtendResponseContext("回退数据成功.");
-			LogController.info("retrieve submitted park data from prod park:"+parkInfo.parkname);
+			LogController.info("retrieve submitted park data from prod park:"
+					+ parkInfo.parkname);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
@@ -216,7 +221,7 @@ public class ParkProdController extends Controller {
 		Logger.debug("ComResponse result:" + json);
 		return ok(jsonNode);
 	}
-	
+
 	@BasicAuth
 	public static Result deleteData(Long id) {
 		Logger.info("start to delete data:" + id);
@@ -225,7 +230,45 @@ public class ParkProdController extends Controller {
 			TParkInfoProd.deleteData(id);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setExtendResponseContext("删除数据成功.");
-			LogController.info("delete prod parking data:"+id);
+			LogController.info("delete prod parking data:" + id);
+		} catch (Exception e) {
+			response.setResponseStatus(ComResponse.STATUS_FAIL);
+			response.setErrorMessage(e.getMessage());
+			Logger.error("", e);
+		}
+		String tempJsonString = gsonBuilderWithExpose.toJson(response);
+		JsonNode json = Json.parse(tempJsonString);
+		return ok(json);
+	}
+
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	@BasicAuth
+	public static Result openCloseParkingData(Long parkId, int status) {
+		Logger.info("start to openCloseParkingData for " + parkId + ",status:"
+				+ status);
+		ComResponse<TParkInfoProd> response = new ComResponse<TParkInfoProd>();
+		try {
+			Ebean.execute(new TxRunnable() {
+				public void run() {
+					TParkInfoProd prodPark = TParkInfoProd.findDataById(parkId);
+					if (prodPark != null && prodPark.latLngArray != null) {
+						for (TParkInfoPro_Loc locentity : prodPark.latLngArray) {
+							locentity.isOpen = status;
+							locentity.updateDate = new Date();
+							locentity.updatePerson = flash("username");
+							TParkInfoPro_Loc.saveData(locentity);
+						}
+					}
+				}
+			});
+
+			response.setResponseStatus(ComResponse.STATUS_OK);
+			response.setExtendResponseContext("停车场状态保存成功.");
+			LogController.info("save open/close status for :" + parkId+",status:"+status);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
@@ -276,15 +319,14 @@ public class ParkProdController extends Controller {
 		Logger.debug("got Data:" + json);
 		return ok(jsonNode);
 	}
-	
+
 	public static Result disQRImage(String content) {
 		Logger.info("start to disQRImage");
 
-		if(ZXingUtil.encodeQRCodeImage(content, null, "", 315, 315, null)){
-			
+		if (ZXingUtil.encodeQRCodeImage(content, null, "", 315, 315, null)) {
+
 		}
-		
-		
+
 		return ok("");
 	}
 
