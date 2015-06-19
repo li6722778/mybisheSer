@@ -111,13 +111,15 @@ public class TuserInfo extends Model implements Serializable {
 	 */
 	public static TuserInfo authenticate(String userPhone, String password) {
 
-		//String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
+		
 		List<TuserInfo> userInfos = find.where().eq("userPhone", userPhone).findList();
 
 		if(userInfos!=null&&userInfos.size()>0){
 			TuserInfo userinfo = userInfos.get(0);
+			//String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
 			
-			if(password.equals(userinfo.passwd)){
+			if(BCrypt.checkpw(password, userinfo.passwd)){
+			//if(password.equals(userinfo.passwd)){
 				return userinfo;
 			}else{
 				return null;
@@ -241,8 +243,8 @@ public class TuserInfo extends Model implements Serializable {
 					userinfo.userid = TPKGenerator.getPrimaryKey(
 							TuserInfo.class.getName(), "userid");
 					userinfo.createDate = new Date();
-//					String passwordHash = BCrypt.hashpw(userinfo.passwd, BCrypt.gensalt());
-//					userinfo.passwd = passwordHash;
+					String passwordHash = BCrypt.hashpw(userinfo.passwd, BCrypt.gensalt());
+					userinfo.passwd = passwordHash;
 					Ebean.save(userinfo);
 				} else {
 					userinfo.updateDate = new Date();

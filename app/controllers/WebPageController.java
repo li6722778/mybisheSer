@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import models.info.ChartCityEntity;
 import models.info.TLog;
 import models.info.TOrder;
@@ -458,14 +460,15 @@ public class WebPageController extends Controller {
 				TuserInfo userinfo = TuserInfo.findDataByPhoneId(userPhoneLong);
 				String currentpasswd = dynamicForm.get("passwd");
 				if (userinfo != null) {
-					if (!userinfo.passwd.equals(currentpasswd)) {
+					if(!BCrypt.checkpw(currentpasswd, userinfo.passwd)){
+					//if (!userinfo.passwd.equals(currentpasswd)) {
 						return badRequest("当前密码输入错误，请重新输入.");
 					}
 				} else {
 					return badRequest("当前用户不存在");
 				}
 
-				userinfo.passwd = newpasswd;
+				userinfo.passwd = BCrypt.hashpw(newpasswd, BCrypt.gensalt());;
 				TuserInfo.saveData(userinfo);
 				LogController.info("change passsword for "+userPhone);
 				return ok(type == 1 ? "密码修改成功" : "密码重置成功");
