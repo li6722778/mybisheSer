@@ -10,13 +10,11 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
-import org.mindrot.jbcrypt.BCrypt;
-
 import play.data.format.Formats;
 import play.data.validation.Constraints;
 import play.db.ebean.Model;
+import play.libs.Crypto;
 import utils.CommFindEntity;
-import utils.Constants;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Expr;
@@ -118,7 +116,7 @@ public class TuserInfo extends Model implements Serializable {
 			TuserInfo userinfo = userInfos.get(0);
 			//String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
 			
-			if(BCrypt.checkpw(password, userinfo.passwd)){
+			if(Crypto.decryptAES(userinfo.passwd).equals(password)){
 			//if(password.equals(userinfo.passwd)){
 				return userinfo;
 			}else{
@@ -213,6 +211,7 @@ public class TuserInfo extends Model implements Serializable {
 	 */
 	public static TuserInfo findDataById(Long userid) {
 		TuserInfo userInfo = find.byId(userid);
+		userInfo.passwd=Crypto.decryptAES(userInfo.passwd);
 		return userInfo;
 	}
 
@@ -225,8 +224,13 @@ public class TuserInfo extends Model implements Serializable {
 	public static TuserInfo findDataByPhoneId(Long userPhone) {
 		List<TuserInfo> userInfos = find.where().eq("userPhone", userPhone)
 				.findList();
-		return (userInfos == null || userInfos.size() <= 0) ? null : userInfos
-				.get(0);
+		if(userInfos !=null&& userInfos.size() > 0){
+			TuserInfo user = userInfos.get(0);
+			user.passwd=Crypto.decryptAES(user.passwd);
+			return user;
+		}
+		
+		return null;
 	}
 
 	/**
@@ -243,7 +247,7 @@ public class TuserInfo extends Model implements Serializable {
 					userinfo.userid = TPKGenerator.getPrimaryKey(
 							TuserInfo.class.getName(), "userid");
 					userinfo.createDate = new Date();
-					String passwordHash = BCrypt.hashpw(userinfo.passwd, BCrypt.gensalt());
+					String passwordHash = Crypto.encryptAES(userinfo.passwd);
 					userinfo.passwd = passwordHash;
 					Ebean.save(userinfo);
 				} else {

@@ -1,11 +1,10 @@
 package controllers;
 
-import org.mindrot.jbcrypt.BCrypt;
-
 import models.info.TParkInfo_adm;
 import models.info.TVerifyCode;
 import models.info.TuserInfo;
 import play.Logger;
+import play.libs.Crypto;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -109,13 +108,11 @@ public class UserController extends Controller {
 			TuserInfo currentUser = TuserInfo.findDataById(user.userid);
 			
 			//user.updatePerson 这里只是借用一下这个字段存用户传过来的当前密码
-			if(!BCrypt.checkpw(user.updatePerson, currentUser.passwd)){
-				throw new Exception("当前用户密码输入错误");
+			if(!Crypto.decryptAES(user.updatePerson).equals(currentUser.passwd)){
+				throw new Exception("用户当前密码输入错误");
 			}
 			
-			Logger.debug("#####old pass:"+user.passwd);
-			user.passwd = BCrypt.hashpw(user.passwd, BCrypt.gensalt());;
-			Logger.debug("#####bcrypt pass:"+user.passwd);
+			user.passwd = Crypto.encryptAES(user.passwd);
 			TuserInfo.saveData(user);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(user);

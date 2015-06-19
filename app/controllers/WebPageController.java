@@ -6,8 +6,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import org.mindrot.jbcrypt.BCrypt;
-
 import models.info.ChartCityEntity;
 import models.info.TLog;
 import models.info.TOrder;
@@ -24,6 +22,7 @@ import models.info.TuserInfo;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
+import play.libs.Crypto;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -486,7 +485,7 @@ public class WebPageController extends Controller {
 				TuserInfo userinfo = TuserInfo.findDataByPhoneId(userPhoneLong);
 				String currentpasswd = dynamicForm.get("passwd");
 				if (userinfo != null) {
-					if(!BCrypt.checkpw(currentpasswd, userinfo.passwd)){
+					if(!Crypto.decryptAES(userinfo.passwd).equals(currentpasswd)){
 					//if (!userinfo.passwd.equals(currentpasswd)) {
 						return badRequest("当前密码输入错误，请重新输入.");
 					}
@@ -494,7 +493,7 @@ public class WebPageController extends Controller {
 					return badRequest("当前用户不存在");
 				}
 
-				userinfo.passwd = BCrypt.hashpw(newpasswd, BCrypt.gensalt());;
+				userinfo.passwd = Crypto.encryptAES(newpasswd);;
 				TuserInfo.saveData(userinfo);
 				LogController.info("change passsword for "+userPhone);
 				return ok(type == 1 ? "密码修改成功" : "密码重置成功");
@@ -514,7 +513,7 @@ public class WebPageController extends Controller {
 						long id = Long.parseLong(resetId);
 						TuserInfo userinfo = TuserInfo.findDataById(id);
 
-						userinfo.passwd = newpasswd;
+						userinfo.passwd = Crypto.encryptAES(newpasswd);
 						TuserInfo.saveData(userinfo);
 						succussString += userinfo.userName + " ";
 					} catch (Exception e) {
