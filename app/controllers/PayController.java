@@ -701,6 +701,62 @@ public class PayController extends Controller{
 		
 	}
 	
+	
+	/**
+	 * 结账放行专用,人工用
+	 * @param payId
+	 * @param status
+	 * @return
+	 */
+	@BasicAuth
+	public static Result parkingOutForAdm(long parkingId,long orderId,double pay){
+		
+		ComResponse<TOrder_Py>  response = new ComResponse<TOrder_Py>();
+		try {
+			
+			TOrder order = TOrder.findDataById(orderId);
+			if(order==null){
+				throw new Exception("系统无法找到该订单:"+orderId);
+			}
+			
+			TParkInfoProd parkinfo = order.parkInfo;
+			if(parkinfo==null){
+				throw new Exception("该订单无有效停车场");
+			}else if(parkinfo.parkId!=parkingId){
+				throw new Exception("该订单不属于此停车场，请检查");
+			}
+			
+			Date currentDate = new Date();
+			
+			TOrder_Py orderPy = new TOrder_Py();
+			orderPy.ackStatus=Constants.PAYMENT_STATUS_FINISH;
+			orderPy.payMethod=Constants.PAYMENT_TYPE_CASH;
+			orderPy.payActu=pay;
+			orderPy.payTotal=pay;
+			orderPy.ackDate=currentDate;
+			orderPy.payDate=currentDate;
+			orderPy.createPerson=flash("username");
+			orderPy.order = order;
+			TOrder_Py.saveData(orderPy);
+			
+			response.setResponseStatus(ComResponse.STATUS_OK);
+			response.setResponseEntity(orderPy);
+			response.setExtendResponseContext("付款单生成成功");
+			
+			LogController.info("payment for out of park for "+parkingId+", pay:"+pay);
+			
+		} catch (Exception e) {
+			response.setResponseStatus(ComResponse.STATUS_FAIL);
+			response.setErrorMessage(e.getMessage());
+			Logger.error("parkingOutForAdm", e);
+		}
+		String tempJsonString = gsonBuilderWithExpose.toJson(response);
+		JsonNode json = Json.parse(tempJsonString);
+		return ok(json);
+		
+	}
+	
+	
 	/**
 	 * 支付成功后的回调，目前只是写入日志表
 	 * @return
