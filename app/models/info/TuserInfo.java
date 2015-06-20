@@ -128,7 +128,7 @@ public class TuserInfo extends Model implements Serializable {
 					return null;
 				}
 			} catch (Exception e) {
-				Logger.warn("password decryptAES failed.");
+				Logger.warn("password decrypt failed. now try to Do common authentication");
 				
 				if (userinfo.passwd.equals(password)) {
 					return userinfo;
