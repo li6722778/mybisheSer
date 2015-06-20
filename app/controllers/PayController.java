@@ -193,6 +193,7 @@ public class PayController extends Controller{
 					TOrder_Py payment = null;
 					if(chebolePayOptions.order!=null&&chebolePayOptions.order.orderId!=null&&chebolePayOptions.order.orderId>0){ //该订单已经存在
 						dataBean = TOrder.findDataById(chebolePayOptions.order.orderId);
+						Logger.debug("订单已经存在");
 						if(dataBean.orderStatus==Constants.ORDER_TYPE_FINISH){//订单已经完成了
 							throw new Exception("订单已经完成，不能再次付款");
 						}
@@ -202,11 +203,24 @@ public class PayController extends Controller{
 							long payID = chebolePayOptions.paymentId;
 							payment = TOrder_Py.findDataById(payID);
 							if(payment!=null){
+								
 								if(payment.ackStatus==Constants.PAYMENT_STATUS_FINISH){
 									throw new Exception("该订单付款单已经支付完成");
 								}
 	                            if(payment.ackStatus==Constants.PAYMENT_STATUS_PENDING){
 	                            	throw new Exception("付款单正在等待支付接口响应,请不要重复付款");
+								}
+	                            Logger.debug("订单中的付款单已经存在");
+							}else{
+								//指定的付款单是空的，就从订单中看看是否有之前没有付款成功的订单
+								List<TOrder_Py> oldplays = dataBean.pay;
+								if(oldplays!=null&&oldplays.size()>0){
+									for(TOrder_Py pay:oldplays){
+										if(pay.ackStatus==Constants.PAYMENT_STATUS_START||pay.ackStatus==Constants.PAYMENT_STATUS_EXCPTION){
+											payment = pay;
+											break;
+										}
+									}
 								}
 							}
 
