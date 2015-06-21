@@ -158,7 +158,7 @@ public class TParkInfoProd extends Model {
 	public String updatePerson;
 	
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
-	@Column(columnDefinition = "timestamp")
+	@Column(columnDefinition = "timestamp NULL")
 	@Expose
 	public Date approveDate;
 	
