@@ -24,6 +24,9 @@ public class ChebolePayOptions {
 	public double counponUsedMoney;
 	
 	@Expose
+	public double parkSpentHour;
+	
+	@Expose
     public boolean isDiscount;
 	@Expose
 	public boolean useCounpon;

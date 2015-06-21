@@ -36,7 +36,7 @@ public class ScanController extends Controller{
 	 * @param scanResult
 	 * @return
 	 */
-	private static long decodeScan(String scanResult) throws Exception{
+	public static long decodeScan(String scanResult) throws Exception{
 		
 		Logger.info(">>>>>>scan result:"+scanResult);
 		

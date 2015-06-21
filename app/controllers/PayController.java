@@ -322,9 +322,9 @@ public class PayController extends Controller{
 	 * @return
 	 */
 	@BasicAuth
-	public static Result payForOut(long parkProdId,long orderId){
+	public static Result payForOut(long orderId,String scanResult){
 		
-		Logger.info("pay for out, park id:"+parkProdId+",order id:"+orderId);
+		Logger.info("pay for out, order id:"+orderId);
 		
 		ComResponse<ChebolePayOptions>  response = new ComResponse<ChebolePayOptions>();
 		try {
@@ -334,9 +334,13 @@ public class PayController extends Controller{
 			}
 			
 			TParkInfoProd parkinfo = order.parkInfo;
+			
+			long parkIdFromScan = ScanController.decodeScan(scanResult);
+			
+			
 			if(parkinfo==null){
 				throw new Exception("该订单无有效停车场");
-			}else if(parkinfo.parkId!=parkProdId){
+			}else if(parkinfo.parkId!=parkIdFromScan){
 				throw new Exception("该订单不属于此停车场，请检查");
 			}
 			
@@ -356,6 +360,9 @@ public class PayController extends Controller{
 			
 			//得到当前优惠卷价值
 			double couponPrice = 0.0;
+			
+			//总共停车小时
+			double spentHour = 0.0;
 			if(order.couponId>0){
 				   TCouponEntity  couponEntity = TCouponEntity.findDataById(order.couponId);
 				   if(couponEntity!=null){
@@ -407,7 +414,7 @@ public class PayController extends Controller{
 				
 				int mins = DateHelper.diffDateForMin(endDate,startDate);
 				double mhour = mins/60.0;
-				double spentHour = Math.ceil(mhour);  //总共停车这么多小时
+				spentHour = Math.ceil(mhour);  //总共停车这么多小时
 				
 				//这里我们要剔除起步价时间
 				double realSpentHour = spentHour-feeTypeSecInScopeHours;
@@ -450,6 +457,7 @@ public class PayController extends Controller{
 			payOption.useCounpon=useCounpon;
 			payOption.counponUsedMoney=canbeUsedCoupon;
 			payOption.order = order;
+			payOption.parkSpentHour=spentHour;
 			
 			if(newpriceWithCouponAndDiscount>0){
 				
