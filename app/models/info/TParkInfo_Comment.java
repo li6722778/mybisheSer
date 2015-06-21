@@ -1,6 +1,7 @@
 package models.info;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -57,6 +58,22 @@ public class TParkInfo_Comment extends Model{
 			Long.class, TParkInfo_Comment.class);
 	
 
+	
+	private static float caculationRat(float newrat,long parkId){
+		 float average = newrat;
+		 List<TParkInfo_Comment> parkingComments=find.where().eq("parkId", parkId).findList();
+		 if(parkingComments!=null){
+			 float totalFloat=0.0f;
+			 for(TParkInfo_Comment com : parkingComments){
+				 totalFloat+=com.rating;
+			 }
+			 
+			 average=(totalFloat+newrat)/(parkingComments.size()+1);
+		 }
+		 return average;
+	}
+	
+	
 	/**
 	 * 新建或更新数据
 	 * 
@@ -68,12 +85,19 @@ public class TParkInfo_Comment extends Model{
 				// ------------生成主键，所有插入数据的方法都需要这个-----------
 				if (bean.parkComId == null || bean.parkComId <= 0) {
 					bean.parkComId = TPKGenerator.getPrimaryKey(
-							TParkInfo_Comment.class.getName(), "parkComId");
+							TParkInfo_Comment.class.getName(), "parkComId");					
 					Ebean.save(bean);
 				} else {
 					Ebean.update(bean);
 				}
 				// -------------end----------------
+				//add comments rat
+				
+				if(bean.parkInfo!=null){
+					TParkInfoProd prodInfo=  TParkInfoProd.findDataById(bean.parkInfo.parkId);
+					prodInfo.averagerat = caculationRat(bean.rating,bean.parkInfo.parkId);
+					TParkInfoProd.saveData(prodInfo);
+				}
 			}
 		});
 
