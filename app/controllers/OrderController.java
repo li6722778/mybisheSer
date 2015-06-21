@@ -3,7 +3,7 @@ package controllers;
 import java.util.Date;
 
 import models.info.TOrder;
-import models.info.TuserInfo;
+import models.info.TOrderHis;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -13,7 +13,6 @@ import utils.CommFindEntity;
 import utils.Constants;
 import action.BasicAuth;
 
-import com.avaje.ebean.annotation.Transactional;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -75,6 +74,28 @@ public class OrderController extends Controller {
 			Logger.error("",e);
 		}
 		CommFindEntity<TOrder> allData = TOrder.findPageData(currentPage,
+				pageSize, orderBy,id);
+		String json = gsonBuilderWithExpose.toJson(allData);
+		JsonNode jsonNode = Json.parse(json);
+		// String jsonString = Json.stringify(json);
+		Logger.debug("CommFindEntity result:" + json);
+		return ok(jsonNode);
+	}
+	
+	@BasicAuth
+	public static Result getAllHisDataForSelf(int currentPage, int pageSize,
+			String orderBy) {
+		Logger.info("start to getAllHisDataForSelf");
+		
+		String idString = flash("userid");
+		Logger.info("get session value for userid:"+idString);
+		long id = 0l;
+		try{
+			id = Long.parseLong(idString);
+		}catch(Exception e){
+			Logger.error("",e);
+		}
+		CommFindEntity<TOrderHis> allData = TOrderHis.findPageData(currentPage,
 				pageSize, orderBy,id);
 		String json = gsonBuilderWithExpose.toJson(allData);
 		JsonNode jsonNode = Json.parse(json);
