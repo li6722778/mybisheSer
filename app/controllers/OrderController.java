@@ -66,7 +66,7 @@ public class OrderController extends Controller {
 			String orderBy) {
 		Logger.info("start to all data");
 		
-		String idString = session().get("userid");
+		String idString = flash("userid");
 		Logger.info("get session value for userid:"+idString);
 		long id = 0l;
 		try{

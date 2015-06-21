@@ -37,8 +37,8 @@ GET  /a/order/find/:id                          controllers.OrderController.getD
 GET  /a/order                                   controllers.OrderController.getAllData(p:Int ?= 0, s:Int ?= 10, o ?= "orderDate desc")
 GET  /a/order/me                                controllers.OrderController.getAllDataForSelf(p:Int ?= 0, s:Int ?= 10, o ?= "orderDate desc")
 POST /a/order/save                              controllers.OrderController.saveData()
-GET /a/order/savestartdate                              controllers.OrderController.savestartDate()
-GET /a/order/saveenddate                              controllers.OrderController.saveendDate()
+GET /a/order/savestartdate                      controllers.OrderController.savestartDate()
+GET /a/order/saveenddate                        controllers.OrderController.saveendDate()
 GET /a/order/delete/:id                         controllers.OrderController.deleteData(id:Long)
 GET /a/order/changestatue                       controllers.OrderController.changeorderstatue()
 
@@ -67,6 +67,8 @@ POST /a/pay/out/:parkid/:orderId                   controllers.PayController.pay
 POST /a/pay/in/:parkid                             controllers.PayController.payForIn(parkid:Long,c?= "")
 POST /a/pay/update/:payid/:status                  controllers.PayController.updatePayment(payid:Long,status:Integer)
 GET  /a/pay/out/adm/:parkid/:orderId               controllers.PayController.parkingOutForAdm(parkid:Long,orderId:Long, m:Double?=0)
+
+GET  /a/scan/entrance/:orderId                     controllers.ScanController.scanForIn(orderId:Long,o ?= "")
 
 POST /a/parkinfo/savepic                           controllers.UploadController.upload()
 POST /a/image/upload/:id                           controllers.UploadController.uploadToParking(id:Long)
