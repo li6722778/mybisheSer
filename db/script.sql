@@ -38,6 +38,8 @@ coupon_id                 bigint,
 order_date                timestamp NOT NULL,
 start_date                timestamp NULL,
 end_date                  timestamp NULL,
+latitude                  decimal(20,17) NOT NULL,
+longitude                 decimal(20,17) NOT NULL,
 userid                    bigint,
 constraint pk_tb_order primary key (order_id))
 ;
@@ -53,6 +55,8 @@ coupon_id                 bigint,
 order_date                timestamp NOT NULL,
 start_date                timestamp NULL,
 end_date                  timestamp NULL,
+latitude                  decimal(20,17) NOT NULL,
+longitude                 decimal(20,17) NOT NULL,
 userid                    bigint,
 constraint pk_tb_order_his primary key (order_id))
 ;
@@ -176,6 +180,7 @@ discount_hour_allday_money decimal(12,2) default 0.0,
 discount_sec_hour_money   decimal(12,2) default 0.0,
 discount_sec_start_hour   time,
 discount_sec_end_hour     time,
+averagerating             float,
 create_date               timestamp NULL,
 update_date               timestamp NULL,
 create_person             varchar(50),
@@ -268,6 +273,21 @@ update_date               timestamp NULL,
 create_person             varchar(50),
 update_person             varchar(50),
 constraint pk_tb_user primary key (userid))
+;
+
+create table tb_takecash (
+takecashid                bigint not null,
+takemoney                 decimal(12,2) default 0.0,
+cardnumber                varchar(100) not null,
+cardownername             varchar(100) not null,
+cardname                  varchar(100) not null,
+askdata                   timestamp NULL,
+bank_handle_data          timestamp NULL,
+ok_data                   timestamp NULL,
+status                    integer(2) default 0,
+parkid                    bigint(100) not null,
+handle_name               varchar(50),
+constraint pk_tb_takecash primary key (takecashid))
 ;
 
 alter table tb_order add constraint fk_tb_order_parkInfo_1 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;

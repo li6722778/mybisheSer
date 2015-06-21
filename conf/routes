@@ -76,6 +76,13 @@ POST /a/image/upload/:id                           controllers.UploadController.
 GET /a/image/delete/:id                            controllers.UploadController.deleteRemoteImage(id:Long)
 GET /a/parkinfo/deleteLocdata/:id                  controllers.ParkController.deleteLocData(id:Long)
 
+
+GET  /a/takecash/find/:id                          controllers.TakeCashController.getDataById(id:Long)
+GET  /a/takecash                                   controllers.TakeCashController.getAllData(p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc")
+GET  /a/takecash/:parkId                           controllers.TakeCashController.getTakeCashAllData(p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",parkId:Long)
+POST /a/takecash/save                              controllers.TakeCashController.saveData()
+GET /a/takecash/delete/:id                         controllers.TakeCashController.deleteData(id:Long)
+
 ######################please DON'T change below URI!!!###################
 ########################below for web app################################
 

@@ -79,6 +79,14 @@ public class TOrderHis extends Model {
 	@Column(columnDefinition = "timestamp NULL")
 	@Expose
 	public Date endDate;
+	
+	@Expose
+	@Column(columnDefinition = "decimal(20,17) NOT NULL")
+	public double latitude;
+
+	@Expose
+	@Column(columnDefinition = "decimal(20,17) NOT NULL")
+	public double longitude;
 
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "userid")

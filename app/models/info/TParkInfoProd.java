@@ -132,6 +132,9 @@ public class TParkInfoProd extends Model {
 	@OrderBy("updateDate DESC")
 	@Expose
 	public List<TParkInfoPro_Loc> latLngArray;
+	
+	@Expose
+	public float averagerating;
 
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(columnDefinition = "timestamp NULL")

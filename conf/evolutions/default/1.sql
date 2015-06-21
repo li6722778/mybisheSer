@@ -44,6 +44,8 @@ create table tb_order (
   order_date                timestamp NOT NULL,
   start_date                timestamp NULL,
   end_date                  timestamp NULL,
+  latitude                  decimal(20,17) NOT NULL,
+  longitude                 decimal(20,17) NOT NULL,
   userid                    bigint,
   constraint pk_tb_order primary key (order_id))
 ;
@@ -59,6 +61,8 @@ create table tb_order_his (
   order_date                timestamp NOT NULL,
   start_date                timestamp NULL,
   end_date                  timestamp NULL,
+  latitude                  decimal(20,17) NOT NULL,
+  longitude                 decimal(20,17) NOT NULL,
   userid                    bigint,
   constraint pk_tb_order_his primary key (order_id))
 ;
@@ -182,6 +186,7 @@ create table tb_parking_prod (
   discount_sec_hour_money   decimal(12,2) default 0.0,
   discount_sec_start_hour   time,
   discount_sec_end_hour     time,
+  averagerating             float,
   create_date               timestamp NULL,
   update_date               timestamp NULL,
   create_person             varchar(50),
@@ -234,6 +239,21 @@ create table tb_parking_adm (
   parkId                    bigint,
   userid                    bigint,
   constraint pk_tb_parking_adm primary key (park_adm_id))
+;
+
+create table tb_takecash (
+  takecashid                bigint auto_increment not null,
+  takemoney                 decimal(12,2) default 0.0,
+  cardnumber                varchar(100) not null,
+  cardownername             varchar(100) not null,
+  cardname                  varchar(100) not null,
+  askdata                   timestamp NULL,
+  bank_handle_data          timestamp NULL,
+  ok_data                   timestamp NULL,
+  status                    integer(2) default 0,
+  parkid                    bigint(100) not null,
+  handle_name               varchar(50),
+  constraint pk_tb_takecash primary key (takecashid))
 ;
 
 create table tb_counpon_use (
@@ -344,6 +364,8 @@ drop table tb_parking_img;
 drop table tb_parking_loc;
 
 drop table tb_parking_adm;
+
+drop table tb_takecash;
 
 drop table tb_counpon_use;
 
