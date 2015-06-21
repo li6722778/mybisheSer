@@ -75,11 +75,11 @@ public class TOrder extends Model {
 	public Date endDate;
 	
 	@Expose
-	@Column(columnDefinition = "decimal(20,17) NOT NULL")
+	@Column(columnDefinition = "decimal(20,17) default 0")
 	public double latitude;
 
 	@Expose
-	@Column(columnDefinition = "decimal(20,17) NOT NULL")
+	@Column(columnDefinition = "decimal(20,17) default 0")
 	public double longitude;
 
 	@OneToOne(fetch = FetchType.EAGER)

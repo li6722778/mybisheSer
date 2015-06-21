@@ -44,8 +44,8 @@ create table tb_order (
   order_date                timestamp NOT NULL,
   start_date                timestamp NULL,
   end_date                  timestamp NULL,
-  latitude                  decimal(20,17) NOT NULL,
-  longitude                 decimal(20,17) NOT NULL,
+  latitude                  decimal(20,17) default 0,
+  longitude                 decimal(20,17) default 0,
   userid                    bigint,
   constraint pk_tb_order primary key (order_id))
 ;
@@ -61,8 +61,8 @@ create table tb_order_his (
   order_date                timestamp NOT NULL,
   start_date                timestamp NULL,
   end_date                  timestamp NULL,
-  latitude                  decimal(20,17) NOT NULL,
-  longitude                 decimal(20,17) NOT NULL,
+  latitude                  decimal(20,17) default 0,
+  longitude                 decimal(20,17) default 0,
   userid                    bigint,
   constraint pk_tb_order_his primary key (order_id))
 ;
@@ -186,7 +186,7 @@ create table tb_parking_prod (
   discount_sec_hour_money   decimal(12,2) default 0.0,
   discount_sec_start_hour   time,
   discount_sec_end_hour     time,
-  averagerating             float,
+  averagerating             float default 0,
   create_date               timestamp NULL,
   update_date               timestamp NULL,
   create_person             varchar(50),

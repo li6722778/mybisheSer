@@ -133,8 +133,9 @@ public class TParkInfoProd extends Model {
 	@Expose
 	public List<TParkInfoPro_Loc> latLngArray;
 	
+	@Column(columnDefinition = "float default 0")
 	@Expose
-	public float averagerating;
+	public float averagerat;
 
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(columnDefinition = "timestamp NULL")
