@@ -234,7 +234,7 @@ public class TOrderHis extends Model {
 
 		CommFindEntity<TOrderHis> result = new CommFindEntity<TOrderHis>();
 
-		Page<TOrderHis> allData = find.fetch("userInfo").fetch("pay").fetch("parkInfo").where().eq("userid", userid)
+		Page<TOrderHis> allData = find.fetch("userInfo").fetch("pay").fetch("parkInfo").where().eq("t0.userid", userid)
 				.orderBy(orderBy).findPagingList(pageSize).setFetchAhead(false)
 				.getPage(currentPage);
 

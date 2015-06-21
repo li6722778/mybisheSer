@@ -327,8 +327,9 @@ public class PayController extends Controller{
 		Logger.info("pay for out, order id:"+orderId);
 		
 		ComResponse<ChebolePayOptions>  response = new ComResponse<ChebolePayOptions>();
+		TOrder order = TOrder.findDataById(orderId);
 		try {
-			TOrder order = TOrder.findDataById(orderId);
+			
 			if(order==null){
 				throw new Exception("系统无法找到该订单:"+orderId);
 			}
@@ -397,7 +398,7 @@ public class PayController extends Controller{
 					//***********已经完成的订单需要移到历史表**************/
 					TOrderHis.moveToHisFromOrder(orderId,Constants.ORDER_TYPE_FINISH);
 					
-					throw new Exception("已经付款"+Arith.decimalPrice(totalAlreadyPay)+"[实际付款:"+Arith.decimalPrice(actuAlreadyPay)+"],无需再次付款。");
+					throw new Exception("已经付款"+Arith.decimalPrice(totalAlreadyPay)+"元[实际付款:"+Arith.decimalPrice(actuAlreadyPay)+"元],无需再次付款。");
 				}
 
 			}else if(parkinfo.feeType==1){//分段收费
@@ -458,6 +459,7 @@ public class PayController extends Controller{
 			payOption.counponUsedMoney=canbeUsedCoupon;
 			payOption.order = order;
 			payOption.parkSpentHour=spentHour;
+			TOrder_Py newpay = new TOrder_Py();
 			
 			if(newpriceWithCouponAndDiscount>0){
 				
@@ -474,12 +476,16 @@ public class PayController extends Controller{
 						for(TOrder_Py payment:orderPys){
 		                    if(payment.ackStatus==Constants.PAYMENT_STATUS_PENDING){
 		                       throw new Exception("当前订单已经有一笔付款["+payment.payActu+"元]正在等待支付接口响应");
+							}else if(payment.ackStatus==Constants.PAYMENT_STATUS_START||payment.ackStatus==Constants.PAYMENT_STATUS_EXCPTION){
+								newpay.parkPyId = payment.parkPyId; //这里传对象有问题
+								break;
 							}
 						}
+						
+					
 					}
 				}
-				
-				TOrder_Py newpay = new TOrder_Py();
+
 				newpay.payActu=newpriceWithCouponAndDiscount;
 				newpay.payMethod=newpriceWithCouponAndDiscount==0?Constants.PAYMENT_TYPE_CASH:Constants.PAYMENT_TYPE_ZFB;
 				newpay.payTotal=newpriceWithoutCouponAndDiscount;
@@ -530,6 +536,13 @@ public class PayController extends Controller{
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(payOption);
 		} catch (Exception e) {
+			if(response.getExtendResponseContext().equals("pass")){
+				ChebolePayOptions payOption = new ChebolePayOptions();
+				order.endDate = new Date();
+				order.orderStatus = Constants.ORDER_TYPE_FINISH;
+				payOption.order = order;
+				response.setResponseEntity(payOption);
+			}
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
 			Logger.error("updatePayment", e);
@@ -684,16 +697,22 @@ public class PayController extends Controller{
 	
 	
 	@BasicAuth
-	public static Result updatePayment(long payId,int status){
+	public static Result updatePayment(long orderid, long payId,int status, String needfinishedOrder){
 		
 		ComResponse<TOrder_Py>  response = new ComResponse<TOrder_Py>();
 		try {
 			TOrder_Py order = TOrder_Py.findDataById(payId);
 			if(order!=null){
 				if(status == Constants.PAYMENT_STATUS_FINISH){
-					order.ackDate = new Date();
-					order.ackStatus = Constants.PAYMENT_STATUS_FINISH;
-					TOrder_Py.saveData(order);
+					
+					if(orderid>0&&needfinishedOrder!=null&&needfinishedOrder.trim().equals("true")){
+						//***********已经完成的订单需要移到历史表**************/
+						TOrderHis.moveToHisFromOrder(orderid ,Constants.ORDER_TYPE_FINISH);
+					}else{
+						order.ackDate = new Date();
+						order.ackStatus = Constants.PAYMENT_STATUS_FINISH;
+						TOrder_Py.saveData(order);
+					}
 					LogController.info("payment done for "+payId);
 				}else if(status == Constants.PAYMENT_STATUS_PENDING){
 					order.ackDate = new Date();

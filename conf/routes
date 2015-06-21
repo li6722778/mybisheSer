@@ -40,7 +40,7 @@ POST /a/order/save                              controllers.OrderController.save
 GET /a/order/savestartdate                      controllers.OrderController.savestartDate()
 GET /a/order/saveenddate                        controllers.OrderController.saveendDate()
 GET /a/order/delete/:id                         controllers.OrderController.deleteData(id:Long)
-GET /a/order/changestatue                       controllers.OrderController.changeorderstatue()
+POST /a/order/restartorder                       controllers.OrderController.restartorder()
 GET /a/orderhis/me                                controllers.OrderController.getAllHisDataForSelf(p:Int ?= 0, s:Int ?= 10, o ?= "orderDate desc")
 
 GET  /a/parkinfoprod/find/:parkid                 controllers.ParkProdController.getDataById(parkid:Long)
@@ -64,7 +64,7 @@ GET /a/counpon/findcounponbyuserid/:userid             controllers.CounponContro
 GET /a/counpon/usecounpon                              controllers.CounponController.usecounpon(p:Long ?=0,s:Long ?=0)
 
 GET  /a/pay/price/:parkid                          controllers.PayController.getRealPayInfo(parkid:Long,c:Long ?=0)
-POST /a/pay/update/:payid/:status                  controllers.PayController.updatePayment(payid:Long,status:Integer)
+POST /a/pay/update/:orderid/:payid/:status         controllers.PayController.updatePayment(orderid:Long,payid:Long,status:Integer,u?="false")
 GET  /a/pay/out/adm/:parkid/:orderId               controllers.PayController.parkingOutForAdm(parkid:Long,orderId:Long, m:Double?=0)
 
 POST /a/pay/out/:orderId                           controllers.PayController.payForOut(orderId:Long,o ?= "")

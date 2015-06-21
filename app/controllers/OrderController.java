@@ -179,7 +179,7 @@ public class OrderController extends Controller {
 		return ok(json);
 	}
 	@BasicAuth
-	public static Result changeorderstatue(){
+	public static Result restartorder(){
 		String request = request().body().asJson().toString();
 		Logger.info("start to post data:" + request);
 		
@@ -187,7 +187,7 @@ public class OrderController extends Controller {
 		ComResponse<TOrder>  response = new ComResponse<TOrder>();
 		try {
 			data.endDate = new Date();
-			data.orderStatus = Constants.ORDER_TYPE_FINISH;
+			data.orderStatus = Constants.ORDER_TYPE_START;
 			TOrder.saveData(data);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(data);
