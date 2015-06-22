@@ -23,6 +23,16 @@ create table tb_counpon_info (
   constraint pk_tb_counpon_info primary key (counpon_id))
 ;
 
+create table tb_income (
+  income_id                 bigint auto_increment not null,
+  parkId                    bigint,
+  incometotal               decimal(12,2) default 0.0,
+  incometoday               decimal(12,2) default 0.0,
+  create_date               timestamp NULL,
+  update_date               timestamp NULL,
+  constraint pk_tb_income primary key (income_id))
+;
+
 create table tb_log (
   log_id                    bigint auto_increment not null,
   level                     integer(2) default 1,
@@ -186,12 +196,12 @@ create table tb_parking_prod (
   discount_sec_hour_money   decimal(12,2) default 0.0,
   discount_sec_start_hour   time,
   discount_sec_end_hour     time,
-  averagerating             float default 0,
+  averagerat                float default 0,
   create_date               timestamp NULL,
   update_date               timestamp NULL,
   create_person             varchar(50),
   update_person             varchar(50),
-  approve_date              timestamp,
+  approve_date              timestamp NULL,
   approve_person            varchar(50),
   constraint pk_tb_parking_prod primary key (park_id))
 ;
@@ -296,36 +306,38 @@ create table tb_user (
   constraint pk_tb_user primary key (userid))
 ;
 
-alter table tb_order add constraint fk_tb_order_parkInfo_1 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
-create index ix_tb_order_parkInfo_1 on tb_order (parkId);
-alter table tb_order add constraint fk_tb_order_userInfo_2 foreign key (userid) references tb_user (userid) on delete restrict on update restrict;
-create index ix_tb_order_userInfo_2 on tb_order (userid);
-alter table tb_order_his add constraint fk_tb_order_his_parkInfo_3 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
-create index ix_tb_order_his_parkInfo_3 on tb_order_his (parkId);
-alter table tb_order_his add constraint fk_tb_order_his_userInfo_4 foreign key (userid) references tb_user (userid) on delete restrict on update restrict;
-create index ix_tb_order_his_userInfo_4 on tb_order_his (userid);
-alter table tb_order_his_py add constraint fk_tb_order_his_py_order_5 foreign key (orderId) references tb_order_his (order_id) on delete restrict on update restrict;
-create index ix_tb_order_his_py_order_5 on tb_order_his_py (orderId);
-alter table tb_order_py add constraint fk_tb_order_py_order_6 foreign key (orderId) references tb_order (order_id) on delete restrict on update restrict;
-create index ix_tb_order_py_order_6 on tb_order_py (orderId);
-alter table tb_parking_prod_img add constraint fk_tb_parking_prod_img_parkInfo_7 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
-create index ix_tb_parking_prod_img_parkInfo_7 on tb_parking_prod_img (parkId);
-alter table tb_parking_prod_loc add constraint fk_tb_parking_prod_loc_parkInfo_8 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
-create index ix_tb_parking_prod_loc_parkInfo_8 on tb_parking_prod_loc (parkId);
-alter table tb_parking_comment add constraint fk_tb_parking_comment_parkInfo_9 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
-create index ix_tb_parking_comment_parkInfo_9 on tb_parking_comment (parkId);
-alter table tb_parking_img add constraint fk_tb_parking_img_parkInfo_10 foreign key (parkId) references tb_parking (park_id) on delete restrict on update restrict;
-create index ix_tb_parking_img_parkInfo_10 on tb_parking_img (parkId);
-alter table tb_parking_loc add constraint fk_tb_parking_loc_parkInfo_11 foreign key (parkId) references tb_parking (park_id) on delete restrict on update restrict;
-create index ix_tb_parking_loc_parkInfo_11 on tb_parking_loc (parkId);
-alter table tb_parking_adm add constraint fk_tb_parking_adm_parkInfo_12 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
-create index ix_tb_parking_adm_parkInfo_12 on tb_parking_adm (parkId);
-alter table tb_parking_adm add constraint fk_tb_parking_adm_userInfo_13 foreign key (userid) references tb_user (userid) on delete restrict on update restrict;
-create index ix_tb_parking_adm_userInfo_13 on tb_parking_adm (userid);
-alter table tb_counpon_use add constraint fk_tb_counpon_use_userInfo_14 foreign key (userid) references tb_user (userid) on delete restrict on update restrict;
-create index ix_tb_counpon_use_userInfo_14 on tb_counpon_use (userid);
-alter table tb_counpon_use add constraint fk_tb_counpon_use_counponentity_15 foreign key (counponId) references tb_counpon_info (counpon_id) on delete restrict on update restrict;
-create index ix_tb_counpon_use_counponentity_15 on tb_counpon_use (counponId);
+alter table tb_income add constraint fk_tb_income_parkInfo_1 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
+create index ix_tb_income_parkInfo_1 on tb_income (parkId);
+alter table tb_order add constraint fk_tb_order_parkInfo_2 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
+create index ix_tb_order_parkInfo_2 on tb_order (parkId);
+alter table tb_order add constraint fk_tb_order_userInfo_3 foreign key (userid) references tb_user (userid) on delete restrict on update restrict;
+create index ix_tb_order_userInfo_3 on tb_order (userid);
+alter table tb_order_his add constraint fk_tb_order_his_parkInfo_4 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
+create index ix_tb_order_his_parkInfo_4 on tb_order_his (parkId);
+alter table tb_order_his add constraint fk_tb_order_his_userInfo_5 foreign key (userid) references tb_user (userid) on delete restrict on update restrict;
+create index ix_tb_order_his_userInfo_5 on tb_order_his (userid);
+alter table tb_order_his_py add constraint fk_tb_order_his_py_order_6 foreign key (orderId) references tb_order_his (order_id) on delete restrict on update restrict;
+create index ix_tb_order_his_py_order_6 on tb_order_his_py (orderId);
+alter table tb_order_py add constraint fk_tb_order_py_order_7 foreign key (orderId) references tb_order (order_id) on delete restrict on update restrict;
+create index ix_tb_order_py_order_7 on tb_order_py (orderId);
+alter table tb_parking_prod_img add constraint fk_tb_parking_prod_img_parkInfo_8 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
+create index ix_tb_parking_prod_img_parkInfo_8 on tb_parking_prod_img (parkId);
+alter table tb_parking_prod_loc add constraint fk_tb_parking_prod_loc_parkInfo_9 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
+create index ix_tb_parking_prod_loc_parkInfo_9 on tb_parking_prod_loc (parkId);
+alter table tb_parking_comment add constraint fk_tb_parking_comment_parkInfo_10 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
+create index ix_tb_parking_comment_parkInfo_10 on tb_parking_comment (parkId);
+alter table tb_parking_img add constraint fk_tb_parking_img_parkInfo_11 foreign key (parkId) references tb_parking (park_id) on delete restrict on update restrict;
+create index ix_tb_parking_img_parkInfo_11 on tb_parking_img (parkId);
+alter table tb_parking_loc add constraint fk_tb_parking_loc_parkInfo_12 foreign key (parkId) references tb_parking (park_id) on delete restrict on update restrict;
+create index ix_tb_parking_loc_parkInfo_12 on tb_parking_loc (parkId);
+alter table tb_parking_adm add constraint fk_tb_parking_adm_parkInfo_13 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
+create index ix_tb_parking_adm_parkInfo_13 on tb_parking_adm (parkId);
+alter table tb_parking_adm add constraint fk_tb_parking_adm_userInfo_14 foreign key (userid) references tb_user (userid) on delete restrict on update restrict;
+create index ix_tb_parking_adm_userInfo_14 on tb_parking_adm (userid);
+alter table tb_counpon_use add constraint fk_tb_counpon_use_userInfo_15 foreign key (userid) references tb_user (userid) on delete restrict on update restrict;
+create index ix_tb_counpon_use_userInfo_15 on tb_counpon_use (userid);
+alter table tb_counpon_use add constraint fk_tb_counpon_use_counponentity_16 foreign key (counponId) references tb_counpon_info (counpon_id) on delete restrict on update restrict;
+create index ix_tb_counpon_use_counponentity_16 on tb_counpon_use (counponId);
 
 
 
@@ -336,6 +348,8 @@ SET FOREIGN_KEY_CHECKS=0;
 drop table chart_city_entity;
 
 drop table tb_counpon_info;
+
+drop table tb_income;
 
 drop table tb_log;
 

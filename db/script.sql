@@ -290,6 +290,15 @@ handle_name               varchar(50),
 constraint pk_tb_takecash primary key (takecashid))
 ;
 
+create table tb_income (
+  income_id                 bigint not null,
+  parkId                    bigint,
+  incometotal               decimal(12,2) default 0.0,
+  create_date               timestamp NULL,
+  update_date               timestamp NULL,
+  constraint pk_tb_income primary key (income_id))
+;
+
 alter table tb_order add constraint fk_tb_order_parkInfo_1 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
 create index ix_tb_order_parkInfo_1 on tb_order (parkId);
 alter table tb_order add constraint fk_tb_order_userInfo_2 foreign key (userid) references tb_user (userid) on delete restrict on update restrict;
@@ -320,3 +329,5 @@ alter table tb_counpon_use add constraint fk_tb_counpon_use_userInfo_14 foreign 
 create index ix_tb_counpon_use_userInfo_14 on tb_counpon_use (userid);
 alter table tb_counpon_use add constraint fk_tb_counpon_use_counponentity_15 foreign key (counponId) references tb_counpon_info (counpon_id) on delete restrict on update restrict;
 create index ix_tb_counpon_use_counponentity_15 on tb_counpon_use (counponId);
+alter table tb_income add constraint fk_tb_income_parkInfo_1 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
+create index ix_tb_income_parkInfo_1 on tb_income (parkId);

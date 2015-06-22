@@ -25,6 +25,9 @@ import utils.Constants;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Page;
+import com.avaje.ebean.RawSql;
+import com.avaje.ebean.RawSqlBuilder;
+import com.avaje.ebean.SqlQuery;
 import com.avaje.ebean.TxRunnable;
 import com.google.gson.annotations.Expose;
 
@@ -250,5 +253,19 @@ public class TOrderHis extends Model {
 		result.setRowCount(allData.getTotalRowCount());
 		result.setPageCount(allData.getTotalPageCount());
 		return result;
+	}
+	/**
+	 * 得到所有数据
+	 * @param parkid
+	 * @return
+	 */
+	public static List<TOrderHis> findOnlyOrderByParkid( long parkid,Date date) {
+		
+//		String sql = "select * from chebole.tb_order where parkId=:parkid and date(order_date) = curdate();";
+		
+		 List<TOrderHis> allData = find.fetch("pay").where().eq("parkid", parkid).eq("date(order_date)", "curdate()").findList();
+		
+		
+		return allData;
 	}
 }

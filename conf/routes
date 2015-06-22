@@ -44,6 +44,7 @@ POST /a/order/restartorder                       controllers.OrderController.res
 GET /a/orderhis/me                                controllers.OrderController.getAllHisDataForSelf(p:Int ?= 0, s:Int ?= 10, o ?= "orderDate desc")
 GET /a/order/:parkid                                controllers.OrderController.getAllDataByparkid(p:Int ?= 0, s:Int ?= 10, o ?= "orderDate desc",parkid:Long)
 
+GET /a/income/:parkid                          controllers.OrderController.getAllIncomeData(parkid:Long)
 
 
 GET  /a/parkinfoprod/find/:parkid                 controllers.ParkProdController.getDataById(parkid:Long)

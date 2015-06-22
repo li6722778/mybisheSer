@@ -2,6 +2,7 @@ package controllers;
 
 import java.util.Date;
 
+import models.info.TIncome;
 import models.info.TOrder;
 import models.info.TOrderHis;
 import play.Logger;
@@ -247,5 +248,20 @@ public class OrderController extends Controller {
 		String tempJsonString = gsonBuilderWithExpose.toJson(response);
 		JsonNode json = Json.parse(tempJsonString);
 		return ok(json);
+	}
+	
+	/**
+	 * 得到停车场的收益
+	 * @param parkId
+	 * @return
+	 */
+	public static Result getAllIncomeData(long parkId) {
+		Logger.info("getAllIncomeData");
+		TIncome income = TIncome.findDataByParkid(parkId);
+		String json = gsonBuilderWithExpose.toJson(income);
+		JsonNode jsonNode = Json.parse(json);
+		// String jsonString = Json.stringify(json);
+		Logger.debug("income result:" + json);
+		return ok(jsonNode);
 	}
 }
