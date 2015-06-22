@@ -211,4 +211,27 @@ public class TOrder extends Model {
 		result.setPageCount(allData.getTotalPageCount());
 		return result;
 	}
+	
+	/**
+	 * 查询parkid对应订单
+	 * 
+	 * @param currentPage
+	 * @param pageSize
+	 * @param orderBy
+	 * @return
+	 */
+	public static CommFindEntity<TOrder> findPageDataByparkid(int currentPage,
+			int pageSize, String orderBy, long parkid) {
+
+		CommFindEntity<TOrder> result = new CommFindEntity<TOrder>();
+
+		Page<TOrder> allData = find.fetch("userInfo").fetch("pay").fetch("parkInfo").where().eq("parkId", parkid)
+				.orderBy(orderBy).findPagingList(pageSize).setFetchAhead(false)
+				.getPage(currentPage);
+
+		result.setResult(allData.getList());
+		result.setRowCount(allData.getTotalRowCount());
+		result.setPageCount(allData.getTotalPageCount());
+		return result;
+	}
 }
