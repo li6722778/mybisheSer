@@ -72,7 +72,7 @@ var Parking = function () {
   				   $("#dataForm").ajaxSubmit(options);
   		   });
         	 
-        	 $("#dialog_confirm" ).dialog({
+        	 $("#dialog_confirm_image" ).dialog({
         	      dialogClass: 'ui-dialog-green',
         	      autoOpen: false,
         	      resizable: false,
@@ -88,7 +88,6 @@ var Parking = function () {
         	      			var imgId = $(this).data("imgId");
         	      			var warndialog = $(this);
         	      			 App.blockUI(pageContent, false);
-        	      			 
         	      			 $.get("/a/image/delete/"+imgId,function(){
         	      				var imgItem = $('#item'+imgId);
         	      				imgItem.remove();
@@ -117,7 +116,7 @@ var Parking = function () {
 
 function deleteRemoteImage(imgId){
     //confirm dialog
-	$( "#dialog_confirm" ).data("imgId",imgId).dialog( "open" );
+	$( "#dialog_confirm_image" ).data("imgId",imgId).dialog( "open" );
 }
 
 jQuery(document).ready(function() {    
