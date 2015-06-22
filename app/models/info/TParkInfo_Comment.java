@@ -85,7 +85,8 @@ public class TParkInfo_Comment extends Model{
 				// ------------生成主键，所有插入数据的方法都需要这个-----------
 				if (bean.parkComId == null || bean.parkComId <= 0) {
 					bean.parkComId = TPKGenerator.getPrimaryKey(
-							TParkInfo_Comment.class.getName(), "parkComId");					
+							TParkInfo_Comment.class.getName(), "parkComId");		
+					bean.createDate = new Date();
 					Ebean.save(bean);
 				} else {
 					Ebean.update(bean);
