@@ -1,7 +1,9 @@
 package models.info;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -82,6 +84,16 @@ public class TParkInfo_Comment extends Model{
 	public static void saveData(final TParkInfo_Comment bean) {
 		Ebean.execute(new TxRunnable() {
 			public void run() {
+				
+				if(bean.parkInfo!=null){
+					TParkInfoProd prodInfo=  TParkInfoProd.findDataById(bean.parkInfo.parkId);
+					prodInfo.averagerat = caculationRat(bean.rating,bean.parkInfo.parkId);
+					//TParkInfoProd.saveData(prodInfo);
+					Set<String> updatesStr = new HashSet<String>();
+					updatesStr.add("averagerat");
+					Ebean.update(prodInfo,updatesStr);
+				}
+				
 				// ------------生成主键，所有插入数据的方法都需要这个-----------
 				if (bean.parkComId == null || bean.parkComId <= 0) {
 					bean.parkComId = TPKGenerator.getPrimaryKey(
@@ -93,12 +105,7 @@ public class TParkInfo_Comment extends Model{
 				}
 				// -------------end----------------
 				//add comments rat
-				
-				if(bean.parkInfo!=null){
-					TParkInfoProd prodInfo=  TParkInfoProd.findDataById(bean.parkInfo.parkId);
-					prodInfo.averagerat = caculationRat(bean.rating,bean.parkInfo.parkId);
-					TParkInfoProd.saveData(prodInfo);
-				}
+			
 			}
 		});
 
