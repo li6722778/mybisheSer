@@ -705,13 +705,13 @@ public class PayController extends Controller{
 			if(order!=null){
 				if(status == Constants.PAYMENT_STATUS_FINISH){
 					
-					if(orderid>0&&needfinishedOrder!=null&&needfinishedOrder.trim().equals("true")){
-						//***********已经完成的订单需要移到历史表**************/
-						TOrderHis.moveToHisFromOrder(orderid ,Constants.ORDER_TYPE_FINISH);
-					}else{
 						order.ackDate = new Date();
 						order.ackStatus = Constants.PAYMENT_STATUS_FINISH;
 						TOrder_Py.saveData(order);
+				
+					if(orderid>0&&needfinishedOrder!=null&&needfinishedOrder.trim().equals("true")){
+						//***********已经完成的订单需要移到历史表**************/
+						TOrderHis.moveToHisFromOrder(orderid ,Constants.ORDER_TYPE_FINISH);
 					}
 					LogController.info("payment done for "+payId);
 				}else if(status == Constants.PAYMENT_STATUS_PENDING){

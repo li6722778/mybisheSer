@@ -91,6 +91,7 @@ public class TTakeCash extends Model{
 					if (bean.takecashid == null || bean.takecashid <= 0) {
 						bean.takecashid = TPKGenerator.getPrimaryKey(
 								TTakeCash.class.getName(), "takecashid");
+						bean.askdata = new Date();
 						Ebean.save(bean);
 					} else {
 						Ebean.update(bean);

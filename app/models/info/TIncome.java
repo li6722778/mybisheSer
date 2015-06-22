@@ -101,10 +101,12 @@ public class TIncome extends Model {
 				TIncome incometb = findDataByParkid(parkid);
 
 				// ------------生成主键，所有插入数据的方法都需要这个-----------
-				if (incometb == null) {
+				if (incometb == null||incometb.incomeId==null||incometb.incomeId<=0) {
 					incometb = new TIncome();
 					TParkInfoProd parkInfo = new TParkInfoProd();
 					parkInfo.parkId = parkid;
+					incometb.incomeId = TPKGenerator.getPrimaryKey(
+							TIncome.class.getName(), "incomeId");
 					incometb.parkInfo = parkInfo;
 					incometb.createDate = new Date();
 					incometb.updateDate = incometb.createDate;
