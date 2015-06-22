@@ -317,7 +317,7 @@ public class WebPageController extends Controller {
 						int isopen = loc.isOpen;
 						for(TParkInfoPro_Loc tmp : result){
 							Logger.debug("update TParkInfoPro_Loc status:"+isopen+" to new status");
-							if(isopen==0){
+							if(isopen!=1){
 								tmp.isOpen=1;
 								TParkInfoPro_Loc.saveData(tmp);
 							}else if(isopen==1){
