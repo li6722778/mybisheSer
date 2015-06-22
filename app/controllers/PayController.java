@@ -163,7 +163,7 @@ public class PayController extends Controller{
 	 * @return
 	 */
 	@BasicAuth
-	public static Result payForIn(long parkingProdId,String city){
+	public static Result payForIn(long parkingProdId,String city,double latitude,double longitude){
 		Logger.info("start to generator order and generator aili pay for:"+parkingProdId+",city:"+city);
 		String request = request().body().asJson().toString();
 		Logger.debug("start to post data:" + request);
@@ -229,6 +229,8 @@ public class PayController extends Controller{
 					}
 					if(dataBean==null){
 						dataBean = new TOrder(); //生成一个新的订单
+						dataBean.latitude=latitude;
+						dataBean.longitude=longitude;
 					}
 					if(payment==null){
 						payment = new TOrder_Py();

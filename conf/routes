@@ -72,7 +72,7 @@ POST /a/pay/update/:orderid/:payid/:status         controllers.PayController.upd
 GET  /a/pay/out/adm/:parkid/:orderId               controllers.PayController.parkingOutForAdm(parkid:Long,orderId:Long, m:Double?=0)
 
 POST /a/pay/out/:orderId                           controllers.PayController.payForOut(orderId:Long,o ?= "")
-POST /a/pay/in/:parkid                             controllers.PayController.payForIn(parkid:Long,c?= "")
+POST /a/pay/in/:parkid                             controllers.PayController.payForIn(parkid:Long,c?= "",lt:Double?=0,ln:Double?=0)
 GET  /a/scan/entrance/:orderId                     controllers.ScanController.scanForIn(orderId:Long,o ?= "")
 
 POST /a/parkinfo/savepic                           controllers.UploadController.upload()
