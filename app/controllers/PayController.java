@@ -782,6 +782,9 @@ public class PayController extends Controller{
 			orderPy.order = order;
 			TOrder_Py.saveData(orderPy);
 			
+			//***********已经完成的订单需要移到历史表**************/
+			TOrderHis.moveToHisFromOrder(orderId ,Constants.ORDER_TYPE_FINISH);
+			
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(orderPy);
 			response.setExtendResponseContext("付款单生成成功");
