@@ -21,6 +21,7 @@ import play.data.format.Formats;
 import play.db.ebean.Model;
 import utils.CommFindEntity;
 import utils.Constants;
+import utils.DateHelper;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
@@ -266,7 +267,7 @@ public class TOrderHis extends Model {
 		
 //		String sql = "select * from chebole.tb_order where parkId=:parkid and date(order_date) = curdate();";
 		
-		 List<TOrderHis> allData = find.fetch("pay").where().eq("parkid", parkid).eq("date(order_date)", "curdate()").findList();
+		 List<TOrderHis> allData = find.fetch("pay").where().eq("parkid", parkid).eq("date(order_date)", DateHelper.format(new Date(), "yyyyMMdd")).findList();
 		
 		
 		return allData;
