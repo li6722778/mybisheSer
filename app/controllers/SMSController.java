@@ -42,14 +42,19 @@ public class SMSController extends Controller{
 	.getString("rest.3part.sms.reset.templateId");
 	
 	
-	public static Result requestResetPasswd(long phone){
+	public static Result requestResetPasswd(long phone,int type){
 		Logger.info("start to request SMS reset password to:"+phone);
 		TuserInfo usrinfo = TuserInfo.findDataByPhoneId(phone);
 		if(usrinfo==null){
 			return ok("该手机号码没有注册，请使用APP客户端注册手机号码");
 		}
-		if(usrinfo.userType>=Constants.USER_TYPE_MADMIN
-				&&usrinfo.userType<Constants.USER_TYPE_MADMIN+10){
+		
+		if(type==0){
+			if(usrinfo.userType>=Constants.USER_TYPE_MADMIN
+					&&usrinfo.userType<Constants.USER_TYPE_MADMIN+10){
+				return ok("该手机号码不能登录后台系统");
+			}
+		}
 			
 			//加密后这里应该先改密码？？？？？？？
 			//得到密码
@@ -106,10 +111,7 @@ public class SMSController extends Controller{
 				Logger.error("requestSMSVerify", e);
 				return ok("密码重置短信发送失败，请联系管理员.");
 			}
-			
-		}else{
-			return ok("该手机号码不能登录后台系统");
-		}
+
 	}
 	
 	/**
