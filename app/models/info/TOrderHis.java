@@ -164,6 +164,9 @@ public class TOrderHis extends Model {
 							copierPy.copy(py, hisPy, null);
 							hisPy.order = orderHis;
 							pyArray.add(hisPy);
+							if(hisPy.ackStatus == Constants.PAYMENT_STATUS_FINISH){
+							   TIncome.saveIncome(order.parkInfo.parkId, hisPy.payActu);
+							}
 						}
 						Logger.debug(">>>>>>>>>>>TOrder_Py moving end");
 					}
