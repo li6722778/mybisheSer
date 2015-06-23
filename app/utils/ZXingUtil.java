@@ -15,13 +15,17 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.imageio.ImageIO;
+
+import play.Logger;
 
 /**
  *
@@ -102,7 +106,7 @@ public class ZXingUtil {
 
         } catch (Exception e) {
 
-            System.out.println("编码待生成二维码图片的文本时发生异常,堆栈轨迹如下");
+        	Logger.error("编码待生成二维码图片的文本时发生异常,堆栈轨迹如下");
 
             e.printStackTrace();
 
@@ -121,7 +125,7 @@ public class ZXingUtil {
 
         } catch (IOException e) {
 
-            System.out.println("生成二维码图片[" + imagePath + "]时遇到异常,堆栈轨迹如下");
+            Logger.error("生成二维码图片[" + imagePath + "]时遇到异常,堆栈轨迹如下");
 
             e.printStackTrace();
 
@@ -149,7 +153,7 @@ public class ZXingUtil {
 
             } catch (IOException e) {
 
-                System.out.println("为二维码图片[" + imagePath + "]添加logo头像[" + logoPath + "]时遇到异常,堆栈轨迹如下");
+            	Logger.error("为二维码图片[" + imagePath + "]添加logo头像[" + logoPath + "]时遇到异常,堆栈轨迹如下");
 
                 e.printStackTrace();
 

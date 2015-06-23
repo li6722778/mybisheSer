@@ -71,7 +71,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
 										<button class="btn dropdown-toggle" data-toggle="dropdown">工具 <i class="icon-angle-down"></i>
 										</button>
 										<ul class="dropdown-menu pull-right">
-										    <li><a href="javascript:;" id="">打印二维码标签</a></li>
+										    <li><a href="#form_modal_qrimage" data-toggle="modal" id="button_qrimage">打印二维码标签</a></li>
 										    <li><a href="javascript:;" id="button_openclose" p="@currentPage" s="@pageSize" o="@orderBy" k="@key" v="@searchObj" >打开/关闭停车场</a></li>
 											<li><a href="javascript:;" id="button_retrieve">退回修改</a></li>
 										</ul>
@@ -140,6 +140,18 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
 									</tbody>
 
 								</table>
+
+                        <div id="form_modal_qrimage" class="modal hide fade modal-vertical-centered" tabindex="-1" role="dialog" aria-labelledby="myModalLabel3" aria-hidden="true">
+
+									<div class="modal-body">
+										 
+									</div>
+
+									<div class="modal-footer">
+										<button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
+										<button class="btn green btn-primary" id ="button_update_user_selected"data-dismiss="modal" onclick="javascript:window.print();">打印</button>
+									</div>
+							</div>
 
 					            <div id="pagination" class="pagination">
 					               <ul>

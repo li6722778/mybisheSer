@@ -1,15 +1,18 @@
 package controllers;
 
+import java.io.File;
 import java.util.Date;
 
 import models.info.TOrder;
 import models.info.TParkInfoProd;
 import play.Logger;
+import play.Play;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import utils.ComResponse;
 import utils.ConfigHelper;
+import utils.ZXingUtil;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
@@ -29,10 +32,49 @@ public class ScanController extends Controller{
 	public static final String OS_ANDROID="android";
 	public static final String OS_IOS="ios";
 		
+	
+
+	/**
+	 * 
+	 * @param content
+	 * @return
+	 */
+	public static Result disQRImage(long parkid,int width,int height) {
+		Logger.info("start to disQRImage for :"+ parkid);
+
+		String encodeString = "";
+		
+		if(download_url!=null){
+			encodeString = download_url;
+		}
+		encodeString=encodeString+"#"+parkid;
+
+		try{
+		String basePath = Play.application().path().getPath();
+		String imagePath = basePath+"/public/qr/"+parkid+".png";
+		
+		File file = new File(imagePath);
+		if(!file.getParentFile().exists()){
+			file.getParentFile().mkdirs();
+		}
+		
+		Logger.info("QR image path:"+ imagePath);
+		
+		if (ZXingUtil.encodeQRCodeImage(encodeString, null, imagePath, width, height, null)) {
+			return ok(file).as("image/jpeg");
+		}
+		}catch(Exception e){
+			Logger.error("disQRImage",e);
+		}
+
+		return ok("");
+		
+	}
+	
 		
 	/**
 	 * 解析二维码结果
-	 * 前期我们认为应该是 http://-------/ddddd?parkid=123456;
+	 * 前期我们认为应该是 http://-------/parkingmc.apk#123456;
 	 * @param scanResult
 	 * @return
 	 */
@@ -42,7 +84,7 @@ public class ScanController extends Controller{
 		
 		if(scanResult!=null&&!scanResult.trim().equals("")){
 			if(scanResult.startsWith("http")){ 
-				String[] scans = scanResult.split("?");
+				String[] scans = scanResult.split("#");
 				if(scans.length>1){
 					//第二个就是parkingId
 					String parkStr = scans[1];

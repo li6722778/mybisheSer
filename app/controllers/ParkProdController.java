@@ -18,7 +18,6 @@ import play.mvc.Result;
 import play.mvc.Security;
 import utils.ComResponse;
 import utils.CommFindEntity;
-import utils.ZXingUtil;
 import action.BasicAuth;
 
 import com.avaje.ebean.Ebean;
@@ -318,16 +317,6 @@ public class ParkProdController extends Controller {
 
 		Logger.debug("got Data:" + json);
 		return ok(jsonNode);
-	}
-
-	public static Result disQRImage(String content) {
-		Logger.info("start to disQRImage");
-
-		if (ZXingUtil.encodeQRCodeImage(content, null, "", 315, 315, null)) {
-
-		}
-
-		return ok("");
 	}
 
 }

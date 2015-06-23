@@ -143,3 +143,4 @@ GET      /w/chart/order                          controllers.WebPageController.g
 POST      /w/version                          controllers.WebPageController.gotoVersion()
 POST      /w/version/submit                   controllers.WebPageController.saveVersionData()
 
+GET     /w/scan/:parkId                      controllers.ScanController.disQRImage(parkId:Long,w:Int?=315,h:Int?=315)
