@@ -1,6 +1,8 @@
 @(entityBean: com.avaje.ebean.Page[models.info.TParkInfoProd], 
 currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:String)
 
+
+
              <!-- BEGIN PAGE HEADER-->
 				<div class="row-fluid">
 
@@ -144,12 +146,22 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
                         <div id="form_modal_qrimage" class="modal hide fade modal-vertical-centered" tabindex="-1" role="dialog" aria-labelledby="myModalLabel3" aria-hidden="true">
 
 									<div class="modal-body">
-										 
+									   <div class="row-fluid" id="qrimagepreview">
+						                           
+								        </div>
+								        
+								        <div id="site_activities_loading">
+										     <img src="/assets/image/loading.gif" alt="loading" />
+									   </div>
+ 
+
 									</div>
 
 									<div class="modal-footer">
+									     宽度:<input type="text" id="qrwidth" name="qrwidth" class="m-wrap" placeholder="" value="315">
+									    高度: <input type="text" id="qrheight" name="qrheight" class="m-wrap" placeholder="" value="315">
 										<button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
-										<button class="btn green btn-primary" id ="button_update_user_selected"data-dismiss="modal" onclick="javascript:window.print();">打印</button>
+										<button class="btn green btn-primary" id ="button_update_user_selected"data-dismiss="modal" onclick=" $('#qrimagepreview').jqprint();">打印</button>
 									</div>
 							</div>
 
@@ -195,6 +207,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
 						
 	<script type="text/javascript" src="@routes.Assets.at("javascripts/select2.min.js")"></script>
 	<script type="text/javascript" src="@routes.Assets.at("javascripts/jquery.dataTables.js")"></script>
-	<script type="text/javascript" src="@routes.Assets.at("javascripts/DT_bootstrap.js")"></script>					
+	<script type="text/javascript" src="@routes.Assets.at("javascripts/DT_bootstrap.js")"></script>
+	<script src="@routes.Assets.at("app/jquery.jqprint-0.3.js")"></script> 					
 	<script src="@routes.Assets.at("app/lib/parkinglistprod.js")"></script> 
 				

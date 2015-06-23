@@ -73,6 +73,38 @@ var ParkingProd = function () {
 
         	 });
         	 
+        	 
+        	 /**
+        	  * 生成二维码
+        	  */
+           	 $('#button_qrimage').click(function(){
+           		$("#site_activities_loading").css("display","");
+           	    $("#qrimagepreview").html("");
+        		 var checked = "";
+        		 $('input:checkbox:checked').each(function() {
+        	            checked+=$(this).val()+",";
+        	        });
+        		 var w = $("#qrwidth").val();
+        		 var h = $("#qrheight").val();
+
+
+//        		 $.ajax({
+//        			    url:"/w/scan/genqr?p="+checked+"&w="+w+"&h="+h,
+//        			    method:'GET',
+//        			    async:true,
+//        			    success: function(data){
+//        			    	 $("#qrimagepreview").html(data);
+//                			 $("#site_activities_loading").css("display","none");
+//        			    }
+//        			});
+        		 
+        		 $.get("/w/scan/genqr?p="+checked+"&w="+w+"&h="+h,function(data){
+        			 $("#qrimagepreview").html(data);
+        			 $("#site_activities_loading").css("display","none");
+	      			});
+        	 });
+           	 
+        	 
         	 /**
         	  * 关闭打开停车场
         	  */

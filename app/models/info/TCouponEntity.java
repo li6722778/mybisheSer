@@ -1,7 +1,9 @@
 package models.info;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +15,8 @@ import play.data.format.Formats;
 import play.db.ebean.Model;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
+import com.avaje.ebean.Page;
 import com.avaje.ebean.TxRunnable;
 import com.google.gson.annotations.Expose;
 
@@ -86,6 +90,21 @@ public class TCouponEntity extends Model{
 				.get(0);
 	}
 	
+	public static Page<TCouponEntity> pageByTypeAndFilter(int currentPage,
+			int pageSize, String orderBy, String filter) {
+
+		ExpressionList<TCouponEntity> elist = find.where();
+		
+		if (filter != null && !filter.trim().equals("")) {
+			elist.ilike("createName", "%" + filter + "%");
+		}
+		Page<TCouponEntity> allData = elist.orderBy(orderBy)
+				.findPagingList(pageSize).setFetchAhead(false)
+				.getPage(currentPage);
+
+		return allData;
+	}
+	
 	/**
 	 * 删除数据
 	 * 
@@ -110,11 +129,24 @@ public class TCouponEntity extends Model{
 					bean.counponId= TPKGenerator.getPrimaryKey(
 							TCouponEntity.class.getName(), "counponId");
 					Logger.debug("TUseCouponEntity id"+bean.counponId);
+					bean.createDate = new Date();
 					Ebean.save(bean);
 					
 					} else {
 					Ebean.update(bean);
 				}
+			}
+		});
+	}
+	
+	public static void updateUseable(final TCouponEntity bean) {
+		Ebean.execute(new TxRunnable() {
+			public void run() {
+				// ------------生成主键，所有插入数据的方法都需要这个-----------
+				Set<String> upobj = new HashSet<String>();
+				upobj.add("isable");
+			    Ebean.update(bean,upobj);
+				
 			}
 		});
 	}

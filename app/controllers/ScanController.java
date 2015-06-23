@@ -3,6 +3,7 @@ package controllers;
 import java.io.File;
 import java.util.Date;
 
+import models.info.TCouponEntity;
 import models.info.TOrder;
 import models.info.TParkInfoProd;
 import play.Logger;
@@ -33,41 +34,125 @@ public class ScanController extends Controller{
 	public static final String OS_IOS="ios";
 		
 	
+	
+	public static Result disCouponIdQRImage(String pidarray,int width,int height) {
+		Logger.info("start to disCouponIdQRImage for :"+ pidarray);
+
+
+		StringBuilder imgHtml = new StringBuilder("");
+		
+		if (pidarray != null && pidarray.length() > 0) {
+			String[] pids = pidarray.split(",");
+			for (String pidString : pids) {
+				try {
+					long pid = Long.parseLong(pidString);
+					
+					TCouponEntity prod = TCouponEntity.findDataById(pid);
+					
+					String encodeString = "";
+					
+					if(download_url!=null){
+						encodeString = download_url;
+					}
+					
+
+					
+					encodeString=encodeString+"?"+prod.counponCode;
+
+					try{
+					String basePath = Play.application().path().getPath();
+					String abbr = "/qr/cp_"+pid+".png";
+					
+					String imagePath = basePath+"/public/"+abbr;
+					
+					File file = new File(imagePath);
+					if(!file.getParentFile().exists()){
+						file.getParentFile().mkdirs();
+					}
+					
+					Logger.info("QR image path:"+ imagePath);
+					
+					;
+					
+					if (ZXingUtil.encodeQRCodeImage(encodeString, null, imagePath, width, height, null)) {
+						imgHtml.append("<div class=\"row-fluid\">").append("<h4>"+prod.counponCode+"<br/><small>"+prod.money+"元</small></h4>")
+						.append("<a class=\"fancybox-button\" data-rel=\"fancybox-button\" title=\""+prod.money+"\" target=\"blank\" href=\"/assets"+abbr+"\">")
+						.append("<div class=\"zoom\">").append("<img src=\"/assets"+abbr+"\"  /> ").append("</div>"
+								+ "</a></div>");
+					 }
+					}catch(Exception e){
+						Logger.error("disCouponIdQRImage",e);
+					}
+					
+				} catch (Exception e) {
+					Logger.error("disCouponIdQRImage:" + pidString, e);
+				}
+			}
+		}
+		
+
+		return ok(imgHtml.toString());
+		
+	}
+	
 
 	/**
 	 * 
 	 * @param content
 	 * @return
 	 */
-	public static Result disQRImage(long parkid,int width,int height) {
-		Logger.info("start to disQRImage for :"+ parkid);
+	public static Result disParkIdQRImage(String pidarray,int width,int height) {
+		Logger.info("start to disQRImage for :"+ pidarray);
 
-		String encodeString = "";
-		
-		if(download_url!=null){
-			encodeString = download_url;
-		}
-		encodeString=encodeString+"#"+parkid;
 
-		try{
-		String basePath = Play.application().path().getPath();
-		String imagePath = basePath+"/public/qr/"+parkid+".png";
+		StringBuilder imgHtml = new StringBuilder("");
 		
-		File file = new File(imagePath);
-		if(!file.getParentFile().exists()){
-			file.getParentFile().mkdirs();
-		}
-		
-		Logger.info("QR image path:"+ imagePath);
-		
-		if (ZXingUtil.encodeQRCodeImage(encodeString, null, imagePath, width, height, null)) {
-			return ok(file).as("image/jpeg");
-		}
-		}catch(Exception e){
-			Logger.error("disQRImage",e);
+		if (pidarray != null && pidarray.length() > 0) {
+			String[] pids = pidarray.split(",");
+			for (String pidString : pids) {
+				try {
+					long pid = Long.parseLong(pidString);
+					
+					String encodeString = "";
+					
+					if(download_url!=null){
+						encodeString = download_url;
+					}
+					encodeString=encodeString+"?"+pid;
+
+					try{
+					String basePath = Play.application().path().getPath();
+					String abbr = "/qr/pk_"+pid+".png";
+					
+					String imagePath = basePath+"/public/"+abbr;
+					
+					File file = new File(imagePath);
+					if(!file.getParentFile().exists()){
+						file.getParentFile().mkdirs();
+					}
+					
+					Logger.info("QR image path:"+ imagePath);
+					
+					TParkInfoProd prod = TParkInfoProd.findDataById(pid);
+					
+					if (ZXingUtil.encodeQRCodeImage(encodeString, null, imagePath, width, height, null)) {
+						imgHtml.append("<div class=\"row-fluid\">").append("<h4>"+prod.parkname+"<br/><small>"+prod.address+"</small></h4>")
+						.append("<a class=\"fancybox-button\" data-rel=\"fancybox-button\" title=\""+prod.parkname+"\" target=\"blank\" href=\"/assets"+abbr+"\">")
+						.append("<div class=\"zoom\">").append("<img src=\"/assets"+abbr+"\"  /> ").append("</div>"
+								+ "</a></div>");
+					 }
+					}catch(Exception e){
+						Logger.error("disParkIdQRImage",e);
+					}
+					
+				} catch (Exception e) {
+					Logger.error("disParkIdQRImage:" + pidString, e);
+				}
+			}
 		}
 
-		return ok("");
+
+		return ok(imgHtml.toString());
 		
 	}
 	
@@ -84,7 +169,7 @@ public class ScanController extends Controller{
 		
 		if(scanResult!=null&&!scanResult.trim().equals("")){
 			if(scanResult.startsWith("http")){ 
-				String[] scans = scanResult.split("#");
+				String[] scans = scanResult.split("\\?");
 				if(scans.length>1){
 					//第二个就是parkingId
 					String parkStr = scans[1];

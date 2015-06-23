@@ -136,6 +136,11 @@ GET      /w/order/setexception                       controllers.WebPageControll
 POST      /w/orderchart                          controllers.WebPageController.gotoOrderChart()
 GET      /w/order/delete                        controllers.WebPageController.deleteOrder(p ?= "")
 
+POST      /w/coupon/add                          controllers.WebPageController.gotoCouponAdd()
+POST      /w/coupon                              controllers.WebPageController.gotoCoupon(p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",f ?="")
+POST      /w/coupon/add/submit                   controllers.WebPageController.saveCouponData()
+POST      /w/coupon/delete                       controllers.WebPageController.deleteCoupon(p ?= "")
+GET       /w/coupon/open                         controllers.WebPageController.updateCouponOpenClose(p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",f?="",pid?="")
 
 GET      /w/chart/caiji                          controllers.WebPageController.getPersonOrderChart(p ?= "")
 GET      /w/chart/order                          controllers.WebPageController.getCityOrderChart(p ?= "")
@@ -143,4 +148,6 @@ GET      /w/chart/order                          controllers.WebPageController.g
 POST      /w/version                          controllers.WebPageController.gotoVersion()
 POST      /w/version/submit                   controllers.WebPageController.saveVersionData()
 
-GET     /w/scan/:parkId                      controllers.ScanController.disQRImage(parkId:Long,w:Int?=315,h:Int?=315)
+GET     /w/scan/genqr                         controllers.ScanController.disParkIdQRImage(p?="",w:Int?=315,h:Int?=315)
+GET     /w/scan/gencouponqr                         controllers.ScanController.disCouponIdQRImage(p?="",w:Int?=315,h:Int?=315)
+

@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import models.info.ChartCityEntity;
+import models.info.TCouponEntity;
 import models.info.TLog;
 import models.info.TOrder;
 import models.info.TOrderHis;
@@ -855,6 +857,135 @@ public class WebPageController extends Controller {
 		}
 
 		return ok("0");
+	}
+	
+	
+	
+	/**
+	 * 打开优惠劵
+	 * @param currentPage
+	 * @param pageSize
+	 * @param orderBy
+	 * @param type
+	 * @param filter
+	 * @return
+	 */
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoCoupon(int currentPage, int pageSize,
+			String orderBy, String filter) {
+		Logger.debug("goto gotoCoupon,filter" + filter);
+		Page<TCouponEntity> allData = TCouponEntity.pageByTypeAndFilter(currentPage,
+				pageSize, orderBy, filter);
+
+		flash("filter", filter);
+		if (allData != null) {
+			Logger.debug("##########goto gotoCoupon,total:"
+					+ allData.getTotalRowCount());
+		}
+
+		return ok(views.html.coupon.render(allData, currentPage, pageSize,
+				orderBy, filter));
+	}
+
+	/**
+	 * 打开新增用户页面
+	 * @return
+	 */
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoCouponAdd() {
+		Logger.debug("goto gotoCouponAdd");
+		flash("newcouponcode",UUID.randomUUID().toString());
+		
+		return ok(views.html.couponadd.render());
+	}
+
+	/**
+	 * 保存用户
+	 * @return
+	 */
+	@Security.Authenticated(SecurityController.class)
+	public static Result saveCouponData() {
+		Logger.debug("goto saveCouponData");
+		// DynamicForm dynamicForm = Form.form().bindFromRequest();
+		Form<TCouponEntity> form = Form.form(TCouponEntity.class).bindFromRequest();
+		if (form.hasErrors()) {
+			JsonNode node = form.errorsAsJson();
+			Logger.error("###########getglobalError:" + node);
+			return badRequest(node.toString());
+		}
+		TCouponEntity info = form.get();
+		if (info != null) {
+			Logger.debug("###########get coupon:" + info.counponCode);
+			Date current = new Date();
+			String userName = session("username");
+			info.createName = userName;
+			TCouponEntity.saveData(info);
+			LogController.info("save coupon for "+info.counponCode);
+		}
+
+		return ok("提交成功.");
+	}
+
+
+	/**
+	 * 删除用户
+	 * @param pidarray
+	 * @return
+	 */
+	@Security.Authenticated(SecurityController.class)
+	public static Result deleteCoupon(String pidarray) {
+		Logger.info("GOTO deleteCoupon,FOR" + pidarray);
+		if (pidarray != null && pidarray.length() > 0) {
+			String[] pids = pidarray.split(",");
+			for (String pidString : pids) {
+				try {
+					long pid = Long.parseLong(pidString);
+					Logger.info("try to delete coupon:" + pid);
+					TCouponEntity.deleteData(pid);
+					LogController.info("delete coupon:"+pidarray);
+				} catch (Exception e) {
+					Logger.error("deleteCoupon:" + pidString, e);
+				}
+			}
+			return ok("" + pids.length);
+		}
+
+		return ok("0");
+	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result updateCouponOpenClose(int currentPage, int pageSize,
+			String orderBy, String searchObj, String pidarray){
+		Logger.debug("goto updateCouponOpenClose,pidarray:"+pidarray);
+		
+		if (pidarray != null && pidarray.length() > 0) {
+			String[] pids = pidarray.split(",");
+			for (String pidString : pids) {
+				try {
+					long pid = Long.parseLong(pidString);
+					Logger.debug("update for coupon:"+pid);
+					TCouponEntity result = TCouponEntity.findDataById(pid);
+					if(result.isable==1){
+						result.isable=0;
+						TCouponEntity.updateUseable(result);
+					}else{
+						result.isable=1;
+						TCouponEntity.updateUseable(result);
+					}
+					
+					
+				} catch (Exception e) {
+					Logger.error("updateCouponOpenClose:" + pidString, e);
+				}
+			}
+			
+			LogController.debug("updated coupon open/close for "+pidarray);
+		}
+		
+		
+		
+		return gotoCoupon(currentPage, pageSize,
+				orderBy, searchObj);
 	}
 
 }

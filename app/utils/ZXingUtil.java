@@ -104,6 +104,7 @@ public class ZXingUtil {
 
             bitMatrix = new MultiFormatWriter().encode(new String(content.getBytes(charset == null ? "UTF-8" : charset), "ISO-8859-1"), BarcodeFormat.QR_CODE, width, height, hints);
 
+            bitMatrix = updateBit(bitMatrix,5);
         } catch (Exception e) {
 
         	Logger.error("编码待生成二维码图片的文本时发生异常,堆栈轨迹如下");
@@ -165,6 +166,37 @@ public class ZXingUtil {
 
     }
 
+    private static BitMatrix updateBit(BitMatrix matrix, int margin){
+
+    	int tempM = margin*2;
+
+    	int[] rec = matrix.getEnclosingRectangle();   //获取二维码图案的属性
+
+    	int resWidth = rec[2] + tempM;
+
+    	int resHeight = rec[3] + tempM;
+
+    	BitMatrix resMatrix = new BitMatrix(resWidth, resHeight); // 按照自定义边框生成新的BitMatrix
+
+    	resMatrix.clear();
+
+    	for(int i= margin; i < resWidth- margin; i++){   //循环，将二维码图案绘制到新的bitMatrix中
+
+    	for(int j=margin; j < resHeight-margin; j++){
+
+    	if(matrix.get(i-margin + rec[0], j-margin + rec[1])){
+
+    	resMatrix.set(i,j);
+
+    	}
+
+    	}
+
+    	}
+
+    	return resMatrix;
+    }
+    
     /**
      *
      * 解析二维码

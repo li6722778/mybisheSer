@@ -124,8 +124,7 @@ public class PayController extends Controller{
 		orderInfo += "&total_fee=" + "\"" + price + "\"";
 
 		// 服务器异步通知页面路径
-		orderInfo += "&notify_url=" + "\"" + ""+NOTIFY_AILIPAY+""
-				+ "\"";
+		orderInfo += "&notify_url=" + "\"" +NOTIFY_AILIPAY+ "\"";
 
 		// 服务接口名称， 固定值
 		orderInfo += "&service=\"mobile.securitypay.pay\"";
@@ -725,7 +724,7 @@ public class PayController extends Controller{
 					order.ackDate = new Date();
 					order.ackStatus = Constants.PAYMENT_STATUS_EXCPTION;
 					TOrder_Py.saveData(order);
-					LogController.info("payment excption:"+payId);
+					LogController.info("payment exception for parking "+payId+",status:"+status);
 				}
 				response.setResponseStatus(ComResponse.STATUS_OK);
 				response.setResponseEntity(order);
