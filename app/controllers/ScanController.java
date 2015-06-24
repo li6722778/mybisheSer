@@ -60,10 +60,12 @@ public class ScanController extends Controller{
 					encodeString=encodeString+"?"+prod.counponCode;
 
 					try{
-					String basePath = Play.application().path().getPath();
+					String basePath = UploadController.image_store_path;
+					String urlHeader = ConfigHelper.getString("image.url.header");
+					
 					String abbr = "/qr/cp_"+pid+".png";
 					
-					String imagePath = basePath+"/public/"+abbr;
+					String imagePath = basePath+abbr;
 					
 					File file = new File(imagePath);
 					if(!file.getParentFile().exists()){
@@ -76,8 +78,8 @@ public class ScanController extends Controller{
 					
 					if (ZXingUtil.encodeQRCodeImage(encodeString, null, imagePath, width, height, null)) {
 						imgHtml.append("<div class=\"row-fluid\">").append("<h4>"+prod.counponCode+"<br/><small>"+prod.money+"元</small></h4>")
-						.append("<a class=\"fancybox-button\" data-rel=\"fancybox-button\" title=\""+prod.money+"\" target=\"blank\" href=\"/assets"+abbr+"\">")
-						.append("<div class=\"zoom\">").append("<img src=\"/assets"+abbr+"\"  /> ").append("</div>"
+						.append("<a class=\"fancybox-button\" data-rel=\"fancybox-button\" title=\""+prod.money+"\" target=\"blank\" href=\""+urlHeader+abbr+"\">")
+						.append("<div class=\"zoom\">").append("<img src=\""+urlHeader+abbr+"\"  /> ").append("</div>"
 								+ "</a></div>");
 					 }
 					}catch(Exception e){
@@ -120,11 +122,13 @@ public class ScanController extends Controller{
 					}
 					encodeString=encodeString+"?"+pid;
 
-					try{
-					String basePath = Play.application().path().getPath();
+				try{
+					String basePath = UploadController.image_store_path;
+					String urlHeader = ConfigHelper.getString("image.url.header");
+						
 					String abbr = "/qr/pk_"+pid+".png";
 					
-					String imagePath = basePath+"/public/"+abbr;
+					String imagePath = basePath+abbr;
 					
 					File file = new File(imagePath);
 					if(!file.getParentFile().exists()){
@@ -137,8 +141,8 @@ public class ScanController extends Controller{
 					
 					if (ZXingUtil.encodeQRCodeImage(encodeString, null, imagePath, width, height, null)) {
 						imgHtml.append("<div class=\"row-fluid\">").append("<h4>"+prod.parkname+"<br/><small>"+prod.address+"</small></h4>")
-						.append("<a class=\"fancybox-button\" data-rel=\"fancybox-button\" title=\""+prod.parkname+"\" target=\"blank\" href=\"/assets"+abbr+"\">")
-						.append("<div class=\"zoom\">").append("<img src=\"/assets"+abbr+"\"  /> ").append("</div>"
+						.append("<a class=\"fancybox-button\" data-rel=\"fancybox-button\" title=\""+prod.parkname+"\" target=\"blank\" href=\"/"+urlHeader+abbr+"\">")
+						.append("<div class=\"zoom\">").append("<img src=\""+urlHeader+abbr+"\"  /> ").append("</div>"
 								+ "</a></div>");
 					 }
 					}catch(Exception e){

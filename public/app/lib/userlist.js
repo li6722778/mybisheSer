@@ -235,10 +235,6 @@ var UserList = function () {
 
 }();
 
-function deleteRemoteImage(imgId){
-    //confirm dialog
-	$( "#dialog_confirm" ).data("imgId",imgId).dialog( "open" );
-}
 
 jQuery(document).ready(function() {    
 	UserList.init();

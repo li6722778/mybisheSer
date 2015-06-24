@@ -13,9 +13,8 @@ var Index = function () {
               var url = $(this).attr("post");
               var pageContent = $('.page-content');
               var pageContentBody = $('.page-content .page-content-body');
-              window.console && console.log("post url:"+url);
+              window.console && console.log("index post url:"+url);
               App.blockUI(pageContent, false);
-
               $.post(url, {}, function (res) {
                       App.unblockUI(pageContent);
                       pageContentBody.html(res);
@@ -60,4 +59,5 @@ var Index = function () {
 jQuery(document).ready(function() {    
 	App.init();
 	Index.init();
+
 });

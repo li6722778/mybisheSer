@@ -175,7 +175,6 @@ var ParkingProd = function () {
 
 jQuery(document).ready(function() {    
 	ParkingProd.init();
-	
 });
 
 
