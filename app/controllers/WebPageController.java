@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import models.info.ChartCityEntity;
@@ -571,7 +573,16 @@ public class WebPageController extends Controller {
 									+ pid);
 							TuserInfo user = TuserInfo.findDataById(pid);
 							user.userType = type;
-							TuserInfo.saveData(user);
+							user.updateDate = new Date();
+							user.updatePerson=session("username");
+							
+							Set<String> options = new HashSet<String>();
+							options.add("userType");
+							options.add("updateDate");
+							options.add("updatePerson");
+							
+							Ebean.update(user,options);
+//							TuserInfo.saveData(user,options);
 
 							// 是一个车位管理员
 							if (type >= Constants.USER_TYPE_PADMIN

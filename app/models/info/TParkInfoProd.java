@@ -386,7 +386,7 @@ public class TParkInfoProd extends Model {
 				}
 				
 				//删除旧表数据
-				TParkInfo.deleteData(parkProdInfo.parkId);
+				TParkInfo.deleteDataOnly(parkProdInfo.parkId);
 			}
 		});
 	}

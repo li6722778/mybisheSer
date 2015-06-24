@@ -86,7 +86,7 @@ public class ChartCityEntity{
 		HashMap<String,List<ChartCityEntity>> map =new HashMap<String,List<ChartCityEntity>>();
 		
 		if(createPerson!=null&&!createPerson.trim().equals("")){
-			String sql = "select count(park_id) as countorder, date_format(create_date,'%m/%d/%Y') as datestring from tb_parking "
+			String sql = "select count(park_id) as countorder, date_format(create_date,'%m/%d/%Y') as datestring from (select a.park_id,a.create_person,a.create_date from tb_parking a union select b.park_id,b.create_person,b.create_date from tb_parking_prod b) c "
 					+ "where date_format(create_date,'%m%d') between date_format(date_sub(now(), interval 30 day),'%m%d') "
 					+ "and date_format(now(),'%m%d') and create_person like \"%"+createPerson+"%\" group by date_format(create_date,'%Y%m%d') order by create_date desc";
 			
@@ -101,7 +101,7 @@ public class ChartCityEntity{
 		}else{
 		List<ChartCityEntity> guys = getTop30Person();
 			for(ChartCityEntity c:guys){
-				String sql = "select count(park_id) as countorder, date_format(create_date,'%m/%d/%Y') as datestring from tb_parking "
+				String sql = "select count(park_id) as countorder, date_format(create_date,'%m/%d/%Y') as datestring from (select a.park_id,a.create_person,a.create_date from tb_parking a union select b.park_id,b.create_person,b.create_date from tb_parking_prod b) c "
 						+ "where date_format(create_date,'%m%d') between date_format(date_sub(now(), interval 30 day),'%m%d') "
 						+ "and date_format(now(),'%m%d') and create_person like \"%"+c.descri+"%\" group by date_format(create_date,'%Y%m%d') order by create_date desc";
 				
@@ -158,7 +158,7 @@ public class ChartCityEntity{
 	
 	
 	public static List<ChartCityEntity> getTop30City(){
-		String sql = "select distinct order_city from tb_order	where date_format(order_date,'%m%d') between date_format(date_sub(now(), interval 30 day),'%m%d') and date_format(now(),'%m%d')";
+		String sql = "select distinct order_city from (select * from tb_order a union select * from tb_order_his b ) c	where date_format(order_date,'%m%d') between date_format(date_sub(now(), interval 30 day),'%m%d') and date_format(now(),'%m%d')";
 		final RawSql rawSql = RawSqlBuilder.unparsed(sql).columnMapping("order_city", "descri").create();
 		final List<ChartCityEntity> ls = Ebean.find(ChartCityEntity.class).setRawSql(rawSql).findList();
 		return ls;
@@ -169,7 +169,7 @@ public class ChartCityEntity{
 	 * @return
 	 */
 	public static List<ChartCityEntity> getTop30Person(){
-		String sql = "select distinct create_person from tb_parking	where date_format(create_date,'%m%d') between date_format(date_sub(now(), interval 30 day),'%m%d') and date_format(now(),'%m%d')";
+		String sql = "select distinct create_person from (select a.create_person,a.create_date from tb_parking a union select b.create_person,b.create_date from tb_parking_prod b) c where date_format(create_date,'%m%d') between date_format(date_sub(now(), interval 30 day),'%m%d') and date_format(now(),'%m%d')";
 		final RawSql rawSql = RawSqlBuilder.unparsed(sql).columnMapping("create_person", "descri").create();
 		final List<ChartCityEntity> ls = Ebean.find(ChartCityEntity.class).setRawSql(rawSql).findList();
 		return ls;
