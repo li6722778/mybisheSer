@@ -308,28 +308,12 @@ public class WebPageController extends Controller {
 		
 		if (pidarray != null && pidarray.length() > 0) {
 			String[] pids = pidarray.split(",");
+			String userName = session("username");
 			for (String pidString : pids) {
 				try {
 					long pid = Long.parseLong(pidString);
 					Logger.debug("update for parkingprod:"+pid);
-					List<TParkInfoPro_Loc> result = TParkInfoPro_Loc.getLocationPointByParkingId(pid);
-					if(result!=null&&result.size()>0){
-						TParkInfoPro_Loc loc = result.get(0);
-						//判断其中一个点是否开放
-						int isopen = loc.isOpen;
-						for(TParkInfoPro_Loc tmp : result){
-							Logger.debug("update TParkInfoPro_Loc status:"+isopen+" to new status");
-							if(isopen!=1){
-								tmp.isOpen=1;
-								TParkInfoPro_Loc.saveData(tmp);
-							}else if(isopen==1){
-								tmp.isOpen=0;
-								TParkInfoPro_Loc.saveData(tmp);
-							}
-						}
-					}
-					
-					
+					TParkInfoPro_Loc.saveOpenCloseStatus(pid,userName);
 				} catch (Exception e) {
 					Logger.error("updateParkingOpenClose:" + pidString, e);
 				}

@@ -1,7 +1,9 @@
 package models.info;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,10 +20,8 @@ import play.db.ebean.Model;
 import utils.CommFindEntity;
 
 import com.avaje.ebean.Ebean;
-import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Page;
 import com.avaje.ebean.TxRunnable;
-import com.avaje.ebean.annotation.Transactional;
 import com.google.gson.annotations.Expose;
 
 @Entity
@@ -105,6 +105,57 @@ public class TParkInfoPro_Loc extends Model {
 					} else {
 						Ebean.update(bean);
 					}
+				
+				// -------------end----------------
+			}
+		});
+
+	}
+	
+	
+	public static void saveOpenCloseStatus(final long parkingId,final String updatedPerson) {
+
+		Ebean.execute(new TxRunnable() {
+			public void run() {
+					// ------------生成主键，所有插入数据的方法都需要这个-----------
+				List<TParkInfoPro_Loc> result = getLocationPointByParkingId(parkingId);
+				if(result!=null&&result.size()>0){
+					TParkInfoPro_Loc loc = result.get(0);
+					//判断其中一个点是否开放
+					int isopen = loc.isOpen;
+					for(TParkInfoPro_Loc tmp : result){
+						Logger.debug("update TParkInfoPro_Loc status:"+isopen+" to new status");
+						if(isopen!=1){
+							tmp.isOpen=1;
+							tmp.updateDate=new Date();
+							tmp.updatePerson=updatedPerson;
+							Set<String> updates = new HashSet<String>();
+							updates.add("isOpen");
+							updates.add("updateDate");
+							updates.add("updatePerson");
+							Ebean.update(tmp, updates);
+						}else if(isopen==1){
+							tmp.isOpen=0;
+							tmp.updateDate=new Date();
+							tmp.updatePerson=updatedPerson;
+							Set<String> updates = new HashSet<String>();
+							updates.add("isOpen");
+							updates.add("updateDate");
+							updates.add("updatePerson");
+							Ebean.update(tmp, updates);
+						}
+						
+//						TParkInfoProd prod = TParkInfoProd.findDataById(parkingId);
+//						prod.updateDate = new Date();
+//						prod.updatePerson = updatedPerson;
+//						
+//						Set<String> updatesParking = new HashSet<String>();
+//						updatesParking.add("updateDate");
+//						updatesParking.add("updatePerson");
+//						Ebean.update(prod, updatesParking);
+						
+					}
+				}
 				
 				// -------------end----------------
 			}

@@ -235,9 +235,9 @@ public class PayController extends Controller{
 						payment = new TOrder_Py();
 					}
 					
-					
+					Date currentDate = new Date();
 					dataBean.orderCity=city;
-					dataBean.orderDate = new Date();
+					dataBean.orderDate = currentDate;
 					dataBean.orderName="停车费:"+infoPark.parkname;
 					dataBean.orderStatus = Constants.ORDER_TYPE_START;
 					dataBean.parkInfo = infoPark;
@@ -248,10 +248,17 @@ public class PayController extends Controller{
 					payment.payActu=chebolePayOptions.payActualPrice;
 					payment.payMethod=chebolePayOptions.payActualPrice==0?Constants.PAYMENT_TYPE_CASH:Constants.PAYMENT_TYPE_ZFB;
 					payment.payTotal=chebolePayOptions.payOrginalPrice;
-					payment.ackStatus=Constants.PAYMENT_STATUS_START;
+					
+					if(chebolePayOptions.payActualPrice==0){
+						payment.ackStatus=Constants.PAYMENT_STATUS_FINISH;
+						payment.ackDate=currentDate;
+					}else{
+						payment.ackStatus=Constants.PAYMENT_STATUS_START;
+						payment.ackDate=null;
+					}
 					payment.createPerson=user.userName;
-					payment.payDate = new Date();
-					payment.ackDate=null;
+					payment.payDate = currentDate;
+					
 					payment.couponUsed=chebolePayOptions.counponUsedMoney;
 					
 					List<TOrder_Py> pays= new ArrayList<TOrder_Py>();
@@ -296,7 +303,14 @@ public class PayController extends Controller{
 					response.setResponseStatus(ComResponse.STATUS_OK);
 					response.setResponseEntity(chebolePayOptions);
 					response.setExtendResponseContext("订单数据生成成功，并且返回支付串.");
-					LogController.info("generator order successfully:"+dataBean.orderName+",from "+user.userPhone);
+					LogController.info("generated order and payment successfully:"+dataBean.orderName+
+							",from "+user.userPhone+",bill:"+chebolePayOptions.payActualPrice);
+					
+					if(chebolePayOptions.payActualPrice==0){
+						response.setExtendResponseContext("pass");
+						throw new Exception("当前您无需付费,请前往停车场扫码进场");
+					}
+					
 				}else{
 					throw new Exception("服务端数据不完整不能生成订单.");
 				}
