@@ -174,6 +174,11 @@ public class TOrderHis extends Model {
 					saveDataWithoutIDPolicy(orderHis);
 					Logger.debug(">>>>order moving end");
 
+					if(order.couponId>0){
+					    TUseCouponEntity.deleteUsedCoupon(order.couponId, order.userInfo.userid);
+					    Logger.debug(">>>>delete used coupon");
+					}
+					
 					TOrder.deleteData(orderId);
 				}
 				

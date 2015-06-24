@@ -612,7 +612,7 @@ public class PayController extends Controller{
 					if(couponEntity!=null){
 						realPayPrice = realPayPrice-couponEntity.money;
 						if(realPayPrice<0){
-							couponUsedMoney = realPayPrice;
+							couponUsedMoney = Arith.decimalPrice(couponEntity.money-Math.abs(realPayPrice));
 							realPayPrice = 0;
 						}else{
 							couponUsedMoney = couponEntity.money;
@@ -628,6 +628,7 @@ public class PayController extends Controller{
 				payOption.payOrginalPrice=Arith.decimalPrice(orginalPrice);
 				payOption.isDiscount=isDiscount;
 				payOption.useCounpon=useCounpon;
+				payOption.counponId=counponId;
 				payOption.counponUsedMoney=couponUsedMoney;
 				
 				//***************组合订单完毕******************
