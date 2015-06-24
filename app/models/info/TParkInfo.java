@@ -355,5 +355,19 @@ public class TParkInfo extends Model {
 			}
 		});
 	}
+	
+	/**
+	 * 删除数据但是不删除图片
+	 * 
+	 * @param id
+	 */
+	public static void deleteDataOnly(final Long id) {
+		Ebean.execute(new TxRunnable() {
+			public void run() {
+				//TParkInfo_Img.deleteExistImage(id);
+				Ebean.delete(TParkInfo.class, id);
+			}
+		});
+	}
 
 }

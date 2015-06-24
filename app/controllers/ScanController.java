@@ -5,6 +5,7 @@ import java.util.Date;
 
 import models.info.TCouponEntity;
 import models.info.TOrder;
+import models.info.TOrderHis;
 import models.info.TParkInfoProd;
 import play.Logger;
 import play.Play;
@@ -13,6 +14,7 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import utils.ComResponse;
 import utils.ConfigHelper;
+import utils.Constants;
 import utils.ZXingUtil;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -234,18 +236,24 @@ public class ScanController extends Controller{
 				
 				int feeType = parkinfo.feeType;
 				
+				order.startDate = new Date();
+				
 				if(feeType==1){//计时收费
-					
+					response.setExtendResponseContext("车辆进场扫码成功");
+					TOrder.saveData(order);
 				}else{//计次收费
+					response.setExtendResponseContext("pass");
+					order.orderStatus=Constants.PAYMENT_STATUS_FINISH;
 					
+					//***********已经完成的订单需要移到历史表**************/
+					TOrderHis.moveToHisFromOrder(orderId,Constants.ORDER_TYPE_FINISH);
 				}
 				
-				order.startDate = new Date();
-				TOrder.saveData(order);
+				
 				
 				response.setResponseStatus(ComResponse.STATUS_OK);
 				response.setResponseEntity(order);
-				response.setExtendResponseContext("车辆进场扫码成功");
+				
 				
 				LogController.debug("start to save caculate time for start date");
 				

@@ -249,13 +249,10 @@ public class PayController extends Controller{
 					payment.payMethod=chebolePayOptions.payActualPrice==0?Constants.PAYMENT_TYPE_CASH:Constants.PAYMENT_TYPE_ZFB;
 					payment.payTotal=chebolePayOptions.payOrginalPrice;
 					
-					if(chebolePayOptions.payActualPrice==0){
-						payment.ackStatus=Constants.PAYMENT_STATUS_FINISH;
-						payment.ackDate=currentDate;
-					}else{
-						payment.ackStatus=Constants.PAYMENT_STATUS_START;
-						payment.ackDate=null;
-					}
+					
+					payment.ackStatus=Constants.PAYMENT_STATUS_START;
+					payment.ackDate=null;
+					
 					payment.createPerson=user.userName;
 					payment.payDate = currentDate;
 					

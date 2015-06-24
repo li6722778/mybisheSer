@@ -33,28 +33,10 @@ public class CounponController extends Controller{
 	}
 	
 	
-	/*public static Result setcounpon()
-	{
-		
-		TCouponEntity counponbean=new TCouponEntity();
-		counponbean.isable=0;
-		counponbean.count=100;
-		counponbean.createName="wlw";
-		counponbean.money=100d;
-		counponbean.createDate=new Date();
-		counponbean.scancount=0;
-		counponbean.counponCode="bbb";
-		TCouponEntity.saveData(counponbean);
-		return ok("haha");
-		
-		
-	}
-	*/
-	
-	
-	
 	public static Result getcounpon(String counponcode,Long userid)
 	{
+		
+		
 		ComResponse<TCouponEntity>  response = new ComResponse<TCouponEntity>();
 		TCouponEntity counponbean=TCouponEntity.findentityByCode(counponcode);
 		TuserInfo useinfo;
@@ -65,6 +47,12 @@ public class CounponController extends Controller{
 			
 		}else
 		{
+			//判断是否已经有优惠券了
+			if(TUseCouponEntity.findExistCouponByUserIdAndId(counponbean.counponId, userid)){
+				Logger.debug("existing coupon!");
+				return ok();
+			}
+			
 			useinfo=TuserInfo.findDataById(userid);
 			if(useinfo==null)
 			{
@@ -96,7 +84,6 @@ public class CounponController extends Controller{
 				}
 				String tempJsonString = gsonBuilderWithExpose.toJson(response);
 				JsonNode json = Json.parse(tempJsonString);
-				Logger.info("getcounpon result@@@@@@@:" + tempJsonString);
 				return ok(json);
 			}
 			

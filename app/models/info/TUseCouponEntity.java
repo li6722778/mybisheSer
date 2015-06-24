@@ -73,6 +73,18 @@ public class TUseCouponEntity extends Model{
 		
 		
 		/**
+		 * 查找当前用户是否有优惠券
+		 * @param id
+		 * @param userid
+		 * @return
+		 */
+		public static boolean findExistCouponByUserIdAndId(long id,long userid) {
+			int total = find.where().eq("counponId", id).eq("userid", userid).findRowCount();
+			return total>0?true:false;
+		}
+		
+		
+		/**
 		 * 得到所有数据，有分页
 		 * 
 		 * @param currentPage

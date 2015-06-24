@@ -183,7 +183,7 @@ var ParkingList = function () {
        	      			window.console && console.log("uri:"+parkingIdArray)
        	      			
        	      			 $.get("/w/parking/approve?p="+parkingIdArray,function(data){
-       	      				window.console && console.log("delete total:"+data)
+       	      				window.console && console.log("approve total:"+data)
          	      				App.unblockUI(pageContent);
          	      			    warndialog.dialog( "close" );
          	      			    $('#parking').click();
