@@ -21,6 +21,9 @@ import utils.Constants;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Page;
+import com.avaje.ebean.Query;
+import com.avaje.ebean.SqlQuery;
+import com.avaje.ebean.SqlRow;
 import com.avaje.ebean.TxRunnable;
 import com.google.gson.annotations.Expose;
 
@@ -87,7 +90,40 @@ public class TIncome extends Model {
 			}
 		});
 	}
+	
+	public static double findDonePayment(){
+		String sql = "SELECT sum(incometotal) as count FROM tb_income";
+		SqlQuery sq = Ebean.createSqlQuery(sql);
+		SqlRow sqlRow = sq.findUnique();
+		Double db = sqlRow.getDouble("count");
+		return  db==null?0: db;
+	}
 
+	
+	public static Page<TIncome> pageByTypeAndFilter(int currentPage,
+			int pageSize, String orderBy,String filter) {
+
+		ExpressionList<TIncome> elist = find.where();
+
+		if (filter!=null&&!filter.trim().equals("")) {
+			//elist.eq("parkId", filter);
+			 String oql = "find TParkInfoProd(parkId) where TParkInfoProd.parkname like :parkname ";
+				   
+				 Query<TParkInfoProd> query = Ebean.createQuery(TParkInfoProd.class).select("parkId").where().ilike("parkname", "%"+filter+"%").query();
+			     elist.in("t0.parkId", query);
+		}
+		Page<TIncome> allData = elist.orderBy(orderBy).fetch("parkInfo")
+				.findPagingList(pageSize).setFetchAhead(false)
+				.getPage(currentPage);
+		
+		if (allData.getList() != null) {
+			for (TIncome in : allData.getList()) {
+				in.incometoday = getTodayIncome(in.parkInfo.parkId);
+			}
+		}
+		return allData;
+	}
+	
 	/**
 	 * 保存对应的收益
 	 * 

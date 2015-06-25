@@ -188,10 +188,10 @@
 								            正在付款
 								    }
 								    @if(TParkInfo_Py.ackStatus==2){
-								             付款成功
+								            <span class="label label-success">付款成功</span> 
 								    }
 								    @if(TParkInfo_Py.ackStatus==3){
-								            付款失败或取消付款
+								           <span class="label label-warning">付款失败或取消付款</span> 
 								    } 
 								    @if(TParkInfo_Py.ackStatus==5){
 								            支付连接中

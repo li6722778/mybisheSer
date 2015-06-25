@@ -1,0 +1,192 @@
+@(entityBean: com.avaje.ebean.Page[models.info.TIncome], 
+currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
+
+
+	<link href="@routes.Assets.at("stylesheets/search.css")" rel="stylesheet" />
+             <!-- BEGIN PAGE HEADER-->
+				<div class="row-fluid">
+
+					<div class="span12">
+
+						<!-- BEGIN STYLE CUSTOMIZER -->
+						<!-- END BEGIN STYLE CUSTOMIZER --> 
+
+						<!-- BEGIN PAGE TITLE & BREADCRUMB-->
+
+						<h3 class="page-title">
+							停车场收益 <small>显示各个停车场的收益</small>
+						</h3>
+
+						<ul class="breadcrumb">
+
+							<li>
+
+								<i class="icon-home"></i>
+
+								<a href="/">主页</a> 
+
+								<i class="icon-angle-right"></i>
+
+							</li>
+
+							<li><a href="javascript:;">
+							 停车场收益 
+							</a></li>
+							
+						</ul>
+
+						<!-- END PAGE TITLE & BREADCRUMB-->
+					</div>
+				</div>
+				<!-- END PAGE HEADER-->
+				
+				
+				<!-- BEGIN EXAMPLE TABLE PORTLET-->
+
+						<div class="portlet box grey" id="loglist">
+
+							<div class="portlet-title">
+
+								<div class="caption"><i class="icon-money"></i>
+								停车场收益 
+								
+								</div>
+
+								<div class="tools">
+									<a href="javascript:;" class="reload"></a>
+								</div>
+
+							</div>
+
+							<div class="portlet-body">
+                               <div class="row-fluid">
+                               	<div class="btn-group pull-left">    
+								     <div class="input-append">
+									   <input class="m-wrap" size="10" id="key_search_income" value="@filter" type="text" placeholder="请输入停车场关键字" /><button class="btn green"  id="searchIncomeButton">搜索</button>
+									</div>
+						       </div> 
+                            </div>
+
+	              @for(TIncome <- entityBean.getList) {
+								<div class="row-fluid portfolio-block">
+								
+									<div class="span5 portfolio-text">
+
+                                       @if(TIncome.parkInfo!=null&&TIncome.parkInfo.imgUrlArray!=null&&TIncome.parkInfo.imgUrlArray.length>0){
+                                            <img class="img-thumbnail" style="max-width:120px;max-height:100px" src="@TIncome.parkInfo.imgUrlArray.get(0).imgUrlHeader@TIncome.parkInfo.imgUrlArray.get(0).imgUrlPath" alt="">
+                                        }else{
+                                           <img class="img-thumbnail" style="max-width:120px;max-height:100px" src="/assets/image/logo_cbl.png" >
+                                        }
+                             
+										<div class="portfolio-text-info">
+
+											<h4> @if(TIncome.parkInfo!=null){ @TIncome.parkInfo.parkname }</h4>
+
+											<p>@if(TIncome.parkInfo!=null){ @TIncome.parkInfo.address }</p>
+
+										</div>
+
+									</div>
+
+									<div class="span5">
+
+										<div class="portfolio-info">
+
+											今日收益
+
+											<span>¥@TIncome.incometoday</span>
+
+										</div>
+
+										<div class="portfolio-info">
+
+											全部收益
+
+											<span>¥@TIncome.incometotal</span>
+
+										</div>
+
+										<div class="portfolio-info">
+
+											最近一次交易时间
+
+											<span>@if(TIncome.updateDate!=null){ @TIncome.updateDate.format("yyyy-MM-dd HH:mm:ss") }</span>
+
+										</div>
+
+									</div>
+                                   <!--  
+									<div class="span2 portfolio-btn">
+
+										<a href="#" class="btn bigicn-only"><span>详细</span></a>                        
+
+									</div>
+                                    -->
+								</div>
+
+                               
+                                }
+                               
+                               
+                               
+				
+						    </div>
+
+							
+
+					            <div id="pagination" class="pagination">
+					               <ul>
+						                @if(entityBean.hasPrev) {
+						                    <li class="prev">
+						                        <a class="ajaxify" href="javascript:;"  post="/w/income?p=@(entityBean.getPageIndex - 1)&f=@flash.get("filter") ">&larr; 上一页</a>
+						                    </li>
+						                } else {
+						                    <li class="prev disabled">
+						                        <a>&larr; 上一页</a>
+						                    </li>
+						                }
+						                <li class="current">
+						                    <a>显示 @entityBean.getDisplayXtoYofZ(" to "," of ")</a>
+						                </li>
+						                @if(entityBean.hasNext) {
+						                    <li class="next">
+						                        <a class="ajaxify"  href="javascript:;" post="/w/income?p=@(entityBean.getPageIndex + 1)&f=@flash.get("filter") ">下一页 &rarr;</a>
+						                    </li>
+						                } else {
+						                    <li class="next disabled">
+						                        <a>下一页 &rarr;</a>
+						                    </li>
+						                }
+					               </ul>
+					             </div>
+					             
+					             <div class="clearfix">
+									<div class="alert">
+									<button class="close" data-dismiss="alert"></button>
+									<strong>注意!</strong>只统计交易完成的订单交易额作为停车场收益
+								</div>
+							</div>
+
+						</div>
+
+<script>
+$('#searchIncomeButton').click(function(){
+	App.scrollTop();
+	 var type = jQuery(this).attr("type");
+	     var key = $("#key_search_income").val();
+	     var pageContent = $('.page-content');
+	     var pageContentBody = $('.page-content .page-content-body');
+	  
+     App.blockUI(pageContent, false);
+     
+	  $.post("/w/income?f="+key, {}, function (res) {
+      App.unblockUI(pageContent);
+      pageContentBody.html(res);
+      App.fixContentHeight(); // fix content height
+      App.initUniform(); // initialize uniform elements
+     
+  });
+	 
+ });
+</script>
+					

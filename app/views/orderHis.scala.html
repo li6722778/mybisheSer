@@ -105,7 +105,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String, city:String,filter:Stri
 											<td class="hidden-480">
 											@if(TOrder.pay!=null&&TOrder.pay.length>0){
 												     @for(TParkInfo_Py <- TOrder.pay) {
-												          @TParkInfo_Py.payActu 
+												          ¥@TParkInfo_Py.payActu 
 												     }
 											     
 											}

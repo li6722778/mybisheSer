@@ -139,6 +139,8 @@ GET      /w/order/setexception                       controllers.WebPageControll
 POST      /w/orderchart                          controllers.WebPageController.gotoOrderChart()
 GET      /w/order/delete                        controllers.WebPageController.deleteOrder(p ?= "")
 
+POST      /w/income                        controllers.WebPageController.gotoIncome(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc", f ?="")
+
 POST      /w/coupon/add                          controllers.WebPageController.gotoCouponAdd()
 POST      /w/coupon                              controllers.WebPageController.gotoCoupon(p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",f ?="")
 POST      /w/coupon/add/submit                   controllers.WebPageController.saveCouponData()

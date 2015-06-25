@@ -11,10 +11,10 @@ import java.util.UUID;
 
 import models.info.ChartCityEntity;
 import models.info.TCouponEntity;
+import models.info.TIncome;
 import models.info.TLog;
 import models.info.TOrder;
 import models.info.TOrderHis;
-import models.info.TOrder_Py;
 import models.info.TParkInfo;
 import models.info.TParkInfoPro_Loc;
 import models.info.TParkInfoProd;
@@ -55,7 +55,7 @@ public class WebPageController extends Controller {
 
 		int userCount = TuserInfo.findCount();
 
-		double paymentCount = TOrder_Py.findDonePayment();
+		double paymentCount = TIncome.findDonePayment();
 
 		Logger.debug("summary information,parkingProdCount->"
 				+ parkingProdCount + ",orderCount->" + orderCount
@@ -981,6 +981,23 @@ public class WebPageController extends Controller {
 		
 		return gotoCoupon(currentPage, pageSize,
 				orderBy, searchObj);
+	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoIncome(int currentPage, int pageSize,
+			String orderBy, String filter) {
+		Logger.debug("goto gotoIncome,filter" + filter);
+		Page<TIncome> allData = TIncome.pageByTypeAndFilter(currentPage,
+				pageSize, orderBy, filter);
+
+		flash("filter", filter);
+		if (allData != null) {
+			Logger.debug("##########goto gotoUser,total:"
+					+ allData.getTotalRowCount());
+		}
+
+		return ok(views.html.income.render(allData, currentPage, pageSize,
+				orderBy, filter));
 	}
 
 }

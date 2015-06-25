@@ -2,10 +2,6 @@
 currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
 
 
-	<link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/select2_metro.css")" />
-
-	<link rel="stylesheet" href="@routes.Assets.at("stylesheets/DT_bootstrap.css")" />
-	<link href="@routes.Assets.at("stylesheets/bootstrap-modal.css")" rel="stylesheet" type="text/css"/>
 
              <!-- BEGIN PAGE HEADER-->
 				<div class="row-fluid">
@@ -143,23 +139,22 @@ currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
 						</div>
 
 <script>
-$('#loglist .ajaxify').on('click', '', function (e) {
-    e.preventDefault();
-    App.scrollTop();
-    var url = $(this).attr("post");
-    var pageContent = $('.page-content');
-    var pageContentBody = $('.page-content .page-content-body');
-
-    App.blockUI(pageContent, false);
-
-    window.console && console.log("post url:"+url);
-    
-    $.post(url, {}, function (res) {
-            App.unblockUI(pageContent);
-            pageContentBody.html(res);
-            App.fixContentHeight(); // fix content height
-            App.initUniform(); // initialize uniform elements
-        });
-   });
+$('#searchLogButton').click(function(){
+	App.scrollTop();
+	     var key = $("#key_search_log").val();
+	     var pageContent = $('.page-content');
+	     var pageContentBody = $('.page-content .page-content-body');
+	  
+     App.blockUI(pageContent, false);
+     
+	  $.post("/w/log?f="+key, {}, function (res) {
+      App.unblockUI(pageContent);
+      pageContentBody.html(res);
+      App.fixContentHeight(); // fix content height
+      App.initUniform(); // initialize uniform elements
+     
+  });
+	 
+ });
 </script>
 					
