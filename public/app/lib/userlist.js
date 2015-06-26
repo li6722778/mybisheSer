@@ -157,6 +157,7 @@ var UserList = function () {
   	    	 var p = jQuery(this).attr("p");
   	    	 var k = jQuery(this).attr("k");
   	    	 var v = jQuery(this).attr("v");
+  	    	$("#form_modal3_adm .modal-body").html("请等待");
   	    	 //get total of parking
           	 $.get("/w/adm/park/"+userid+"?p="+p,function(result){
           		 if(result){
@@ -172,6 +173,7 @@ var UserList = function () {
         	    	 var p = jQuery(this).attr("p");
         	    	 var k = jQuery(this).attr("k");
         	    	 var v = jQuery(this).attr("v");
+        	    	 $("#form_modal3 .modal-body").html("请等待");
         	    	 //get total of parking
                 	 $.get("/w/parkingprodpopup?p="+p+"&k="+k+"&v="+v,function(result){
                 		 if(result){
