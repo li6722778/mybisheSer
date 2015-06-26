@@ -2,13 +2,14 @@ package controllers;
 
 import java.io.File;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import models.info.TCouponEntity;
 import models.info.TOrder;
 import models.info.TOrderHis;
 import models.info.TParkInfoProd;
 import play.Logger;
-import play.Play;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -17,6 +18,7 @@ import utils.ConfigHelper;
 import utils.Constants;
 import utils.ZXingUtil;
 
+import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -244,7 +246,11 @@ public class ScanController extends Controller{
 				}else{//计次收费
 					response.setExtendResponseContext("pass");
 					order.orderStatus=Constants.PAYMENT_STATUS_FINISH;
-					
+					order.startDate=new Date();
+					Set<String> options = new HashSet<String>();
+					options.add("orderStatus");
+					options.add("startDate");
+					Ebean.update(order, options);
 					//***********已经完成的订单需要移到历史表**************/
 					TOrderHis.moveToHisFromOrder(orderId,Constants.ORDER_TYPE_FINISH);
 				}

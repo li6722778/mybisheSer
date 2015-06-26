@@ -121,7 +121,7 @@ public class SMSController extends Controller{
 	 * 请求验证码
 	 * @return
 	 */
-	public static Result requestSMSVerify(long phone){
+	public static Result requestSMSVerify(final long phone){
 		Logger.info("start to request SMS verification to:"+phone);
 
 		
@@ -190,7 +190,7 @@ public class SMSController extends Controller{
 		            Logger.info("SMS Response:"+jsonString);
 		            
 		    	    Akka.system().scheduler().scheduleOnce(
-		    	            Duration.create(Constants.SCHEDULE_TIME_DELETE_VERIFYCODE, TimeUnit.MILLISECONDS),
+		    	            Duration.create(Constants.SCHEDULE_TIME_DELETE_VERIFYCODE, TimeUnit.SECONDS),
 		    	            new Runnable() {
 		    	                public void run() {
 		    	                	 Logger.debug("#######AKKA schedule start>> TVerifyCode.deletePhone:"+phone+"#########");

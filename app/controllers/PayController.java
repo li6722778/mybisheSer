@@ -130,7 +130,7 @@ public class PayController extends Controller{
 		orderInfo += "&total_fee=" + "\"" + price + "\"";
 
 		// 服务器异步通知页面路径
-		orderInfo += "&notify_url=" + "\"" + ""+NOTIFY_AILIPAY+""+ "\"";
+		orderInfo += "&notify_url=" + "\"" +NOTIFY_AILIPAY+ "\"";
 
 		// 服务接口名称， 固定值
 		orderInfo += "&service=\"mobile.securitypay.pay\"";
@@ -718,7 +718,7 @@ public class PayController extends Controller{
 	 * 
 	 * @param orderid
 	 */
-	public static void scheduleTaskForOverdue(long orderid, long payId){
+	public static void scheduleTaskForOverdue(final long orderid, final long payId){
 		
 		Logger.debug("#######start one thread to run overdue task, order:"+orderid+",payid:"+payId+"#########");
 		try{
@@ -742,7 +742,7 @@ public class PayController extends Controller{
 					
 				    if(time>0){
 				    	Akka.system().scheduler().scheduleOnce(
-			    	            Duration.create(time, TimeUnit.MILLISECONDS),
+			    	            Duration.create(time, TimeUnit.MINUTES),
 			    	            new Runnable() {
 			    	                public void run() {
 			    	                	 Logger.debug("#######AKKA schedule start>> set order to overdue:"+orderid+"#########");

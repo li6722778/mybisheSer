@@ -201,6 +201,10 @@ public class OrderController extends Controller {
 		JsonNode json = Json.parse(tempJsonString);
 		return ok(json);
 	}
+	/**
+	 * 激活订单
+	 * @return
+	 */
 	@BasicAuth
 	public static Result restartorder(){
 		String request = request().body().asJson().toString();
@@ -209,13 +213,13 @@ public class OrderController extends Controller {
 		TOrder data = gsonBuilderWithExpose.fromJson(request, TOrder.class);
 		ComResponse<TOrder>  response = new ComResponse<TOrder>();
 		try {
-			data.endDate = new Date();
+			//data.endDate = new Date();
 			data.orderStatus = Constants.ORDER_TYPE_START;
 			TOrder.saveData(data);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(data);
 			response.setExtendResponseContext("更新数据成功.");
-			LogController.info("save end time:"+data.orderName);
+			LogController.info("open valid order manually for "+data.orderName);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
