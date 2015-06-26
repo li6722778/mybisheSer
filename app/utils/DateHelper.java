@@ -382,6 +382,13 @@ public class DateHelper {
         return canlendar.getTime();
     }
     
+    public static Date currentDateAddWithType(int calendarType,int minute) {
+        // 日期处理模块 (将日期加上某些天或减去天数)返回字符串
+        Calendar canlendar = Calendar.getInstance(); // java.util包
+        canlendar.add(calendarType, minute); // 日期减 如果不够减会将月变动
+        return canlendar.getTime();
+    }
+    
     
     public static void main(String[] args){
     	int mins = DateHelper.diffDateForMin(DateHelper.getStringtoTimestamp("2015/06/16 16:50:00"), DateHelper.getStringtoTimestamp("2015/06/16 15:30:00"));

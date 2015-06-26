@@ -6,6 +6,7 @@ import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -593,15 +594,18 @@ public class PayController extends Controller{
 				boolean isDiscount=false;
 				boolean useCounpon = false;
 				double couponUsedMoney=0.0d;
+				int keepMinus = 0;
 				
 				//计算价格
 				if(infoPark.feeType!=1){//计次收费,就先付了
 					realPayPrice = infoPark.feeTypefixedHourMoney;
 					orginalPrice = infoPark.feeTypefixedHourMoney;
+					keepMinus = infoPark.feeTypeFixedMinuteOfInActivite;
 
 				}else if(infoPark.feeType==1){//分段收费
 					realPayPrice = infoPark.feeTypeSecInScopeHourMoney;
 					orginalPrice = infoPark.feeTypeSecInScopeHourMoney;
+					keepMinus = infoPark.feeTypeSecMinuteOfActivite;
 				   //先收1个小时内的钱
 				}
 				
@@ -636,6 +640,15 @@ public class PayController extends Controller{
 				payOption.useCounpon=useCounpon;
 				payOption.counponId=counponId;
 				payOption.counponUsedMoney=couponUsedMoney;
+				if(keepMinus>0){
+				   try{
+				   payOption.keepToDate = DateHelper.format(DateHelper.currentDateAddWithType(Calendar.MINUTE,keepMinus),"yyyy-MM-dd HH:mm:ss");
+				   }catch(Exception e){
+					   Logger.error("getRealPayInfo",e);
+				   }
+				}else{
+					payOption.keepToDate ="--:--";
+				}
 				
 				//***************组合订单完毕******************
 				response.setResponseStatus(ComResponse.STATUS_OK);

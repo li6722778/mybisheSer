@@ -1,5 +1,7 @@
 package models;
 
+import java.util.Date;
+
 import models.info.TOrder;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -32,4 +34,7 @@ public class ChebolePayOptions {
 	public boolean useCounpon;
 	@Expose
 	public long counponId;
+	
+	@Expose
+	public String keepToDate;
 }
