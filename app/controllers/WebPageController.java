@@ -51,7 +51,7 @@ public class WebPageController extends Controller {
 
 		int parkingProdCount = TParkInfoProd.findCount();
 
-		int orderCount = TOrder.findDoneCount();
+		int orderCount = TOrder.findAllCount()+TOrderHis.findAllCount();
 
 		int userCount = TuserInfo.findCount();
 

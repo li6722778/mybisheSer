@@ -99,8 +99,8 @@ public class TOrder extends Model {
 	 * 得到总数
 	 * @return
 	 */
-	public static int findDoneCount(){
-		return find.where().eq("orderStatus", Constants.ORDER_TYPE_FINISH).findRowCount();
+	public static int findAllCount(){
+		return find.findRowCount();
 	}
 	
 	/**

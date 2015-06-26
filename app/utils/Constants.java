@@ -33,4 +33,9 @@ public class Constants {
 	public static final int USER_TYPE_MADMIN=30;
 	public static final int USER_TYPE_MSADMIN=31;
 	public static final int USER_TYPE_SADMIN=999;
+	
+	//删除验证码的时间
+	public static final int SCHEDULE_TIME_DELETE_VERIFYCODE=120;
+	
+	
 }

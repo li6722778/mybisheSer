@@ -2,17 +2,20 @@ package controllers;
 
 import java.util.Date;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import models.info.TVerifyCode;
 import models.info.TuserInfo;
 import play.Logger;
 import play.libs.F.Function;
+import play.libs.Akka;
 import play.libs.Json;
 import play.libs.ws.WS;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
 import play.mvc.Controller;
 import play.mvc.Result;
+import scala.concurrent.duration.Duration;
 import utils.ConfigHelper;
 import utils.Constants;
 import utils.DateHelper;
@@ -185,6 +188,17 @@ public class SMSController extends Controller{
 		        	JsonNode jsonString = response.asJson();
 		        	
 		            Logger.info("SMS Response:"+jsonString);
+		            
+		    	    Akka.system().scheduler().scheduleOnce(
+		    	            Duration.create(Constants.SCHEDULE_TIME_DELETE_VERIFYCODE, TimeUnit.MILLISECONDS),
+		    	            new Runnable() {
+		    	                public void run() {
+		    	                	 Logger.debug("#######AKKA schedule start>> TVerifyCode.deletePhone:"+phone+"#########");
+		    	                	 TVerifyCode.deletePhone(phone);
+		    	                }
+		    	            },
+		    	            Akka.system().dispatcher()
+		    	    );
 		        	
 		            return ok();
 		        }});

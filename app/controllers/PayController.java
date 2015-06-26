@@ -7,19 +7,24 @@ import java.security.PrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import models.ChebolePayOptions;
 import models.info.TCouponEntity;
 import models.info.TOrder;
 import models.info.TOrderHis;
-import models.info.TParkInfoProd;
 import models.info.TOrder_Py;
+import models.info.TParkInfoProd;
 import models.info.TuserInfo;
 import play.Logger;
+import play.libs.Akka;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+import scala.concurrent.duration.Duration;
 import utils.Arith;
 import utils.ComResponse;
 import utils.ConfigHelper;
@@ -27,6 +32,7 @@ import utils.Constants;
 import utils.DateHelper;
 import action.BasicAuth;
 
+import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -124,7 +130,7 @@ public class PayController extends Controller{
 		orderInfo += "&total_fee=" + "\"" + price + "\"";
 
 		// 服务器异步通知页面路径
-		orderInfo += "&notify_url=" + "\"" +NOTIFY_AILIPAY+ "\"";
+		orderInfo += "&notify_url=" + "\"" + ""+NOTIFY_AILIPAY+""+ "\"";
 
 		// 服务接口名称， 固定值
 		orderInfo += "&service=\"mobile.securitypay.pay\"";
@@ -146,7 +152,7 @@ public class PayController extends Controller{
 		// orderInfo += "&extern_token=" + "\"" + extern_token + "\"";
 
 		// 支付宝处理完请求后，当前页面跳转到商户指定页面的路径，可空
-		orderInfo += "&return_url=\"\"";
+		orderInfo += "&return_url=\"m.alipay.com\"";
 
 		// 调用银行卡支付，需配置此参数，参与签名， 固定值 （需要签约《无线银行卡快捷支付》才能使用）
 		// orderInfo += "&paymethod=\"expressGateway\"";
@@ -708,6 +714,66 @@ public class PayController extends Controller{
 		return newPrice;
 	}
 	
+	/**
+	 * 
+	 * @param orderid
+	 */
+	public static void scheduleTaskForOverdue(long orderid, long payId){
+		
+		Logger.debug("#######start one thread to run overdue task, order:"+orderid+",payid:"+payId+"#########");
+		try{
+		Thread newThread = new Thread(new Runnable(){
+
+			@Override
+			public void run() {
+				TOrder order = TOrder.findDataById(orderid);
+				TParkInfoProd parking =  order.parkInfo;
+				if(order!=null&&parking!=null&&order.startDate==null){
+					
+					//取出支付成功的时间
+					Date payDate = new Date();
+					
+					int time = 0;
+					if(parking.feeType==1){//分段计费的情况下
+					    time = parking.feeTypeSecMinuteOfActivite;
+					}else{
+						time = parking.feeTypeFixedMinuteOfInActivite;
+					}
+					
+				    if(time>0){
+				    	Akka.system().scheduler().scheduleOnce(
+			    	            Duration.create(time, TimeUnit.MILLISECONDS),
+			    	            new Runnable() {
+			    	                public void run() {
+			    	                	 Logger.debug("#######AKKA schedule start>> set order to overdue:"+orderid+"#########");
+			    	                	 TOrder order = TOrder.findDataById(orderid);
+			    	                	 if(order!=null&&order.startDate==null){
+			    	                		 order.orderStatus = Constants.ORDER_TYPE_OVERDUE;
+			    	                		 
+			    	                		 Set<String> options = new HashSet<String>();
+			    	                		 options.add("orderStatus");
+			    	                		 Ebean.update(order, options);
+			    	                		 Logger.debug("#######AKKA schedule end>> done for overdue:"+orderid+"#########");
+			    	                		 
+			    	                	 }
+			    	                	 
+			    	                }
+			    	            },
+			    	            Akka.system().dispatcher()
+			    	    );
+				    }
+				}
+				
+			}
+			
+		});
+		
+		newThread.start();
+		
+		}catch(Exception e){
+			Logger.error("scheduleTaskForOverdue", e);
+		}
+	}
 	
 	@BasicAuth
 	public static Result updatePayment(long orderid, long payId,int status, String needfinishedOrder){
@@ -725,8 +791,11 @@ public class PayController extends Controller{
 					if(orderid>0&&needfinishedOrder!=null&&needfinishedOrder.trim().equals("true")){
 						//***********已经完成的订单需要移到历史表**************/
 						TOrderHis.moveToHisFromOrder(orderid ,Constants.ORDER_TYPE_FINISH);
+					}else{
+						//开始一个任务去设置过期任务
+						scheduleTaskForOverdue(orderid,payId);
 					}
-					LogController.info("payment done for "+payId);
+					LogController.info("payment done for payment id:"+payId+",order id:"+orderid);
 				}else if(status == Constants.PAYMENT_STATUS_PENDING){
 					order.ackDate = new Date();
 					order.ackStatus = Constants.PAYMENT_STATUS_PENDING;
