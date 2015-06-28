@@ -903,7 +903,7 @@ public class PayController extends Controller{
 	public static Result notifyPayResult(){
 		Logger.info("###########get feedback from aili post#############");
 		try {
-			String request = request().body().asXml().toString();
+			String request = request().body().asText().toString();
 			LogController.info("pay notify: "+request,"alipay");
 		}catch(Exception e){
 			LogController.info("pay notify:"+e.getMessage(),"alipay");

@@ -1,7 +1,9 @@
 package models.info;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -94,6 +96,23 @@ public class TUseCouponEntity extends Model {
 			}
 		});
 
+	}
+	
+	public static void setUseCoupon(final long id, final long userid){
+		
+		List<TUseCouponEntity> all = find.where().eq("counponId", id)
+				.eq("userid", userid).findList();
+		if (all != null) {
+			for (TUseCouponEntity useCoouponEntity : all) {
+				useCoouponEntity.useDate = new Date();
+				useCoouponEntity.isable = 0;
+				Set<String> options = new HashSet<String>();
+				options.add("isable");
+				options.add("useDate");
+				Ebean.update(useCoouponEntity, options);
+			}
+		}
+		
 	}
 
 	/**

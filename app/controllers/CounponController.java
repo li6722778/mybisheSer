@@ -11,6 +11,7 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import utils.ComResponse;
 import utils.CommFindEntity;
+import action.BasicAuth;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
@@ -33,6 +34,7 @@ public class CounponController extends Controller{
 	}
 	
 	
+	@BasicAuth
 	public static Result getcounpon(String counponcode,Long userid)
 	{
 		
@@ -88,6 +90,7 @@ public class CounponController extends Controller{
 					databean.Id=null;
 					databean.userInfo=useinfo;
 					databean.counponentity=counponbean;
+					databean.isable = 1;
 					TUseCouponEntity.saveData(databean);
 					//更新优惠信息表
 					counponbean.scancount=counponbean.scancount+1;
@@ -96,7 +99,7 @@ public class CounponController extends Controller{
 					response.setResponseStatus(ComResponse.STATUS_OK);
 					response.setResponseEntity(counponbean);
 					response.setExtendResponseContext("更新数据成功.");
-					LogController.info("save comments data:"+counponbean.scancount);
+					LogController.info("save coupon data:"+counponbean.counponCode);
 				} catch (Exception e) {
 					response.setResponseStatus(ComResponse.STATUS_FAIL);
 					response.setErrorMessage(e.getMessage());
@@ -113,41 +116,7 @@ public class CounponController extends Controller{
 		
 		
 	}
-	
-	public static Result usecounpon(Long id,Long userid)
-	{
-		ComResponse<TUseCouponEntity>  response = new ComResponse<TUseCouponEntity>();
-		TUseCouponEntity usecounponbean=TUseCouponEntity.findDataById(id);
-		if(usecounponbean.userInfo.userid!=userid||usecounponbean.isable!=0)
-		{
-			return ok();
-			
-			
-		}else
-		{
-			try{
-			usecounponbean.isable=1;
-			TUseCouponEntity.saveData(usecounponbean);
-			response.setResponseStatus(ComResponse.STATUS_OK);
-			response.setResponseEntity(usecounponbean);
-			response.setExtendResponseContext("更新数据成功.");
-			}catch (Exception e) {
-				response.setResponseStatus(ComResponse.STATUS_FAIL);
-				response.setErrorMessage(e.getMessage());
-				Logger.error("", e);
-			}
-			String tempJsonString = gsonBuilderWithExpose.toJson(response);
-			JsonNode json = Json.parse(tempJsonString);
-			return ok(json);
-		}
 		
-		
-		
-		
-	}
-	
-	
-	
 	
 	
 }

@@ -261,7 +261,7 @@ public class ScanController extends Controller{
 				response.setResponseEntity(order);
 				
 				
-				LogController.debug("start to save caculate time for start date");
+				LogController.debug("start to save calculated time for entrance date");
 				
 			} catch (Exception e) {
 				response.setResponseStatus(ComResponse.STATUS_FAIL);
