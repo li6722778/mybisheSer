@@ -681,7 +681,7 @@ public class WebPageController extends Controller {
 	}
 	
 	@Security.Authenticated(SecurityController.class)
-	public static Result gotoDetailOrderHis(long orderId) {
+	public static Result gotoDetailOrderHis(long orderId,String from) {
 		Logger.debug("goto gotoDetailOrder");
 		TOrderHis allData = TOrderHis.findDataById(orderId);
 
@@ -702,6 +702,8 @@ public class WebPageController extends Controller {
 		// }
 		//
 		// flash("makerString", makerString);
+		
+		flash("from",from);
 
 		return ok(views.html.orderdetailhis.render(allData));
 	}
@@ -998,6 +1000,31 @@ public class WebPageController extends Controller {
 
 		return ok(views.html.income.render(allData, currentPage, pageSize,
 				orderBy, filter));
+	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoIncomeDetailOrderHis(int currentPage, int pageSize,
+			String orderBy, long parkId, String filter) {
+		Logger.debug("goto gotoIncomeDetailOrderHis,parkingid" + parkId);
+		Page<TOrderHis> allData = TOrderHis.pageByFilterForPark(currentPage, pageSize,
+				orderBy, parkId, filter);
+
+		if (allData != null) {
+			Logger.debug("##########goto gotoUser,total:"
+					+ allData.getTotalRowCount());
+			if(allData.getList()!=null&&allData.getList().size()>0){
+				TParkInfoProd park = allData.getList().get(0).parkInfo;
+				flash("parkname",park.parkname);
+				flash("parkaddress",park.address);
+			}else{
+				flash("parkname","未知ID:"+parkId);
+				flash("parkaddress","");
+			}
+			
+		}
+
+		return ok(views.html.incomeDetail.render(allData, currentPage, pageSize,
+				orderBy, parkId, filter));
 	}
 
 }

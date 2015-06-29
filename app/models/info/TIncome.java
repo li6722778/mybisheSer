@@ -47,6 +47,10 @@ public class TIncome extends Model {
 	@Expose
 	@Transient
 	public double incometoday;
+	
+	@Expose
+	@Transient
+	public double incometodaycash;
 
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(columnDefinition = "timestamp NULL")
@@ -57,6 +61,10 @@ public class TIncome extends Model {
 	@Column(columnDefinition = "timestamp NULL")
 	@Expose
 	public Date updateDate;
+	
+	@Transient
+	@Expose
+	public int finishedOrder;
 
 	// 查询finder，用于其他方法中需要查询的场景
 	public static Finder<Long, TIncome> find = new Finder<Long, TIncome>(
@@ -119,6 +127,7 @@ public class TIncome extends Model {
 		if (allData.getList() != null) {
 			for (TIncome in : allData.getList()) {
 				in.incometoday = getTodayIncome(in.parkInfo.parkId);
+				in.finishedOrder = TOrderHis.findAllCountForPark(in.parkInfo.parkId);
 			}
 		}
 		return allData;
@@ -239,6 +248,7 @@ public class TIncome extends Model {
 		if (allData != null && allData.size() > 0) {
 			TIncome income = allData.get(0);
 			income.incometoday = getTodayIncome(parkid);
+			income.finishedOrder = TOrderHis.findAllCountForPark(parkid);
 			return income;
 		}
 
@@ -261,8 +271,12 @@ public class TIncome extends Model {
 				if (pys != null) {
 					for (TOrderHis_Py py : pys) {
 						if (py.ackStatus == Constants.PAYMENT_STATUS_FINISH) {
-							todayotal += py.payActu;
+							todayotal += (py.payActu+py.couponUsed);
 						}
+						
+//						if(py.payMethod==Constants.PAYMENT_TYPE_CASH){
+//							incometodaycash;
+//						}
 					}
 				}
 			}

@@ -14,7 +14,11 @@
 						<!-- BEGIN PAGE TITLE & BREADCRUMB-->
 
 						<h3 class="page-title">
+						   @if(flash.get("from")=="order"){
 							历史订单详情 <small>显示历史车位订单详情</small>
+							}else{
+							订单详情 <small>显示当前订单详情</small>
+							}
 						</h3>
 
 						<ul class="breadcrumb" >
@@ -29,9 +33,20 @@
 
 							</li>
 
+                            @if(flash.get("from")=="order"){
 							<li><a class="ajaxify" href="javascript:;" post="/w/orderhis">历史订单列表</a><i class="icon-angle-right"></i></li>
 							
 							<li><a href="javascript:;">历史订单详情</a></li>
+							}else{
+							  <li><a href="javascript:;" post="/w/income" class="ajaxify"> 停车场收益</a>
+							     <i class=" icon-angle-right"></i>
+							</li>
+							 <li><a href="javascript:;" post="/w/income/@entityBean.parkInfo.parkId" class="ajaxify">订单列表</a>
+							 <i class=" icon-angle-right"></i>
+							</li>
+							
+							 <li><a href="javascript:;">订单详情</a></li>
+							}
 							
 						</ul>
 
@@ -126,8 +141,8 @@
 
 							<ul class="unstyled">
                               
-								<li><strong>开始时间:</strong>@if(entityBean.startDate!=null){ @entityBean.startDate.format("yyyy-MM-dd HH:mm:ss") }</li>
-								<li><strong>结束时间:</strong>@if(entityBean.endDate!=null){ @entityBean.endDate.format("yyyy-MM-dd HH:mm:ss") }</li>
+								<li><strong>进场时间:</strong>@if(entityBean.startDate!=null){ @entityBean.startDate.format("yyyy-MM-dd HH:mm:ss") }</li>
+								<li><strong>出场时间:</strong>@if(entityBean.endDate!=null){ @entityBean.endDate.format("yyyy-MM-dd HH:mm:ss") }</li>
 								
 								<li><strong>订单计费方式:</strong>
 								   @entityBean.orderDetail
@@ -153,6 +168,7 @@
 									<th>#</th>
 									<th>应付(元)</th>
 									<th>实际付(元)</th>
+									<th>使用优惠券(元)</th>
 									<th class="hidden-480">付款方式</th>
 									<th>付款状态</th>
 									<th class="hidden-480">付款时间</th>
@@ -169,16 +185,33 @@
 									<th>@TParkInfo_Py.parkPyId</th>
 									<th>@TParkInfo_Py.payTotal</th>
 									<th>@TParkInfo_Py.payActu</th>
+									<th>@TParkInfo_Py.couponUsed</th>
 									<th class="hidden-480">
 									@if(TParkInfo_Py.payMethod==1){ 
 								            支付宝
 								    }
+								    @if(TParkInfo_Py.payMethod==2){ 
+								         微信支付
+								    }
+								    @if(TParkInfo_Py.payMethod==3){ 
+								         银联支付
+								    }
+								     @if(TParkInfo_Py.payMethod==4){ 
+								          优惠券
+								    }
+								    @if(TParkInfo_Py.payMethod==8){ 
+								           优惠活动
+								    }
+								    @if(TParkInfo_Py.payMethod==5){ 
+								           支付宝+优惠券
+								    }
+								     @if(TParkInfo_Py.payMethod==13){ 
+								          现金+优惠券
+								    }
 								    @if(TParkInfo_Py.payMethod==9){
 								           现金
 								    }
-								    @if(TParkInfo_Py.payMethod!=9&&TParkInfo_Py.payMethod!=1){
-								            其他
-								    }
+								    
 									</th>
 									<th>
 									@if(TParkInfo_Py.ackStatus==0){ 

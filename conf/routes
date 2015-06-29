@@ -133,12 +133,14 @@ POST      /w/user/gotopasswd/:phone/:type          controllers.WebPageController
 POST      /w/order                                 controllers.WebPageController.gotoOrder(p:Int ?= 0, s:Int ?= 10, o ?= "orderDate desc",c?="",f?="")
 POST      /w/order/:orderid                        controllers.WebPageController.gotoDetailOrder(orderid:Long)
 POST      /w/orderhis                                 controllers.WebPageController.gotoOrderHis(p:Int ?= 0, s:Int ?= 10, o ?= "orderDate desc",c?="",f?="")
-POST      /w/orderhis/:orderid                        controllers.WebPageController.gotoDetailOrderHis(orderid:Long)
+POST      /w/orderhis/:orderid                        controllers.WebPageController.gotoDetailOrderHis(orderid:Long,from?="order")
 GET      /w/order/setexception                       controllers.WebPageController.setExceptionOrder(p ?= "")
 POST      /w/orderchart                          controllers.WebPageController.gotoOrderChart()
 GET      /w/order/delete                        controllers.WebPageController.deleteOrder(p ?= "")
 
 POST      /w/income                        controllers.WebPageController.gotoIncome(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc", f ?="")
+POST      /w/income/:parkid                controllers.WebPageController.gotoIncomeDetailOrderHis(p:Int ?= 0, s:Int ?= 10, o ?= "orderDate desc",parkid:Long,f?="")
+
 
 POST      /w/coupon/add                          controllers.WebPageController.gotoCouponAdd()
 POST      /w/coupon                              controllers.WebPageController.gotoCoupon(p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",f ?="")

@@ -108,9 +108,9 @@ currentPage: Integer, pageSize: Integer,orderBy: String, city:String,filter:Stri
 											
 											<th class="hidden-480">订单城市</th>
 											
-											<th class="hidden-480">交易金额(元)</th>
+											<th class="hidden-480">交易金额(元)<span class="label label-info">优惠券支付</span></th>
 
-											<th class="hidden-480">下单时间</th>
+											<th >下单时间</th>
 
 											<th >状态</th>
 
@@ -122,14 +122,18 @@ currentPage: Integer, pageSize: Integer,orderBy: String, city:String,filter:Stri
 
                             @for(TOrder <- entityBean.getList) {
 										<tr class="odd gradeX">
-											<td><input type="checkbox" class="checkboxes" value="@TOrder.orderId" /></td>
+											<td style="width:8px;"><input type="checkbox" class="checkboxes" value="@TOrder.orderId" /></td>
 											<td class="hidden-480">@TOrder.orderId</td>
 											<td ><a class="ajaxify"  href="javascript:;" post="/w/order/@TOrder.orderId">@TOrder.orderName</a></td>
 											<td class="hidden-480">@TOrder.orderCity</td>
 											<td class="hidden-480">
 											@if(TOrder.pay!=null&&TOrder.pay.length>0){
 												     @for(TParkInfo_Py <- TOrder.pay) {
-												          ¥@TParkInfo_Py.payActu 
+												          @if(TParkInfo_Py.ackStatus==2){
+												           ¥@TParkInfo_Py.payActu<span class="label label-info">¥@TParkInfo_Py.couponUsed</span>
+												          }else{
+												             <span class="label label-warning">暂无付款</span>
+												          }
 												     }
 											     
 											}

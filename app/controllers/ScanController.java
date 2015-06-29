@@ -61,7 +61,7 @@ public class ScanController extends Controller{
 					
 
 					
-					encodeString=encodeString+"?"+prod.counponCode;
+					encodeString=encodeString+"#"+prod.counponCode;
 
 					try{
 					String basePath = UploadController.image_store_path;
@@ -124,7 +124,7 @@ public class ScanController extends Controller{
 					if(download_url!=null){
 						encodeString = download_url;
 					}
-					encodeString=encodeString+"?"+pid;
+					encodeString=encodeString+"#"+pid;
 
 				try{
 					String basePath = UploadController.image_store_path;
@@ -177,7 +177,7 @@ public class ScanController extends Controller{
 		
 		if(scanResult!=null&&!scanResult.trim().equals("")){
 			if(scanResult.startsWith("http")){ 
-				String[] scans = scanResult.split("\\?");
+				String[] scans = scanResult.split("\\#");
 				if(scans.length>1){
 					//第二个就是parkingId
 					String parkStr = scans[1];

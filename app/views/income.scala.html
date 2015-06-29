@@ -43,7 +43,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
 				
 				<!-- BEGIN EXAMPLE TABLE PORTLET-->
 
-						<div class="portlet box grey" id="loglist">
+						<div class="portlet box grey" id="incomelist">
 
 							<div class="portlet-title">
 
@@ -53,7 +53,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
 								</div>
 
 								<div class="tools">
-									<a href="javascript:;" class="reload"></a>
+									<a href="javascript:;" post="/w/income" class="reload ajaxify"></a>
 								</div>
 
 							</div>
@@ -73,16 +73,17 @@ currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
 									<div class="span5 portfolio-text">
 
                                        @if(TIncome.parkInfo!=null&&TIncome.parkInfo.imgUrlArray!=null&&TIncome.parkInfo.imgUrlArray.length>0){
-                                            <img class="img-thumbnail" style="max-width:120px;max-height:100px" src="@TIncome.parkInfo.imgUrlArray.get(0).imgUrlHeader@TIncome.parkInfo.imgUrlArray.get(0).imgUrlPath" alt="">
+                                            <img class="img-thumbnail" style="max-width:120px;max-height:80px" src="@TIncome.parkInfo.imgUrlArray.get(0).imgUrlHeader@TIncome.parkInfo.imgUrlArray.get(0).imgUrlPath" alt="">
                                         }else{
-                                           <img class="img-thumbnail" style="max-width:120px;max-height:100px" src="/assets/image/logo_cbl.png" >
+                                           <img class="img-thumbnail" style="max-width:120px;max-height:80px" src="/assets/image/logo_cbl.png" >
                                         }
                              
 										<div class="portfolio-text-info">
 
-											<h4> @if(TIncome.parkInfo!=null){ @TIncome.parkInfo.parkname }</h4>
+											<h4> @if(TIncome.parkInfo!=null){ @TIncome.parkInfo.parkname }	</h4>
 
 											<p>@if(TIncome.parkInfo!=null){ @TIncome.parkInfo.address }</p>
+										  <!-- <small>最近交易时间:@if(TIncome.updateDate!=null){ @TIncome.updateDate.format("yyyy-MM-dd HH:mm:ss") }</small> -->
 
 										</div>
 
@@ -106,22 +107,24 @@ currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
 
 										</div>
 
-										<div class="portfolio-info">
 
-											最近一次交易时间
+                                       <div class="portfolio-info">
 
-											<span>@if(TIncome.updateDate!=null){ @TIncome.updateDate.format("yyyy-MM-dd HH:mm:ss") }</span>
+											已完成订单数
+
+											<span>@TIncome.finishedOrder</span>
 
 										</div>
+										
 
 									</div>
-                                   <!--  
-									<div class="span2 portfolio-btn">
+                                 
+									<div class="span2 portfolio-btn" id="incomedetail">
 
-										<a href="#" class="btn bigicn-only"><span>详细</span></a>                        
+										<a href="javascript:;" post="/w/income/@TIncome.parkInfo.parkId" class="btn bigicn-only ajaxify"><span>详细</span></a>                        
 
 									</div>
-                                    -->
+                                 
 								</div>
 
                                
@@ -134,7 +137,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
 
 							
 
-					            <div id="pagination" class="pagination">
+					            <div id="incomepagination" class="pagination">
 					               <ul>
 						                @if(entityBean.hasPrev) {
 						                    <li class="prev">
@@ -169,24 +172,5 @@ currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
 
 						</div>
 
-<script>
-$('#searchIncomeButton').click(function(){
-	App.scrollTop();
-	 var type = jQuery(this).attr("type");
-	     var key = $("#key_search_income").val();
-	     var pageContent = $('.page-content');
-	     var pageContentBody = $('.page-content .page-content-body');
-	  
-     App.blockUI(pageContent, false);
-     
-	  $.post("/w/income?f="+key, {}, function (res) {
-      App.unblockUI(pageContent);
-      pageContentBody.html(res);
-      App.fixContentHeight(); // fix content height
-      App.initUniform(); // initialize uniform elements
-     
-  });
-	 
- });
-</script>
+	<script src="@routes.Assets.at("app/lib/income.js")" type="text/javascript" ></script>
 					
