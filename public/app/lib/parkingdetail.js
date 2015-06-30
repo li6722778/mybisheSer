@@ -25,10 +25,11 @@ var Parking = function () {
                 App.blockUI(pageContent, false);
                 window.console && console.log("post url:"+url);
                 $.post(url, {}, function (res) {
-                        App.unblockUI(pageContent);
+                       
                         pageContentBody.html(res);
                         App.fixContentHeight(); // fix content height
                         App.initUniform(); // initialize uniform elements
+                        App.unblockUI(pageContent);
                     });
                });
         	

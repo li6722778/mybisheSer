@@ -17,14 +17,27 @@ var Income = function () {
         	     App.blockUI(pageContent, false);
         	     
         		  $.post("/w/income?f="+key, {}, function (res) {
-        	      App.unblockUI(pageContent);
+        	     
         	      pageContentBody.html(res);
         	      App.fixContentHeight(); // fix content height
         	      App.initUniform(); // initialize uniform elements
+        	      App.unblockUI(pageContent);
         	     
         	  });
         		 
         	 });
+        	
+        	$('#incomereload').on('click', '', function (e) {
+        	    e.preventDefault();
+        	    var url = $(this).attr("post");
+        	    window.console && console.log("post url:"+url);
+        	    $.post(url, {}, function (res) {
+        	            pageContentBody.html(res);
+        	            App.fixContentHeight(); // fix content height
+        	            App.initUniform(); // initialize uniform elements
+        	        });
+        	   });
+        	
         	 
         	$('#incomedetail .ajaxify,#incomepagination .ajaxify,#incomebreadcrumb .ajaxify,#incomelist .ajaxify').on('click', '', function (e) {
         	    e.preventDefault();
@@ -36,10 +49,11 @@ var Income = function () {
         	    App.blockUI(pageContent, false);
         	    window.console && console.log("post url:"+url);
         	    $.post(url, {}, function (res) {
-        	            App.unblockUI(pageContent);
+        	           
         	            pageContentBody.html(res);
         	            App.fixContentHeight(); // fix content height
         	            App.initUniform(); // initialize uniform elements
+        	            App.unblockUI(pageContent);
         	        });
         	   });
         	        

@@ -94,12 +94,12 @@ public class WebPageController extends Controller {
 
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoParkingProd(int currentPage, int pageSize,
-			String orderBy, String key, String searchObj) {
+			String orderBy, String key, String searchObj,int isopen) {
 		Logger.debug("goto gotoParkingProd");
 		Page<TParkInfoProd> allData = TParkInfoProd.pageByFilter(currentPage,
-				pageSize, orderBy, key, searchObj);
+				pageSize, orderBy, key, searchObj,isopen);
 		return ok(views.html.parkingprod.render(allData, currentPage, pageSize,
-				orderBy, key, searchObj));
+				orderBy, key, searchObj,isopen));
 	}
 
 	@Security.Authenticated(SecurityController.class)
@@ -107,7 +107,7 @@ public class WebPageController extends Controller {
 			String orderBy, String key, String searchObj) {
 		Logger.debug("goto gotoParkingProdForPopup");
 		Page<TParkInfoProd> allData = TParkInfoProd.pageByFilter(currentPage,
-				pageSize, orderBy, key, searchObj);
+				pageSize, orderBy, key, searchObj,0);
 		flash("onlyshow","false");
 		return ok(views.html.popupparkprod.render(allData, currentPage,
 				pageSize, orderBy, key, searchObj));
@@ -305,7 +305,7 @@ public class WebPageController extends Controller {
 	 */
 	@Security.Authenticated(SecurityController.class)
 	public static Result updateParkingOpenClose(int currentPage, int pageSize,
-			String orderBy, String key, String searchObj, String pidarray){
+			String orderBy, String key, String searchObj, String pidarray,int isopen){
 		Logger.debug("goto updateParkingOpenClose,pidarray:"+pidarray);
 		
 		if (pidarray != null && pidarray.length() > 0) {
@@ -327,7 +327,7 @@ public class WebPageController extends Controller {
 		
 		
 		return gotoParkingProd(currentPage, pageSize,
-				orderBy, key, searchObj);
+				orderBy, key, searchObj,isopen);
 	}
 
 	/**
@@ -623,6 +623,92 @@ public class WebPageController extends Controller {
 	}
 
 	@Security.Authenticated(SecurityController.class)
+	public static Result deleteUserAdm(final String pidarray,final String admpark) {
+		Logger.info("GOTO updateUser,FOR " + pidarray);
+		if (pidarray != null && pidarray.length() > 0) {
+			String[] pids = pidarray.split(",");
+			for (final String pidString : pids) {
+
+				Ebean.execute(new TxRunnable() {
+					public void run() {
+						try {
+							long pid = Long.parseLong(pidString);
+							Logger.info("------------------------try to update userid:"
+									+ pid);
+
+								if (admpark != null && admpark.length() > 0) {
+									String[] parkIds = admpark.split(",");
+									Logger.info("--------try to delete admin for "
+											+ admpark);
+									for (String parid : parkIds) {
+										TParkInfo_adm.deleteDataByUserAndParkid(pid, Long.parseLong(parid));
+									}
+								}
+								
+							LogController.info("updated user["+pid+"], delete authorized administrator for park:"+admpark);
+						} catch (Exception e) {
+							Logger.error("updateUser:" + pidString, e);
+						}
+					}
+				});
+			}
+			return ok("" + pids.length);
+		}
+
+		return ok("0");
+	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result addUserAdm(final String pidarray,final String admpark) {
+		Logger.info("GOTO updateUser,FOR " + pidarray);
+		if (pidarray != null && pidarray.length() > 0) {
+			String[] pids = pidarray.split(",");
+			for (final String pidString : pids) {
+
+				Ebean.execute(new TxRunnable() {
+					public void run() {
+						try {
+							long pid = Long.parseLong(pidString);
+//							Logger.info("------------------------try to update userid:"
+//									+ pid);
+
+								if (admpark != null && admpark.length() > 0) {
+									String[] parkIds = admpark.split(",");
+									Logger.info("--------try to add authorized administrator for "+ admpark+",for userid:"+pid);
+									for (String parid : parkIds) {
+										
+										if(TParkInfo_adm.findByUserAndParkCount(pid,Long.parseLong(parid))<=0){
+											TParkInfo_adm adm = new TParkInfo_adm();
+											TuserInfo userInfo = new TuserInfo();
+											userInfo.userid = pid;
+											adm.userInfo = userInfo;
+											
+											TParkInfoProd prod=new TParkInfoProd();
+											prod.parkId = Long.parseLong(parid);
+											adm.parkInfo = prod;
+											
+											TParkInfo_adm.saveData(adm);
+										}else{
+											Logger.warn("userid:"+pid+",parkid:"+parid+",existing.not save this time.");
+										}
+
+									}
+								}
+								
+							LogController.info("updated user["+pid+"], delete authorized administrator for park:"+admpark);
+						} catch (Exception e) {
+							Logger.error("updateUser:" + pidString, e);
+						}
+					}
+				});
+			}
+			return ok("" + pids.length);
+		}
+
+		return ok("0");
+	}
+	
+	@Security.Authenticated(SecurityController.class)
 	public static Result gotoOrder(int currentPage, int pageSize,
 			String orderBy, String city, String filter) {
 		Logger.debug("goto gotoOrder,city" + city);
@@ -792,10 +878,10 @@ public class WebPageController extends Controller {
 	 * @param city
 	 * @return
 	 */
-	public static Result getCityOrderChart(String city) {
-		Logger.debug("goto getCityOrderChart:" + city);
+	public static Result getCityOrderChart(int days) {
+		Logger.debug("goto getCityOrderChart for days:" + days);
 		HashMap<String, List<ChartCityEntity>> map = ChartCityEntity
-				.getTop30OrderForEachCity(city);
+				.getTop30OrderForEachCity(days);
 
 		String json = OrderController.gsonBuilderWithExpose.toJson(map);
 		JsonNode jsonNode = Json.parse(json);
@@ -809,10 +895,10 @@ public class WebPageController extends Controller {
 	 * @param city
 	 * @return
 	 */
-	public static Result getPersonOrderChart(String createPerson) {
-		Logger.debug("goto getPersonOrderChart:" + createPerson);
+	public static Result getPersonOrderChart(int days) {
+		Logger.debug("goto getPersonOrderChart for days:" + days);
 		HashMap<String, List<ChartCityEntity>> map = ChartCityEntity
-				.getTop30OrderForEachCaiji(createPerson);
+				.getTop30OrderForEachCaiji(days);
 
 		String json = OrderController.gsonBuilderWithExpose.toJson(map);
 		JsonNode jsonNode = Json.parse(json);

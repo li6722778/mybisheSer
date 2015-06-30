@@ -32,10 +32,11 @@ var ParkingList = function () {
                 App.blockUI(pageContent, false);
                 window.console && console.log("post url:"+url);
                 $.post(url, {}, function (res) {
-                        App.unblockUI(pageContent);
+                        
                         pageContentBody.html(res);
                         App.fixContentHeight(); // fix content height
                         App.initUniform(); // initialize uniform elements
+                        App.unblockUI(pageContent);
                     });
                });
         	
@@ -52,10 +53,11 @@ var ParkingList = function () {
    		     App.blockUI(pageContent, false);
    		     
       		  $.post("/w/parking?k="+key+"&v="+value, {}, function (res) {
-                 App.unblockUI(pageContent);
+                
                  pageContentBody.html(res);
                  App.fixContentHeight(); // fix content height
                  App.initUniform(); // initialize uniform elements
+                 App.unblockUI(pageContent);
                 
              });
        		 
@@ -93,15 +95,15 @@ var ParkingList = function () {
         		 App.blockUI(pageContent, false);
   			   var options = {
   		       	        success: function (data) {
-  		       	          App.unblockUI(pageContent);
   		       	           var message = "<div class=\"alert alert-success\"><button class=\"close\" data-dismiss=\"alert\"></button><label class=\"control-label\" id=\"errorMessage\"><strong>成功:</strong>"+data+"</label></div>"
   		       	           $("#remotemessage").html(message);
+  		       	           App.unblockUI(pageContent);
   		       	        },
   			   
   			            error:function (XmlHttpRequest, textStatus, errorThrown) {
-  			            	 App.unblockUI(pageContent);
   			               var message = "<div class=\"alert alert-error\"><button class=\"close\" data-dismiss=\"alert\"></button><label class=\"control-label\" id=\"errorMessage\"><strong>错误:</strong>"+XmlHttpRequest.responseText+"</label></div>"
    		       	           $("#remotemessage").html(message);
+  			               App.unblockUI(pageContent);
    		       	        }
   		       	    };
   			   

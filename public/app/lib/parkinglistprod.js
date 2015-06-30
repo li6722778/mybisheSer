@@ -46,13 +46,14 @@ var ParkingProd = function () {
         		App.scrollTop();
       		     var key = $("#key_search_parkingprod").val();
       		     var value = $("#value_search_parkingprod").val();
+      		     var status = $("#status_search_parkingprod").val();
       		   
       		     var pageContent = $('.page-content');
       		     var pageContentBody = $('.page-content .page-content-body');
       		  
    		     App.blockUI(pageContent, false);
    		     
-      		  $.post("/w/parkingprod?k="+key+"&v="+value, {}, function (res) {
+      		  $.post("/w/parkingprod?k="+key+"&v="+value+"&open="+status, {}, function (res) {
                  App.unblockUI(pageContent);
                  pageContentBody.html(res);
                  App.fixContentHeight(); // fix content height
@@ -118,12 +119,13 @@ var ParkingProd = function () {
         		 var o = $(this).attr("o");
         		 var k = $(this).attr("k");
         		 var v = $(this).attr("v");
+        		 var status = $("#status_search_parkingprod").val();
         		 
         		 var pageContent = $('.page-content');
       		     var pageContentBody = $('.page-content .page-content-body');
       		     
       		   App.blockUI(pageContent, false);
-        		 $.get("/w/parkingprod/open?p="+p+"&s="+s+"&o="+o+"&k="+k+"&v="+v+"&pid="+checked,function(data){
+        		 $.get("/w/parkingprod/open?p="+p+"&s="+s+"&o="+o+"&k="+k+"&v="+v+"&pid="+checked+"&open="+status,function(data){
 	      				App.unblockUI(pageContent);
 	      				pageContentBody.html(data);
 	                    App.fixContentHeight(); // fix content height

@@ -23,6 +23,7 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Expr;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Page;
+import com.avaje.ebean.Query;
 import com.avaje.ebean.TxRunnable;
 import com.google.gson.annotations.Expose;
 
@@ -205,7 +206,7 @@ public class TParkInfoProd extends Model {
 	 * @param searchObj
 	 * @return
 	 */
-    public static Page<TParkInfoProd> pageByFilter(int currentPage,int pageSize, String orderBy,String key,String searchObj) {
+    public static Page<TParkInfoProd> pageByFilter(int currentPage,int pageSize, String orderBy,String key,String searchObj,int isopen) {
 		ExpressionList<TParkInfoProd> elist = find.where();
 		
 		if(key!=null&&searchObj!=null&&!searchObj.trim().equals("")&&!key.trim().equals("")){
@@ -214,6 +215,10 @@ public class TParkInfoProd extends Model {
 			}else{
 			   elist.ilike(key, "%"+searchObj+"%");
 			}
+		}
+		if(isopen>=0){
+		    Query<TParkInfoPro_Loc> query = Ebean.createQuery(TParkInfoPro_Loc.class).select("parkInfo.parkId").where().eq("isOpen", isopen).query();
+		    elist.in("parkId", query);
 		}
 		Page<TParkInfoProd> allData = elist.orderBy(orderBy)
 				.findPagingList(pageSize).setFetchAhead(false)

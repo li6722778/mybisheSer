@@ -32,10 +32,11 @@ var UserList = function () {
                 App.blockUI(pageContent, false);
                 window.console && console.log("post url:"+url);
                 $.post(url, {}, function (res) {
-                        App.unblockUI(pageContent);
+                       
                         pageContentBody.html(res);
                         App.fixContentHeight(); // fix content height
                         App.initUniform(); // initialize uniform elements
+                        App.unblockUI(pageContent);
                     });
                });
         	
@@ -73,10 +74,11 @@ var UserList = function () {
     		     App.blockUI(pageContent, false);
     		     
        		  $.post("/w/orderhis?c="+city+"&f="+key, {}, function (res) {
-                  App.unblockUI(pageContent);
+                 
                   pageContentBody.html(res);
                   App.fixContentHeight(); // fix content height
                   App.initUniform(); // initialize uniform elements
+                  App.unblockUI(pageContent);
                  
               });
         		 
@@ -92,10 +94,11 @@ var UserList = function () {
     		     App.blockUI(pageContent, false);
     		     
        		  $.post("/w/order?c="+city+"&f="+key, {}, function (res) {
-                  App.unblockUI(pageContent);
+                  
                   pageContentBody.html(res);
                   App.fixContentHeight(); // fix content height
                   App.initUniform(); // initialize uniform elements
+                  App.unblockUI(pageContent);
                  
               });
         		 

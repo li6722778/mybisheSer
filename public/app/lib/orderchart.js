@@ -85,26 +85,57 @@ var OrderChartList = function () {
                  });
              };
              
-             $.get("/w/chart/order",function(result){
-        		 if(result){
-        			 
-        			 var plotData = [];
-        			 $.each(result, function(key, value) {
-        				 var chartData=$.map(value, function(obj,i){
-        			           return [[ new Date(obj.dateString), obj.countOrder]];                            
-        			      });
-        				 var jsonTextF={
-        						 data:chartData,
-        						 label:key
-        				 }
-        				 //alert("json:"+chartData);
-        				 plotData.push(jsonTextF);
-        			 });
-        	
-        			 chart2(plotData); 
-        			 
-        		}
-        	});
+             
+             var jumpto = function(days, hasloading){
+            	 var pageContent = $('.page-content');
+            	 if(hasloading==1){
+            	    App.blockUI(pageContent, false);
+            	 }
+            	 
+                 $.get("/w/chart/order?p="+days,function(result){
+            		 if(result){
+            			 
+            			 var plotData = [];
+            			 $.each(result, function(key, value) {
+            				 var chartData=$.map(value, function(obj,i){
+            			           return [[ new Date(obj.dateString), obj.countOrder]];                            
+            			      });
+            				 var jsonTextF={
+            						 data:chartData,
+            						 label:key
+            				 }
+            				 //alert("json:"+chartData);
+            				 plotData.push(jsonTextF);
+            			 });
+            	
+            			 chart2(plotData); 
+            			 if(hasloading==1){
+              			   App.unblockUI(pageContent);
+              			 }
+            		}
+            	});           	 
+            	 
+             };
+ 
+             
+             $('#data30').click(function(){
+             	jumpto(30,1);
+             	$('#label_days').html("30天");
+         	 });
+              
+             $('#data90').click(function(){
+             	jumpto(90,1);
+             	$('#label_days').html("90天");
+        	    });
+             
+             $('#data180').click(function(){
+             	jumpto(180,1);
+             	$('#label_days').html("180天");
+        	    });
+              
+              jumpto(30,0);
+             
+             
              
         }
 

@@ -32,10 +32,11 @@ var UserList = function () {
                 App.blockUI(pageContent, false);
                 window.console && console.log("post url:"+url);
                 $.post(url, {}, function (res) {
-                        App.unblockUI(pageContent);
+                        
                         pageContentBody.html(res);
                         App.fixContentHeight(); // fix content height
                         App.initUniform(); // initialize uniform elements
+                        App.unblockUI(pageContent);
                     });
                });
         	
@@ -48,7 +49,9 @@ var UserList = function () {
         		 $("input[name='userselect']:checked").each(function() {
        	            checked+=$(this).val()+",";
        	        });
-       		  $( "#dialog_confirm_user" ).data("idArray",checked).data("type",type).dialog( "open" );
+        		 if(checked.length>0){
+       		        $( "#dialog_confirm_user" ).data("idArray",checked).data("type",type).dialog( "open" );
+        		 }
         	 });
         	 
         	 
@@ -58,15 +61,18 @@ var UserList = function () {
       	            checked+=$(this).val()+",";
       	        });
       		     
-      		   $.post("/w/user/gotomulitpasswd?p="+checked, {}, function (res) {
-      			 var pageContent = $('.page-content');
-       		     var pageContentBody = $('.page-content .page-content-body');
-                   App.unblockUI(pageContent);
-                   pageContentBody.html(res);
-                   App.fixContentHeight(); // fix content height
-                   App.initUniform(); // initialize uniform elements
-                  
-               });
+        		 if(checked.length>0){
+		      		   $.post("/w/user/gotomulitpasswd?p="+checked, {}, function (res) {
+		      			 var pageContent = $('.page-content');
+		       		     var pageContentBody = $('.page-content .page-content-body');
+		                   
+		                   pageContentBody.html(res);
+		                   App.fixContentHeight(); // fix content height
+		                   App.initUniform(); // initialize uniform elements
+		                   App.unblockUI(pageContent);
+		                  
+		               });
+        		 }
         	 });
         	 
             $('#searchUserButton').click(function(){
@@ -79,11 +85,11 @@ var UserList = function () {
     		     App.blockUI(pageContent, false);
     		     
        		  $.post("/w/user?t="+type+"&f="+key, {}, function (res) {
-                  App.unblockUI(pageContent);
+                 
                   pageContentBody.html(res);
                   App.fixContentHeight(); // fix content height
                   App.initUniform(); // initialize uniform elements
-                 
+                  App.unblockUI(pageContent);
               });
         		 
         	 });
@@ -184,6 +190,66 @@ var UserList = function () {
         	    	
          	 });
        	      
+       	      
+       	   $('#button_update_user_addpark').click(function(){
+       		   var checked = "";
+  		       $("input[name='parkingselect']:checked").each(function() {
+  	               checked+=$(this).val()+",";
+  	           });
+  		       
+     		   var person = "";
+  		        $("input[name='userselect']:checked").each(function() {
+  		    	 person+=$(this).val()+",";
+  	            });
+  		        
+  		      if(checked.length>0&&person.length>0){
+  		    	 var pageContent = $('.page-content');
+       		     App.blockUI(pageContent, false);
+       		 
+        		 $.post("/w/user/adm/add?p="+person+"&admpark="+checked, {}, function (res) {
+                     App.unblockUI(pageContent);
+                     if(type>=20&&type<30){
+                    	 $('#userlist20').click();
+                     }else if(type>=30&&type<40){
+                    	 $('#userlist30').click();
+                     } else{
+                    	 $('#userlist10').click();
+                     }
+                    
+                 });
+  		      }
+       		   
+       	   });
+       	      
+       	   $('#button_update_user_removepark').click(function(){
+       		   var checked = "";
+  		       $("input[name='parkingselect']:checked").each(function() {
+  	               checked+=$(this).val()+",";
+  	           });
+  		       
+     		   var person = $("#usertype").val();
+  		        
+  		      if(checked.length>0&&person.length>0){
+  		    	 var pageContent = $('.page-content');
+       		     App.blockUI(pageContent, false);
+       		 
+        		 $.post("/w/user/adm/delete?p="+person+"&admpark="+checked, {}, function (res) {
+                    
+                     $("#form_modal3_adm .modal-body").html("请等待");
+          	    	 //get total of parking
+                  	 $.get("/w/adm/park/"+person+"?p=0",function(result){
+                  		 if(result){
+                  			$("#form_modal3_adm .modal-body").html(result);
+                  			$("<input  type=hidden value="+person+" id=usertype />").appendTo("#form_modal3_adm .modal-body");
+                  		 }
+             			});
+                  	 
+                  	 App.unblockUI(pageContent);
+                    
+                 });
+  		      }
+       		   
+       	   });       	   
         	 
         	 $("#dialog_confirm_user" ).dialog({
         	      dialogClass: 'ui-dialog-green',

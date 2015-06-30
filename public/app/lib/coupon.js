@@ -32,10 +32,11 @@ var CouponList = function () {
                 App.blockUI(pageContent, false);
                 window.console && console.log("post url:"+url);
                 $.post(url, {}, function (res) {
-                        App.unblockUI(pageContent);
+                        
                         pageContentBody.html(res);
                         App.fixContentHeight(); // fix content height
                         App.initUniform(); // initialize uniform elements
+                        App.unblockUI(pageContent);
                     });
                });
         	
@@ -73,10 +74,11 @@ var CouponList = function () {
       		     
       		   App.blockUI(pageContent, false);
         		 $.get("/w/coupon/open?p="+p+"&s="+s+"&o="+o+"&f="+f+"&pid="+checked,function(data){
-	      				App.unblockUI(pageContent);
+	      				
 	      				pageContentBody.html(data);
 	                    App.fixContentHeight(); // fix content height
 	                    App.initUniform(); // initialize uniform elements
+	                    App.unblockUI(pageContent);
 	      			});
         	 });
           	 
@@ -101,10 +103,11 @@ var CouponList = function () {
     		     App.blockUI(pageContent, false);
     		     
        		  $.post("/w/coupon?f="+key, {}, function (res) {
-                  App.unblockUI(pageContent);
+                 
                   pageContentBody.html(res);
                   App.fixContentHeight(); // fix content height
                   App.initUniform(); // initialize uniform elements
+                  App.unblockUI(pageContent);
                  
               });
         		 

@@ -16,10 +16,11 @@ var Index = function () {
               window.console && console.log("index post url:"+url);
               App.blockUI(pageContent, false);
               $.post(url, {}, function (res) {
-                      App.unblockUI(pageContent);
+                     
                       pageContentBody.html(res);
                       App.fixContentHeight(); // fix content height
                       App.initUniform(); // initialize uniform elements
+                      App.unblockUI(pageContent);
                   });
              });
              

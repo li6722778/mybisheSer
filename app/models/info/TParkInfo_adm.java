@@ -128,6 +128,11 @@ public class TParkInfo_adm  extends Model{
 		return adm;
 	}
 	
+	public static int findByUserAndParkCount(long userId,long parking){
+		int adm = find.where().eq("userid", userId).eq("parkId", parking).findRowCount();
+		return adm;
+	}
+	
 	public static TParkInfo_adm findDataById(long parkAdmId){
 		return find.byId(parkAdmId);
 	}
@@ -154,6 +159,15 @@ public class TParkInfo_adm  extends Model{
 		String sql ="delete from tb_parking_adm where userid=:userid";
 		SqlUpdate update = Ebean.createSqlUpdate(sql)
 		.setParameter("userid", userId);
+		int rows = update.execute();
+		return true;
+		
+	}
+	
+	public static boolean deleteDataByUserAndParkid(Long userId,long parkid){
+		String sql ="delete from tb_parking_adm where userid=:userid and parkId=:parkid";
+		SqlUpdate update = Ebean.createSqlUpdate(sql)
+		.setParameter("userid", userId).setParameter("parkid", parkid);
 		int rows = update.execute();
 		return true;
 		

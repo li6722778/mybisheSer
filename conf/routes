@@ -110,10 +110,10 @@ GET     /w/parking/approve                 controllers.WebPageController.approve
 GET     /w/parking/retrieve                 controllers.WebPageController.retrieveParking(p ?= "")
 POST     /w/parkingchart                    controllers.WebPageController.gotoParkingChart()
 
-POST     /w/parkingprod                        controllers.WebPageController.gotoParkingProd(p:Int ?= 0, s:Int ?= 10, o ?= "approveDate desc",k?="",v?="")
+POST     /w/parkingprod                        controllers.WebPageController.gotoParkingProd(p:Int ?= 0, s:Int ?= 10, o ?= "approveDate desc",k?="",v?="",open:Int?=-1)
 POST     /w/parkingprod/:parkId                controllers.WebPageController.gotoDetailParkingProd(parkId:Long)
 GET     /w/parkingprodpopup                   controllers.WebPageController.gotoParkingProdForPopup(p:Int ?= 0, s:Int ?= 5, o ?= "approveDate desc",k?="",v?="")
-GET    /w/parkingprod/open                   controllers.WebPageController.updateParkingOpenClose(p:Int ?= 0, s:Int ?= 10, o ?= "approveDate desc",k?="",v?="",pid?="")
+GET    /w/parkingprod/open                   controllers.WebPageController.updateParkingOpenClose(p:Int ?= 0, s:Int ?= 10, o ?= "approveDate desc",k?="",v?="",pid?="",open:Int?=-1)
 POST   /w/parkingprodsave                    controllers.WebPageController.saveParkingProdData()
 
 GET     /w/adm/park/:userId                      controllers.WebPageController.gotoParkingProdForPopupByAdmin(p:Int ?= 0, s:Int ?= 5, o ?= "parkAdmId desc",userId:Long)
@@ -125,6 +125,8 @@ POST      /w/user                              controllers.WebPageController.got
 POST      /w/user/add/submit                   controllers.WebPageController.saveUserData()
 POST      /w/user/delete                       controllers.WebPageController.deleteUser(p ?= "")
 POST      /w/user/update                       controllers.WebPageController.updateUser(t:Int ?= 10, p ?= "",admpark?="")
+POST      /w/user/adm/add                       controllers.WebPageController.addUserAdm(p ?= "",admpark?="")
+POST      /w/user/adm/delete                       controllers.WebPageController.deleteUserAdm(p ?= "",admpark?="")
 
 POST      /w/user/changepw/:phone/:type          controllers.WebPageController.updatedUserPasswdData(phone:String,type:Integer)
 POST      /w/user/gotomulitpasswd               controllers.WebPageController.gotoMutipPasswd(p?="")
@@ -148,8 +150,8 @@ POST      /w/coupon/add/submit                   controllers.WebPageController.s
 POST      /w/coupon/delete                       controllers.WebPageController.deleteCoupon(p ?= "")
 GET       /w/coupon/open                         controllers.WebPageController.updateCouponOpenClose(p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",f?="",pid?="")
 
-GET      /w/chart/caiji                          controllers.WebPageController.getPersonOrderChart(p ?= "")
-GET      /w/chart/order                          controllers.WebPageController.getCityOrderChart(p ?= "")
+GET      /w/chart/caiji                          controllers.WebPageController.getPersonOrderChart(p:Int?= 30)
+GET      /w/chart/order                          controllers.WebPageController.getCityOrderChart(p:Int?= 30)
 
 POST      /w/version                          controllers.WebPageController.gotoVersion()
 POST      /w/version/submit                   controllers.WebPageController.saveVersionData()
