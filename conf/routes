@@ -117,6 +117,7 @@ POST     /w/parkingprod/:parkId                controllers.WebPageController.got
 GET     /w/parkingprodpopup                   controllers.WebPageController.gotoParkingProdForPopup(p:Int ?= 0, s:Int ?= 5, o ?= "approveDate desc",k?="",v?="")
 GET    /w/parkingprod/open                   controllers.WebPageController.updateParkingOpenClose(p:Int ?= 0, s:Int ?= 10, o ?= "approveDate desc",k?="",v?="",pid?="",open:Int?=-1)
 POST   /w/parkingprodsave                    controllers.WebPageController.saveParkingProdData()
+GET    /w/addparkingprodpopup                   controllers.WebPageController.gotoParkingProdForPopupAdd(p:Int ?= 0, s:Int ?= 5, o ?= "approveDate desc",k?="",v?="")
 
 GET     /w/adm/park/:userId                      controllers.WebPageController.gotoParkingProdForPopupByAdmin(p:Int ?= 0, s:Int ?= 5, o ?= "parkAdmId desc",userId:Long)
 

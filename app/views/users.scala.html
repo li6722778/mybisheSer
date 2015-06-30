@@ -121,6 +121,19 @@ currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
 									</div>
 							</div>
 							
+							<div id="form_modal3_addpark" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel3" aria-hidden="true">
+
+									<div class="modal-body">
+
+										请等待...
+									</div>
+
+									<div class="modal-footer">
+										<button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
+										<button class="btn green btn-primary" id ="button_update_user_addpark"data-dismiss="modal">提交</button>
+									</div>
+							</div>
+							
 							<div id="form_modal3_adm" class="modal hide fade " tabindex="-1" role="dialog" aria-labelledby="myModalLabel3" aria-hidden="true">
 
 									<div class="modal-body">
@@ -130,7 +143,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
 									<div class="modal-footer">
 										<button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
 										<button class="btn red btn-primary" id ="button_update_user_removepark">移除选中的车场</button>
-										<button class="btn green btn-primary" id ="button_update_user_addpark"data-dismiss="modal">增加车场管理</button>
+										<button class="btn green btn-primary" id ="button_update_user_openparkadm" data-dismiss="modal" p="0" k="" v="">增加车场管理</button>
 									</div>
 							</div>
 
@@ -168,7 +181,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
 											<td class="hidden-480">@TuserInfo.userid</td>
 											<td >@TuserInfo.userName
 											  @if(TuserInfo.userType>=20&&TuserInfo.userType<30){
-											     <a href="#form_modal3_adm" class="popup_show_parking" data-toggle="modal" usertype="@TuserInfo.userid" p="0" k="" v=""><i class="icon-picture" ></i>[停车场]</a>
+											     <a href="#form_modal3_adm" class="popup_show_parking" data-toggle="modal" usertype="@TuserInfo.userid" p="0" k="" v=""><i class="icon-table" ></i>[关联停车场]</a>
 											   }
 											 </td>
 											<td class="hidden-480">@TuserInfo.userPhone</td>

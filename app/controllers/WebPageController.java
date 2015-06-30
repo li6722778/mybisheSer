@@ -114,6 +114,16 @@ public class WebPageController extends Controller {
 	}
 	
 	@Security.Authenticated(SecurityController.class)
+	public static Result gotoParkingProdForPopupAdd(int currentPage, int pageSize,
+			String orderBy, String key, String searchObj) {
+		Logger.debug("goto gotoParkingProdForPopupAdd");
+		Page<TParkInfoProd> allData = TParkInfoProd.pageByFilter(currentPage,
+				pageSize, orderBy, key, searchObj,0);
+		return ok(views.html.popupAddparkprod.render(allData, currentPage,
+				pageSize, orderBy, key, searchObj));
+	}
+	
+	@Security.Authenticated(SecurityController.class)
 	public static Result gotoParkingProdForPopupByAdmin(int currentPage, int pageSize,
 			String orderBy, long userid) {
 		Logger.debug("goto gotoParkingProdForPopupByAdmin");
