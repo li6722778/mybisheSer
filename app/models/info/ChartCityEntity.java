@@ -37,30 +37,16 @@ public class ChartCityEntity{
 	 * @param city
 	 * @return
 	 */
-	public static HashMap<String,List<ChartCityEntity>> getTop30OrderForEachCity(final String city){
+	public static HashMap<String,List<ChartCityEntity>> getTop30OrderForEachCity(final int days){
 		
 		HashMap<String,List<ChartCityEntity>> map =new HashMap<String,List<ChartCityEntity>>();
 		
-		if(city!=null&&!city.trim().equals("")){
-			String sql = "select count(order_id) as countorder, date_format(order_date,'%m/%d/%Y') as datestring from (select * from tb_order a union select * from tb_order_his b ) c"
-					+ " where date_format(order_date,'%m%d') "
-					+ "between date_format(date_sub(now(), interval 30 day),'%m%d') and "
-					+ "date_format(now(),'%m%d') and order_city like\"%"+city+"%\" group by date_format(order_date,'%Y%m%d') order by order_date desc";
-			
-			final RawSql rawSql = RawSqlBuilder.unparsed(sql)
-					.columnMapping("countorder", "countOrder")
-			        .columnMapping("datestring", "dateString")
-			        .create();
-			final List<ChartCityEntity> ls = Ebean.find(ChartCityEntity.class).setRawSql(rawSql).findList();
-			
-			map.put(city, getRecentlyEmtyDay(ls));
-			
-		}else{
-		List<ChartCityEntity> cities = getTop30City();
+
+		List<ChartCityEntity> cities = getTop30City(days);
 			for(ChartCityEntity c:cities){
 				String sql = "select count(order_id) as countorder, date_format(order_date,'%m/%d/%Y') as datestring from (select * from tb_order a union select * from tb_order_his b ) c"
 						+ "	where date_format(order_date,'%m%d') "
-						+ "between date_format(date_sub(now(), interval 30 day),'%m%d') and "
+						+ "between date_format(date_sub(now(), interval "+days+" day),'%m%d') and "
 						+ "date_format(now(),'%m%d') and order_city like\"%"+c.descri+"%\" group by date_format(order_date,'%Y%m%d') order by order_date desc";
 				final RawSql rawSql = RawSqlBuilder.unparsed(sql)
 						.columnMapping("countorder", "countOrder")
@@ -70,7 +56,7 @@ public class ChartCityEntity{
 				
 				map.put(c.descri, getRecentlyEmtyDay(ls));
 			}
-		}
+		
 		
 		return map;
 	}
@@ -81,28 +67,14 @@ public class ChartCityEntity{
 	 * @param city
 	 * @return
 	 */
-	public static HashMap<String,List<ChartCityEntity>> getTop30OrderForEachCaiji(final String createPerson){
+	public static HashMap<String,List<ChartCityEntity>> getTop30OrderForEachCaiji(final int days){
 		
 		HashMap<String,List<ChartCityEntity>> map =new HashMap<String,List<ChartCityEntity>>();
 		
-		if(createPerson!=null&&!createPerson.trim().equals("")){
-			String sql = "select count(park_id) as countorder, date_format(create_date,'%m/%d/%Y') as datestring from (select a.park_id,a.create_person,a.create_date from tb_parking a union select b.park_id,b.create_person,b.create_date from tb_parking_prod b) c "
-					+ "where date_format(create_date,'%m%d') between date_format(date_sub(now(), interval 30 day),'%m%d') "
-					+ "and date_format(now(),'%m%d') and create_person like \"%"+createPerson+"%\" group by date_format(create_date,'%Y%m%d') order by create_date desc";
-			
-			final RawSql rawSql = RawSqlBuilder.unparsed(sql)
-					.columnMapping("countorder", "countOrder")
-			        .columnMapping("datestring", "dateString")
-			        .create();
-			final List<ChartCityEntity> ls = Ebean.find(ChartCityEntity.class).setRawSql(rawSql).findList();
-			
-			map.put(createPerson, getRecentlyEmtyDay(ls));
-			
-		}else{
-		List<ChartCityEntity> guys = getTop30Person();
+		List<ChartCityEntity> guys = getTop30Person(days);
 			for(ChartCityEntity c:guys){
 				String sql = "select count(park_id) as countorder, date_format(create_date,'%m/%d/%Y') as datestring from (select a.park_id,a.create_person,a.create_date from tb_parking a union select b.park_id,b.create_person,b.create_date from tb_parking_prod b) c "
-						+ "where date_format(create_date,'%m%d') between date_format(date_sub(now(), interval 30 day),'%m%d') "
+						+ "where date_format(create_date,'%m%d') between date_format(date_sub(now(), interval "+days+" day),'%m%d') "
 						+ "and date_format(now(),'%m%d') and create_person like \"%"+c.descri+"%\" group by date_format(create_date,'%Y%m%d') order by create_date desc";
 				
 				final RawSql rawSql = RawSqlBuilder.unparsed(sql)
@@ -113,7 +85,6 @@ public class ChartCityEntity{
 				
 				map.put(c.descri, getRecentlyEmtyDay(ls));
 			}
-		}
 		
 		return map;
 	}
@@ -157,8 +128,8 @@ public class ChartCityEntity{
 	
 	
 	
-	public static List<ChartCityEntity> getTop30City(){
-		String sql = "select distinct order_city from (select * from tb_order a union select * from tb_order_his b ) c	where date_format(order_date,'%m%d') between date_format(date_sub(now(), interval 30 day),'%m%d') and date_format(now(),'%m%d')";
+	public static List<ChartCityEntity> getTop30City(int days){
+		String sql = "select distinct order_city from (select * from tb_order a union select * from tb_order_his b ) c	where date_format(order_date,'%m%d') between date_format(date_sub(now(), interval "+days+" day),'%m%d') and date_format(now(),'%m%d')";
 		final RawSql rawSql = RawSqlBuilder.unparsed(sql).columnMapping("order_city", "descri").create();
 		final List<ChartCityEntity> ls = Ebean.find(ChartCityEntity.class).setRawSql(rawSql).findList();
 		return ls;
@@ -168,8 +139,8 @@ public class ChartCityEntity{
 	 * 获取30天内的采集员
 	 * @return
 	 */
-	public static List<ChartCityEntity> getTop30Person(){
-		String sql = "select distinct create_person from (select a.create_person,a.create_date from tb_parking a union select b.create_person,b.create_date from tb_parking_prod b) c where date_format(create_date,'%m%d') between date_format(date_sub(now(), interval 30 day),'%m%d') and date_format(now(),'%m%d')";
+	public static List<ChartCityEntity> getTop30Person(int days){
+		String sql = "select distinct create_person from (select a.create_person,a.create_date from tb_parking a union select b.create_person,b.create_date from tb_parking_prod b) c where date_format(create_date,'%m%d') between date_format(date_sub(now(), interval "+days+" day),'%m%d') and date_format(now(),'%m%d')";
 		final RawSql rawSql = RawSqlBuilder.unparsed(sql).columnMapping("create_person", "descri").create();
 		final List<ChartCityEntity> ls = Ebean.find(ChartCityEntity.class).setRawSql(rawSql).findList();
 		return ls;

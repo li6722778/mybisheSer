@@ -1,5 +1,5 @@
 @(entityBean: com.avaje.ebean.Page[models.info.TParkInfoProd], 
-currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:String)
+currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:String,status:Int)
 
 
 
@@ -55,7 +55,12 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
 
 							<div class="portlet-body">
                               <div class="btn-group pull-left">    
-								<div class="input-append">												
+								<div class="input-append">		
+								<select class="small m-wrap" tabindex="1" id="status_search_parkingprod">
+															<option value="-1">状态</option>
+															<option value="1" @if(status==1){ selected }>已开放</option>
+															<option value="0" @if(status==0){ selected }>已关闭</option>
+									</select>										
 									<select class="small m-wrap" tabindex="1" id="key_search_parkingprod">
 															<option value="">请选择分类</option>
 															<option value="parkname" @if(key=="parkname"){ selected }>停车场名</option>
@@ -169,7 +174,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
 					               <ul>
 						                @if(entityBean.hasPrev) {
 						                    <li class="prev">
-						                        <a  class="ajaxify" href="javascript:;" post="/w/parkingprod?p=@(entityBean.getPageIndex - 1)&k=@key&v=@searchObj">&larr; 上一页</a>
+						                        <a  class="ajaxify" href="javascript:;" post="/w/parkingprod?p=@(entityBean.getPageIndex - 1)&k=@key&v=@searchObj&s=@status">&larr; 上一页</a>
 						                    </li>
 						                } else {
 						                    <li class="prev disabled">
@@ -181,7 +186,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
 						                </li>
 						                @if(entityBean.hasNext) {
 						                    <li class="next">
-						                        <a class="ajaxify"  href="javascript:;" post="/w/parkingprod?p=@(entityBean.getPageIndex + 1)&k=@key&v=@searchObj">下一页 &rarr;</a>
+						                        <a class="ajaxify"  href="javascript:;" post="/w/parkingprod?p=@(entityBean.getPageIndex + 1)&k=@key&v=@searchObj&s=@status">下一页 &rarr;</a>
 						                    </li>
 						                } else {
 						                    <li class="next disabled">

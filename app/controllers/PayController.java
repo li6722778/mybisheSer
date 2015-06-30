@@ -242,6 +242,21 @@ public class PayController extends Controller{
 						payment = new TOrder_Py();
 					}
 					
+					
+					int payWay = Constants.PAYMENT_TYPE_ZFB;
+					
+					if(chebolePayOptions.useCounpon){
+						if(chebolePayOptions.payActualPrice<=0){ //如果小于0，肯定是优惠券就够用了
+							payWay= Constants.PAYMENT_COUPON;
+						}else{
+							payWay= Constants.PAYMENT_COUPON+Constants.PAYMENT_TYPE_ZFB;
+						}
+					}else{
+						if(chebolePayOptions.payActualPrice<=0){ //如果小于0，肯定是搞活动不要钱了
+							payWay= Constants.PAYMENT_DISCOUNT;
+						}
+					}
+					
 					Date currentDate = new Date();
 					dataBean.orderCity=city;
 					dataBean.orderDate = currentDate;
@@ -253,7 +268,7 @@ public class PayController extends Controller{
 					dataBean.orderDetail=infoPark.detail;
 					
 					payment.payActu=chebolePayOptions.payActualPrice;
-					payment.payMethod=chebolePayOptions.payActualPrice==0?Constants.PAYMENT_TYPE_CASH:Constants.PAYMENT_TYPE_ZFB;
+					payment.payMethod=payWay;
 					payment.payTotal=chebolePayOptions.payOrginalPrice;
 					
 					
@@ -310,7 +325,7 @@ public class PayController extends Controller{
 					LogController.info("generated order and payment successfully:"+dataBean.orderName+
 							",from "+user.userPhone+",bill:"+chebolePayOptions.payActualPrice);
 					
-					if(chebolePayOptions.payActualPrice==0){
+					if(chebolePayOptions.payActualPrice<=0){
 						response.setExtendResponseContext("pass");
 						throw new Exception("当前您无需付费,请前往停车场扫码进场");
 					}
@@ -504,9 +519,15 @@ public class PayController extends Controller{
 					
 					}
 				}
+				
+				int payWay = Constants.PAYMENT_TYPE_ZFB;
+				
+				if(useCounpon){
+					payWay= Constants.PAYMENT_COUPON+Constants.PAYMENT_TYPE_ZFB;
+				}
 
 				newpay.payActu=newpriceWithCouponAndDiscount;
-				newpay.payMethod=newpriceWithCouponAndDiscount==0?Constants.PAYMENT_TYPE_CASH:Constants.PAYMENT_TYPE_ZFB;
+				newpay.payMethod=payWay;
 				newpay.payTotal=newpriceWithoutCouponAndDiscount;
 				newpay.ackStatus=Constants.PAYMENT_STATUS_START;
 				newpay.createPerson=username;
@@ -543,6 +564,7 @@ public class PayController extends Controller{
 				LogController.info("generator order successfully:"+order.orderName+",from "+username);
 			}else{
 				response.setExtendResponseContext("pass");
+
 				//***********已经完成的订单需要移到历史表**************/
 				TOrderHis.moveToHisFromOrder(orderId ,Constants.ORDER_TYPE_FINISH);
 				
@@ -555,7 +577,7 @@ public class PayController extends Controller{
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(payOption);
 		} catch (Exception e) {
-			if(response.getExtendResponseContext().equals("pass")){
+			if(response.getExtendResponseContext()!=null&&response.getExtendResponseContext().equals("pass")){
 				ChebolePayOptions payOption = new ChebolePayOptions();
 				order.endDate = new Date();
 				order.orderStatus = Constants.ORDER_TYPE_FINISH;

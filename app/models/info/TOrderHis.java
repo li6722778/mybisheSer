@@ -19,6 +19,7 @@ import net.sf.cglib.beans.BeanCopier;
 import play.Logger;
 import play.data.format.Formats;
 import play.db.ebean.Model;
+import utils.Arith;
 import utils.CommFindEntity;
 import utils.Constants;
 import utils.DateHelper;
@@ -114,6 +115,15 @@ public class TOrderHis extends Model {
 	}
 	
 	/**
+	 * 得到停车场的完成订单数
+	 * @param parkId
+	 * @return
+	 */
+	public static int findAllCountForPark(long parkId){
+		return find.where().eq("parkid", parkId).eq("orderStatus", 2).findRowCount();
+	}
+	
+	/**
 	 * 新建或更新数据
 	 * 
 	 * @param userinfo
@@ -166,7 +176,7 @@ public class TOrderHis extends Model {
 							hisPy.order = orderHis;
 							pyArray.add(hisPy);
 							if(hisPy.ackStatus == Constants.PAYMENT_STATUS_FINISH){
-							   TIncome.saveIncome(order.parkInfo.parkId, hisPy.payActu);
+							   TIncome.saveIncome(order.parkInfo.parkId, Arith.decimalPrice(hisPy.payActu+hisPy.couponUsed));
 							}
 						}
 						Logger.debug(">>>>>>>>>>>TOrder_Py moving end");
@@ -242,6 +252,29 @@ public class TOrderHis extends Model {
         return allData;
     }
 
+	/**
+	 * 得到停车场下的的所有订单
+	 * @param currentPage
+	 * @param pageSize
+	 * @param orderBy
+	 * @param parkId
+	 * @param filter
+	 * @return
+	 */
+	public static Page<TOrderHis> pageByFilterForPark(int currentPage,int pageSize, String orderBy,long parkId,String filter) {
+		ExpressionList<TOrderHis> elist = find.where();
+		
+		elist.eq("parkId", parkId);
+		
+		if(filter!=null&&!filter.trim().equals("")){
+			elist.ilike("parkId", "%"+filter+"%");
+		}
+		Page<TOrderHis> allData = elist.orderBy(orderBy).fetch("userInfo").fetch("pay").fetch("parkInfo")
+				.findPagingList(pageSize).setFetchAhead(false)
+				.getPage(currentPage);
+        return allData;
+    }
+	
 	/**
 	 * 得到所有数据，有分页
 	 * 
