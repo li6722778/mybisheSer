@@ -126,6 +126,29 @@ public class OrderController extends Controller {
 		Logger.debug("CommFindEntity result:" + json);
 		return ok(jsonNode);
 	}
+	
+	@BasicAuth
+	public static Result getAllHistDataByparkid(int currentPage, int pageSize,
+			String orderBy,long parkid) {
+		Logger.info("start to getAllHisDataForSelf");
+		
+		String idString = flash("userid");
+		Logger.info("get session value for userid:"+idString);
+		long id = 0l;
+		try{
+			id = Long.parseLong(idString);
+		}catch(Exception e){
+			Logger.error("",e);
+		}
+		CommFindEntity<TOrderHis> allData = TOrderHis.findPageDataByparkid(currentPage,
+				pageSize, orderBy,parkid);
+		String json = gsonBuilderWithExpose.toJson(allData);
+		JsonNode jsonNode = Json.parse(json);
+		// String jsonString = Json.stringify(json);
+		Logger.debug("CommFindEntity result:" + json);
+		return ok(jsonNode);
+	}
+	
 
 	/**
 	 * 新建或更新数据，ID不为空或大于0，则是更新数据；否则则是新建数据

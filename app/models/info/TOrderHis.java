@@ -278,4 +278,23 @@ public class TOrderHis extends Model {
 		
 		return allData;
 	}
+	/**
+	 * 得到所有数据
+	 * @param parkid
+	 * @return
+	 */
+	public static CommFindEntity<TOrderHis> findPageDataByparkid(int currentPage,
+			int pageSize, String orderBy, long parkid) {
+
+		CommFindEntity<TOrderHis> result = new CommFindEntity<TOrderHis>();
+
+		Page<TOrderHis> allData = find.fetch("userInfo").fetch("pay").fetch("parkInfo").where().eq("parkId", parkid)
+				.orderBy(orderBy).findPagingList(pageSize).setFetchAhead(false)
+				.getPage(currentPage);
+
+		result.setResult(allData.getList());
+		result.setRowCount(allData.getTotalRowCount());
+		result.setPageCount(allData.getTotalPageCount());
+		return result;
+	}
 }
