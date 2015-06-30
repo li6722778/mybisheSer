@@ -48,6 +48,11 @@ public class TParkInfo_adm  extends Model{
 		return prodArray;
 	}
 	
+	public static List<TParkInfo_adm> findAdmPartInfoByParkId(long parkid){
+		List<TParkInfo_adm> adms = find.fetch("userInfo").where().eq("parkId", parkid).findList();
+		return adms;
+	}
+	
 	public static Page<TParkInfoProd> findDataByUserId(int currentPage,
 			int pageSize, String orderBy, long userid) {
 

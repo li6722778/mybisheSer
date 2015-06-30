@@ -822,6 +822,9 @@ public class PayController extends Controller{
 						order.ackDate = new Date();
 						order.ackStatus = Constants.PAYMENT_STATUS_FINISH;
 						TOrder_Py.saveData(order);
+						
+						
+						
 				
 					if(orderid>0&&needfinishedOrder!=null&&needfinishedOrder.trim().equals("true")){
 						//***********已经完成的订单需要移到历史表**************/
@@ -829,6 +832,25 @@ public class PayController extends Controller{
 					}else{
 						//开始一个任务去设置过期任务
 						scheduleTaskForOverdue(orderid,payId);
+						
+						//start to push
+//						TOrder torder = order.order;
+//						if(torder!=null){
+//							if(torder.parkInfo!=null&&torder.userInfo!=null){
+//							    PushController.pushToParkAdmin(torder.parkInfo.parkId, ""+torder.userInfo.userPhone,torder.orderName);
+//							}else{
+//								Logger.warn("push service is not working. park or user is empty for order:"+torder.orderId);
+//							}
+//						}else{
+//							Logger.warn("push service is not working. order is empty for paymentid:"+order.parkPyId);
+//						}
+//						
+//						
+//						//以下主要是防止json解析无限递归
+//						TOrder torderNew = new TOrder();
+//						torderNew.orderId = torder.orderId;
+//						order.order = torderNew;
+						
 					}
 					LogController.info("payment done for payment id:"+payId+",order id:"+orderid);
 				}else if(status == Constants.PAYMENT_STATUS_PENDING){
@@ -925,10 +947,10 @@ public class PayController extends Controller{
 	public static Result notifyPayResult(){
 		Logger.info("###########get feedback from aili post#############");
 		try {
-			String request = request().body().asText().toString();
+			String request = request().body().toString();
 			LogController.info("pay notify: "+request,"alipay");
 		}catch(Exception e){
-			LogController.info("pay notify:"+e.getMessage(),"alipay");
+			LogController.info("pay notify exception:"+e.getMessage(),"alipay");
 		}
 		return ok("success");
 	}
