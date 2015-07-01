@@ -31,10 +31,12 @@ public class PushController extends Controller{
 	 * @param clientId
 	 */
 	public static Result registerAdmUser(long userid,String clientId){
+		Logger.debug("###register user:"+userid+", client id: "+clientId+"#######");
 		if(userid>0&&clientId!=null&&!clientId.trim().equals("")){
 			clientMap.put(userid, clientId);
+			return ok("ok");
 		}
-		return ok("ok");
+		return ok("no action");
 	}
 	
 	

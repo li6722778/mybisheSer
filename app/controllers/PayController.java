@@ -834,22 +834,22 @@ public class PayController extends Controller{
 						scheduleTaskForOverdue(orderid,payId);
 						
 						//start to push
-//						TOrder torder = order.order;
-//						if(torder!=null){
-//							if(torder.parkInfo!=null&&torder.userInfo!=null){
-//							    PushController.pushToParkAdmin(torder.parkInfo.parkId, ""+torder.userInfo.userPhone,torder.orderName);
-//							}else{
-//								Logger.warn("push service is not working. park or user is empty for order:"+torder.orderId);
-//							}
-//						}else{
-//							Logger.warn("push service is not working. order is empty for paymentid:"+order.parkPyId);
-//						}
-//						
-//						
-//						//以下主要是防止json解析无限递归
-//						TOrder torderNew = new TOrder();
-//						torderNew.orderId = torder.orderId;
-//						order.order = torderNew;
+						TOrder torder = order.order;
+						if(torder!=null){
+							if(torder.parkInfo!=null&&torder.userInfo!=null){
+							    PushController.pushToParkAdmin(torder.parkInfo.parkId, ""+torder.userInfo.userPhone,torder.orderName);
+							}else{
+								Logger.warn("push service is not working. park or user is empty for order:"+torder.orderId);
+							}
+						}else{
+							Logger.warn("push service is not working. order is empty for paymentid:"+order.parkPyId);
+						}
+						
+						
+						//以下主要是防止json解析无限递归
+						TOrder torderNew = new TOrder();
+						torderNew.orderId = torder.orderId;
+						order.order = torderNew;
 						
 					}
 					LogController.info("payment done for payment id:"+payId+",order id:"+orderid);
