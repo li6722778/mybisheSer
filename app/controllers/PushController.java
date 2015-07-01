@@ -1,11 +1,12 @@
 package controllers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-import models.info.TParkInfo_adm;
 import play.Logger;
 import play.mvc.Controller;
+import play.mvc.Result;
 import utils.ConfigHelper;
 
 import com.gexin.rp.sdk.base.IPushResult;
@@ -21,6 +22,20 @@ public class PushController extends Controller{
 	static String master = ConfigHelper.getString("push.getui.master");;
 	static String host = ConfigHelper.getString("push.getui.host");;
 	//static String Alias = "";
+	
+	public static HashMap<Long,String> clientMap = new HashMap<Long,String>();
+	
+	/**
+	 * 注册一个用户的clientId
+	 * @param userid
+	 * @param clientId
+	 */
+	public static Result registerAdmUser(long userid,String clientId){
+		if(userid>0&&clientId!=null&&!clientId.trim().equals("")){
+			clientMap.put(userid, clientId);
+		}
+		return ok("ok");
+	}
 	
 	
 	public static void pushToParkAdmin(final long parkId,final String phone,final String orderName) {
@@ -41,15 +56,13 @@ public class PushController extends Controller{
 			// message.setPushNetWorkType(1);
 	
 			List<Target> targets = new ArrayList<Target>();
-			
-			 List<TParkInfo_adm> adms = TParkInfo_adm.findAdmPartInfoByParkId(parkId);
-			if(adms!=null){
-				for(TParkInfo_adm adm:adms){
+			if(clientMap!=null){
+				for(String clientId:clientMap.values()){
 					Target target = new Target();
 					target.setAppId(appId);
-					//target.setClientId(""+adm.userInfo.userid);
-					Logger.debug("#####userInfo:"+adm.userInfo.userid);
-					target.setAlias(""+adm.userInfo.userid);
+					target.setClientId(clientId);
+					Logger.debug("###try to push to user:"+clientId);
+					//target.setAlias(""+adm.userInfo.userid);
 					targets.add(target);
 				}
 			}

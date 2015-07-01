@@ -16,6 +16,9 @@ GET		/a/ans                       controllers.MapFindController.findNearbyParkin
 
 POST    /pay/notify                   controllers.PayController.notifyPayResult()
 
+##ge tui user resgiter
+GET     /a/push/register/:userid              controllers.PushController.registerAdmUser(userid:Long,clientId?="")
+
 #######version###############
 GET  /a/version                               controllers.VersionController.getVersion()
 
