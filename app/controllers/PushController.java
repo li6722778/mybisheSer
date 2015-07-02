@@ -53,7 +53,7 @@ public class PushController extends Controller{
 	
 			ListMessage message = new ListMessage();
 			message.setData(template);
-			message.setOffline(true);
+			message.setOffline(false);
 			message.setOfflineExpireTime(1000*3600*24);
 			// message.setPushNetWorkType(1);
 	
