@@ -107,7 +107,7 @@ public class WebPageController extends Controller {
 			String orderBy, String key, String searchObj) {
 		Logger.debug("goto gotoParkingProdForPopup");
 		Page<TParkInfoProd> allData = TParkInfoProd.pageByFilter(currentPage,
-				pageSize, orderBy, key, searchObj,0);
+				pageSize, orderBy, key, searchObj,-1);
 		flash("onlyshow","false");
 		return ok(views.html.popupparkprod.render(allData, currentPage,
 				pageSize, orderBy, key, searchObj));
@@ -118,7 +118,7 @@ public class WebPageController extends Controller {
 			String orderBy, String key, String searchObj) {
 		Logger.debug("goto gotoParkingProdForPopupAdd");
 		Page<TParkInfoProd> allData = TParkInfoProd.pageByFilter(currentPage,
-				pageSize, orderBy, key, searchObj,0);
+				pageSize, orderBy, key, searchObj,-1);
 		return ok(views.html.popupAddparkprod.render(allData, currentPage,
 				pageSize, orderBy, key, searchObj));
 	}

@@ -174,7 +174,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
 					               <ul>
 						                @if(entityBean.hasPrev) {
 						                    <li class="prev">
-						                        <a  class="ajaxify" href="javascript:;" post="/w/parkingprod?p=@(entityBean.getPageIndex - 1)&k=@key&v=@searchObj&s=@status">&larr; 上一页</a>
+						                        <a  class="ajaxify" href="javascript:;" post="/w/parkingprod?p=@(entityBean.getPageIndex - 1)&k=@key&v=@searchObj&open=@status">&larr; 上一页</a>
 						                    </li>
 						                } else {
 						                    <li class="prev disabled">
@@ -186,7 +186,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
 						                </li>
 						                @if(entityBean.hasNext) {
 						                    <li class="next">
-						                        <a class="ajaxify"  href="javascript:;" post="/w/parkingprod?p=@(entityBean.getPageIndex + 1)&k=@key&v=@searchObj&s=@status">下一页 &rarr;</a>
+						                        <a class="ajaxify"  href="javascript:;" post="/w/parkingprod?p=@(entityBean.getPageIndex + 1)&k=@key&v=@searchObj&open=@status">下一页 &rarr;</a>
 						                    </li>
 						                } else {
 						                    <li class="next disabled">
