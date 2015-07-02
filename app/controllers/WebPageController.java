@@ -218,13 +218,13 @@ public class WebPageController extends Controller {
 		Logger.info("GOTO approveParking,FOR" + pidarray);
 		if (pidarray != null && pidarray.length() > 0) {
 			String[] pids = pidarray.split(",");
+			LogController.info("approve parking for submitted parking id:"+pidarray);
 			for (String pidString : pids) {
 				if(!pidString.trim().equals("")){
 					try {
 						long pid = Long.parseLong(pidString);
 						Logger.info("try to approve pid:" + pid);
 						ParkProdController.copyData(pid);
-						LogController.info("approve parking for submitted parking id:"+pidarray);
 					} catch (Exception e) {
 						Logger.error("deleteParking:" + pidString, e);
 					}
