@@ -17,6 +17,7 @@ import com.gexin.rp.sdk.base.impl.ListMessage;
 import com.gexin.rp.sdk.base.impl.Target;
 import com.gexin.rp.sdk.http.IGtPush;
 import com.gexin.rp.sdk.template.NotificationTemplate;
+import com.gexin.rp.sdk.template.TransmissionTemplate;
 
 public class PushController extends Controller{
 
@@ -51,7 +52,7 @@ public class PushController extends Controller{
 			// LinkTemplate template = linkTemplateDemo();
 	//		 TransmissionTemplate template = TransmissionTemplateDemo();
 	//		 LinkTemplate template = linkTemplateDemo();
-			NotificationTemplate template = NotificationTemplateDemo(phone,orderName);
+			TransmissionTemplate template = transmissionTemplateDemo(phone,orderName);
 			// NotyPopLoadTemplate template = NotyPopLoadTemplateDemo();
 	
 			ListMessage message = new ListMessage();
@@ -107,4 +108,15 @@ public class PushController extends Controller{
 //				"locKey", "locArgs", "launchImage");
 		return template;
 	}
+	
+
+public static TransmissionTemplate transmissionTemplateDemo(String phone,String orderName) {
+    TransmissionTemplate template = new TransmissionTemplate();
+    template.setAppId(appId);
+    template.setAppkey(appkey);
+    // 透传消息设置，1为强制启动应用，客户端接收到消息后就会立即启动应用；2为等待应用启动
+    template.setTransmissionType(2);
+    template.setTransmissionContent(phone+"已经成功下单["+orderName+"]-"+DateHelper.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
+    return template;
+}
 }
