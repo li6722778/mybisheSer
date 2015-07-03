@@ -108,6 +108,12 @@ var UserList = function () {
      		    
      		   var type = $('#popuptype').val();
      		   
+
+     		  if (type == "undefined") { 
+     			   type = 20;
+     			   alert("change type to 20");
+     		   }
+     		   
      		   // alert("select:"+checked+",type:"+type+"||person:"+person);
      		    
      		   if(checked.length>0&&person.length>0){
@@ -136,7 +142,12 @@ var UserList = function () {
       		     $("input[name='userselect']:checked").each(function() {
       	            checked+=$(this).val()+",";
       	        });
-       		 
+      		     
+      		   if (type == "undefined") { 
+     			   type = 20;
+     			   alert("change type to 20");
+     		   }
+     		   
       		     if(checked.length>0){
       		    	App.scrollTop();
       		    	 var pageContent = $('.page-content');

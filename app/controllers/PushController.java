@@ -1,13 +1,16 @@
 package controllers;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import models.info.TParkInfo_adm;
 import play.Logger;
 import play.mvc.Controller;
 import play.mvc.Result;
 import utils.ConfigHelper;
+import utils.DateHelper;
 
 import com.gexin.rp.sdk.base.IPushResult;
 import com.gexin.rp.sdk.base.impl.ListMessage;
@@ -42,7 +45,7 @@ public class PushController extends Controller{
 	
 	public static void pushToParkAdmin(final long parkId,final String phone,final String orderName) {
 		Logger.info("########plan to push to administrator of park:"+parkId+" for "+phone+"#######");
-		
+	
 		try{
 			final IGtPush push = new IGtPush(host, appkey, master);
 			// LinkTemplate template = linkTemplateDemo();
@@ -59,13 +62,21 @@ public class PushController extends Controller{
 	
 			List<Target> targets = new ArrayList<Target>();
 			if(clientMap!=null){
-				for(String clientId:clientMap.values()){
-					Target target = new Target();
-					target.setAppId(appId);
-					target.setClientId(clientId);
-					Logger.debug("###try to push to user:"+clientId);
-					//target.setAlias(""+adm.userInfo.userid);
-					targets.add(target);
+				
+				List<TParkInfo_adm>  adms = TParkInfo_adm.findAdmPartInfoByParkId(parkId);
+				
+				if(adms!=null){
+					for(TParkInfo_adm adm:adms){
+						String clientId = clientMap.get(adm.userInfo.userid);
+						if(clientId!=null){
+							Target target = new Target();
+							target.setAppId(appId);
+							target.setClientId(clientId);
+							Logger.debug("###try to push to user:"+clientId);
+							//target.setAlias(""+adm.userInfo.userid);
+							targets.add(target);
+						}
+					}
 				}
 			}
 
@@ -84,7 +95,7 @@ public class PushController extends Controller{
 		template.setAppId(appId);
 		template.setAppkey(appkey);
 		template.setTitle("收到"+phone+"的车位订单");
-		template.setText(orderName+"已经成功下单。");
+		template.setText(phone+"已经成功下单["+orderName+"]-"+DateHelper.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
 		template.setLogo("ic_launcher.png");
 		template.setLogoUrl("");
 		template.setIsRing(true);

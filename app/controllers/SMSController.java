@@ -53,8 +53,8 @@ public class SMSController extends Controller{
 		}
 		
 		if(type==0){
-			if(usrinfo.userType>=Constants.USER_TYPE_MADMIN
-					&&usrinfo.userType<Constants.USER_TYPE_MADMIN+10){
+			if(usrinfo.userType<Constants.USER_TYPE_MADMIN
+					&&usrinfo.userType>=Constants.USER_TYPE_MADMIN+10){
 				return ok("该手机号码不能登录后台系统");
 			}
 		}

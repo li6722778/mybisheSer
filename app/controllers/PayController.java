@@ -837,7 +837,7 @@ public class PayController extends Controller{
 						TOrder torder = order.order;
 						if(torder!=null){
 							if(torder.parkInfo!=null&&torder.userInfo!=null){
-							    PushController.pushToParkAdmin(torder.parkInfo.parkId, ""+torder.userInfo.userPhone,torder.orderName);
+							    PushController.pushToParkAdmin(torder.parkInfo.parkId, ""+torder.userInfo.userPhone,torder.parkInfo.parkname);
 							}else{
 								Logger.warn("push service is not working. park or user is empty for order:"+torder.orderId);
 							}
@@ -948,7 +948,8 @@ public class PayController extends Controller{
 		Logger.info("###########get feedback from aili post#############");
 		try {
 			String request = request().body().toString();
-			LogController.info("pay notify: "+request,"alipay");
+			Logger.info("#####feedback:"+request);
+			LogController.info("pay notify in log","alipay");
 		}catch(Exception e){
 			LogController.info("pay notify exception:"+e.getMessage(),"alipay");
 		}
