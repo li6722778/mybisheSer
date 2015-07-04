@@ -52,6 +52,10 @@ public class TOrderHis extends Model {
 	@Expose
 	public String orderCity;
 
+	@Column(columnDefinition = "integer(2) default 0")
+	@Expose
+	public int orderFeeType;
+	
 	@Expose
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "parkId")

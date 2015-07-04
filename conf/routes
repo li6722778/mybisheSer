@@ -102,7 +102,7 @@ GET     /                             controllers.Application.index()
 POST    /login                        controllers.AuthController.authenticate()
 GET		/logout                       controllers.AuthController.logout()
 
-POST    /w/log                        controllers.WebPageController.gotoLog(p:Int ?= 0, s:Int ?= 10, o ?= "operateDate desc",f?="")
+POST    /w/log                        controllers.WebPageController.gotoLog(p:Int ?= 0, s:Int ?= 20, o ?= "operateDate desc",f?="")
 
 #BELOW for menu jump
 POST     /w/dashboard                      controllers.WebPageController.gotoDashboard()
