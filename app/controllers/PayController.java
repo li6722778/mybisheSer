@@ -470,12 +470,17 @@ public class PayController extends Controller{
 			}
 			Logger.debug("pay for out:::::::::::getNewPriceAfterDiscount:"+newprice);
 			if(newprice>0){
-				//计算使用优惠卷后的的价格
-				newpriceWithCouponAndDiscount = Arith.decimalPrice(Math.abs(newprice-canbeUsedCoupon));
+				if(newprice-canbeUsedCoupon<=0){
+					newpriceWithCouponAndDiscount=0;
+				}else{
+				  //计算使用优惠卷后的的价格
+				  newpriceWithCouponAndDiscount = Arith.decimalPrice(Math.abs(newprice-canbeUsedCoupon));
+				}
 				
 				if(newpriceWithCouponAndDiscount<newprice){
 					useCounpon = true;
 				}
+				
 			}
 			
 			Logger.debug("pay for out:::::::::::show Actual Price:"+newpriceWithCouponAndDiscount);

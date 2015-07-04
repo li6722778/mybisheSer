@@ -24,7 +24,7 @@ public class CounponController extends Controller{
 	
 	public static Result getAllDataByUser(int currentPage, int pageSize, String orderBy,long user) {
 		Logger.info("start to get all data by user");
-		CommFindEntity<TUseCouponEntity> allData = TUseCouponEntity.findPageDataByuserid(currentPage,
+		CommFindEntity<TUseCouponEntity> allData = TUseCouponEntity.findValidPageDataByuserid(currentPage,
 				pageSize, orderBy,user);
 		String json = gsonBuilderWithExpose.toJson(allData);
 		JsonNode jsonNode = Json.parse(json);

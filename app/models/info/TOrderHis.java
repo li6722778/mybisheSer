@@ -33,6 +33,8 @@ import com.avaje.ebean.SqlQuery;
 import com.avaje.ebean.TxRunnable;
 import com.google.gson.annotations.Expose;
 
+import controllers.PushController;
+
 @Entity
 @Table(name = "tb_order_his")
 public class TOrderHis extends Model {
@@ -151,11 +153,10 @@ public class TOrderHis extends Model {
 	 */
 	public static void moveToHisFromOrder(final Long orderId, final int status){
 		Logger.info("move to history table");
-		
+		final TOrder order = TOrder.findDataById(orderId);
 		Ebean.execute(new TxRunnable() {
 			public void run() {
 				
-				TOrder order = TOrder.findDataById(orderId);
 				if(order!=null){
 					Logger.debug(">>>>order moving start");
 					
@@ -195,6 +196,24 @@ public class TOrderHis extends Model {
 				
 			}
 		});
+		
+		
+		if(order!=null){
+			TParkInfoProd parkInfo = order.parkInfo;
+			if(parkInfo!=null){
+				
+				TuserInfo user = order.userInfo;
+				String phone = "";
+				if(user!=null){
+					phone = ""+user.userPhone;
+				}else{
+					phone = "订单号:"+order.orderId+" ";
+				}
+				
+		       //发送通知
+		       PushController.pushToParkAdminForOut(parkInfo.parkId, phone, order.orderName);
+			}
+		}
 	}
 
 	/**

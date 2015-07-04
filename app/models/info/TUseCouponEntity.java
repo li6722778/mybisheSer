@@ -123,13 +123,13 @@ public class TUseCouponEntity extends Model {
 	 * @param orderBy
 	 * @return
 	 */
-	public static CommFindEntity<TUseCouponEntity> findPageDataByuserid(
+	public static CommFindEntity<TUseCouponEntity> findValidPageDataByuserid(
 			int currentPage, int pageSize, String orderBy, long userid) {
 
 		CommFindEntity<TUseCouponEntity> result = new CommFindEntity<TUseCouponEntity>();
 
 		Page<TUseCouponEntity> allData = find.fetch("userInfo")
-				.fetch("counponentity").where().eq("t0.userid", userid)
+				.fetch("counponentity").where().eq("t0.userid", userid).eq("isable", 1)
 				.orderBy(orderBy).findPagingList(pageSize).setFetchAhead(false)
 				.getPage(currentPage);
 		// 没有这段，TCouponEntity里的数据就只有id

@@ -177,7 +177,9 @@ public class ScanController extends Controller{
 		
 		if(scanResult!=null&&!scanResult.trim().equals("")){
 			if(scanResult.startsWith("http")){ 
+				Logger.info(">>>>>>scanResult:"+scanResult);
 				String[] scans = scanResult.split("\\#");
+				Logger.info(">>>>>>scans.length:"+scans.length);
 				if(scans.length>1){
 					//第二个就是parkingId
 					String parkStr = scans[1];
