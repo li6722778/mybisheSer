@@ -108,10 +108,8 @@ var UserList = function () {
      		    
      		   var type = $('#popuptype').val();
      		   
-
-     		  if (type == "undefined") { 
+     		  if (type == null) { 
      			   type = 20;
-     			   alert("change type to 20");
      		   }
      		   
      		   // alert("select:"+checked+",type:"+type+"||person:"+person);
@@ -142,10 +140,9 @@ var UserList = function () {
       		     $("input[name='userselect']:checked").each(function() {
       	            checked+=$(this).val()+",";
       	        });
-      		     
-      		   if (type == "undefined") { 
+
+      		   if (type == null) { 
      			   type = 20;
-     			   alert("change type to 20");
      		   }
      		   
       		     if(checked.length>0){

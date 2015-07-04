@@ -161,6 +161,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
 
     		     var key = $("#key_search_parkingprodpopup").val();
     		     var value = $("#value_search_parkingprodpopup").val();
+    		     var type = $('#popuptype').val();
     		   
     		     var pageContent = $('.page-content');
     		     var pageContentBody = $('.page-content .page-content-body');
@@ -170,6 +171,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
        		 if(result){
        			
        			$("#form_modal3 .modal-body").html(result);
+       			$("<input  type=hidden value="+type+" id=usertype />").appendTo("#form_modal3_adm .modal-body");
        		 }
   			});
  		     
