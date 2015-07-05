@@ -446,8 +446,9 @@ public class PayController extends Controller {
 			Logger.debug("pay for out:::::::::::show pay money:"
 					+ totalAlreadyPay);
 
+			int feeType = order.orderFeeType<=0?parkinfo.feeType:order.orderFeeType;
 			// 计算价格
-			if (parkinfo.feeType != 1) {// 计次收费
+			if (feeType != 1) {// 计次收费
 				double realPayPrice = parkinfo.feeTypefixedHourMoney;
 
 				newpriceWithoutCouponAndDiscount = Arith
@@ -463,7 +464,7 @@ public class PayController extends Controller {
 							+ Arith.decimalPrice(actuAlreadyPay) + "元],无需再次付款。");
 				}
 
-			} else if (parkinfo.feeType == 1) {// 分段收费
+			} else if (feeType == 1) {// 分段收费
 				// 头几个小时
 				int feeTypeSecInScopeHours = parkinfo.feeTypeSecInScopeHours;
 
@@ -825,16 +826,19 @@ public class PayController extends Controller {
 
 				@Override
 				public void run() {
-					TOrder order = TOrder.findDataById(orderid);
+					final TOrder order = TOrder.findDataById(orderid);
 					if (order != null) {
-						TParkInfoProd parking = order.parkInfo;
+						final TParkInfoProd parking = order.parkInfo;
 						if (parking != null && order.startDate == null) {
 
 							// 取出支付成功的时间
 							Date payDate = new Date();
 
 							int time = 0;
-							if (parking.feeType == 1) {// 分段计费的情况下
+							
+							final int feeType = order.orderFeeType<=0?parking.feeType:order.orderFeeType;
+							
+							if (feeType == 1) {// 分段计费的情况下
 								time = parking.feeTypeSecMinuteOfActivite;
 							} else {
 								time = parking.feeTypeFixedMinuteOfInActivite;
@@ -851,16 +855,23 @@ public class PayController extends Controller {
 														Logger.debug("#######AKKA schedule start>> set order to overdue:"
 																+ orderid
 																+ "#########");
-														TOrder order = TOrder
-																.findDataById(orderid);
+//														TOrder order = TOrder
+//																.findDataById(orderid);
+														
+														//计次收费，就这是为过期就行
 														if (order != null
 																&& order.startDate == null) {
-															order.orderStatus = Constants.ORDER_TYPE_OVERDUE;
-
-															Set<String> options = new HashSet<String>();
-															options.add("orderStatus");
-															Ebean.update(order,
-																	options);
+															
+															if(feeType!=1){
+															    order.orderStatus = Constants.ORDER_TYPE_OVERDUE;
+																Set<String> options = new HashSet<String>();
+																options.add("orderStatus");
+																Ebean.update(order,
+																		options);
+															}else if(feeType==1){
+																String scanResult = "http://chebole#"+parking.parkId;
+																 ScanController.scanForIn(order.orderId, scanResult);
+															}
 															Logger.debug("#######AKKA schedule end>> done for overdue:"
 																	+ orderid
 																	+ "#########");

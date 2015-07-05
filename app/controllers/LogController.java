@@ -67,14 +67,24 @@ public class LogController extends Controller {
 			log.content = logcontent;
 			log.extraString = extLog;
 			log.level = level;
-			String userphone = flash("userphone");
-			String username = flash("username");
-			String userid = flash("userid");
+			
+			String userphone ="";
+			String username="";
+			String userid = "";
+			
+			try{
+			 userphone = flash("userphone");
+			 username = flash("username");
+			 userid = flash("userid");
 			
 			if(userphone==null){
 				userphone = session("userphone");
 				username = session("username");
 				userid = session("usertype");
+			}
+			}catch(Exception e){
+				userphone="unknow";
+				username="unknow";
 			}
 			
 			log.operateName = username + "[" + userid + "," + userphone + "]";

@@ -146,8 +146,11 @@ GET      /w/order/setexception                       controllers.WebPageControll
 POST      /w/orderchart                          controllers.WebPageController.gotoOrderChart()
 GET      /w/order/delete                        controllers.WebPageController.deleteOrder(p ?= "")
 
+POST      /w/parkaccount                   controllers.WebPageController.gotoParkAccount(p:Int ?= 0, s:Int ?= 10, o ?= "approveDate desc",k?="",v?="",open:Int?=-1)    
+POST      /w/parkaccount/update/:parkId    controllers.WebPageController.saveParkingAcctounyData(p:Int ?= 0, s:Int ?= 10, o ?= "approveDate desc",k?="",v?="",open:Int?=-1,parkId:Long,bn?="",bc?="")    
 POST      /w/income                        controllers.WebPageController.gotoIncome(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc", f ?="")
 POST      /w/income/:parkid                controllers.WebPageController.gotoIncomeDetailOrderHis(p:Int ?= 0, s:Int ?= 10, o ?= "orderDate desc",parkid:Long,f?="")
+POST      /w/takecash                      controllers.WebPageController.gotoTakeCash(p:Int ?= 0, s:Int ?= 10, o ?= "askdata desc")
 
 
 POST      /w/coupon/add                          controllers.WebPageController.gotoCouponAdd()

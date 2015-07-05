@@ -162,6 +162,8 @@ public class UserController extends Controller {
 			
 			user.userType=RoleConstants.USER_TYPE_NORMAL;
 			TuserInfo.saveData(user);
+			user.passwd = Crypto.decryptAES(user.passwd);
+			
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(user);
 			response.setExtendResponseContext("用户注册成功.");

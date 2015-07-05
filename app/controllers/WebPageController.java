@@ -21,6 +21,7 @@ import models.info.TParkInfoProd;
 import models.info.TParkInfo_Img;
 import models.info.TParkInfo_Loc;
 import models.info.TParkInfo_adm;
+import models.info.TTakeCash;
 import models.info.TVersion;
 import models.info.TuserInfo;
 import play.Logger;
@@ -101,6 +102,58 @@ public class WebPageController extends Controller {
 		return ok(views.html.parkingprod.render(allData, currentPage, pageSize,
 				orderBy, key, searchObj,isopen));
 	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoParkAccount(int currentPage, int pageSize,
+			String orderBy, String key, String searchObj,int isopen) {
+		Logger.debug("goto gotoParkAccount");
+		Page<TParkInfoProd> allData = TParkInfoProd.pageByFilter(currentPage,
+				pageSize, orderBy, key, searchObj,isopen);
+		return ok(views.html.parkaccount.render(allData, currentPage, pageSize,
+				orderBy, key, searchObj,isopen));
+	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result saveParkingAcctounyData(int currentPage, int pageSize,
+			String orderBy, String key, String searchObj,int isopen, long parkId,String bankName,String bankAccount) {
+		Logger.debug("goto saveParkingAcctounyData");
+	
+		try{
+			String userName = session("username");
+			TParkInfoProd prod =TParkInfoProd.findDataById(parkId);
+			prod.venderBankName = bankName;
+			prod.venderBankNumber = bankAccount;
+			prod.updateDate = new Date();
+			prod.updatePerson =userName;
+			
+			Set<String> options = new HashSet<String>();
+			options.add("venderBankName");
+			options.add("venderBankNumber");
+			options.add("updateDate");
+			options.add("updatePerson");
+			Ebean.update(prod, options);
+
+			LogController.info("set bank account for parkid"+parkId+" to "+bankAccount);
+		}catch(Exception e){
+			Logger.error("saveParkingAcctounyData",e);
+		}
+		
+
+		return gotoParkAccount( currentPage,  pageSize,
+				 orderBy,  key,  searchObj, isopen);
+	}
+	
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoTakeCash(int currentPage, int pageSize,
+			String orderBy) {
+		Logger.debug("goto gotoTakeCash");
+		Page<TTakeCash> allData = TTakeCash.findPageDataForWeb(currentPage,
+				pageSize, orderBy);
+		return ok(views.html.takecash.render(allData, currentPage, pageSize,
+				orderBy));
+	}
+	
 
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoParkingProdForPopup(int currentPage, int pageSize,

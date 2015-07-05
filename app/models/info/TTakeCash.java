@@ -7,18 +7,18 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.Size;
+
+import play.data.format.Formats;
+import play.data.validation.Constraints;
+import play.db.ebean.Model;
+import utils.CommFindEntity;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Page;
 import com.avaje.ebean.TxRunnable;
 import com.google.gson.annotations.Expose;
-
-import play.data.format.Formats;
-import play.data.validation.Constraints;
-import play.db.ebean.Model;
-import play.db.ebean.Model.Finder;
-import utils.CommFindEntity;
 
 @Entity
 @Table(name = "tb_takecash")
@@ -73,6 +73,10 @@ public class TTakeCash extends Model{
 	@Size(max = 50)
 	@Expose
 	public String handleName;
+	
+	@Transient
+	@Expose
+	public TParkInfoProd parkprod;
 
 	// 查询finder，用于其他方法中需要查询的场景
 		public static Finder<Long, TTakeCash> find = new Finder<Long, TTakeCash>(
@@ -155,6 +159,31 @@ public class TTakeCash extends Model{
 			result.setRowCount(allData.getTotalRowCount());
 			result.setPageCount(allData.getTotalPageCount());
 			return result;
+		}
+		
+
+		/**
+		 * 
+		 * @param currentPage
+		 * @param pageSize
+		 * @param orderBy
+		 * @return
+		 */
+		public static Page<TTakeCash> findPageDataForWeb(int currentPage,int pageSize, String orderBy) {
+
+			Page<TTakeCash> allData = find.where().orderBy(orderBy)
+					.findPagingList(pageSize).setFetchAhead(false)
+					.getPage(currentPage);
+
+			List<TTakeCash> tcashList = allData.getList();
+			if(tcashList!=null){
+				for(TTakeCash cash:tcashList){
+					long parkid = cash.parkid;
+					cash.parkprod = TParkInfoProd.findDataById(parkid);
+				}
+			}
+			
+			return allData;
 		}
 
 		

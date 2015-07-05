@@ -238,7 +238,7 @@ public class ScanController extends Controller{
 					throw new Exception("该订单不属于此停车场，请检查");
 				}
 				
-				int feeType = parkinfo.feeType;
+				int feeType = order.orderFeeType<=0?parkinfo.feeType:order.orderFeeType;
 				
 				order.startDate = new Date();
 				
