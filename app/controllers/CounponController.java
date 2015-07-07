@@ -42,7 +42,7 @@ public class CounponController extends Controller{
 		ComResponse<TCouponEntity>  response = new ComResponse<TCouponEntity>();
 		TCouponEntity counponbean=TCouponEntity.findentityByCode(counponcode);
 		TuserInfo useinfo;
-		if(counponbean==null||(counponbean.count>0&&counponbean.scancount>counponbean.count)||counponbean.isable==0)
+		if(counponbean==null||(counponbean.count>0&&counponbean.scancount>counponbean.count)||counponbean.isable==0||counponbean.isable==2)
 		{
 			Logger.debug("not find TCouponEntity");
 			return ok();

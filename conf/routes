@@ -151,7 +151,7 @@ POST      /w/parkaccount/update/:parkId    controllers.WebPageController.savePar
 POST      /w/income                        controllers.WebPageController.gotoIncome(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc", f ?="")
 POST      /w/income/:parkid                controllers.WebPageController.gotoIncomeDetailOrderHis(p:Int ?= 0, s:Int ?= 10, o ?= "orderDate desc",parkid:Long,f?="")
 POST      /w/takecash                      controllers.WebPageController.gotoTakeCash(p:Int ?= 0, s:Int ?= 10, o ?= "askdata desc")
-
+POST       /w/takecash/update/:status       controllers.WebPageController.updateTakeCash(p:Int ?= 0, s:Int ?= 10, o ?= "askdata desc",status:Int, pid?="")
 
 POST      /w/coupon/add                          controllers.WebPageController.gotoCouponAdd()
 POST      /w/coupon                              controllers.WebPageController.gotoCoupon(p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",f ?="")

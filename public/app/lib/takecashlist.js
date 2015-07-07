@@ -41,6 +41,36 @@ var UserList = function () {
                });
         	
         	
+        	 $('.button_update_cash_status').click(function(){
+       	    	 var type = jQuery(this).attr("type");
+       	    	 
+       	    	 var currentPage = jQuery(this).attr("currentPage");
+       	    	 
+       	    	 var checked = "";
+      		     $("input[name='cashselect']:checked").each(function() {
+      	            checked+=$(this).val()+",";
+      	        });
+
+      		   if (type == null) { 
+     			   type = 1;
+     		   }
+     		   
+      		     if(checked.length>0){
+      		    	App.scrollTop();
+      		    	 var pageContent = $('.page-content');
+      		    	var pageContentBody = $('.page-content .page-content-body');
+           		     App.blockUI(pageContent, false);
+           		 
+	        		 $.post("/w/takecash/update/"+type+"?p="+currentPage+"&pid="+checked, {}, function (res) {
+	                     pageContentBody.html(res);
+	                        App.fixContentHeight(); // fix content height
+	                        App.initUniform(); // initialize uniform elements
+	                        App.unblockUI(pageContent);
+	                    
+	                 });
+       	     }
+       	    	
+        	 });
        
         	        
         }

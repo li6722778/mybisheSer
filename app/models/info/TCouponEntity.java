@@ -47,7 +47,7 @@ public class TCouponEntity extends Model{
 	@Expose
 	public int scancount;
 	
-	//1表示启用，0表示关闭
+	//1表示启用，0表示关闭,2表示正在使用
 	@Column(columnDefinition = "integer(2) default 1")
 	@Expose
 	public int isable;

@@ -76,6 +76,18 @@ public class TUseCouponEntity extends Model {
 				.findRowCount();
 		return total > 0 ? true : false;
 	}
+	
+	/**
+	 * 查找当前用户是否有优惠券
+	 * 
+	 * @param id
+	 * @param userid
+	 * @return
+	 */
+	public static TUseCouponEntity getExistCouponByUserIdAndId(long id, long userid) {
+		List<TUseCouponEntity>  total = find.where().eq("counponId", id).eq("userid", userid).findList();
+		return total!=null&&total.size()>0 ? total.get(0) :null;
+	}
 
 	
 	/**

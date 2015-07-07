@@ -20,6 +20,7 @@ import models.info.TOrder;
 import models.info.TOrderHis;
 import models.info.TOrder_Py;
 import models.info.TParkInfoProd;
+import models.info.TUseCouponEntity;
 import models.info.TuserInfo;
 import play.Logger;
 import play.libs.Akka;
@@ -615,7 +616,9 @@ public class PayController extends Controller {
 				TOrderHis.moveToHisFromOrder(orderId,
 						Constants.ORDER_TYPE_FINISH);
 
-				throw new Exception("没有产生其他费用，请出场");
+				double actPay= Arith.decimalPrice(actuAlreadyPay);
+				
+				throw new Exception("应付"+actPay+"元，已付"+actPay+"元，还需付0元");
 			}
 
 			/*********************************************************************
@@ -826,7 +829,7 @@ public class PayController extends Controller {
 
 				@Override
 				public void run() {
-					final TOrder order = TOrder.findDataById(orderid);
+					 TOrder order = TOrder.findDataById(orderid);
 					if (order != null) {
 						final TParkInfoProd parking = order.parkInfo;
 						if (parking != null && order.startDate == null) {
@@ -855,8 +858,8 @@ public class PayController extends Controller {
 														Logger.debug("#######AKKA schedule start>> set order to overdue:"
 																+ orderid
 																+ "#########");
-//														TOrder order = TOrder
-//																.findDataById(orderid);
+														TOrder order = TOrder
+																.findDataById(orderid);
 														
 														//计次收费，就这是为过期就行
 														if (order != null
@@ -920,6 +923,17 @@ public class PayController extends Controller {
 									&& torder.userInfo != null
 									&& torder.startDate == null
 									&& torder.endDate == null) {
+								
+								if(torder.couponId>0){
+									TUseCouponEntity userCoupon = TUseCouponEntity.getExistCouponByUserIdAndId(torder.couponId, torder.userInfo.userid);
+									if(userCoupon.isable==1){
+										Set<String> optionsCoupon = new HashSet<String>();
+										userCoupon.isable=2; //设置为正在使用
+										optionsCoupon.add("isable");
+										Ebean.update(userCoupon,optionsCoupon);;
+									}
+								}
+								
 								PushController.pushToParkAdmin(
 										torder.parkInfo.parkId, ""
 												+ torder.userInfo.userPhone,
@@ -1091,7 +1105,6 @@ public class PayController extends Controller {
 
 			} else if (status.trim().equals("TRADE_SUCCESS")) { // 如果交易成功，更新订单状态并且推送消息
 				try {
-
 					if (order != null) {
 						if (order.ackStatus != Constants.PAYMENT_STATUS_FINISH) {
 							order.ackDate = new Date();
@@ -1109,6 +1122,17 @@ public class PayController extends Controller {
 										&& torder.userInfo != null
 										&& torder.startDate == null
 										&& torder.endDate == null) {
+									
+									if(torder.couponId>0){
+										TUseCouponEntity userCoupon = TUseCouponEntity.getExistCouponByUserIdAndId(torder.couponId, torder.userInfo.userid);
+										if(userCoupon.isable==1){
+											Set<String> optionsCoupon = new HashSet<String>();
+											userCoupon.isable=2; //设置为正在使用
+											optionsCoupon.add("isable");
+											Ebean.update(userCoupon,optionsCoupon);;
+										}
+									}
+									
 									PushController.pushToParkAdmin(
 											torder.parkInfo.parkId,
 											"" + torder.userInfo.userPhone,
@@ -1132,6 +1156,9 @@ public class PayController extends Controller {
 				} catch (Exception e) {
 					Logger.error("notifyPayResult", e);
 				}
+				
+				return ok("success");
+				
 			}
 
 			LogController.info(
@@ -1144,6 +1171,6 @@ public class PayController extends Controller {
 		} catch (Exception e) {
 			LogController.info("exception:" + e.getMessage(), "alipay");
 		}
-		return ok("success");
+		return ok("nok");
 	}
 }

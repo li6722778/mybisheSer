@@ -66,8 +66,8 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 										</button>
 
 										<ul class="dropdown-menu pull-right">
-										    <li><a href="javascript:;" id="button_p1">设置为处理中</a></li>
-										    <li><a href="javascript:;" id="button_p2">设置为提现完成</a></li>
+										    <li><a href="javascript:;" class="button_update_cash_status" type="2" currentPage="@currentPage"  id="button_p1">设置为处理中</a></li>
+										    <li><a href="javascript:;" class="button_update_cash_status" type="3" currentPage="@currentPage"  id="button_p2">设置为提现完成</a></li>
 										</ul>
 
 									</div>
@@ -105,7 +105,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 
                             @for(TCash <- entityBean.getList) {
 										<tr class="odd gradeX">
-											<td style="width:8px;"><input type="checkbox" class="checkboxes" value="@TCash.takecashid" /></td>
+											<td style="width:8px;"><input type="checkbox" name="cashselect" class="checkboxes" value="@TCash.takecashid" /></td>
 											<td class="hidden-phone">@TCash.takecashid</td>
 											<td >@if(TCash.parkprod!=null){ 
 											@TCash.parkprod.parkname <br/> 

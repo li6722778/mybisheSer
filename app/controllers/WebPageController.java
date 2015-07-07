@@ -1175,5 +1175,38 @@ public class WebPageController extends Controller {
 		return ok(views.html.incomeDetail.render(allData, currentPage, pageSize,
 				orderBy, parkId, filter));
 	}
+	
+	/**
+	 * 提现状态变化
+	 * @param pidarray
+	 * @return
+	 */
+	@Security.Authenticated(SecurityController.class)
+	public static Result updateTakeCash(int currentPage, int pageSize,
+			String orderBy,int status,String pidarray) {
+		Logger.info("GOTO updateTakeCash,FOR" + pidarray);
+		if (pidarray != null && pidarray.length() > 0) {
+			String[] pids = pidarray.split(",");
+			for (String pidString : pids) {
+				try {
+					long pid = Long.parseLong(pidString);
+					
+					TTakeCash cash = TTakeCash.findDataById(pid);
+					cash.status = status;
+					
+					Set<String> setStr = new HashSet<String>();
+					setStr.add("status");
+					
+					Ebean.update(cash,setStr);
+					
+					LogController.info("update status for apply for cash to "+status+", for "+pidarray);
+				} catch (Exception e) {
+					Logger.error("updateTakeCash:" + pidString, e);
+				}
+			}
+		}
+
+		return gotoTakeCash(currentPage,pageSize,orderBy);
+	}
 
 }
