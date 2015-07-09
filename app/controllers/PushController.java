@@ -145,6 +145,57 @@ public class PushController extends Controller {
 
 	}
 
+	
+	public static void pushToParkAdminForRequestPay(final long parkId,
+			final String phone, final double payment) {
+		Logger.info("########plan to push to administrator for out:" + parkId
+				+ " for " + phone + "#######");
+
+		try {
+			final IGtPush push = new IGtPush(host, appkey, master);
+			// LinkTemplate template = linkTemplateDemo();
+			// TransmissionTemplate template = TransmissionTemplateDemo();
+			// LinkTemplate template = linkTemplateDemo();
+			TransmissionTemplate template = transmissionTemplateWait(phone,
+					payment);
+			// NotyPopLoadTemplate template = NotyPopLoadTemplateDemo();
+
+			ListMessage message = new ListMessage();
+			message.setData(template);
+			message.setOffline(false);
+			message.setOfflineExpireTime(1000 * 3600 * 24);
+			// message.setPushNetWorkType(1);
+
+			List<Target> targets = new ArrayList<Target>();
+			if (clientMap != null) {
+
+				List<TParkInfo_adm> adms = TParkInfo_adm
+						.findAdmPartInfoByParkId(parkId);
+
+				if (adms != null) {
+					for (TParkInfo_adm adm : adms) {
+						String clientId = clientMap.get(adm.userInfo.userid);
+						if (clientId != null) {
+							Target target = new Target();
+							target.setAppId(appId);
+							target.setClientId(clientId);
+							Logger.debug("###try to push to user:" + clientId);
+							// target.setAlias(""+adm.userInfo.userid);
+							targets.add(target);
+						}
+					}
+				}
+			}
+
+			String taskId = push.getContentId(message);
+			IPushResult ret = push.pushMessageToList(taskId, targets);
+			Logger.info("#####push result:" + ret.getResponse() + "#######");
+		} catch (Exception e) {
+			Logger.error("pushToParkAdmin", e);
+		}
+
+	}
+	
 	private static NotificationTemplate NotificationTemplateDemo(String phone,
 			String orderName) throws Exception {
 		NotificationTemplate template = new NotificationTemplate();
@@ -186,6 +237,18 @@ public class PushController extends Controller {
 		// 透传消息设置，1为强制启动应用，客户端接收到消息后就会立即启动应用；2为等待应用启动
 		template.setTransmissionType(2);
 		template.setTransmissionContent(phone + "已经完成订单[" + orderName + "]-"
+				+ DateHelper.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
+		return template;
+	}
+	
+	public static TransmissionTemplate transmissionTemplateWait(String phone,
+			double payment) {
+		TransmissionTemplate template = new TransmissionTemplate();
+		template.setAppId(appId);
+		template.setAppkey(appkey);
+		// 透传消息设置，1为强制启动应用，客户端接收到消息后就会立即启动应用；2为等待应用启动
+		template.setTransmissionType(2);
+		template.setTransmissionContent("收到订单[" + phone + "]的付款请求:"+payment+"元-"
 				+ DateHelper.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
 		return template;
 	}

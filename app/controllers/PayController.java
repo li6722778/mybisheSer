@@ -180,7 +180,7 @@ public class PayController extends Controller {
 	 */
 	@BasicAuth
 	public static Result payForIn(long parkingProdId, String city,
-			double latitude, double longitude) {
+			double latitude, double longitude,int userSelectedpayWay) {
 		Logger.info("start to generator order and generator aili pay for:"
 				+ parkingProdId + ",city:" + city);
 		String request = request().body().asJson().toString();
@@ -273,6 +273,8 @@ public class PayController extends Controller {
 							payWay = Constants.PAYMENT_DISCOUNT;
 						}
 					}
+					
+					
 
 					Date currentDate = new Date();
 					dataBean.orderCity = city;
@@ -285,6 +287,8 @@ public class PayController extends Controller {
 					dataBean.couponId = chebolePayOptions.counponId;
 					dataBean.orderDetail = infoPark.detail;
 
+					
+					
 					payment.payActu = chebolePayOptions.payActualPrice;
 					payment.payMethod = payWay;
 					payment.payTotal = chebolePayOptions.payOrginalPrice;
@@ -302,10 +306,16 @@ public class PayController extends Controller {
 
 					dataBean.pay = pays;
 
+					//用户选择了现金支付,就让处于完成状态，这样便于通知管理员有车子来了
+					if(userSelectedpayWay==1){
+						payment.payMethod = Constants.PAYMENT_TYPE_CASH;
+						payment.payActu = 0;
+					}
+					
 					// ***************组合订单完毕******************
 
 					TOrder.saveData(dataBean);
-
+				
 					Logger.debug("本次实际付款金额:" + payment.payActu + "元,orderId:"
 							+ dataBean.orderId + ",payment id:"
 							+ payment.parkPyId);
@@ -429,9 +439,19 @@ public class PayController extends Controller {
 
 			// 先看已经付款多少了
 			List<TOrder_Py> py = order.pay;
+			
+		    //是否用户选择了现金交易
+			boolean isUserSelectedCash = false;
+			
 			if (py != null && py.size() > 0) {
 				double couponUsed = 0.0;
-				for (TOrder_Py p : py) {
+				for (int i=0 ;i<py.size();i++) {
+					TOrder_Py p = py.get(i);
+					if(i==0){//得到第一次支付用户是否选择了现金支付
+						if(p.payMethod==Constants.PAYMENT_TYPE_CASH){
+							isUserSelectedCash = true;
+						}
+					}
 					// 状态为完成和处理中的，总价都要计算上，因为“处理中”可能是支付接口问题，单根据支付宝协议，会在几个小时内post结果信息
 					if (p.ackStatus == Constants.ORDER_TYPE_FINISH
 							|| p.ackStatus == Constants.ORDER_TYPE_PENDING) {
@@ -450,19 +470,24 @@ public class PayController extends Controller {
 			int feeType = order.orderFeeType<=0?parkinfo.feeType:order.orderFeeType;
 			// 计算价格
 			if (feeType != 1) {// 计次收费
-				double realPayPrice = parkinfo.feeTypefixedHourMoney;
-
-				newpriceWithoutCouponAndDiscount = Arith
-						.decimalPrice(realPayPrice - totalAlreadyPay); // 还多少钱没有付
-				if (newpriceWithoutCouponAndDiscount <= 0.1) { // 不差钱
-					response.setExtendResponseContext("pass");
-					// ***********已经完成的订单需要移到历史表**************/
-					TOrderHis.moveToHisFromOrder(orderId,
-							Constants.ORDER_TYPE_FINISH);
-
-					throw new Exception("已经付款"
-							+ Arith.decimalPrice(totalAlreadyPay) + "元[实际付款:"
-							+ Arith.decimalPrice(actuAlreadyPay) + "元],无需再次付款。");
+				
+				if(isUserSelectedCash){ //用户付现金
+					newpriceWithoutCouponAndDiscount = parkinfo.feeTypefixedHourMoney;
+				}else{
+					double realPayPrice = parkinfo.feeTypefixedHourMoney;
+	
+					newpriceWithoutCouponAndDiscount = Arith
+							.decimalPrice(realPayPrice - totalAlreadyPay); // 还多少钱没有付
+					if (newpriceWithoutCouponAndDiscount <= 0.1) { // 不差钱
+						response.setExtendResponseContext("pass");
+						// ***********已经完成的订单需要移到历史表**************/
+						TOrderHis.moveToHisFromOrder(orderId,
+								Constants.ORDER_TYPE_FINISH);
+	
+						throw new Exception("已经付款"
+								+ Arith.decimalPrice(totalAlreadyPay) + "元[实际付款:"
+								+ Arith.decimalPrice(actuAlreadyPay) + "元],无需再次付款。");
+					}
 				}
 
 			} else if (feeType == 1) {// 分段收费
@@ -480,15 +505,28 @@ public class PayController extends Controller {
 				int mins = DateHelper.diffDateForMin(endDate, startDate);
 				double mhour = mins / 60.0;
 				spentHour = Math.ceil(mhour); // 总共停车这么多小时
-
+				
 				// 这里我们要剔除起步价时间
 				double realSpentHour = spentHour - feeTypeSecInScopeHours;
-				if (realSpentHour > 0) {
-					newpriceWithoutCouponAndDiscount = realSpentHour
-							* parkinfo.feeTypeSecOutScopeHourMoney;
-				} else {// 还在一个小时以内不用付款了。。。
+				
+                if(isUserSelectedCash){//用户付现金
+					
+                	newpriceWithoutCouponAndDiscount = feeTypeSecInScopeHours*parkinfo.feeTypeSecInScopeHourMoney;
+                	if(realSpentHour>0){
+	                	newpriceWithoutCouponAndDiscount += realSpentHour
+								* parkinfo.feeTypeSecOutScopeHourMoney;
+                	}
+                	
+				}else{
 
+					if (realSpentHour > 0) {
+						newpriceWithoutCouponAndDiscount = realSpentHour
+								* parkinfo.feeTypeSecOutScopeHourMoney;
+					} else {// 还在一个小时以内不用付款了。。。
+	
+					}
 				}
+                
 				Logger.debug("pay for out:::::::::::parkinfo.feeTypeSecInScopeHourMoney:"
 						+ parkinfo.feeTypeSecInScopeHourMoney
 						+ ", realSpentHour:" + realSpentHour);
@@ -543,6 +581,24 @@ public class PayController extends Controller {
 				if (order.orderStatus == Constants.ORDER_TYPE_FINISH) {// 订单已经完成了
 					throw new Exception("订单已经完成，不能再次付款");
 				}
+				
+				
+				 if(isUserSelectedCash){//用户付现金
+					 response.setExtendResponseContext("wait");
+					 double actPay= Arith.decimalPrice(newpriceWithCouponAndDiscount);
+					 
+						
+						//还是发个消息给管理员吧
+						
+						PushController.pushToParkAdminForRequestPay(
+								order.parkInfo.parkId, ""
+										+ order.userInfo.userPhone,
+										actPay);
+						
+					 
+					 throw new Exception("应付现金"+actPay+"元，已付0元，还需付现金"+actPay+"元。");
+				 }
+				
 				// 查看当前状态下是否有付款单
 				if (order.pay != null) {
 
@@ -570,6 +626,7 @@ public class PayController extends Controller {
 					payWay = Constants.PAYMENT_COUPON
 							+ Constants.PAYMENT_TYPE_ZFB;
 				}
+			
 
 				newpay.payActu = newpriceWithCouponAndDiscount;
 				newpay.payMethod = payWay;
@@ -628,12 +685,19 @@ public class PayController extends Controller {
 			response.setResponseEntity(payOption);
 		} catch (Exception e) {
 			if (response.getExtendResponseContext() != null
-					&& response.getExtendResponseContext().equals("pass")) {
+					&& (response.getExtendResponseContext().equals("pass"))) {
 				ChebolePayOptions payOption = new ChebolePayOptions();
 				order.endDate = new Date();
 				order.orderStatus = Constants.ORDER_TYPE_FINISH;
 				payOption.order = order;
 				response.setResponseEntity(payOption);
+			}else if (response.getExtendResponseContext() != null
+					&& (response.getExtendResponseContext().equals("wait"))) {
+				ChebolePayOptions payOption = new ChebolePayOptions();
+				order.endDate = new Date();
+				payOption.order = order;
+				response.setResponseEntity(payOption);
+
 			}
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
@@ -819,11 +883,10 @@ public class PayController extends Controller {
 	 * 
 	 * @param orderid
 	 */
-	public static void scheduleTaskForOverdue(final long orderid,
-			final long payId) {
+	public static void scheduleTaskForOverdue(final long orderid) {
 
 		Logger.debug("#######start one thread to run overdue task, order:"
-				+ orderid + ",payid:" + payId + "#########");
+				+ orderid + "#########");
 		try {
 			Thread newThread = new Thread(new Runnable() {
 
@@ -940,7 +1003,7 @@ public class PayController extends Controller {
 										torder.parkInfo.parkname);
 
 								// 开始一个任务去设置过期任务
-								scheduleTaskForOverdue(orderid, payId);
+								scheduleTaskForOverdue(orderid);
 
 							} else {
 								Logger.warn("push service is not working. park or user is empty for order:"
@@ -1139,8 +1202,7 @@ public class PayController extends Controller {
 											torder.parkInfo.parkname);
 
 									// 开始一个任务去设置过期任务
-									scheduleTaskForOverdue(torder.orderId,
-											paymentId);
+									scheduleTaskForOverdue(torder.orderId);
 
 								} else {
 									Logger.warn("push service is not working. torder.parkInfo!=null&&torder.userInfo!=null&&torder.startDate==null&&torder.endDate==null");
