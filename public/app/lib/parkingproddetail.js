@@ -64,7 +64,7 @@ var ParkingProdDetail = function () {
   			       if($("#feeTypeSec").is(':checked')){
   			    	 $("#feeType").val("1");
   			       }else{
-  			    	 $("#feeType").val("0");
+  			    	 $("#feeType").val("2");
   			       }
   			       
   			       if($("#isDiscountAllday").is(':checked')){
