@@ -118,7 +118,9 @@ public class OrderController extends Controller {
 		}catch(Exception e){
 			Logger.error("",e);
 		}
-		CommFindEntity<TOrder> allData = TOrder.findPageDataByparkid(currentPage,
+//		CommFindEntity<TOrder> allData = TOrder.findPageDataByparkid(currentPage,
+//				pageSize, orderBy,parkid);
+		CommFindEntity<TOrder> allData = TOrder.findPageDataByparkidHasPay(currentPage,
 				pageSize, orderBy,parkid);
 		String json = gsonBuilderWithExpose.toJson(allData);
 		JsonNode jsonNode = Json.parse(json);
@@ -291,4 +293,38 @@ public class OrderController extends Controller {
 		Logger.debug("income result:" + json);
 		return ok(jsonNode);
 	}
+	
+	
+	public static Result getnotcomeincount (long parkId)
+	{
+	
+		Logger.debug("getnotcomecount:" + parkId);
+		int  allData = TOrder.findnotcomeincount(parkId);
+		return ok(allData+"");
+		
+		
+	}
+	
+	@BasicAuth
+	public static Result getAllDataByUseIdForPay(int currentPage, int pageSize,
+			String orderBy) {
+		Logger.info("start to getAllHisDataForSelf");
+		
+		String idString = flash("userid");
+		Logger.info("get session value for userid:"+idString);
+		long id = 0l;
+		try{
+			id = Long.parseLong(idString);
+		}catch(Exception e){
+			Logger.error("",e);
+		}
+		CommFindEntity<TOrder> allData = TOrder.findPageDataByPay(currentPage,
+				pageSize, orderBy,idString,2);
+		String json = gsonBuilderWithExpose.toJson(allData);
+		JsonNode jsonNode = Json.parse(json);
+		// String jsonString = Json.stringify(json);
+		Logger.debug("CommFindEntity result:" + json);
+		return ok(jsonNode);
+	}
+	
 }

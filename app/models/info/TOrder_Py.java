@@ -108,4 +108,13 @@ public class TOrder_Py extends Model{
 			}
 		});
 	}
+	public static double findDataBystaute(long id){
+		String sql = "SELECT sum(pay_total) as count FROM tb_order_py where ack_status="+Constants.ORDER_TYPE_FINISH;
+		SqlQuery sq = Ebean.createSqlQuery(sql);
+		SqlRow sqlRow = sq.findUnique();
+		Double db = sqlRow.getDouble("count");
+		return  db==null?0: db;
+	}
+	
+	
 }
