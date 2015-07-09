@@ -248,7 +248,7 @@ public class PushController extends Controller {
 		template.setAppkey(appkey);
 		// 透传消息设置，1为强制启动应用，客户端接收到消息后就会立即启动应用；2为等待应用启动
 		template.setTransmissionType(2);
-		template.setTransmissionContent("收到订单[" + phone + "]的付款请求:"+payment+"元-"
+		template.setTransmissionContent("收到[" + phone + "]的付款请求:"+payment+"元-"
 				+ DateHelper.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
 		return template;
 	}
