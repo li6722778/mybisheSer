@@ -395,6 +395,8 @@ public class PayController extends Controller {
 
 		ComResponse<ChebolePayOptions> response = new ComResponse<ChebolePayOptions>();
 		TOrder order = TOrder.findDataById(orderId);
+		ChebolePayOptions payOption = new ChebolePayOptions();
+		
 		try {
 
 			if (order == null) {
@@ -564,7 +566,6 @@ public class PayController extends Controller {
 			/****************************************************************/
 			String username = flash("username");
 
-			ChebolePayOptions payOption = new ChebolePayOptions();
 			payOption.payActualPrice = Arith
 					.decimalPrice(newpriceWithCouponAndDiscount);
 			payOption.payOrginalPrice = Arith
@@ -686,14 +687,14 @@ public class PayController extends Controller {
 		} catch (Exception e) {
 			if (response.getExtendResponseContext() != null
 					&& (response.getExtendResponseContext().equals("pass"))) {
-				ChebolePayOptions payOption = new ChebolePayOptions();
+
 				order.endDate = new Date();
 				order.orderStatus = Constants.ORDER_TYPE_FINISH;
 				payOption.order = order;
 				response.setResponseEntity(payOption);
 			}else if (response.getExtendResponseContext() != null
 					&& (response.getExtendResponseContext().equals("wait"))) {
-				ChebolePayOptions payOption = new ChebolePayOptions();
+				
 				order.endDate = new Date();
 				payOption.order = order;
 				response.setResponseEntity(payOption);
