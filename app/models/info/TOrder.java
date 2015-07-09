@@ -17,11 +17,13 @@ import javax.persistence.Table;
 import play.data.format.Formats;
 import play.db.ebean.Model;
 import utils.CommFindEntity;
-import utils.Constants;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Page;
+import com.avaje.ebean.Query;
+import com.avaje.ebean.RawSql;
+import com.avaje.ebean.RawSqlBuilder;
 import com.avaje.ebean.TxRunnable;
 import com.google.gson.annotations.Expose;
 
@@ -239,5 +241,81 @@ public class TOrder extends Model {
 		return result;
 	}
 	
+	
+	public static  int  findnotcomeincount(long parkid)
+	{
+		
+		String sql = "select  count(order_id) as c FROM tb_order   where parkId="+parkid+" and start_date is NULL and end_date is NULL  and order_id "
+				+ "= (select  distinct orderId from tb_order_py where ack_status=2 and orderId=tb_order.order_id)";
+
+		final RawSql rawSql = RawSqlBuilder.unparsed(sql)
+				.columnMapping("c", "countOrder")
+		        .create();
+		
+		Query<ChartCityEntity> query = Ebean.find(ChartCityEntity.class).setRawSql(rawSql);
+		
+		ChartCityEntity count = query.findUnique();
+//		
+//		Query<TOrder_Py> query = Ebean.createQuery(TOrder_Py.class).select("order.orderId").setDistinct(true).where().eq("ackStatus", 2).eq("order.orderId","orderId").query();
+//		int  count = find.where().eq("parkId",parkid).isNull("startDate").in("orderId", query).findRowCount();	
+		
+		return (count==null)?0:count.countOrder;
+	}
+	
+	/**
+	 * 得到所有数据，有分页查询自己订单，2表示付费，1表示未付费
+	 * 
+	 * @param currentPage
+	 * @param pageSize
+	 * @param orderBy
+	 * @return
+	 */
+	public static CommFindEntity<TOrder> findPageDataByPay(int currentPage,
+			int pageSize, String orderBy, String userid, int hasPay) {
+
+//		CommFindEntity<TOrder> result = new CommFindEntity<TOrder>();
+//		String sql = "select  * as c FROM tb_order   where userid="+parkid+" and start_date is NULL and end_date is NULL  and order_id "
+//				+ "= (select  distinct orderId from tb_order_py where ack_status=2 and orderId=tb_order.order_id)";
+
+//		final RawSql rawSql = RawSqlBuilder.unparsed(sql)
+//				.columnMapping("c", "countOrder")
+//		        .create();
+		
+		CommFindEntity<TOrder> result = new CommFindEntity<TOrder>();
+
+		Query<TOrder_Py> query = Ebean.createQuery(TOrder_Py.class).select("order.orderId").setDistinct(true).where().eq("ackStatus",hasPay).query();
+		
+		Page<TOrder> allData = find.fetch("userInfo").fetch("pay").fetch("parkInfo").where().eq("userInfo.userid", userid).in("orderId", query)
+				.orderBy(orderBy).findPagingList(pageSize).setFetchAhead(false)
+				.getPage(currentPage);
+
+		result.setResult(allData.getList());
+		result.setRowCount(allData.getTotalRowCount());
+		result.setPageCount(allData.getTotalPageCount());
+		
+		return result;
+	}
+	/**
+	 * 查询parkid对应订单
+	 * 
+	 * @param currentPage
+	 * @param pageSize
+	 * @param orderBy
+	 * @return
+	 */
+	public static CommFindEntity<TOrder> findPageDataByparkidHasPay(int currentPage,
+			int pageSize, String orderBy, long parkid) {
+
+		CommFindEntity<TOrder> result = new CommFindEntity<TOrder>();
+		Query<TOrder_Py> query = Ebean.createQuery(TOrder_Py.class).select("order.orderId").setDistinct(true).where().eq("ackStatus",2).query();
+		Page<TOrder> allData = find.fetch("userInfo").fetch("pay").fetch("parkInfo").where().eq("parkInfo.parkId", parkid).in("orderId", query)
+				.orderBy(orderBy).findPagingList(pageSize).setFetchAhead(false)
+				.getPage(currentPage);
+
+		result.setResult(allData.getList());
+		result.setRowCount(allData.getTotalRowCount());
+		result.setPageCount(allData.getTotalPageCount());
+		return result;
+	}
 
 }
