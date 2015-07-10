@@ -181,7 +181,14 @@ public class TOrderHis extends Model {
 							hisPy.order = orderHis;
 							pyArray.add(hisPy);
 							if(hisPy.ackStatus == Constants.PAYMENT_STATUS_FINISH){
-							   TIncome.saveIncome(order.parkInfo.parkId, Arith.decimalPrice(hisPy.payActu+hisPy.couponUsed));
+								
+								double cash = 0;
+								if(hisPy.payMethod==Constants.PAYMENT_TYPE_CASH)
+								{
+									cash=hisPy.payActu;
+									
+								}
+							   TIncome.saveIncome(order.parkInfo.parkId, Arith.decimalPrice(hisPy.payActu+hisPy.couponUsed),cash);
 							}
 						}
 						Logger.debug(">>>>>>>>>>>TOrder_Py moving end");

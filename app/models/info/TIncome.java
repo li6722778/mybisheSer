@@ -43,7 +43,11 @@ public class TIncome extends Model {
 	@Column(columnDefinition = "decimal(12,2) default 0.0")
 	@Expose
 	public double incometotal;
-
+	
+	@Column(columnDefinition = "decimal(12,2) default 0.0")
+	@Expose
+	public double cashtotal;
+	
 	@Expose
 	@Transient
 	public double incometoday;
@@ -51,6 +55,8 @@ public class TIncome extends Model {
 	@Expose
 	@Transient
 	public double incometodaycash;
+	
+	
 
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(columnDefinition = "timestamp NULL")
@@ -139,7 +145,7 @@ public class TIncome extends Model {
 	 * @param parkid
 	 * @param income
 	 */
-	public static void saveIncome(final long parkid, final double income) {
+	public static void saveIncome(final long parkid, final double income,final double cash) {
 		Ebean.execute(new TxRunnable() {
 			public void run() {
 
@@ -156,6 +162,7 @@ public class TIncome extends Model {
 					incometb.createDate = new Date();
 					incometb.updateDate = incometb.createDate;
 					incometb.incometotal = income;
+					incometb.cashtotal=cash;
 					Ebean.save(incometb);
 				} else {
 					incometb.incometotal = Arith
