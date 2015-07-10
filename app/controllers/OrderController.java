@@ -307,7 +307,7 @@ public class OrderController extends Controller {
 	
 	@BasicAuth
 	public static Result getAllDataByUseIdForPay(int currentPage, int pageSize,
-			String orderBy) {
+			String orderBy,int hasPay) {
 		Logger.info("start to getAllHisDataForSelf");
 		
 		String idString = flash("userid");
@@ -319,7 +319,7 @@ public class OrderController extends Controller {
 			Logger.error("",e);
 		}
 		CommFindEntity<TOrder> allData = TOrder.findPageDataByPay(currentPage,
-				pageSize, orderBy,idString,2);
+				pageSize, orderBy,idString,hasPay);
 		String json = gsonBuilderWithExpose.toJson(allData);
 		JsonNode jsonNode = Json.parse(json);
 		// String jsonString = Json.stringify(json);
