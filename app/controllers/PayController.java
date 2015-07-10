@@ -570,9 +570,8 @@ public class PayController extends Controller {
 								order.parkInfo.parkId, ""
 										+ order.userInfo.userPhone,
 										actPay);
-						
-					 
-					 throw new Exception("应付现金"+actPay+"元，已付0元，还需付现金"+actPay+"元。");
+
+					 throw new Exception("应付现金"+Arith.decimalPrice(actuAlreadyPay+actPay)+"元，已付"+actuAlreadyPay+"元，还需付现金"+actPay+"元。");
 				 }
 				
 				// 查看当前状态下是否有付款单
@@ -1071,7 +1070,20 @@ public class PayController extends Controller {
 
 			Date currentDate = new Date();
 
-			TOrder_Py orderPy = new TOrder_Py();
+			TOrder_Py orderPy = null;
+			
+			List<TOrder_Py> orderPys = order.pay;
+			if(orderPys!=null&&orderPys.size()>0){
+				for(TOrder_Py py:orderPys){
+					if(py.ackStatus==Constants.ORDER_TYPE_START){
+						orderPy = py;
+						break;
+					}
+				}
+			}
+			if(orderPy==null){
+			  orderPy = new TOrder_Py();
+			}
 			orderPy.ackStatus = Constants.PAYMENT_STATUS_FINISH;
 			orderPy.payMethod = Constants.PAYMENT_TYPE_CASH;
 			orderPy.payActu = pay;
@@ -1086,6 +1098,9 @@ public class PayController extends Controller {
 			TOrderHis.moveToHisFromOrder(orderId, Constants.ORDER_TYPE_FINISH);
 
 			response.setResponseStatus(ComResponse.STATUS_OK);
+			
+			order.pay = null; //防止迭代加子参数
+			
 			response.setResponseEntity(orderPy);
 			response.setExtendResponseContext("付款单生成成功");
 

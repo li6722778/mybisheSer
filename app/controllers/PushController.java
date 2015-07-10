@@ -36,9 +36,8 @@ public class PushController extends Controller {
 	 * @param clientId
 	 */
 	public static Result registerAdmUser(long userid, String clientId) {
-		Logger.info("###register user:" + userid + ", client id: " + clientId
-				+ "#######");
 		if (userid > 0 && clientId != null && !clientId.trim().equals("")) {
+			Logger.info("###add to push map:" + userid + ", client id: " + clientId+ "#######");
 			clientMap.put(userid, clientId);
 			return ok("ok");
 		}
