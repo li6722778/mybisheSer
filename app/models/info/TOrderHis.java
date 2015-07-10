@@ -222,7 +222,7 @@ public class TOrderHis extends Model {
 				}
 				
 		       //发送通知
-		       PushController.pushToParkAdminForOut(parkInfo.parkId, phone, order.orderName);
+		       PushController.pushToParkAdminForOut(parkInfo.parkId, phone, parkInfo.parkname,order.orderId);
 			}
 		}
 	}

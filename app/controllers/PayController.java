@@ -19,6 +19,7 @@ import models.info.TCouponEntity;
 import models.info.TOrder;
 import models.info.TOrderHis;
 import models.info.TOrder_Py;
+import models.info.TParkInfoPro_Loc;
 import models.info.TParkInfoProd;
 import models.info.TUseCouponEntity;
 import models.info.TuserInfo;
@@ -204,7 +205,16 @@ public class PayController extends Controller {
 					throw new Exception("获取当前操作用户失败");
 				}
 				if (infoPark != null && user != null) {
-					// 开始组合订单
+					//查询当前停车场是否可以下订单
+					 List<TParkInfoPro_Loc>  locs = infoPark.latLngArray;
+					 if(locs==null||locs.size()<=0){
+						 throw new Exception("当前停车场异常，无进场坐标无法导航");
+					 }else{
+						 TParkInfoPro_Loc loc= locs.get(0);
+						 if(loc.isOpen!=1){
+							 throw new Exception("当前停车场已经关闭，请选择其他停车场");
+						 }
+					 }
 
 					// 首先判断一下是否需要新建订单
 					TOrder dataBean = null;
@@ -384,7 +394,7 @@ public class PayController extends Controller {
 	 * @return
 	 */
 	@BasicAuth
-	public static Result payForOut(long orderId, String scanResult,int payway) {
+	public static Result payForOut(long orderId, String scanResult,int payway,String clientId) {
 
 		Logger.info("pay for out, order id:" + orderId);
 
@@ -562,14 +572,17 @@ public class PayController extends Controller {
 				 if(payway==Constants.PAYMENT_TYPE_CASH){//用户付现金
 					 response.setExtendResponseContext("wait");
 					 double actPay= Arith.decimalPrice(newpriceWithCouponAndDiscount);
-					 
-						
+
 						//还是发个消息给管理员吧
-						
 						PushController.pushToParkAdminForRequestPay(
 								order.parkInfo.parkId, ""
 										+ order.userInfo.userPhone,
-										actPay);
+										actPay,order.orderId);
+						
+						 
+						 //先注册一个消息，等结账后可以推送给我
+						PushController.registerClientUser(order.orderId, clientId);
+						
 
 					 throw new Exception("应付现金"+Arith.decimalPrice(actuAlreadyPay+actPay)+"元，已付"+actuAlreadyPay+"元，还需付现金"+actPay+"元。");
 				 }
@@ -975,7 +988,7 @@ public class PayController extends Controller {
 								PushController.pushToParkAdmin(
 										torder.parkInfo.parkId, ""
 												+ torder.userInfo.userPhone,
-										torder.parkInfo.parkname);
+										torder.parkInfo.parkname,torder.orderId);
 
 								// 开始一个任务去设置过期任务
 								scheduleTaskForOverdue(orderid);
@@ -1103,6 +1116,10 @@ public class PayController extends Controller {
 			
 			response.setResponseEntity(orderPy);
 			response.setExtendResponseContext("付款单生成成功");
+			
+			/*推送消息*/
+			PushController.pushToClientForOrderDone(orderId, pay,parkinfo.parkname);
+			PushController.remove(orderId);
 
 			LogController.info("payment for out of park for " + parkingId
 					+ ", pay:" + pay);
@@ -1190,7 +1207,7 @@ public class PayController extends Controller {
 									PushController.pushToParkAdmin(
 											torder.parkInfo.parkId,
 											"" + torder.userInfo.userPhone,
-											torder.parkInfo.parkname);
+											torder.parkInfo.parkname,torder.orderId);
 
 									// 开始一个任务去设置过期任务
 									scheduleTaskForOverdue(torder.orderId);
