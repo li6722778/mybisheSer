@@ -19,6 +19,7 @@ import play.db.ebean.Model;
 import utils.CommFindEntity;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.Expr;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Page;
 import com.avaje.ebean.Query;
@@ -283,20 +284,30 @@ public class TOrder extends Model {
 		
 		CommFindEntity<TOrder> result = new CommFindEntity<TOrder>();
 
-		Query<TOrder_Py> query = Ebean.createQuery(TOrder_Py.class).select("order.orderId").setDistinct(true).where().eq("ackStatus",hasPay).query();
-		
+		Query<TOrder_Py> query = Ebean.createQuery(TOrder_Py.class).select("order.orderId").setDistinct(true).where().eq("ackStatus",2).query();
+		if(hasPay==2)
+		{
 		Page<TOrder> allData = find.fetch("userInfo").fetch("pay").fetch("parkInfo").where().eq("userInfo.userid", userid).in("orderId", query)
 				.orderBy(orderBy).findPagingList(pageSize).setFetchAhead(false)
 				.getPage(currentPage);
-
 		result.setResult(allData.getList());
 		result.setRowCount(allData.getTotalRowCount());
 		result.setPageCount(allData.getTotalPageCount());
+		}else if(hasPay==1)
+		{
+			Page<TOrder> allData = find.fetch("userInfo").fetch("pay").fetch("parkInfo").where().eq("userInfo.userid", userid).not(Expr.in("orderId", query))
+					.orderBy(orderBy).findPagingList(pageSize).setFetchAhead(false)
+					.getPage(currentPage);
+			result.setResult(allData.getList());
+			result.setRowCount(allData.getTotalRowCount());
+			result.setPageCount(allData.getTotalPageCount());
+		}
+		
 		
 		return result;
 	}
 	/**
-	 * 查询parkid对应订单
+	 * 查询parkid对应yic订单
 	 * 
 	 * @param currentPage
 	 * @param pageSize
