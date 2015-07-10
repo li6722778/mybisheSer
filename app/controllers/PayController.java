@@ -306,11 +306,6 @@ public class PayController extends Controller {
 
 					dataBean.pay = pays;
 
-					//用户选择了现金支付,就让处于完成状态，这样便于通知管理员有车子来了
-					if(userSelectedpayWay==1){
-						payment.payMethod = Constants.PAYMENT_TYPE_CASH;
-						payment.payActu = 0;
-					}
 					
 					// ***************组合订单完毕******************
 
@@ -389,7 +384,7 @@ public class PayController extends Controller {
 	 * @return
 	 */
 	@BasicAuth
-	public static Result payForOut(long orderId, String scanResult) {
+	public static Result payForOut(long orderId, String scanResult,int payway) {
 
 		Logger.info("pay for out, order id:" + orderId);
 
@@ -442,18 +437,11 @@ public class PayController extends Controller {
 			// 先看已经付款多少了
 			List<TOrder_Py> py = order.pay;
 			
-		    //是否用户选择了现金交易
-			boolean isUserSelectedCash = false;
-			
 			if (py != null && py.size() > 0) {
 				double couponUsed = 0.0;
 				for (int i=0 ;i<py.size();i++) {
 					TOrder_Py p = py.get(i);
-					if(i==0){//得到第一次支付用户是否选择了现金支付
-						if(p.payMethod==Constants.PAYMENT_TYPE_CASH){
-							isUserSelectedCash = true;
-						}
-					}
+
 					// 状态为完成和处理中的，总价都要计算上，因为“处理中”可能是支付接口问题，单根据支付宝协议，会在几个小时内post结果信息
 					if (p.ackStatus == Constants.ORDER_TYPE_FINISH
 							|| p.ackStatus == Constants.ORDER_TYPE_PENDING) {
@@ -472,10 +460,7 @@ public class PayController extends Controller {
 			int feeType = order.orderFeeType<=0?parkinfo.feeType:order.orderFeeType;
 			// 计算价格
 			if (feeType != 1) {// 计次收费
-				
-				if(isUserSelectedCash){ //用户付现金
-					newpriceWithoutCouponAndDiscount = parkinfo.feeTypefixedHourMoney;
-				}else{
+
 					double realPayPrice = parkinfo.feeTypefixedHourMoney;
 	
 					newpriceWithoutCouponAndDiscount = Arith
@@ -490,7 +475,6 @@ public class PayController extends Controller {
 								+ Arith.decimalPrice(totalAlreadyPay) + "元[实际付款:"
 								+ Arith.decimalPrice(actuAlreadyPay) + "元],无需再次付款。");
 					}
-				}
 
 			} else if (feeType == 1) {// 分段收费
 				// 头几个小时
@@ -510,16 +494,7 @@ public class PayController extends Controller {
 				
 				// 这里我们要剔除起步价时间
 				double realSpentHour = spentHour - feeTypeSecInScopeHours;
-				
-                if(isUserSelectedCash){//用户付现金
-					
-                	newpriceWithoutCouponAndDiscount = feeTypeSecInScopeHours*parkinfo.feeTypeSecInScopeHourMoney;
-                	if(realSpentHour>0){
-	                	newpriceWithoutCouponAndDiscount += realSpentHour
-								* parkinfo.feeTypeSecOutScopeHourMoney;
-                	}
-                	
-				}else{
+
 
 					if (realSpentHour > 0) {
 						newpriceWithoutCouponAndDiscount = realSpentHour
@@ -527,7 +502,7 @@ public class PayController extends Controller {
 					} else {// 还在一个小时以内不用付款了。。。
 	
 					}
-				}
+				
                 
 				Logger.debug("pay for out:::::::::::parkinfo.feeTypeSecInScopeHourMoney:"
 						+ parkinfo.feeTypeSecInScopeHourMoney
@@ -584,7 +559,7 @@ public class PayController extends Controller {
 				}
 				
 				
-				 if(isUserSelectedCash){//用户付现金
+				 if(payway==Constants.PAYMENT_TYPE_CASH){//用户付现金
 					 response.setExtendResponseContext("wait");
 					 double actPay= Arith.decimalPrice(newpriceWithCouponAndDiscount);
 					 

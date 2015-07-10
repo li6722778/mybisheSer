@@ -80,7 +80,7 @@ GET  /a/pay/price/:parkid                          controllers.PayController.get
 POST /a/pay/update/:orderid/:payid/:status         controllers.PayController.updatePayment(orderid:Long,payid:Long,status:Integer,u?="false")
 GET  /a/pay/out/adm/:parkid/:orderId               controllers.PayController.parkingOutForAdm(parkid:Long,orderId:Long, m:Double?=0)
 
-POST /a/pay/out/:orderId                           controllers.PayController.payForOut(orderId:Long,o ?= "")
+POST /a/pay/out/:orderId                           controllers.PayController.payForOut(orderId:Long,o ?= "",payway:Int?=0)
 POST /a/pay/in/:parkid                             controllers.PayController.payForIn(parkid:Long,c?= "",lt:Double?=0,ln:Double?=0,payway:Int?=0)
 GET  /a/scan/entrance/:orderId                     controllers.ScanController.scanForIn(orderId:Long,o ?= "")
 

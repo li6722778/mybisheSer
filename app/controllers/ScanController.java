@@ -246,7 +246,8 @@ public class ScanController extends Controller{
 					response.setExtendResponseContext("车辆进场扫码成功");
 					TOrder.saveData(order);
 				}else{//计次收费
-					response.setExtendResponseContext("pass");
+	
+					response.setExtendResponseContext("pass");				
 					order.orderStatus=Constants.PAYMENT_STATUS_FINISH;
 					order.startDate=new Date();
 					Set<String> options = new HashSet<String>();
@@ -256,8 +257,6 @@ public class ScanController extends Controller{
 					//***********已经完成的订单需要移到历史表**************/
 					TOrderHis.moveToHisFromOrder(orderId,Constants.ORDER_TYPE_FINISH);
 				}
-				
-				
 				
 				response.setResponseStatus(ComResponse.STATUS_OK);
 				response.setResponseEntity(order);
