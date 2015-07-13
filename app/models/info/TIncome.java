@@ -71,6 +71,10 @@ public class TIncome extends Model {
 	@Transient
 	@Expose
 	public int finishedOrder;
+	
+	@Transient
+	@Expose
+	public double onlineIncomeTotal;
 
 	// 查询finder，用于其他方法中需要查询的场景
 	public static Finder<Long, TIncome> find = new Finder<Long, TIncome>(
@@ -134,6 +138,7 @@ public class TIncome extends Model {
 			for (TIncome in : allData.getList()) {
 				in.incometoday = getTodayIncome(in.parkInfo.parkId);
 				in.finishedOrder = TOrderHis.findAllCountForPark(in.parkInfo.parkId);
+				in.onlineIncomeTotal = Arith.decimalPrice((in.incometotal-in.incometodaycash));
 			}
 		}
 		return allData;
@@ -202,6 +207,7 @@ public class TIncome extends Model {
 		if (allData.getList() != null) {
 			for (TIncome in : allData.getList()) {
 				in.incometoday = getTodayIncome(in.parkInfo.parkId);
+				in.onlineIncomeTotal = Arith.decimalPrice((in.incometotal-in.incometodaycash));
 			}
 		}
 
@@ -234,6 +240,7 @@ public class TIncome extends Model {
 		if (allData.getList() != null) {
 			for (TIncome in : allData.getList()) {
 				in.incometoday = getTodayIncome(in.parkInfo.parkId);
+				in.onlineIncomeTotal = Arith.decimalPrice((in.incometotal-in.incometodaycash));
 			}
 		}
 		return allData;
@@ -256,6 +263,7 @@ public class TIncome extends Model {
 			TIncome income = allData.get(0);
 			income.incometoday = getTodayIncome(parkid);
 			income.finishedOrder = TOrderHis.findAllCountForPark(parkid);
+			income.onlineIncomeTotal = Arith.decimalPrice((income.incometotal-income.incometodaycash));
 			return income;
 		}
 
