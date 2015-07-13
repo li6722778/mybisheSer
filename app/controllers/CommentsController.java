@@ -86,7 +86,7 @@ public class CommentsController extends Controller {
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(data);
 			response.setExtendResponseContext("更新数据成功.");
-			LogController.info("save comments data:"+data.comments);
+			LogController.info("save comments data:"+data.comments+",park:"+(data.parkInfo==null?0:data.parkInfo.parkId));
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
