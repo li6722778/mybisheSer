@@ -181,7 +181,7 @@ public class PayController extends Controller {
 	 */
 	@BasicAuth
 	public static Result payForIn(long parkingProdId, String city,
-			double latitude, double longitude,int userSelectedpayWay) {
+			double latitude, double longitude,int userSelectedpayWay,String clientId) {
 		Logger.info("start to generator order and generator aili pay for:"
 				+ parkingProdId + ",city:" + city);
 		String request = request().body().asJson().toString();
@@ -288,7 +288,9 @@ public class PayController extends Controller {
 
 					Date currentDate = new Date();
 					dataBean.orderCity = city;
-					dataBean.orderDate = currentDate;
+					if(dataBean.orderDate==null){
+					    dataBean.orderDate = currentDate;
+					}
 					dataBean.orderName = "停车费:" + infoPark.parkname;
 					dataBean.orderStatus = Constants.ORDER_TYPE_START;
 					dataBean.orderFeeType = infoPark.feeType; 
@@ -320,6 +322,10 @@ public class PayController extends Controller {
 					// ***************组合订单完毕******************
 
 					TOrder.saveData(dataBean);
+					//注册一个待推送的消息
+					if(clientId!=null&&!clientId.trim().equals("")){
+						PushController.registerClientUserForIn(dataBean.orderId, clientId);
+					}
 				
 					Logger.debug("本次实际付款金额:" + payment.payActu + "元,orderId:"
 							+ dataBean.orderId + ",payment id:"
@@ -388,6 +394,253 @@ public class PayController extends Controller {
 	}
 
 	/**
+	 * 分段收费才需要算出当前停了多少钱
+	 * @param orderId
+	 * @param parkId
+	 * @return
+	 * @throws Exception 
+	 */
+	private static ChebolePayOptions calculationPriceForCurrentPark(TOrder order,long parkId) throws Exception{
+		Logger.info("calculationPriceForCurrentPark, order id:" + order+",parkid:"+parkId);
+
+		ChebolePayOptions payOption = new ChebolePayOptions();
+
+		if (order == null) {
+			throw new Exception("系统无法找到该订单");
+		}
+
+		TParkInfoProd parkinfo = order.parkInfo;
+		
+		if (parkinfo == null) {
+			throw new Exception("该订单无有效停车场");
+		} else if (parkinfo.parkId != parkId) {
+			throw new Exception("该订单不属于此停车场，请检查");
+		}
+		
+		// 剩下优惠卷的钱
+		double canbeUsedCoupon = 0.0;
+		// 总共付了多少钱（没有优惠后或打折的价格）
+		double totalAlreadyPay = 0.0;
+		double actuAlreadyPay = 0.0;
+		boolean isDiscount = false;
+		boolean useCounpon = false;
+
+		// 最总改付多少钱
+		double newpriceWithCouponAndDiscount = 0.0d;
+		// 最总改付多少钱
+		double newpriceWithoutCouponAndDiscount = 0.0d;
+
+		// 得到当前优惠卷价值
+		double couponPrice = 0.0;
+
+		// 总共停车小时
+		double spentHour = 0.0;
+		if (order.couponId > 0) {
+			TCouponEntity couponEntity = TCouponEntity
+					.findDataById(order.couponId);
+			if (couponEntity != null) {
+				couponPrice = couponEntity.money;
+			}
+		}
+
+		// 先看已经付款多少了
+		List<TOrder_Py> py = order.pay;
+		
+		if (py != null && py.size() > 0) {
+			double couponUsed = 0.0;
+			for (int i=0 ;i<py.size();i++) {
+				TOrder_Py p = py.get(i);
+
+				// 状态为完成和处理中的，总价都要计算上，因为“处理中”可能是支付接口问题，单根据支付宝协议，会在几个小时内post结果信息
+				if (p.ackStatus == Constants.ORDER_TYPE_FINISH
+						|| p.ackStatus == Constants.ORDER_TYPE_PENDING) {
+					totalAlreadyPay += p.payTotal;
+					actuAlreadyPay += p.payActu;
+					couponUsed += p.couponUsed;
+				}
+			}
+			canbeUsedCoupon = Arith.decimalPrice(Math.abs(couponPrice
+					- couponUsed));
+		}
+
+		Logger.debug("pay for out:::::::::::show pay money:"
+				+ totalAlreadyPay);
+
+		int feeType = order.orderFeeType<=0?parkinfo.feeType:order.orderFeeType;
+		if(feeType == 1) {// 分段收费
+			// 头几个小时
+			int feeTypeSecInScopeHours = parkinfo.feeTypeSecInScopeHours;
+
+			// 先计算总共停了多少小时
+			if (order.startDate == null) { // 没有刷开始时间，这下遭了。。。。。。
+				throw new Exception("该订单无进场时间记录");
+			}
+
+			Date startDate = order.startDate;
+			Date endDate = new Date();
+
+			int mins = DateHelper.diffDateForMin(endDate, startDate);
+			double mhour = mins / 60.0;
+			spentHour = Math.ceil(mhour); // 总共停车这么多小时
+			
+			// 这里我们要剔除起步价时间
+			double realSpentHour = spentHour - feeTypeSecInScopeHours;
+
+
+				if (realSpentHour > 0) {
+					newpriceWithoutCouponAndDiscount = realSpentHour
+							* parkinfo.feeTypeSecOutScopeHourMoney;
+				} else {// 还在一个小时以内不用付款了。。。
+
+				}
+			
+            
+			Logger.debug("calculationPriceForCurrentPark for out:::::::::::parkinfo.feeTypeSecInScopeHourMoney:"
+					+ parkinfo.feeTypeSecInScopeHourMoney
+					+ ", realSpentHour:" + realSpentHour);
+		}
+
+		// 得到当前情况下优惠后的价格
+		double newprice = getNewPriceAfterDiscount(parkinfo,
+				newpriceWithoutCouponAndDiscount);
+		if (newprice < newpriceWithoutCouponAndDiscount) {
+			isDiscount = true;
+		}
+		Logger.debug("pay for out:::::::::::getNewPriceAfterDiscount:"
+				+ newprice);
+		if (newprice > 0) {
+			if (newprice - canbeUsedCoupon <= 0) {
+				newpriceWithCouponAndDiscount = 0;
+			} else {
+				// 计算使用优惠卷后的的价格
+				newpriceWithCouponAndDiscount = Arith.decimalPrice(Math
+						.abs(newprice - canbeUsedCoupon));
+			}
+
+			if (newpriceWithCouponAndDiscount < newprice) {
+				useCounpon = true;
+			}
+
+		}
+
+		Logger.debug("pay for out:::::::::::show Actual Price:"
+				+ newpriceWithCouponAndDiscount);
+		Logger.debug("pay for out:::::::::::show Orginal Price:"
+				+ newpriceWithoutCouponAndDiscount);
+		
+		
+
+		payOption.payActualPrice = Arith
+				.decimalPrice(newpriceWithCouponAndDiscount);
+		payOption.payOrginalPrice = Arith
+				.decimalPrice(newpriceWithoutCouponAndDiscount);
+		payOption.isDiscount = isDiscount;
+		payOption.useCounpon = useCounpon;
+		payOption.counponUsedMoney = canbeUsedCoupon;
+		payOption.order = order;
+		payOption.parkSpentHour = spentHour;
+		payOption.actuAlreadyPay = actuAlreadyPay;
+	
+
+		return payOption;
+	}
+	
+	/**
+	 * 得到当前需要付费,用于结账放行钱的确认
+	 * @param orderId
+	 * @param parkId
+	 * @return
+	 */
+	public static Result getCurrentNeededPay(long orderId, long parkId) {
+		Logger.info("getCurrentNeededPay, order id:" + orderId+",parkId:"+parkId);
+
+		ComResponse<ChebolePayOptions> response = new ComResponse<ChebolePayOptions>();
+		ChebolePayOptions payOption = new ChebolePayOptions();
+		TOrder order = TOrder.findDataById(orderId);
+		try {
+
+			payOption = calculationPriceForCurrentPark(order,parkId);
+			
+			if(!PushController.existInClientRequest(orderId)){
+				throw new Exception("没有收到订单["+orderId+"]的结账请求");
+			}
+			
+
+			/****************************** 生成新的付款单 *************************/
+			/****************************************************************/
+			TOrder_Py newpay = new TOrder_Py();
+
+			if (payOption.payActualPrice > 0) {
+
+				if (order.orderStatus == Constants.ORDER_TYPE_FINISH) {// 订单已经完成了
+					throw new Exception("订单已经完成，不能再次付款");
+				}
+		
+				
+				// 查看当前状态下是否有付款单
+				if (order.pay != null) {
+
+					List<TOrder_Py> orderPys = order.pay;
+
+					if (orderPys != null) {
+						// 只需要判断当前pending的付款单
+						for (TOrder_Py payment : orderPys) {
+							if (payment.ackStatus == Constants.PAYMENT_STATUS_PENDING) {
+								throw new Exception("当前订单已经有一笔付款["
+										+ payment.payActu + "元]正在等待支付接口响应");
+							} else if (payment.ackStatus == Constants.PAYMENT_STATUS_START
+									|| payment.ackStatus == Constants.PAYMENT_STATUS_EXCPTION) {
+								newpay.parkPyId = payment.parkPyId; // 这里传对象有问题
+								break;
+							}
+						}
+
+					}
+				}
+
+	
+				// 完整的符合支付宝参数规范的订单信息
+				final String payInfo = "admin payinfo";
+
+				payOption.payInfo = payInfo;
+				payOption.paymentId = newpay.parkPyId;
+
+
+			} else {
+				response.setExtendResponseContext("pass");
+
+				// ***********已经完成的订单需要移到历史表**************/
+				TOrderHis.moveToHisFromOrder(orderId,Constants.ORDER_TYPE_FINISH);
+
+				double actPay= Arith.decimalPrice(payOption.actuAlreadyPay);
+				
+				throw new Exception("应付"+actPay+"元，已付"+actPay+"元，还需付0元");
+			}
+
+			/*********************************************************************
+			 * 生成完毕
+			 ***********************************************************************/
+			response.setResponseStatus(ComResponse.STATUS_OK);
+			response.setResponseEntity(payOption);
+		} catch (Exception e) {
+			if (response.getExtendResponseContext() != null
+					&& (response.getExtendResponseContext().equals("pass"))) {
+
+				order.endDate = new Date();
+				order.orderStatus = Constants.ORDER_TYPE_FINISH;
+				payOption.order = order;
+				response.setResponseEntity(payOption);
+			}
+			response.setResponseStatus(ComResponse.STATUS_FAIL);
+			response.setErrorMessage(e.getMessage());
+			Logger.error("getCurrentNeededPay", e);
+		}
+		String tempJsonString = gsonBuilderWithExpose.toJson(response);
+		JsonNode json = Json.parse(tempJsonString);
+		return ok(json);
+	}
+	
+	/**
 	 * 第二次付款
 	 * 
 	 * @param orderId
@@ -399,170 +652,20 @@ public class PayController extends Controller {
 		Logger.info("pay for out, order id:" + orderId);
 
 		ComResponse<ChebolePayOptions> response = new ComResponse<ChebolePayOptions>();
-		TOrder order = TOrder.findDataById(orderId);
 		ChebolePayOptions payOption = new ChebolePayOptions();
-		
+		TOrder order = TOrder.findDataById(orderId);
 		try {
-
-			if (order == null) {
-				throw new Exception("系统无法找到该订单:" + orderId);
-			}
-
-			TParkInfoProd parkinfo = order.parkInfo;
-
 			long parkIdFromScan = ScanController.decodeScan(scanResult);
-
-			if (parkinfo == null) {
-				throw new Exception("该订单无有效停车场");
-			} else if (parkinfo.parkId != parkIdFromScan) {
-				throw new Exception("该订单不属于此停车场，请检查");
-			}
-
-			// 剩下优惠卷的钱
-			double canbeUsedCoupon = 0.0;
-			// 总共付了多少钱（没有优惠后或打折的价格）
-			double totalAlreadyPay = 0.0;
-			double actuAlreadyPay = 0.0;
-			boolean isDiscount = false;
-			boolean useCounpon = false;
-
-			// 最总改付多少钱
-			double newpriceWithCouponAndDiscount = 0.0d;
-			// 最总改付多少钱
-			double newpriceWithoutCouponAndDiscount = 0.0d;
-
-			// 得到当前优惠卷价值
-			double couponPrice = 0.0;
-
-			// 总共停车小时
-			double spentHour = 0.0;
-			if (order.couponId > 0) {
-				TCouponEntity couponEntity = TCouponEntity
-						.findDataById(order.couponId);
-				if (couponEntity != null) {
-					couponPrice = couponEntity.money;
-				}
-			}
-
-			// 先看已经付款多少了
-			List<TOrder_Py> py = order.pay;
 			
-			if (py != null && py.size() > 0) {
-				double couponUsed = 0.0;
-				for (int i=0 ;i<py.size();i++) {
-					TOrder_Py p = py.get(i);
-
-					// 状态为完成和处理中的，总价都要计算上，因为“处理中”可能是支付接口问题，单根据支付宝协议，会在几个小时内post结果信息
-					if (p.ackStatus == Constants.ORDER_TYPE_FINISH
-							|| p.ackStatus == Constants.ORDER_TYPE_PENDING) {
-						totalAlreadyPay += p.payTotal;
-						actuAlreadyPay += p.payActu;
-						couponUsed += p.couponUsed;
-					}
-				}
-				canbeUsedCoupon = Arith.decimalPrice(Math.abs(couponPrice
-						- couponUsed));
-			}
-
-			Logger.debug("pay for out:::::::::::show pay money:"
-					+ totalAlreadyPay);
-
-			int feeType = order.orderFeeType<=0?parkinfo.feeType:order.orderFeeType;
-			// 计算价格
-			if (feeType != 1) {// 计次收费
-
-					double realPayPrice = parkinfo.feeTypefixedHourMoney;
-	
-					newpriceWithoutCouponAndDiscount = Arith
-							.decimalPrice(realPayPrice - totalAlreadyPay); // 还多少钱没有付
-					if (newpriceWithoutCouponAndDiscount <= 0.1) { // 不差钱
-						response.setExtendResponseContext("pass");
-						// ***********已经完成的订单需要移到历史表**************/
-						TOrderHis.moveToHisFromOrder(orderId,
-								Constants.ORDER_TYPE_FINISH);
-	
-						throw new Exception("已经付款"
-								+ Arith.decimalPrice(totalAlreadyPay) + "元[实际付款:"
-								+ Arith.decimalPrice(actuAlreadyPay) + "元],无需再次付款。");
-					}
-
-			} else if (feeType == 1) {// 分段收费
-				// 头几个小时
-				int feeTypeSecInScopeHours = parkinfo.feeTypeSecInScopeHours;
-
-				// 先计算总共停了多少小时
-				if (order.startDate == null) { // 没有刷开始时间，这下遭了。。。。。。
-					throw new Exception("无进场时间记录，请联系车位管理员.");
-				}
-
-				Date startDate = order.startDate;
-				Date endDate = new Date();
-
-				int mins = DateHelper.diffDateForMin(endDate, startDate);
-				double mhour = mins / 60.0;
-				spentHour = Math.ceil(mhour); // 总共停车这么多小时
-				
-				// 这里我们要剔除起步价时间
-				double realSpentHour = spentHour - feeTypeSecInScopeHours;
-
-
-					if (realSpentHour > 0) {
-						newpriceWithoutCouponAndDiscount = realSpentHour
-								* parkinfo.feeTypeSecOutScopeHourMoney;
-					} else {// 还在一个小时以内不用付款了。。。
-	
-					}
-				
-                
-				Logger.debug("pay for out:::::::::::parkinfo.feeTypeSecInScopeHourMoney:"
-						+ parkinfo.feeTypeSecInScopeHourMoney
-						+ ", realSpentHour:" + realSpentHour);
-			}
-
-			// 得到当前情况下优惠后的价格
-			double newprice = getNewPriceAfterDiscount(parkinfo,
-					newpriceWithoutCouponAndDiscount);
-			if (newprice < newpriceWithoutCouponAndDiscount) {
-				isDiscount = true;
-			}
-			Logger.debug("pay for out:::::::::::getNewPriceAfterDiscount:"
-					+ newprice);
-			if (newprice > 0) {
-				if (newprice - canbeUsedCoupon <= 0) {
-					newpriceWithCouponAndDiscount = 0;
-				} else {
-					// 计算使用优惠卷后的的价格
-					newpriceWithCouponAndDiscount = Arith.decimalPrice(Math
-							.abs(newprice - canbeUsedCoupon));
-				}
-
-				if (newpriceWithCouponAndDiscount < newprice) {
-					useCounpon = true;
-				}
-
-			}
-
-			Logger.debug("pay for out:::::::::::show Actual Price:"
-					+ newpriceWithCouponAndDiscount);
-			Logger.debug("pay for out:::::::::::show Orginal Price:"
-					+ newpriceWithoutCouponAndDiscount);
+			payOption = calculationPriceForCurrentPark(order,parkIdFromScan);
+			
+			String username = flash("username");
 
 			/****************************** 生成新的付款单 *************************/
 			/****************************************************************/
-			String username = flash("username");
-
-			payOption.payActualPrice = Arith
-					.decimalPrice(newpriceWithCouponAndDiscount);
-			payOption.payOrginalPrice = Arith
-					.decimalPrice(newpriceWithoutCouponAndDiscount);
-			payOption.isDiscount = isDiscount;
-			payOption.useCounpon = useCounpon;
-			payOption.counponUsedMoney = canbeUsedCoupon;
-			payOption.order = order;
-			payOption.parkSpentHour = spentHour;
 			TOrder_Py newpay = new TOrder_Py();
 
-			if (newpriceWithCouponAndDiscount > 0) {
+			if (payOption.payActualPrice > 0) {
 
 				if (order.orderStatus == Constants.ORDER_TYPE_FINISH) {// 订单已经完成了
 					throw new Exception("订单已经完成，不能再次付款");
@@ -571,7 +674,7 @@ public class PayController extends Controller {
 				
 				 if(payway==Constants.PAYMENT_TYPE_CASH){//用户付现金
 					 response.setExtendResponseContext("wait");
-					 double actPay= Arith.decimalPrice(newpriceWithCouponAndDiscount);
+					 double actPay= Arith.decimalPrice(payOption.payActualPrice);
 
 						//还是发个消息给管理员吧
 						PushController.pushToParkAdminForRequestPay(
@@ -584,7 +687,7 @@ public class PayController extends Controller {
 						PushController.registerClientUser(order.orderId, clientId);
 						
 
-					 throw new Exception("应付现金"+Arith.decimalPrice(actuAlreadyPay+actPay)+"元，已付"+actuAlreadyPay+"元，还需付现金"+actPay+"元。");
+					 throw new Exception("应付现金"+Arith.decimalPrice(payOption.actuAlreadyPay+actPay)+"元，已付"+payOption.actuAlreadyPay+"元，还需付现金"+actPay+"元。");
 				 }
 				
 				// 查看当前状态下是否有付款单
@@ -610,20 +713,20 @@ public class PayController extends Controller {
 
 				int payWay = Constants.PAYMENT_TYPE_ZFB;
 
-				if (useCounpon) {
+				if (payOption.useCounpon) {
 					payWay = Constants.PAYMENT_COUPON
 							+ Constants.PAYMENT_TYPE_ZFB;
 				}
 			
 
-				newpay.payActu = newpriceWithCouponAndDiscount;
+				newpay.payActu = payOption.payActualPrice;
 				newpay.payMethod = payWay;
-				newpay.payTotal = newpriceWithoutCouponAndDiscount;
+				newpay.payTotal = payOption.payOrginalPrice;
 				newpay.ackStatus = Constants.PAYMENT_STATUS_START;
 				newpay.createPerson = username;
 				newpay.payDate = new Date();
 				newpay.order = order;
-				newpay.couponUsed = canbeUsedCoupon;
+				newpay.couponUsed = payOption.counponUsedMoney;
 
 				TOrder_Py.saveData(newpay);
 
@@ -658,10 +761,9 @@ public class PayController extends Controller {
 				response.setExtendResponseContext("pass");
 
 				// ***********已经完成的订单需要移到历史表**************/
-				TOrderHis.moveToHisFromOrder(orderId,
-						Constants.ORDER_TYPE_FINISH);
+				TOrderHis.moveToHisFromOrder(orderId,Constants.ORDER_TYPE_FINISH);
 
-				double actPay= Arith.decimalPrice(actuAlreadyPay);
+				double actPay= Arith.decimalPrice(payOption.actuAlreadyPay);
 				
 				throw new Exception("应付"+actPay+"元，已付"+actPay+"元，还需付0元");
 			}
@@ -934,6 +1036,57 @@ public class PayController extends Controller {
 
 													}
 												}, Akka.system().dispatcher());
+								
+								
+								int reminderTime = time;
+								int useTime = Constants.ORDER_EXPIRE_MIN;
+								if(time>Constants.ORDER_EXPIRE_MIN){
+									reminderTime = time - Constants.ORDER_EXPIRE_MIN;
+								}else if(time<=1){
+									reminderTime = 1;
+									useTime = 1;
+								}else{
+									reminderTime = time-1;
+									useTime = 1;
+								}
+								
+								final int tempUsedTime = useTime;
+								
+								//这里再次设置一个过期提醒的任务
+								Akka.system()
+								.scheduler()
+								.scheduleOnce(
+										Duration.create(reminderTime,
+												TimeUnit.MINUTES),
+										new Runnable() {
+											public void run() {
+												Logger.debug("#######AKKA schedule start>> set reminder task:"
+														+ orderid
+														+ "#########");
+												TOrder order = TOrder
+														.findDataById(orderid);
+												
+												//计次收费，就这是为过期就行
+												if (order != null
+														&& order.startDate == null) {
+													
+													if(feeType!=1){
+														PushController.pushToClientForOrderExpire(order.orderId, order.parkInfo.parkname, tempUsedTime, "自动过期");
+													}else if(feeType==1){
+														//pushToClientForOrderExpire
+														PushController.pushToClientForOrderExpire(order.orderId, order.parkInfo.parkname, tempUsedTime, "自动开始入场计时");
+													}
+													Logger.debug("#######AKKA schedule end>> done for reminder task:"
+															+ orderid
+															+ "#########");
+
+												}
+
+											}
+										}, Akka.system().dispatcher());
+						
+								
+								
 							}
 						}
 					}
@@ -1071,16 +1224,16 @@ public class PayController extends Controller {
 
 			TOrder order = TOrder.findDataById(orderId);
 			if (order == null) {
-				throw new Exception("系统无法找到该订单:" + orderId);
+				throw new Exception("系统无法找到订单["+orderId+"]:" + orderId);
 			}
 
 			TParkInfoProd parkinfo = order.parkInfo;
 			if (parkinfo == null) {
-				throw new Exception("该订单无有效停车场");
+				throw new Exception("订单["+orderId+"]无有效停车场");
 			} else if (parkinfo.parkId != parkingId) {
-				throw new Exception("该订单不属于此停车场，请检查");
+				throw new Exception("订单["+orderId+"]不属于此停车场，请检查");
 			}
-
+			
 			Date currentDate = new Date();
 
 			TOrder_Py orderPy = null;
@@ -1226,9 +1379,7 @@ public class PayController extends Controller {
 				} catch (Exception e) {
 					Logger.error("notifyPayResult", e);
 				}
-				
-				return ok("success");
-				
+
 			}
 
 			LogController.info(
@@ -1241,6 +1392,6 @@ public class PayController extends Controller {
 		} catch (Exception e) {
 			LogController.info("exception:" + e.getMessage(), "alipay");
 		}
-		return ok("nok");
+		return ok("success");
 	}
 }

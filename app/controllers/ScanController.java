@@ -245,6 +245,9 @@ public class ScanController extends Controller{
 				if(feeType==1){//计时收费
 					response.setExtendResponseContext("车辆进场扫码成功");
 					TOrder.saveData(order);
+					//通知管理员更新界面
+					PushController.pushToAdmForIn(orderId, order.userInfo==null?0:order.userInfo.userid, parkinfo.parkname,parkinfo.parkId);
+					
 				}else{//计次收费
 	
 					response.setExtendResponseContext("pass");				
@@ -257,6 +260,9 @@ public class ScanController extends Controller{
 					//***********已经完成的订单需要移到历史表**************/
 					TOrderHis.moveToHisFromOrder(orderId,Constants.ORDER_TYPE_FINISH);
 				}
+				//移除推送消息
+				PushController.removeForIn(orderId);
+				
 				
 				response.setResponseStatus(ComResponse.STATUS_OK);
 				response.setResponseEntity(order);

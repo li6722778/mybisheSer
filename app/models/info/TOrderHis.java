@@ -78,7 +78,7 @@ public class TOrderHis extends Model {
 
 	@Expose
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
-	@Column(columnDefinition = "timestamp NOT NULL")
+	@Column(columnDefinition = "timestamp NULL")
 	public Date orderDate;
 
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")

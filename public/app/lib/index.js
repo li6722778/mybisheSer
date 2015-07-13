@@ -52,7 +52,7 @@ var Index = function () {
         	 
         	 //禁止backspace键
         	 $( document ).keydown( function( event ) {
-                 if ( event.keyCode == 8 && !$("input").is(":focus")) {
+                 if ( event.keyCode == 8 && !$("input").is(":focus")&& !$("textarea").is(":focus")) {
                      event.preventDefault();
                  }
              } );

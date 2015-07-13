@@ -150,7 +150,7 @@ public class UserController extends Controller {
 			
 			//这里首先需要检查SMS verification
 			TVerifyCode verficode =  TVerifyCode.getCode(user.userPhone);
-			if(!verficode.verifycode.trim().equals(code.trim())){
+			if(verficode==null||verficode.verifycode==null||!verficode.verifycode.trim().equals(code.trim())){
 				throw new Exception("注册验证码有误,请重新获取");
 			}else{
 				//有效的情况下

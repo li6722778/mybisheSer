@@ -36,7 +36,7 @@ parkId                    bigint,
 order_status              integer,
 order_detail              varchar(1000),
 coupon_id                 bigint,
-order_date                timestamp NOT NULL,
+order_date                timestamp NULL,
 start_date                timestamp NULL,
 end_date                  timestamp NULL,
 latitude                  decimal(20,17) default 0,
@@ -54,7 +54,7 @@ parkId                    bigint,
 order_status              integer,
 order_detail              varchar(1000),
 coupon_id                 bigint,
-order_date                timestamp NOT NULL,
+order_date                timestamp NULL,
 start_date                timestamp NULL,
 end_date                  timestamp NULL,
 latitude                  decimal(20,17) default 0,
@@ -300,6 +300,16 @@ create table tb_income (
   create_date               timestamp NULL,
   update_date               timestamp NULL,
   constraint pk_tb_income primary key (income_id))
+;
+
+create table tb_options_set (
+option_id                 bigint auto_increment not null,
+option_type               integer(2) default 0,
+long_text_object          longtext NULL,
+text_object               varchar(500),
+update_date               timestamp NULL,
+update_person             varchar(50),
+constraint pk_tb_options_set primary key (option_id))
 ;
 
 alter table tb_order add constraint fk_tb_order_parkInfo_1 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;

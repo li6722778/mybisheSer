@@ -27,7 +27,7 @@ create table tb_income (
   income_id                 bigint auto_increment not null,
   parkId                    bigint,
   incometotal               decimal(12,2) default 0.0,
-  incometoday               decimal(12,2) default 0.0,
+  cashtotal                 decimal(12,2) default 0.0,
   create_date               timestamp NULL,
   update_date               timestamp NULL,
   constraint pk_tb_income primary key (income_id))
@@ -43,15 +43,26 @@ create table tb_log (
   constraint pk_tb_log primary key (log_id))
 ;
 
+create table tb_options_set (
+  option_id                 bigint auto_increment not null,
+  option_type               integer(2) default 0,
+  long_text_object          longtext NULL,
+  text_object               varchar(500),
+  update_date               timestamp NULL,
+  update_person             varchar(50),
+  constraint pk_tb_options_set primary key (option_id))
+;
+
 create table tb_order (
   order_id                  bigint auto_increment not null,
   order_name                varchar(255),
   order_city                varchar(255),
+  order_fee_type            integer(2) default 0,
   parkId                    bigint,
   order_status              integer,
   order_detail              varchar(1000),
   coupon_id                 bigint,
-  order_date                timestamp NOT NULL,
+  order_date                timestamp NULL,
   start_date                timestamp NULL,
   end_date                  timestamp NULL,
   latitude                  decimal(20,17) default 0,
@@ -64,11 +75,12 @@ create table tb_order_his (
   order_id                  bigint auto_increment not null,
   order_name                varchar(255),
   order_city                varchar(255),
+  order_fee_type            integer(2) default 0,
   parkId                    bigint,
   order_status              integer,
   order_detail              varchar(1000),
   coupon_id                 bigint,
-  order_date                timestamp NOT NULL,
+  order_date                timestamp NULL,
   start_date                timestamp NULL,
   end_date                  timestamp NULL,
   latitude                  decimal(20,17) default 0,
@@ -352,6 +364,8 @@ drop table tb_counpon_info;
 drop table tb_income;
 
 drop table tb_log;
+
+drop table tb_options_set;
 
 drop table tb_order;
 

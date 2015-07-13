@@ -68,7 +68,7 @@ public class TOrder extends Model {
 
 	@Expose
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
-	@Column(columnDefinition = "timestamp NOT NULL")
+	@Column(columnDefinition = "timestamp NULL")
 	public Date orderDate;
 
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -243,11 +243,40 @@ public class TOrder extends Model {
 	}
 	
 	
+	/**
+	 * 已经支付但是未出场的车
+	 * @param parkid
+	 * @return
+	 */
 	public static  int  findnotcomeincount(long parkid)
 	{
 		
-		String sql = "select  count(order_id) as c FROM tb_order   where parkId="+parkid+" and start_date is NULL and end_date is NULL  and order_id "
+		String sql = "select  count(order_id) as c FROM tb_order   where order_status=1 and parkId="+parkid+" and start_date is NULL and end_date is NULL  and order_id "
 				+ "= (select  distinct orderId from tb_order_py where ack_status=2 and orderId=tb_order.order_id)";
+
+		final RawSql rawSql = RawSqlBuilder.unparsed(sql)
+				.columnMapping("c", "countOrder")
+		        .create();
+		
+		Query<ChartCityEntity> query = Ebean.find(ChartCityEntity.class).setRawSql(rawSql);
+		
+		ChartCityEntity count = query.findUnique();
+//		
+//		Query<TOrder_Py> query = Ebean.createQuery(TOrder_Py.class).select("order.orderId").setDistinct(true).where().eq("ackStatus", 2).eq("order.orderId","orderId").query();
+//		int  count = find.where().eq("parkId",parkid).isNull("startDate").in("orderId", query).findRowCount();	
+		
+		return (count==null)?0:count.countOrder;
+	}
+	
+	/**
+	 * 已经进场但是未出场的数量
+	 * @param parkid
+	 * @return
+	 */
+	public static  int  findnotoutincount(long parkid)
+	{
+		
+		String sql = "select  count(order_id) as c FROM tb_order   where order_status=1 and parkId="+parkid+" and start_date is not NULL and end_date is NULL";
 
 		final RawSql rawSql = RawSqlBuilder.unparsed(sql)
 				.columnMapping("c", "countOrder")

@@ -37,4 +37,6 @@ public class ChebolePayOptions {
 	
 	@Expose
 	public String keepToDate;
+	
+	public double actuAlreadyPay;
 }

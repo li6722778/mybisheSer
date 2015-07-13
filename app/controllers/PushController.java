@@ -38,6 +38,8 @@ public class PushController extends Controller {
 	public static HashMap<Long, String> clientMap = new HashMap<Long, String>();
 
 	public static HashMap<Long, String> adminPushToClientMap = new HashMap<Long, String>();
+	
+	public static HashMap<Long, String> adminPushToClientMapForIn = new HashMap<Long, String>();
 
 	/**
 	 * 注册一个用户的clientId
@@ -77,6 +79,30 @@ public class PushController extends Controller {
 	 */
 	public static void remove(long orderId) {
 		adminPushToClientMap.remove(orderId);
+	}
+	
+	/**
+	 * 注册一个消息订单id和client的绑定消息，一般用于结账放行，管理员推送消息给客户
+	 * 
+	 * @param orderId
+	 * @param clientId
+	 */
+	public static void registerClientUserForIn(long orderId, String clientId) {
+		if (orderId > 0 && clientId != null && !clientId.trim().equals("")) {
+			Logger.info("###add to adminPushToClientMapForIn:" + orderId
+					+ ", client id: " + clientId + "#######");
+			adminPushToClientMapForIn.put(orderId, clientId);
+		}
+
+	}
+
+	/**
+	 * 移除一个待通知消息
+	 * 
+	 * @param orderId
+	 */
+	public static void removeForIn(long orderId) {
+		adminPushToClientMapForIn.remove(orderId);
 	}
 
 	public static void pushToParkAdmin(final long parkId, final String phone,
@@ -149,7 +175,7 @@ public class PushController extends Controller {
 
 		PushMessage message = new PushMessage();
 		message.type = "ORDER_DONE";
-		message.message = "用户:" + phone + " 已经完成订单[" + orderName + "]";
+		message.message = "订单["+orderid+"]用户[" + phone + "]已经完成订单[" + orderName + "]";
 		message.title = "【车泊乐】订单[" + orderid + "]已完成";
 		message.sender = phone;
 		message.date = DateHelper.format(new Date(), "yyyy-MM-dd HH:mm:ss");
@@ -184,7 +210,7 @@ public class PushController extends Controller {
 		}
 		PushMessage message = new PushMessage();
 		message.type = "ORDER_REQUEST_PAY";
-		message.message = "收到[" + phone + "]的付款请求:" + payment + "元.";
+		message.message = "订单["+orderid+"]收到[" + phone + "]的付款请求:" + payment + "元.";
 		message.title = "【车泊乐】订单[" + orderid + "]付款请求";
 		message.sender = phone;
 		message.date = DateHelper.format(new Date(), "yyyy-MM-dd HH:mm:ss");
@@ -204,14 +230,15 @@ public class PushController extends Controller {
 
 		if(clientId!=null){
 			Target target = new Target();
+			String userId =adminPushToClientMap.get(orderId);
 			target.setAppId(appId);
-			target.setClientId(adminPushToClientMap.get(orderId));
+			target.setClientId(userId);
 			Logger.debug("###try to push to user:" + clientId);
 			
 			PushMessage message = new PushMessage();
 			message.type = "ADMIN_ORDER_DONE";
 			message.title = "【车泊乐】订单["+orderId+"]完成";
-			message.message = "["+parkName+"]管理员已结账放行,收费:"+pay+"元";
+			message.message = "订单["+orderId+"]["+parkName+"]管理员已结账放行,收费:"+pay+"元";
 			message.sender = "admin";
 			message.date = DateHelper.format(new Date(), "yyyy-MM-dd HH:mm:ss");
 		// message.ext1 = ""+TOrder.findnotcomeincount(parkId);;
@@ -219,6 +246,89 @@ public class PushController extends Controller {
 		   pushToClient(message, target);
 		}
 
+	}
+	
+	/**
+	 * 订单过期消息
+	 * @param orderId
+	 * @param pay
+	 */
+	public static void pushToClientForOrderExpire(long orderId,String parkName,int overtime,String additionalmessage) {
+		Logger.info("########plan to ClientForOrderDone,orderid"
+				+ orderId);
+
+		String clientId = adminPushToClientMapForIn.get(orderId);
+
+		if(clientId!=null){
+			String userId = adminPushToClientMapForIn.get(orderId);
+			Target target = new Target();
+			target.setAppId(appId);
+			target.setClientId(userId);
+			Logger.debug("###try to push to user:" + clientId);
+			
+			PushMessage message = new PushMessage();
+			message.type = "ORDER_WILL_EXPIRE";
+			message.title = "【车泊乐】订单["+orderId+"]将在"+overtime+"后"+additionalmessage;
+			message.message = "注意！订单["+orderId+"]["+parkName+"]将在"+overtime+"分钟后"+additionalmessage;
+			message.sender = "admin";
+			message.date = DateHelper.format(new Date(), "yyyy-MM-dd HH:mm:ss");
+		// message.ext1 = ""+TOrder.findnotcomeincount(parkId);;
+
+		   pushToClient(message, target);
+		}
+
+	}
+	
+	
+	/**
+	 * 
+	 * @param orderId
+	 * @param pay
+	 * @param parkName
+	 */
+	public static void pushToAdmForIn(long orderId,long phone,String parkName,long parkId) {
+		Logger.info("########push to administrator for in,orderid"
+				+ orderId);
+
+		
+		List<Target> targets = new ArrayList<Target>();
+		if (clientMap != null) {
+			List<TParkInfo_adm> adms = TParkInfo_adm.findAdmPartInfoByParkId(parkId);
+			if (adms != null) {
+				for (TParkInfo_adm adm : adms) {
+					String clientId = clientMap.get(adm.userInfo.userid);
+					if (clientId != null) {
+						Target target = new Target();
+						target.setAppId(appId);
+						target.setClientId(clientId);
+						Logger.debug("###try to push to user:" + clientId);
+						// target.setAlias(""+adm.userInfo.userid);
+						targets.add(target);
+					}
+				}
+			}
+		}
+		
+		PushMessage message = new PushMessage();
+		message.type = "ORDER_IN";
+		message.title = "【车泊乐】订单["+orderId+"]已进场";
+		message.message = "订单["+orderId+"]用户["+phone+"]已经进场"+"["+parkName+"]";
+		message.sender = "admin";
+		message.date = DateHelper.format(new Date(), "yyyy-MM-dd HH:mm:ss");
+	// message.ext1 = ""+TOrder.findnotcomeincount(parkId);;
+
+	   pushToClient(message, targets);
+
+	}
+	
+	/**
+	 * 
+	 * @param orderId
+	 * @return
+	 */
+	public static boolean existInClientRequest(long orderId){
+		Logger.debug("adminPushToClientMap:"+adminPushToClientMap);
+		return adminPushToClientMap.containsKey(orderId);
 	}
 
 	/**

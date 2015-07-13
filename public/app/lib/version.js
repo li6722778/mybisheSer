@@ -1,7 +1,7 @@
 /**
- * 停车场类
+ * version
  */
-var Parking = function () {
+var Version = function () {
     
     return {
         //main function to initiate the module
@@ -47,7 +47,7 @@ var Parking = function () {
 
 
 jQuery(document).ready(function() {    
-	Parking.init();
+	Version.init();
 });
 
 

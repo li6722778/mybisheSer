@@ -13,6 +13,7 @@ import models.info.ChartCityEntity;
 import models.info.TCouponEntity;
 import models.info.TIncome;
 import models.info.TLog;
+import models.info.TOptions;
 import models.info.TOrder;
 import models.info.TOrderHis;
 import models.info.TParkInfo;
@@ -1208,5 +1209,64 @@ public class WebPageController extends Controller {
 
 		return gotoTakeCash(currentPage,pageSize,orderBy);
 	}
+	
+	/**
+	 * 跳转版本界面
+	 * @return
+	 */
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoOptions() {
+		Logger.debug("goto gotoOptions");
+		TOptions options = new TOptions();
+		if(options.longTextObject!=null){
+			options.longTextObject = options.longTextObject.trim();
+		}
+		return ok(views.html.options.render(options));
+	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoOptionsByType(int type) {
+		Logger.debug("goto gotoOptionsByType");
+		TOptions options = TOptions.findOption(type);
+		options.optionType = type;
+		if(options.textObject!=null){
+			options.textObject = options.textObject.trim();
+		}
+		if(options.longTextObject!=null){
+			options.longTextObject = options.longTextObject.trim();
+		}
+		return ok(views.html.options.render(options));
+	}
+	
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result saveOptionData() {
+		Logger.debug("goto saveOptionData");
+		// DynamicForm dynamicForm = Form.form().bindFromRequest();
+		Form<TOptions> form = Form.form(TOptions.class).bindFromRequest();
+		if (form.hasErrors()) {
+			JsonNode node = form.errorsAsJson();
+			Logger.error("###########getglobalError:" + node);
+			return badRequest(node.toString());
+		}
+		TOptions info = form.get();
+		if (info != null) {
+			if(info.textObject!=null){
+				info.textObject = info.textObject.trim();
+			}
+			if(info.longTextObject!=null){
+				info.longTextObject = info.longTextObject.trim();
+			}
+			if(info.optionId==null||info.optionId<=0){
+				info.updatePerson=session("username");
+				TOptions.saveData(info);
+			}else{
+				info.updatePerson=session("username");
+				TOptions.updateData(info);
+			}
+			LogController.info("save options, type:"+info.optionType);
+		}
 
+		return ok("提交成功.");
+	}
 }

@@ -295,12 +295,19 @@ public class OrderController extends Controller {
 	}
 	
 	
+	/**
+	 * 车位管理员首页数量显示
+	 * @param parkId
+	 * @return
+	 */
 	public static Result getnotcomeincount (long parkId)
 	{
 	
 		Logger.debug("getnotcomecount:" + parkId);
 		int  allData = TOrder.findnotcomeincount(parkId);
-		return ok(allData+"");
+		int  allNooutData = TOrder.findnotoutincount(parkId);
+		
+		return ok(allData+"#"+allNooutData);
 		
 		
 	}

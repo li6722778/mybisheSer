@@ -44,5 +44,10 @@ public class Constants {
 	//删除验证码的时间
 	public static final int SCHEDULE_TIME_DELETE_VERIFYCODE=120;
 	
+	public static final int OPTIONS_PROTOCOL = 1 ;//注册协议
+	
+	//订单将要过期时间
+	public static final int ORDER_EXPIRE_MIN = 5;
+	
 	
 }
