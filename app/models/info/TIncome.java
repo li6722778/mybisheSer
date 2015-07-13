@@ -295,7 +295,7 @@ public class TIncome extends Model {
 					}
 				}
 			}
-			return todayotal;
+			return Arith.decimalPrice(todayotal);
 		} else {
 			return 0.0;
 		}
