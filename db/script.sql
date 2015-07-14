@@ -292,14 +292,16 @@ handle_name               varchar(50),
 constraint pk_tb_takecash primary key (takecashid))
 ;
 
+
 create table tb_income (
-  income_id                 bigint not null,
-  parkId                    bigint,
-  incometotal               decimal(12,2) default 0.0,
-  cashtotal                 decimal(12,2) default 0.0,
-  create_date               timestamp NULL,
-  update_date               timestamp NULL,
-  constraint pk_tb_income primary key (income_id))
+income_id                 bigint auto_increment not null,
+parkId                    bigint,
+incometotal               decimal(12,2) default 0.0,
+cashtotal                 decimal(12,2) default 0.0,
+counpontotal              decimal(12,2) default 0.0,
+create_date               timestamp NULL,
+update_date               timestamp NULL,
+constraint pk_tb_income primary key (income_id))
 ;
 
 create table tb_options_set (

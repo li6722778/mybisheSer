@@ -238,8 +238,9 @@ public class OrderController extends Controller {
 		TOrder data = gsonBuilderWithExpose.fromJson(request, TOrder.class);
 		ComResponse<TOrder>  response = new ComResponse<TOrder>();
 		try {
-			//data.endDate = new Date();
-			data.orderStatus = Constants.ORDER_TYPE_START;
+			
+			data.endDate = new Date();
+			data.orderStatus = Constants.ORDER_TYPE_FINISH;
 			TOrder.saveData(data);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(data);

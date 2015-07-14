@@ -50,6 +50,10 @@ public class TIncome extends Model {
 	@Expose
 	public double cashtotal;
 
+	@Column(columnDefinition = "decimal(12,2) default 0.0")
+	@Expose
+	public double counpontotal;
+	
 	@Expose
 	@Transient
 	public double incometoday;
@@ -154,7 +158,7 @@ public class TIncome extends Model {
 	 * @param income
 	 */
 	public static void saveIncome(final long parkid, final double income,
-			final double cash) {
+			final double cash,final double counpontotal) {
 		Ebean.execute(new TxRunnable() {
 			public void run() {
 
@@ -173,6 +177,7 @@ public class TIncome extends Model {
 					incometb.updateDate = incometb.createDate;
 					incometb.incometotal = income;
 					incometb.cashtotal = cash;
+					incometb.counpontotal=counpontotal;
 					Ebean.save(incometb);
 				} else {
 					incometb.incometotal = Arith
@@ -212,10 +217,6 @@ public class TIncome extends Model {
 								TOrderHis_Py.class).setRawSql(rawSql);
 
 						List<TOrderHis_Py> result = query.findList();
-						
-						if(result!=null){
-							
-						}
 
 					}
 

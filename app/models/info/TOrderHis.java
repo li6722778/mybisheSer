@@ -188,7 +188,8 @@ public class TOrderHis extends Model {
 									cash=hisPy.payActu;
 									
 								}
-							   TIncome.saveIncome(order.parkInfo.parkId, Arith.decimalPrice(hisPy.payActu+hisPy.couponUsed),cash);
+								
+							   TIncome.saveIncome(order.parkInfo.parkId, Arith.decimalPrice(hisPy.payActu+hisPy.couponUsed),cash,hisPy.couponUsed);
 							}
 						}
 						Logger.debug(">>>>>>>>>>>TOrder_Py moving end");
