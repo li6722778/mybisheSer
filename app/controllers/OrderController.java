@@ -238,10 +238,15 @@ public class OrderController extends Controller {
 		TOrder data = gsonBuilderWithExpose.fromJson(request, TOrder.class);
 		ComResponse<TOrder>  response = new ComResponse<TOrder>();
 		try {
-			
-			data.endDate = new Date();
+			Date currentDate = new Date();
+			data.startDate=currentDate;
+			data.endDate = currentDate;
 			data.orderStatus = Constants.ORDER_TYPE_FINISH;
-			TOrder.saveData(data);
+			//TOrder.saveData(data);
+			
+			// ***********已经完成的订单需要移到历史表**************/
+			TOrderHis.moveToHisFromOrder(data.orderId,Constants.ORDER_TYPE_FINISH);
+			
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(data);
 			response.setExtendResponseContext("更新数据成功.");

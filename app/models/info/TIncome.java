@@ -157,8 +157,7 @@ public class TIncome extends Model {
 	 * @param parkid
 	 * @param income
 	 */
-	public static void saveIncome(final long parkid, final double income,
-			final double cash,final double counpontotal) {
+	public static void saveIncome(final long parkid, final double income,final double cash,final double counpontotal) {
 		Ebean.execute(new TxRunnable() {
 			public void run() {
 
@@ -184,6 +183,8 @@ public class TIncome extends Model {
 							.decimalPrice(incometb.incometotal + income);
 					incometb.cashtotal = Arith.decimalPrice(incometb.cashtotal
 							+ cash);
+					incometb.counpontotal = Arith.decimalPrice(incometb.counpontotal
+							+ counpontotal);
 					incometb.updateDate = new Date();
 					Ebean.update(incometb);
 				}
