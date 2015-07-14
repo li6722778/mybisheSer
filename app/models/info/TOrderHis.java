@@ -188,6 +188,8 @@ public class TOrderHis extends Model {
 									cash=hisPy.payActu;
 									
 								}
+							
+								Logger.debug(">>>>>>>>>>cash:"+cash+"#######used coupon:"+hisPy.couponUsed);
 								
 							   TIncome.saveIncome(order.parkInfo.parkId, Arith.decimalPrice(hisPy.payActu+hisPy.couponUsed),cash,hisPy.couponUsed);
 							}
