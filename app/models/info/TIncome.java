@@ -212,6 +212,10 @@ public class TIncome extends Model {
 								TOrderHis_Py.class).setRawSql(rawSql);
 
 						List<TOrderHis_Py> result = query.findList();
+						
+						if(result!=null){
+							
+						}
 
 					}
 
