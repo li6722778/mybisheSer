@@ -267,10 +267,10 @@
 																				      </div>  
 																				      
 																				      <div class="control-group">
-																						  <label class="control-label" >分段计费类型:订单延迟多少分钟后开始计时(分钟)</label>
+																						  <label class="control-label" >分段计费类型:未进场多少分钟后开始计时(分钟)</label>
 																						  <div class="controls">
 																							<input type="text" id="feeTypeSecMinuteOfActivite" name="feeTypeSecMinuteOfActivite" class="m-wrap span12"  placeholder="分钟" value="@entityBean.feeTypeSecMinuteOfActivite">
-																						    <span class="help-block">订单生成后，用户在指定的分钟数到了后，系统默认已经进场，开始计时</span>
+																						    <span class="help-block">订单生成后，在指定的时间到了后，系统默认已经进场，开始计时</span>
 																						  </div>
 														                            </div>     
 																				</div>
@@ -387,9 +387,9 @@
 				                                          <div class="span12 ">
 				                                          
 				                                          @if(entityBean.feeType==1){
-				                                           <label class="control-label" >分段收费: @entityBean.feeTypeSecInScopeHourMoney 元/@entityBean.feeTypeSecInScopeHours 小时。超过后 @entityBean.feeTypeSecOutScopeHourMoney 元/小时.未进场订单失效时间:@entityBean.feeTypeSecMinuteOfActivite 分钟</label>
+				                                           <label class="control-label" >分段收费: @entityBean.feeTypeSecInScopeHourMoney 元/@entityBean.feeTypeSecInScopeHours 小时。超过后 @entityBean.feeTypeSecOutScopeHourMoney 元/小时.未进场自动从 @entityBean.feeTypeSecMinuteOfActivite 分钟后开始计时</label>
 				                                          }else{
-				                                             <label class="control-label" >计次收费: @entityBean.feeTypefixedHourMoney 元/次,未进场订单失效时间:@entityBean.feeTypeFixedMinuteOfInActivite 分钟</label>
+				                                             <label class="control-label" >计次收费: @entityBean.feeTypefixedHourMoney 元/次,未进场 @entityBean.feeTypeFixedMinuteOfInActivite 分钟后订单过期</label>
 				                                          }   
 														</div>
 														

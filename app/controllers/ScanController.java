@@ -188,7 +188,7 @@ public class ScanController extends Controller{
 						Logger.info(">>>>>>decode:"+parking);
 						return parking;
 					}catch(Exception e){
-						throw new Exception("停车场ID解析出错");
+						throw new Exception("无效的停车场二维码图片");
 					}
 					
 				}else{
@@ -200,7 +200,7 @@ public class ScanController extends Controller{
 					Logger.info(">>>>>>decode:"+parking);
 					return parking;
 				}catch(Exception e){
-					throw new Exception("停车场ID解析出错");
+					throw new Exception("无效的停车场二维码图片");
 				}
 			}
 		}

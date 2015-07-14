@@ -1152,6 +1152,23 @@ public class WebPageController extends Controller {
 				orderBy, filter));
 	}
 	
+	/**
+	 * 初始化所有停车场收益
+	 * @param pageSize
+	 * @param orderBy
+	 * @param filter
+	 * @return
+	 */
+	public static Result gotoInitIncome(int currentPage,int pageSize,
+			String orderBy, String filter){
+	
+		Logger.debug("gotoInitIncome");
+		
+		TIncome.initIncome();
+		
+		return gotoIncome(currentPage,pageSize,orderBy,filter);
+	}
+	
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoIncomeDetailOrderHis(int currentPage, int pageSize,
 			String orderBy, long parkId, String filter) {

@@ -154,6 +154,7 @@ GET      /w/order/delete                        controllers.WebPageController.de
 POST      /w/parkaccount                   controllers.WebPageController.gotoParkAccount(p:Int ?= 0, s:Int ?= 10, o ?= "approveDate desc",k?="",v?="",open:Int?=-1)    
 POST      /w/parkaccount/update/:parkId    controllers.WebPageController.saveParkingAcctounyData(p:Int ?= 0, s:Int ?= 10, o ?= "approveDate desc",k?="",v?="",open:Int?=-1,parkId:Long,bn?="",bc?="")    
 POST      /w/income                        controllers.WebPageController.gotoIncome(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc", f ?="")
+POST      /w/income/init                   controllers.WebPageController.gotoInitIncome(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc", f ?="")
 POST      /w/income/:parkid                controllers.WebPageController.gotoIncomeDetailOrderHis(p:Int ?= 0, s:Int ?= 10, o ?= "orderDate desc",parkid:Long,f?="")
 POST      /w/takecash                      controllers.WebPageController.gotoTakeCash(p:Int ?= 0, s:Int ?= 10, o ?= "askdata desc")
 POST       /w/takecash/update/:status       controllers.WebPageController.updateTakeCash(p:Int ?= 0, s:Int ?= 10, o ?= "askdata desc",status:Int, pid?="")

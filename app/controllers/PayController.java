@@ -422,6 +422,7 @@ public class PayController extends Controller {
 		// 总共付了多少钱（没有优惠后或打折的价格）
 		double totalAlreadyPay = 0.0;
 		double actuAlreadyPay = 0.0;
+		double actuUsedCoupon = 0.0;
 		boolean isDiscount = false;
 		boolean useCounpon = false;
 
@@ -432,6 +433,7 @@ public class PayController extends Controller {
 
 		// 得到当前优惠卷价值
 		double couponPrice = 0.0;
+		double couponUsed = 0.0;
 
 		// 总共停车小时
 		double spentHour = 0.0;
@@ -447,7 +449,7 @@ public class PayController extends Controller {
 		List<TOrder_Py> py = order.pay;
 		
 		if (py != null && py.size() > 0) {
-			double couponUsed = 0.0;
+			
 			for (int i=0 ;i<py.size();i++) {
 				TOrder_Py p = py.get(i);
 
@@ -511,10 +513,13 @@ public class PayController extends Controller {
 		if (newprice > 0) {
 			if (newprice - canbeUsedCoupon <= 0) {
 				newpriceWithCouponAndDiscount = 0;
+				actuUsedCoupon = newprice;
 			} else {
 				// 计算使用优惠卷后的的价格
 				newpriceWithCouponAndDiscount = Arith.decimalPrice(Math
 						.abs(newprice - canbeUsedCoupon));
+				
+				actuUsedCoupon = canbeUsedCoupon;
 			}
 
 			if (newpriceWithCouponAndDiscount < newprice) {
@@ -536,17 +541,21 @@ public class PayController extends Controller {
 				.decimalPrice(newpriceWithoutCouponAndDiscount);
 		payOption.isDiscount = isDiscount;
 		payOption.useCounpon = useCounpon;
-		payOption.counponUsedMoney = canbeUsedCoupon;
+		payOption.counponUsedMoney = actuUsedCoupon;
 		payOption.order = order;
 		payOption.parkSpentHour = spentHour;
-		payOption.actuAlreadyPay = actuAlreadyPay;
+		
+		//计算出当前总共需要需要多少钱
+		payOption.payActualPriceForTotal = Arith.decimalPrice(actuAlreadyPay+newpriceWithCouponAndDiscount+couponUsed+actuUsedCoupon);
+		payOption.payOrginalPriceFoTotal = Arith.decimalPrice(totalAlreadyPay+newpriceWithoutCouponAndDiscount);
+		payOption.counponUsedMoneyForTotal= Arith.decimalPrice(couponUsed+actuUsedCoupon);
 	
 
 		return payOption;
 	}
 	
 	/**
-	 * 得到当前需要付费,用于结账放行钱的确认
+	 * 得到当前需要付费,用于结账放行钱的确认,只适用于管理员结账放行
 	 * @param orderId
 	 * @param parkId
 	 * @return
@@ -609,25 +618,32 @@ public class PayController extends Controller {
 			} else {
 				response.setExtendResponseContext("pass");
 
-				// 先看已经付款多少了
-				double actuAlreadyPay = 0.0;
-				List<TOrder_Py> py = order.pay;
-				
-				if (py != null && py.size() > 0) {
-					for (int i=0 ;i<py.size();i++) {
-						TOrder_Py p = py.get(i);
-						// 状态为完成和处理中的，总价都要计算上，因为“处理中”可能是支付接口问题，单根据支付宝协议，会在几个小时内post结果信息
-						if (p.ackStatus == Constants.ORDER_TYPE_FINISH
-								|| p.ackStatus == Constants.ORDER_TYPE_PENDING) {
-							actuAlreadyPay += Arith.decimalPrice((p.payActu+ p.couponUsed));
-						}
-					}
+				//用了优惠券才没有产生费用，这里我们还是需要生成一个订单
+				if(payOption.useCounpon){
+					Date currentDate = new Date();
+					newpay.payActu = payOption.payActualPrice;
+					newpay.payMethod = Constants.PAYMENT_COUPON;
+					newpay.payTotal = payOption.payOrginalPrice;
+					newpay.ackStatus = Constants.ORDER_TYPE_FINISH;
+					newpay.createPerson = "admin";
+					newpay.payDate = currentDate;
+					newpay.ackDate = currentDate;
+					newpay.order = order;
+					newpay.couponUsed = payOption.counponUsedMoney;
+
+					TOrder_Py.saveData(newpay);
 				}
 				
 				// ***********已经完成的订单需要移到历史表**************/
 				TOrderHis.moveToHisFromOrder(orderId,Constants.ORDER_TYPE_FINISH);
 				
-				throw new Exception("应付"+actuAlreadyPay+"元，已付"+actuAlreadyPay+"元，还需付0元");
+				String message = "停车"+payOption.parkSpentHour+"小时。应付"+payOption.payActualPriceForTotal+"元，已付"+payOption.payActualPriceForTotal+"元";
+				if(payOption.counponUsedMoneyForTotal>0){
+					message+="(优惠券支付"+payOption.counponUsedMoneyForTotal+"元)";
+				}
+				message+="，还需付0元";
+				
+				throw new Exception(message);
 			}
 
 			/*********************************************************************
@@ -698,9 +714,14 @@ public class PayController extends Controller {
 						 
 						 //先注册一个消息，等结账后可以推送给我
 						PushController.registerClientUser(order.orderId, clientId);
-												
+											
+						String message = "停车"+payOption.parkSpentHour+"小时。应付"+payOption.payActualPriceForTotal+"元，已付"+Arith.decimalPrice(payOption.payActualPriceForTotal-payOption.payActualPrice-payOption.counponUsedMoney)+"元";
+						if(payOption.counponUsedMoneyForTotal>0){
+							message+="(优惠券支付"+payOption.counponUsedMoneyForTotal+"元)";
+						}
+						message+="，还需付"+actPay+"元";
 
-					 throw new Exception("还需付现金"+actPay+"元。");
+					 throw new Exception(message);
 				 }
 				
 				// 查看当前状态下是否有付款单
@@ -773,25 +794,33 @@ public class PayController extends Controller {
 			} else {
 				response.setExtendResponseContext("pass");
 
-				// 先看已经付款多少了
-				double actuAlreadyPay = 0.0;
-				List<TOrder_Py> py = order.pay;
-				
-				if (py != null && py.size() > 0) {
-					for (int i=0 ;i<py.size();i++) {
-						TOrder_Py p = py.get(i);
-						// 状态为完成和处理中的，总价都要计算上，因为“处理中”可能是支付接口问题，单根据支付宝协议，会在几个小时内post结果信息
-						if (p.ackStatus == Constants.ORDER_TYPE_FINISH
-								|| p.ackStatus == Constants.ORDER_TYPE_PENDING) {
-							actuAlreadyPay += Arith.decimalPrice((p.payActu+ p.couponUsed));
-						}
-					}
+
+				//用了优惠券才没有产生费用，这里我们还是需要生成一个订单
+				if(payOption.useCounpon){
+					Date currentDate = new Date();
+					newpay.payActu = payOption.payActualPrice;
+					newpay.payMethod = Constants.PAYMENT_COUPON;
+					newpay.payTotal = payOption.payOrginalPrice;
+					newpay.ackStatus = Constants.ORDER_TYPE_FINISH;
+					newpay.createPerson = username;
+					newpay.payDate = currentDate;
+					newpay.ackDate =currentDate;
+					newpay.order = order;
+					newpay.couponUsed = payOption.counponUsedMoney;
+
+					TOrder_Py.saveData(newpay);
 				}
 				
 				// ***********已经完成的订单需要移到历史表**************/
 				TOrderHis.moveToHisFromOrder(orderId,Constants.ORDER_TYPE_FINISH);
 				
-				throw new Exception("应付"+actuAlreadyPay+"元，已付"+actuAlreadyPay+"元，还需付0元");
+				String message = "停车"+payOption.parkSpentHour+"小时。应付"+payOption.payActualPriceForTotal+"元，已付"+payOption.payActualPriceForTotal+"元";
+				if(payOption.counponUsedMoneyForTotal>0){
+					message+="(优惠券支付"+payOption.counponUsedMoneyForTotal+"元)";
+				}
+				message+="，还需付0元";
+				
+				throw new Exception(message);
 			}
 
 			/*********************************************************************

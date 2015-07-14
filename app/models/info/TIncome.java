@@ -191,32 +191,76 @@ public class TIncome extends Model {
 		});
 	}
 
+	
+	/**
+	 * 重新初始化所有的收益
+	 */
 	public static void initIncome() {
 
 		Ebean.execute(new TxRunnable() {
 			public void run() {
 				// 首先得到所有的停车场，有订单的
-				List<TOrderHis> orderHisArray = TOrderHis.find
-						.fetch("parkInfo").setDistinct(true).findList();
+				String parkSql = "select distinct parkId from tb_order_his";
+				
+				final RawSql parkrawSql = RawSqlBuilder.unparsed(parkSql)
+						.columnMapping( "parkId","parkId")
+						.create();
+				
+				Query<TParkInfoProd> parkquery = Ebean.find(
+						TParkInfoProd.class).setRawSql(parkrawSql);
 
-				if (orderHisArray != null) {
-					for (TOrderHis orderHis : orderHisArray) {
-						String sql = "SELECT sum(pay_actu+coupon_used) as total, sum(coupon_used) as coupon, pay_method,ack_status FROM tb_order_his_py "
-								+ "where ack_status=2 and orderId in (select order_id from tb_order_his where parkId = "
-								+ orderHis.parkInfo.parkId
-								+ ") group by pay_method";
-
+				List<TParkInfoProd> parkArray = parkquery.findList();
+				
+				if (parkArray != null) {
+					
+					String createsql = "delete from tb_income";
+					
+					//final RawSql createRawSql = RawSqlBuilder.unparsed(createsql).create();
+					Ebean.createSqlUpdate(createsql).execute();
+					
+					for (TParkInfoProd prod : parkArray) {
+						String sql = "SELECT sum(a.pay_actu+a.coupon_used) as payTotal, sum(a.coupon_used) as couponUsed, a.pay_method as payMethod,a.ack_status as ackStatus  FROM tb_order_his_py a "
+								+ " where a.ack_status=2 and a.orderId in (select b.order_id from tb_order_his b where b.parkId = "
+								+ prod.parkId+ ") group by a.pay_method";
+						
 						final RawSql rawSql = RawSqlBuilder.unparsed(sql)
-								.columnMapping("payTotal", "total")
-								.columnMapping("coupon", "couponUsed")
-								.columnMapping("pay_method", "payMethod")
-								.columnMapping("ack_status", "ackStatus")
+								.columnMapping( "payTotal","payTotal")
+								.columnMapping( "couponUsed","couponUsed")
+								.columnMapping("payMethod","payMethod")
+								.columnMapping( "ackStatus","ackStatus")
 								.create();
 
-						Query<TOrderHis_Py> query = Ebean.find(
-								TOrderHis_Py.class).setRawSql(rawSql);
-
-						List<TOrderHis_Py> result = query.findList();
+						List<IncomeCountEntity> result= Ebean.find(IncomeCountEntity.class).setRawSql(rawSql).findList();
+						
+						if(result!=null){
+							
+							double totalIncome = 0.0;
+							double totalCash = 0.0;
+							double totalCoupon=0.0;
+							
+							for(IncomeCountEntity py:result){
+								totalIncome+=py.payTotal;
+								totalCoupon+=py.couponUsed;
+								if(py.payMethod==Constants.PAYMENT_TYPE_CASH){
+									totalCash +=py.payTotal;
+								}
+							}
+							
+							if(totalIncome>0){
+								TIncome income = new TIncome();
+								income.cashtotal = Arith.decimalPrice(totalCash);
+								income.counpontotal=Arith.decimalPrice(totalCoupon);
+								income.incometotal=Arith.decimalPrice(totalIncome);
+								TParkInfoProd infoProd = new TParkInfoProd();
+								infoProd.parkId = prod.parkId;
+								income.parkInfo = infoProd;
+								Date currentDate = new Date();
+								income.createDate = currentDate;
+								income.updateDate = currentDate;
+								
+								TIncome.saveData(income);
+							}
+						}
 
 					}
 

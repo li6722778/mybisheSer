@@ -1,7 +1,5 @@
 package models;
 
-import java.util.Date;
-
 import models.info.TOrder;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -16,11 +14,21 @@ public class ChebolePayOptions {
 	public TOrder order;
 	@Expose
 	public long paymentId;
+	
+	@Expose
+    public double payOrginalPriceFoTotal;
+	
 	@Expose
     public double payOrginalPrice;
 	
 	@Expose
+    public double payActualPriceForTotal;
+	
+	@Expose
     public double payActualPrice;
+	
+	@Expose
+	public double counponUsedMoneyForTotal;
 	
 	@Expose
 	public double counponUsedMoney;
@@ -38,5 +46,4 @@ public class ChebolePayOptions {
 	@Expose
 	public String keepToDate;
 	
-	public double actuAlreadyPay;
 }
