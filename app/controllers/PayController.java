@@ -609,12 +609,25 @@ public class PayController extends Controller {
 			} else {
 				response.setExtendResponseContext("pass");
 
+				// 先看已经付款多少了
+				double actuAlreadyPay = 0.0;
+				List<TOrder_Py> py = order.pay;
+				
+				if (py != null && py.size() > 0) {
+					for (int i=0 ;i<py.size();i++) {
+						TOrder_Py p = py.get(i);
+						// 状态为完成和处理中的，总价都要计算上，因为“处理中”可能是支付接口问题，单根据支付宝协议，会在几个小时内post结果信息
+						if (p.ackStatus == Constants.ORDER_TYPE_FINISH
+								|| p.ackStatus == Constants.ORDER_TYPE_PENDING) {
+							actuAlreadyPay += Arith.decimalPrice((p.payActu+ p.couponUsed));
+						}
+					}
+				}
+				
 				// ***********已经完成的订单需要移到历史表**************/
 				TOrderHis.moveToHisFromOrder(orderId,Constants.ORDER_TYPE_FINISH);
-
-				double actPay= Arith.decimalPrice(payOption.actuAlreadyPay);
 				
-				throw new Exception("应付"+actPay+"元，已付"+actPay+"元，还需付0元");
+				throw new Exception("应付"+actuAlreadyPay+"元，已付"+actuAlreadyPay+"元，还需付0元");
 			}
 
 			/*********************************************************************
@@ -685,9 +698,9 @@ public class PayController extends Controller {
 						 
 						 //先注册一个消息，等结账后可以推送给我
 						PushController.registerClientUser(order.orderId, clientId);
-						
+												
 
-					 throw new Exception("应付现金"+Arith.decimalPrice(payOption.actuAlreadyPay+actPay)+"元，已付"+payOption.actuAlreadyPay+"元，还需付现金"+actPay+"元。");
+					 throw new Exception("还需付现金"+actPay+"元。");
 				 }
 				
 				// 查看当前状态下是否有付款单
@@ -760,12 +773,25 @@ public class PayController extends Controller {
 			} else {
 				response.setExtendResponseContext("pass");
 
+				// 先看已经付款多少了
+				double actuAlreadyPay = 0.0;
+				List<TOrder_Py> py = order.pay;
+				
+				if (py != null && py.size() > 0) {
+					for (int i=0 ;i<py.size();i++) {
+						TOrder_Py p = py.get(i);
+						// 状态为完成和处理中的，总价都要计算上，因为“处理中”可能是支付接口问题，单根据支付宝协议，会在几个小时内post结果信息
+						if (p.ackStatus == Constants.ORDER_TYPE_FINISH
+								|| p.ackStatus == Constants.ORDER_TYPE_PENDING) {
+							actuAlreadyPay += Arith.decimalPrice((p.payActu+ p.couponUsed));
+						}
+					}
+				}
+				
 				// ***********已经完成的订单需要移到历史表**************/
 				TOrderHis.moveToHisFromOrder(orderId,Constants.ORDER_TYPE_FINISH);
-
-				double actPay= Arith.decimalPrice(payOption.actuAlreadyPay);
 				
-				throw new Exception("应付"+actPay+"元，已付"+actPay+"元，还需付0元");
+				throw new Exception("应付"+actuAlreadyPay+"元，已付"+actuAlreadyPay+"元，还需付0元");
 			}
 
 			/*********************************************************************

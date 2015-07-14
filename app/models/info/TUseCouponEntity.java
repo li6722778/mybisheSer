@@ -1,5 +1,6 @@
 package models.info;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -145,9 +146,30 @@ public class TUseCouponEntity extends Model {
 				.orderBy(orderBy).findPagingList(pageSize).setFetchAhead(false)
 				.getPage(currentPage);
 		// 没有这段，TCouponEntity里的数据就只有id
+		
+		List<TUseCouponEntity> useCouponArray =  allData.getList();
+		List<TUseCouponEntity> newCouponArray = new ArrayList<TUseCouponEntity>();
+		//去掉过期的优惠券
+		int removeNum = 0;
+		if(useCouponArray!=null){
+			for(TUseCouponEntity  couponUse:useCouponArray){
+				TCouponEntity couponEntity = couponUse.counponentity;
+				//Date startDate = couponEntity.startDate;
+				Date endDate = couponEntity.endDate;
+				Date currentDate = new Date();
+				//
+				if(endDate!=null&&endDate.before(currentDate)){
+					removeNum++;
+					continue;
+				}
+				
+				newCouponArray.add(couponUse);
+				
+			}
+		}
 
-		result.setResult(allData.getList());
-		result.setRowCount(allData.getTotalRowCount());
+		result.setResult(newCouponArray);
+		result.setRowCount(allData.getTotalRowCount()-removeNum);
 		result.setPageCount(allData.getTotalPageCount());
 		return result;
 	}

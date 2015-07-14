@@ -42,7 +42,7 @@ public class CounponController extends Controller{
 		ComResponse<TCouponEntity>  response = new ComResponse<TCouponEntity>();
 		TCouponEntity counponbean=TCouponEntity.findentityByCode(counponcode);
 		TuserInfo useinfo;
-		if(counponbean==null||(counponbean.count>0&&counponbean.scancount>counponbean.count)||counponbean.isable==0||counponbean.isable==2)
+		if(counponbean==null||(counponbean.count>0&&counponbean.scancount>=counponbean.count)||counponbean.isable==0||counponbean.isable==2)
 		{
 			Logger.debug("not find TCouponEntity");
 			return ok();
@@ -56,6 +56,14 @@ public class CounponController extends Controller{
 				if(startDate.after(currentDate)){
 					Logger.debug("not find coupon as start Date after current Date");
 					return ok();
+				}
+				
+			}else{//优惠券没有开始时间
+				if(endDate!=null){//失效了
+					if(endDate.before(currentDate)){
+						Logger.debug("not find coupon as end Date before current Date");
+						return ok();
+					}
 				}
 				
 			}
