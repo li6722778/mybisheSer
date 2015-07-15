@@ -324,7 +324,7 @@ public class PayController extends Controller {
 					payment.createPerson = user.userName;
 					payment.payDate = currentDate;
 
-					payment.couponUsed = chebolePayOptions.counponUsedMoney;
+					payment.couponUsed = chebolePayOptions.counponUsedMoneyForIn;
 
 					List<TOrder_Py> pays = new ArrayList<TOrder_Py>();
 					pays.add(payment);
@@ -498,6 +498,10 @@ public class PayController extends Controller {
 			double mhour = mins / 60.0;
 			spentHour = Math.ceil(mhour); // 总共停车这么多小时
 			
+			if(spentHour<1){//不足一小时后按一小时算
+				spentHour=1;
+			}
+			
 			// 这里我们要剔除起步价时间
 			double realSpentHour = spentHour - feeTypeSecInScopeHours;
 
@@ -553,7 +557,7 @@ public class PayController extends Controller {
 				.decimalPrice(newpriceWithoutCouponAndDiscount);
 		payOption.isDiscount = isDiscount;
 		payOption.useCounpon = useCounpon;
-		payOption.counponUsedMoney = actuUsedCoupon;
+		payOption.counponUsedMoneyForOut = actuUsedCoupon;
 		payOption.order = order;
 		payOption.parkSpentHour = spentHour;
 		
@@ -641,7 +645,7 @@ public class PayController extends Controller {
 					newpay.payDate = currentDate;
 					newpay.ackDate = currentDate;
 					newpay.order = order;
-					newpay.couponUsed = payOption.counponUsedMoney;
+					newpay.couponUsed = payOption.counponUsedMoneyForOut;
 
 					TOrder_Py.saveData(newpay);
 				}
@@ -650,10 +654,13 @@ public class PayController extends Controller {
 				TOrderHis.moveToHisFromOrder(orderId,Constants.ORDER_TYPE_FINISH);
 				
 				String message = "停车"+payOption.parkSpentHour+"小时。应付"+payOption.payActualPriceForTotal+"元，已付"+payOption.payActualPriceForTotal+"元";
-				if(payOption.counponUsedMoneyForTotal>0){
-					message+="(优惠券支付"+payOption.counponUsedMoneyForTotal+"元)";
+//				if(payOption.counponUsedMoneyForTotal>0){
+//					message+="(优惠券支付"+payOption.counponUsedMoneyForTotal+"元)";
+//				}
+				if(payOption.counponUsedMoneyForOut>0){
+					message+="，优惠券支付"+payOption.counponUsedMoneyForOut+"元";
 				}
-				message+="，还需付0元";
+				message+="，还需付0元。";
 				
 				throw new Exception(message);
 			}
@@ -727,11 +734,14 @@ public class PayController extends Controller {
 						 //先注册一个消息，等结账后可以推送给我
 						PushController.registerClientUser(order.orderId, clientId);
 											
-						String message = "停车"+payOption.parkSpentHour+"小时。应付"+payOption.payActualPriceForTotal+"元，已付"+Arith.decimalPrice(payOption.payActualPriceForTotal-payOption.payActualPrice-payOption.counponUsedMoney)+"元";
-						if(payOption.counponUsedMoneyForTotal>0){
-							message+="(优惠券支付"+payOption.counponUsedMoneyForTotal+"元)";
+						String message = "停车"+payOption.parkSpentHour+"小时。应付"+payOption.payActualPriceForTotal+"元，已付"+Arith.decimalPrice(payOption.payActualPriceForTotal-payOption.payActualPrice-payOption.counponUsedMoneyForOut)+"元";
+//						if(payOption.counponUsedMoneyForIn>0){
+//							message+="(优惠券支付"+payOption.counponUsedMoneyForIn+"元)";
+//						}
+						if(payOption.counponUsedMoneyForOut>0){
+							message+="，优惠券支付"+payOption.counponUsedMoneyForOut+"元";
 						}
-						message+="，还需付"+actPay+"元";
+						message+="，还需付现金"+actPay+"元。";
 
 					 throw new Exception(message);
 				 }
@@ -772,7 +782,7 @@ public class PayController extends Controller {
 				newpay.createPerson = username;
 				newpay.payDate = new Date();
 				newpay.order = order;
-				newpay.couponUsed = payOption.counponUsedMoney;
+				newpay.couponUsed = payOption.counponUsedMoneyForOut;
 
 				TOrder_Py.saveData(newpay);
 
@@ -818,7 +828,7 @@ public class PayController extends Controller {
 					newpay.payDate = currentDate;
 					newpay.ackDate =currentDate;
 					newpay.order = order;
-					newpay.couponUsed = payOption.counponUsedMoney;
+					newpay.couponUsed = payOption.counponUsedMoneyForOut;
 
 					TOrder_Py.saveData(newpay);
 				}
@@ -827,10 +837,13 @@ public class PayController extends Controller {
 				TOrderHis.moveToHisFromOrder(orderId,Constants.ORDER_TYPE_FINISH);
 				
 				String message = "停车"+payOption.parkSpentHour+"小时。应付"+payOption.payActualPriceForTotal+"元，已付"+payOption.payActualPriceForTotal+"元";
-				if(payOption.counponUsedMoneyForTotal>0){
-					message+="(优惠券支付"+payOption.counponUsedMoneyForTotal+"元)";
+//				if(payOption.counponUsedMoneyForTotal>0){
+//					message+="(优惠券支付"+payOption.counponUsedMoneyForTotal+"元)";
+//				}
+				if(payOption.counponUsedMoneyForOut>0){
+					message+="，优惠券支付"+payOption.counponUsedMoneyForOut+"元";
 				}
-				message+="，还需付0元";
+				message+="，还需付0元。";
 				
 				throw new Exception(message);
 			}
@@ -938,7 +951,7 @@ public class PayController extends Controller {
 					payOption.isDiscount = isDiscount;
 					payOption.useCounpon = useCounpon;
 					payOption.counponId = counponId;
-					payOption.counponUsedMoney = couponUsedMoney;
+					payOption.counponUsedMoneyForIn = couponUsedMoney;
 					if (keepMinus > 0) {
 						try {
 							payOption.keepToDate = DateHelper.format(DateHelper

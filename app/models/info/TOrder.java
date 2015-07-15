@@ -293,7 +293,7 @@ public class TOrder extends Model {
 	public static  int  findnotcomeincount(long parkid)
 	{
 		
-		String sql = "select  count(order_id) as c FROM tb_order   where order_status=1 and parkId="+parkid+" and start_date is NULL and end_date is NULL  and order_id "
+		String sql = "select  count(order_id) as c FROM tb_order   where (order_status=1 or order_status=3) and parkId="+parkid+" and start_date is NULL and end_date is NULL  and order_id "
 				+ "= (select  distinct orderId from tb_order_py where ack_status=2 and orderId=tb_order.order_id)";
 
 		final RawSql rawSql = RawSqlBuilder.unparsed(sql)

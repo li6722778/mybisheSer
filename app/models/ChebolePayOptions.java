@@ -31,7 +31,10 @@ public class ChebolePayOptions {
 	public double counponUsedMoneyForTotal;
 	
 	@Expose
-	public double counponUsedMoney;
+	public double counponUsedMoneyForIn;
+	
+	@Expose
+	public double counponUsedMoneyForOut;
 	
 	@Expose
 	public double parkSpentHour;
