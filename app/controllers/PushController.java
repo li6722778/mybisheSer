@@ -253,7 +253,7 @@ public class PushController extends Controller {
 	 * @param orderId
 	 * @param pay
 	 */
-	public static void pushToClientForOrderExpire(long orderId,String parkName,int overtime,String additionalmessage) {
+	public static void pushToClientForOrderExpire(long orderId,String parkName,float overtime,String additionalmessage) {
 		Logger.info("########plan to ClientForOrderDone,orderid"
 				+ orderId);
 
@@ -268,8 +268,14 @@ public class PushController extends Controller {
 			
 			PushMessage message = new PushMessage();
 			message.type = "ORDER_WILL_EXPIRE";
-			message.title = "【车泊乐】订单["+orderId+"]将在"+overtime+"后"+additionalmessage;
-			message.message = "注意！订单["+orderId+"]["+parkName+"]将在"+overtime+"分钟后"+additionalmessage;
+			if(overtime<=0){
+				message.title = "【车泊乐】订单["+orderId+"]已经"+additionalmessage;
+				message.message = "注意！订单["+orderId+"]["+parkName+"]已经"+additionalmessage;
+			}else{
+				message.title = "【车泊乐】订单["+orderId+"]将在"+overtime+"后"+additionalmessage;
+				message.message = "注意！订单["+orderId+"]["+parkName+"]将在"+overtime+"分钟后"+additionalmessage;
+			}
+			
 			message.sender = "admin";
 			message.date = DateHelper.format(new Date(), "yyyy-MM-dd HH:mm:ss");
 		// message.ext1 = ""+TOrder.findnotcomeincount(parkId);;

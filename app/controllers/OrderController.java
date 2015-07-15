@@ -242,7 +242,7 @@ public class OrderController extends Controller {
 			data.startDate=currentDate;
 			data.endDate = currentDate;
 			data.orderStatus = Constants.ORDER_TYPE_FINISH;
-			//TOrder.saveData(data);
+			TOrder.saveData(data);
 			
 			// ***********已经完成的订单需要移到历史表**************/
 			TOrderHis.moveToHisFromOrder(data.orderId,Constants.ORDER_TYPE_FINISH);

@@ -1072,16 +1072,17 @@ public class PayController extends Controller {
 														//计次收费，就这是为过期就行
 														if (order != null
 																&& order.startDate == null) {
-															
 															if(feeType!=1){
 															    order.orderStatus = Constants.ORDER_TYPE_OVERDUE;
 																Set<String> options = new HashSet<String>();
 																options.add("orderStatus");
 																Ebean.update(order,
 																		options);
+																PushController.pushToClientForOrderExpire(order.orderId, order.parkInfo.parkname, 0, "自动过期");
 															}else if(feeType==1){
 																String scanResult = "http://chebole#"+parking.parkId;
 																 ScanController.scanForIn(order.orderId, scanResult);
+																 PushController.pushToClientForOrderExpire(order.orderId, order.parkInfo.parkname, 0, "自动开始入场计时");
 															}
 															Logger.debug("#######AKKA schedule end>> done for overdue:"
 																	+ orderid
@@ -1094,25 +1095,27 @@ public class PayController extends Controller {
 								
 								
 								int reminderTime = time;
-								int useTime = Constants.ORDER_EXPIRE_MIN;
+								float useTime = Constants.ORDER_EXPIRE_MIN;
+								TimeUnit timeunit = TimeUnit.MINUTES;
 								if(time>Constants.ORDER_EXPIRE_MIN){
 									reminderTime = time - Constants.ORDER_EXPIRE_MIN;
 								}else if(time<=1){
-									reminderTime = 1;
-									useTime = 1;
+									reminderTime = 20;
+									useTime = 0.4f;
+									timeunit = TimeUnit.SECONDS;
 								}else{
 									reminderTime = time-1;
 									useTime = 1;
 								}
 								
-								final int tempUsedTime = useTime;
+								final float tempUsedTime = useTime;
 								
 								//这里再次设置一个过期提醒的任务
 								Akka.system()
 								.scheduler()
 								.scheduleOnce(
 										Duration.create(reminderTime,
-												TimeUnit.MINUTES),
+												timeunit),
 										new Runnable() {
 											public void run() {
 												Logger.debug("#######AKKA schedule start>> set reminder task:"
