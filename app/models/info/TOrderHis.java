@@ -104,6 +104,48 @@ public class TOrderHis extends Model {
 	@Expose
 	public TuserInfo userInfo;
 
+	@Column(columnDefinition = "integer(2) default 1")
+	@Expose
+	public int feeTypeSecInScopeHoursOrder;  
+
+	@Column(columnDefinition = "decimal(12,2) default 0.0")
+	@Expose
+	public double feeTypeSecInScopeHourMoneyOrder;
+
+	@Column(columnDefinition = "decimal(12,2) default 0.0")
+	@Expose
+	public double feeTypeSecOutScopeHourMoneyOrder;
+
+	@Column(columnDefinition = "decimal(12,2) default 0.0")
+	@Expose
+	public double feeTypefixedHourMoneyOrder;
+
+	@Column(columnDefinition = "integer(2) default 0")
+	@Expose
+	public int isDiscountAlldayOrder;
+
+	@Column(columnDefinition = "integer(2) default 0")
+	@Expose
+	public int isDiscountSecOrder;
+
+	@Column(columnDefinition = "decimal(12,2) default 0.0")
+	@Expose
+	public double discountHourAlldayMoneyOrder;
+
+	@Column(columnDefinition = "decimal(12,2) default 0.0")
+	@Expose
+	public double discountSecHourMoneyOrder;
+
+	@Formats.DateTime(pattern = "HH:mm:ss")
+	@Column(columnDefinition = "time")
+	@Expose
+	public Date discountSecStartHourOrder;
+
+	@Formats.DateTime(pattern = "HH:mm:ss")
+	@Column(columnDefinition = "time")
+	@Expose
+	public Date discountSecEndHourOrder;
+	
 	// 查询finder，用于其他方法中需要查询的场景
 	public static Finder<Long, TOrderHis> find = new Finder<Long, TOrderHis>(
 			Long.class, TOrderHis.class);

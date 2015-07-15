@@ -28,24 +28,6 @@ constraint pk_tb_log primary key (log_id))
 ;
 
 create table tb_order (
-order_id                  bigint  not null,
-order_name                varchar(255),
-order_city                varchar(255),
-order_fee_type            integer(2) default 0,
-parkId                    bigint,
-order_status              integer,
-order_detail              varchar(1000),
-coupon_id                 bigint,
-order_date                timestamp NULL,
-start_date                timestamp NULL,
-end_date                  timestamp NULL,
-latitude                  decimal(20,17) default 0,
-longitude                 decimal(20,17) default 0,
-userid                    bigint,
-constraint pk_tb_order primary key (order_id))
-;
-
-create table tb_order_his (
 order_id                  bigint not null,
 order_name                varchar(255),
 order_city                varchar(255),
@@ -60,6 +42,45 @@ end_date                  timestamp NULL,
 latitude                  decimal(20,17) default 0,
 longitude                 decimal(20,17) default 0,
 userid                    bigint,
+fee_type_sec_in_scope_hours_order integer(2) default 1,
+fee_type_sec_in_scope_hour_money_order decimal(12,2) default 0.0,
+fee_type_sec_out_scope_hour_money_order decimal(12,2) default 0.0,
+fee_typefixed_hour_money_order decimal(12,2) default 0.0,
+is_discount_allday_order  integer(2) default 0,
+is_discount_sec_order     integer(2) default 0,
+discount_hour_allday_money_order decimal(12,2) default 0.0,
+discount_sec_hour_money_order decimal(12,2) default 0.0,
+discount_sec_start_hour_order time,
+discount_sec_end_hour_order time,
+constraint pk_tb_order primary key (order_id))
+;
+
+
+create table tb_order_his (
+order_id                  bigint auto_increment not null,
+order_name                varchar(255),
+order_city                varchar(255),
+order_fee_type            integer(2) default 0,
+parkId                    bigint,
+order_status              integer,
+order_detail              varchar(1000),
+coupon_id                 bigint,
+order_date                timestamp NULL,
+start_date                timestamp NULL,
+end_date                  timestamp NULL,
+latitude                  decimal(20,17) default 0,
+longitude                 decimal(20,17) default 0,
+userid                    bigint,
+fee_type_sec_in_scope_hours_order integer(2) default 1,
+fee_type_sec_in_scope_hour_money_order decimal(12,2) default 0.0,
+fee_type_sec_out_scope_hour_money_order decimal(12,2) default 0.0,
+fee_typefixed_hour_money_order decimal(12,2) default 0.0,
+is_discount_allday_order  integer(2) default 0,
+is_discount_sec_order     integer(2) default 0,
+discount_hour_allday_money_order decimal(12,2) default 0.0,
+discount_sec_hour_money_order decimal(12,2) default 0.0,
+discount_sec_start_hour_order time,
+discount_sec_end_hour_order time,
 constraint pk_tb_order_his primary key (order_id))
 ;
 

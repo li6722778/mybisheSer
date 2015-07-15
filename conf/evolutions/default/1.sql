@@ -9,6 +9,13 @@ create table chart_city_entity (
   descri                    varchar(255))
 ;
 
+create table income_count_entity (
+  pay_total                 double,
+  coupon_used               double,
+  pay_method                integer,
+  ack_status                integer)
+;
+
 create table tb_counpon_info (
   counpon_id                bigint auto_increment not null,
   counpon_code              varchar(255),
@@ -69,6 +76,16 @@ create table tb_order (
   latitude                  decimal(20,17) default 0,
   longitude                 decimal(20,17) default 0,
   userid                    bigint,
+  fee_type_sec_in_scope_hours_order integer(2) default 1,
+  fee_type_sec_in_scope_hour_money_order decimal(12,2) default 0.0,
+  fee_type_sec_out_scope_hour_money_order decimal(12,2) default 0.0,
+  fee_typefixed_hour_money_order decimal(12,2) default 0.0,
+  is_discount_allday_order  integer(2) default 0,
+  is_discount_sec_order     integer(2) default 0,
+  discount_hour_allday_money_order decimal(12,2) default 0.0,
+  discount_sec_hour_money_order decimal(12,2) default 0.0,
+  discount_sec_start_hour_order time,
+  discount_sec_end_hour_order time,
   constraint pk_tb_order primary key (order_id))
 ;
 
@@ -87,6 +104,16 @@ create table tb_order_his (
   latitude                  decimal(20,17) default 0,
   longitude                 decimal(20,17) default 0,
   userid                    bigint,
+  fee_type_sec_in_scope_hours_order integer(2) default 1,
+  fee_type_sec_in_scope_hour_money_order decimal(12,2) default 0.0,
+  fee_type_sec_out_scope_hour_money_order decimal(12,2) default 0.0,
+  fee_typefixed_hour_money_order decimal(12,2) default 0.0,
+  is_discount_allday_order  integer(2) default 0,
+  is_discount_sec_order     integer(2) default 0,
+  discount_hour_allday_money_order decimal(12,2) default 0.0,
+  discount_sec_hour_money_order decimal(12,2) default 0.0,
+  discount_sec_start_hour_order time,
+  discount_sec_end_hour_order time,
   constraint pk_tb_order_his primary key (order_id))
 ;
 
@@ -359,6 +386,8 @@ create index ix_tb_counpon_use_counponentity_16 on tb_counpon_use (counponId);
 SET FOREIGN_KEY_CHECKS=0;
 
 drop table chart_city_entity;
+
+drop table income_count_entity;
 
 drop table tb_counpon_info;
 
