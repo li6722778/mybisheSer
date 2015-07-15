@@ -293,12 +293,25 @@ public class PayController extends Controller {
 					}
 					dataBean.orderName = "停车费:" + infoPark.parkname;
 					dataBean.orderStatus = Constants.ORDER_TYPE_START;
-					dataBean.orderFeeType = infoPark.feeType; 
 					dataBean.parkInfo = infoPark;
 					dataBean.userInfo = user;
 					dataBean.couponId = chebolePayOptions.counponId;
+					
+					
+					//copy当时的停车计价标准
+					dataBean.orderFeeType = infoPark.feeType; 
 					dataBean.orderDetail = infoPark.detail;
-
+					dataBean.feeTypefixedHourMoneyOrder = infoPark.feeTypefixedHourMoney;
+					dataBean.feeTypeSecInScopeHourMoneyOrder=infoPark.feeTypeSecInScopeHourMoney;
+					dataBean.feeTypeSecInScopeHoursOrder=infoPark.feeTypeSecInScopeHours;
+					dataBean.feeTypeSecOutScopeHourMoneyOrder=infoPark.feeTypeSecOutScopeHourMoney;
+					dataBean.isDiscountAlldayOrder=infoPark.isDiscountAllday;
+					dataBean.isDiscountSecOrder = infoPark.isDiscountSec;
+					dataBean.discountHourAlldayMoneyOrder = infoPark.discountHourAlldayMoney;
+					dataBean.discountSecEndHourOrder = infoPark.discountSecEndHour;
+					dataBean.discountSecHourMoneyOrder = infoPark.discountSecHourMoney;
+					dataBean.discountSecStartHourOrder = infoPark.discountSecStartHour;
+                    //copy完成
 					
 					
 					payment.payActu = chebolePayOptions.payActualPrice;
@@ -471,7 +484,7 @@ public class PayController extends Controller {
 		int feeType = order.orderFeeType<=0?parkinfo.feeType:order.orderFeeType;
 		if(feeType == 1) {// 分段收费
 			// 头几个小时
-			int feeTypeSecInScopeHours = parkinfo.feeTypeSecInScopeHours;
+			int feeTypeSecInScopeHours = order.feeTypeSecInScopeHoursOrder;
 
 			// 先计算总共停了多少小时
 			if (order.startDate == null) { // 没有刷开始时间，这下遭了。。。。。。
@@ -491,25 +504,24 @@ public class PayController extends Controller {
 
 				if (realSpentHour > 0) {
 					newpriceWithoutCouponAndDiscount = realSpentHour
-							* parkinfo.feeTypeSecOutScopeHourMoney;
+							* order.feeTypeSecOutScopeHourMoneyOrder;
 				} else {// 还在一个小时以内不用付款了。。。
 
 				}
 			
             
 			Logger.debug("calculationPriceForCurrentPark for out:::::::::::parkinfo.feeTypeSecInScopeHourMoney:"
-					+ parkinfo.feeTypeSecInScopeHourMoney
+					+ order.feeTypeSecInScopeHourMoneyOrder
 					+ ", realSpentHour:" + realSpentHour);
 		}
 
 		// 得到当前情况下优惠后的价格
-		double newprice = getNewPriceAfterDiscount(parkinfo,
+		double newprice = getNewPriceAfterDiscountForOut(order,
 				newpriceWithoutCouponAndDiscount);
 		if (newprice < newpriceWithoutCouponAndDiscount) {
 			isDiscount = true;
 		}
-		Logger.debug("pay for out:::::::::::getNewPriceAfterDiscount:"
-				+ newprice);
+		Logger.debug("pay for out:::::::::::getNewPriceAfterDiscountForOut:"+ newprice);
 		if (newprice > 0) {
 			if (newprice - canbeUsedCoupon <= 0) {
 				newpriceWithCouponAndDiscount = 0;
@@ -1016,6 +1028,61 @@ public class PayController extends Controller {
 				if (currentDateDD >= startdateDD && currentDateDD <= endDateDD) {
 					if (newPrice > infoPark.discountSecHourMoney) {
 						newPrice = infoPark.discountSecHourMoney;
+					}
+				}
+
+			}
+		}
+		return newPrice;
+	}
+	
+	
+	/**
+	 * 出场时候计算
+	 * @param infoPark
+	 * @param planedPrice
+	 * @return
+	 */
+	private static double getNewPriceAfterDiscountForOut(TOrder infoPark,
+			double planedPrice) {
+
+		if (planedPrice <= 0) {
+			return 0.0;
+		}
+
+		double newPrice = planedPrice;
+		if (infoPark.isDiscountAlldayOrder == 1) {
+			double discountHourAlldayMoney = infoPark.discountHourAlldayMoneyOrder;
+			if (newPrice > discountHourAlldayMoney) { // 如果用户选择了全天优惠，那么，这里就收最少的那个钱.
+				newPrice = discountHourAlldayMoney;
+			}
+		}
+
+		if (infoPark.isDiscountSecOrder == 1) {// 又勾选了优惠时段，那么
+			if (infoPark.discountSecStartHourOrder != null
+					&& infoPark.discountSecEndHourOrder != null) {
+				String currentDate = DateHelper.format(new Date(),
+						"yyyy/MM/dd HH:mm:00");
+				String startdate = DateHelper.format(
+						infoPark.discountSecStartHourOrder, "yyyy/MM/dd HH:mm:00");
+				String endDate = DateHelper.format(infoPark.discountSecEndHourOrder,
+						"yyyy/MM/dd HH:mm:00");
+
+				long currentDateDD = DateHelper.getStringtoDate(currentDate,
+						"yyyy/MM/dd HH:mm:ss").getTime();
+				long startdateDD = DateHelper.getStringtoDate(startdate,
+						"yyyy/MM/dd HH:mm:ss").getTime();
+				long endDateDD = DateHelper.getStringtoDate(endDate,
+						"yyyy/MM/dd HH:mm:ss").getTime();
+				if (endDateDD < startdateDD) {// 证明这里是过了24点
+					endDateDD = DateHelper.addDate(new Date(endDateDD), 1)
+							.getTime();
+				}
+
+				// 在优惠时间内，就用优惠价格
+				if (currentDateDD >= startdateDD && currentDateDD <= endDateDD) {
+					if (newPrice > infoPark.discountSecHourMoneyOrder) {
+						newPrice = infoPark.discountSecHourMoneyOrder;
 					}
 				}
 
