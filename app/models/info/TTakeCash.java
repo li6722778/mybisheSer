@@ -17,6 +17,8 @@ import utils.CommFindEntity;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Page;
+import com.avaje.ebean.SqlQuery;
+import com.avaje.ebean.SqlRow;
 import com.avaje.ebean.TxRunnable;
 import com.google.gson.annotations.Expose;
 
@@ -190,5 +192,13 @@ public class TTakeCash extends Model{
 		
 		public static TTakeCash findDataById(long id) {
 			return find.byId(id);
+		}
+		
+		public static double findTakeCash(long id) {
+			String sql = "SELECT sum(takemoney) as count FROM tb_takecash where parkid="+id;
+			SqlQuery sq = Ebean.createSqlQuery(sql);
+			SqlRow sqlRow = sq.findUnique();
+			Double db = sqlRow.getDouble("count");
+			return db == null ? 0 : db;
 		}
 }

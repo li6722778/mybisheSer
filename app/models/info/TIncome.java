@@ -57,6 +57,10 @@ public class TIncome extends Model {
 	@Expose
 	@Transient
 	public double incometoday;
+	
+	@Expose
+	@Transient
+	public double takeCashTotal;
 
 	@Expose
 	@Transient
@@ -146,6 +150,8 @@ public class TIncome extends Model {
 						.findAllCountForPark(in.parkInfo.parkId);
 				in.onlineIncomeTotal = Arith
 						.decimalPrice((in.incometotal - in.incometodaycash));
+				if(in.parkInfo!=null)
+					in.takeCashTotal=TTakeCash.findTakeCash(in.parkInfo.parkId);
 			}
 		}
 		return allData;
@@ -301,6 +307,8 @@ public class TIncome extends Model {
 				in.incometoday = getTodayIncome(in.parkInfo.parkId);
 				in.onlineIncomeTotal = Arith
 						.decimalPrice((in.incometotal - in.incometodaycash));
+				if(in.parkInfo!=null)
+					in.takeCashTotal=TTakeCash.findTakeCash(in.parkInfo.parkId);
 			}
 		}
 
@@ -335,6 +343,8 @@ public class TIncome extends Model {
 				in.incometoday = getTodayIncome(in.parkInfo.parkId);
 				in.onlineIncomeTotal = Arith
 						.decimalPrice((in.incometotal - in.incometodaycash));
+				if(in.parkInfo!=null)
+				in.takeCashTotal=TTakeCash.findTakeCash(in.parkInfo.parkId);
 			}
 		}
 		return allData;
@@ -359,6 +369,8 @@ public class TIncome extends Model {
 			income.finishedOrder = TOrderHis.findAllCountForPark(parkid);
 			income.onlineIncomeTotal = Arith
 					.decimalPrice((income.incometotal - income.incometodaycash));
+			if(income.parkInfo!=null)
+			income.takeCashTotal=TTakeCash.findTakeCash(income.parkInfo.parkId);
 			return income;
 		}
 

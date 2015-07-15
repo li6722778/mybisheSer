@@ -254,7 +254,7 @@ public class TParkInfoPro_Loc extends Model {
 		Logger.debug("-------minLat:"+minLat+",maxLat:"+maxLat+"");
 		Logger.debug("-------minLng:"+minLng+",maxLng:"+maxLng+"");
 		
-		List<TParkInfoPro_Loc> result = find.where().eq("type",1).eq("isOpen", 1).between("latitude", minLat, maxLat).between("longitude", minLng, maxLng).findList();
+		List<TParkInfoPro_Loc> result = find.where().eq("type",1).between("latitude", minLat, maxLat).between("longitude", minLng, maxLng).findList();
 		
 		//未来可以再次优化优化？？？？？？？？
 		if(result!=null){
