@@ -2,6 +2,7 @@ package controllers;
 
 import java.util.List;
 
+import models.info.MapMakers;
 import models.info.TParkInfoPro_Loc;
 import play.Logger;
 import play.libs.Json;
@@ -24,6 +25,26 @@ public class MapFindController extends Controller{
 	public static Result findNearbyParking(double myLat,double myLng, float scope) {
 		Logger.debug("start to find Nearby Parking,myLat:"+myLat+",myLng:"+myLng+",scope");
 		List<TParkInfoPro_Loc> allData = TParkInfoPro_Loc.findNearbyParking(myLat,myLng, scope);
+		String json = gsonBuilderWithExpose.toJson(allData);
+		JsonNode jsonNode = Json.parse(json);
+		// String jsonString = Json.stringify(json);
+		Logger.debug("List result:" + json);
+		return ok(jsonNode);
+	}
+	
+	public static Result findParkingEntrance(long parkLocId) {
+		Logger.debug("start to find Entrance by"+parkLocId);
+		TParkInfoPro_Loc locData = TParkInfoPro_Loc.getLocationPointByKey(parkLocId);
+		String json = gsonBuilderWithExpose.toJson(locData);
+		JsonNode jsonNode = Json.parse(json);
+		// String jsonString = Json.stringify(json);
+		Logger.debug("loc data:" + json);
+		return ok(jsonNode);
+	}
+	
+	public static Result findNearbyParkingSimpleMode(double myLat,double myLng, float scope) {
+		Logger.debug("start to find Nearby Parking for simple mode,myLat:"+myLat+",myLng:"+myLng+",scope");
+		List<MapMakers> allData = MapMakers.findNearbyParkingSimple(myLat,myLng, scope);
 		String json = gsonBuilderWithExpose.toJson(allData);
 		JsonNode jsonNode = Json.parse(json);
 		// String jsonString = Json.stringify(json);

@@ -97,79 +97,81 @@ public class TParkInfoPro_Loc extends Model {
 
 		Ebean.execute(new TxRunnable() {
 			public void run() {
-					// ------------生成主键，所有插入数据的方法都需要这个-----------
-					if (bean.parkLocId == null || bean.parkLocId <= 0) {
-						bean.parkLocId = TPKGenerator.getPrimaryKey(
-								TParkInfoPro_Loc.class.getName(), "parkLocId");
-						Ebean.save(bean);
-					} else {
-						Ebean.update(bean);
-					}
-				
+				// ------------生成主键，所有插入数据的方法都需要这个-----------
+				if (bean.parkLocId == null || bean.parkLocId <= 0) {
+					bean.parkLocId = TPKGenerator.getPrimaryKey(
+							TParkInfoPro_Loc.class.getName(), "parkLocId");
+					Ebean.save(bean);
+				} else {
+					Ebean.update(bean);
+				}
+
 				// -------------end----------------
 			}
 		});
 
 	}
-	
-	
-	public static void saveOpenCloseStatus(final long parkingId,final String updatedPerson) {
+
+	public static void saveOpenCloseStatus(final long parkingId,
+			final String updatedPerson) {
 
 		Ebean.execute(new TxRunnable() {
 			public void run() {
-					// ------------生成主键，所有插入数据的方法都需要这个-----------
+				// ------------生成主键，所有插入数据的方法都需要这个-----------
 				List<TParkInfoPro_Loc> result = getLocationPointByParkingId(parkingId);
-				if(result!=null&&result.size()>0){
+				if (result != null && result.size() > 0) {
 					TParkInfoPro_Loc loc = result.get(0);
-					//判断其中一个点是否开放
+					// 判断其中一个点是否开放
 					int isopen = loc.isOpen;
-					for(TParkInfoPro_Loc tmp : result){
-						Logger.debug("update TParkInfoPro_Loc status:"+isopen+" to new status");
-						if(isopen!=1){
-							tmp.isOpen=1;
-							tmp.updateDate=new Date();
-							tmp.updatePerson=updatedPerson;
+					for (TParkInfoPro_Loc tmp : result) {
+						Logger.debug("update TParkInfoPro_Loc status:" + isopen
+								+ " to new status");
+						if (isopen != 1) {
+							tmp.isOpen = 1;
+							tmp.updateDate = new Date();
+							tmp.updatePerson = updatedPerson;
 							Set<String> updates = new HashSet<String>();
 							updates.add("isOpen");
 							updates.add("updateDate");
 							updates.add("updatePerson");
 							Ebean.update(tmp, updates);
-						}else if(isopen==1){
-							tmp.isOpen=0;
-							tmp.updateDate=new Date();
-							tmp.updatePerson=updatedPerson;
+						} else if (isopen == 1) {
+							tmp.isOpen = 0;
+							tmp.updateDate = new Date();
+							tmp.updatePerson = updatedPerson;
 							Set<String> updates = new HashSet<String>();
 							updates.add("isOpen");
 							updates.add("updateDate");
 							updates.add("updatePerson");
 							Ebean.update(tmp, updates);
 						}
-						
-//						TParkInfoProd prod = TParkInfoProd.findDataById(parkingId);
-//						prod.updateDate = new Date();
-//						prod.updatePerson = updatedPerson;
-//						
-//						Set<String> updatesParking = new HashSet<String>();
-//						updatesParking.add("updateDate");
-//						updatesParking.add("updatePerson");
-//						Ebean.update(prod, updatesParking);
-						
+
+						// TParkInfoProd prod =
+						// TParkInfoProd.findDataById(parkingId);
+						// prod.updateDate = new Date();
+						// prod.updatePerson = updatedPerson;
+						//
+						// Set<String> updatesParking = new HashSet<String>();
+						// updatesParking.add("updateDate");
+						// updatesParking.add("updatePerson");
+						// Ebean.update(prod, updatesParking);
+
 					}
 				}
-				
+
 				// -------------end----------------
 			}
 		});
 
 	}
-	
+
 	/**
 	 * 直接插入数据
 	 * 
 	 * @param userinfo
 	 */
 	public static void saveDataWithoutIDPolicy(final TParkInfoPro_Loc bean) {
-						Ebean.save(bean);
+		Ebean.save(bean);
 	}
 
 	/**
@@ -203,15 +205,26 @@ public class TParkInfoPro_Loc extends Model {
 		result.setPageCount(allData.getTotalPageCount());
 		return result;
 	}
-	
+
 	/**
 	 * 得到所有的点
+	 * 
 	 * @param parkId
 	 * @return
 	 */
-	public static List<TParkInfoPro_Loc> getLocationPointByParkingId(long parkId){
-		List<TParkInfoPro_Loc> result = find.where().eq("parkId", parkId).findList();
+	public static List<TParkInfoPro_Loc> getLocationPointByParkingId(long parkId) {
+		List<TParkInfoPro_Loc> result = find.where().eq("parkId", parkId)
+				.findList();
 		return result;
+	}
+
+	public static TParkInfoPro_Loc getLocationPointByKey(long parkLocId) {
+		TParkInfoPro_Loc loc = find.byId(parkLocId);
+		if (loc != null) {
+			long parkid = loc.parkInfo.parkId;
+			loc.parkInfo = TParkInfoProd.findDataById(parkid);
+		}
+		return loc;
 	}
 
 	/**
@@ -233,37 +246,42 @@ public class TParkInfoPro_Loc extends Model {
 		result.setPageCount(1);
 		return result;
 	}
-	
+
 	/**
 	 * latitude 和 longitude建立复合索引
+	 * 
 	 * @param myLat
 	 * @param myLng
 	 * @param scope
 	 * @return
 	 */
-	public static List<TParkInfoPro_Loc> findNearbyParking(double myLat,double myLng, float scope){
-		
-		//先计算经纬度范围
-		double range = 180 / Math.PI * scope / 6372.797;  
+	public static List<TParkInfoPro_Loc> findNearbyParking(double myLat,
+			double myLng, float scope) {
+
+		// 先计算经纬度范围
+		double range = 180 / Math.PI * scope / 6372.797;
 		double lngR = range / Math.cos(myLat * Math.PI / 180.0);
 		double maxLat = myLat + range;
 		double minLat = myLat - range;
 		double maxLng = myLng + lngR;
 		double minLng = myLng - lngR;
-		
-		Logger.debug("-------minLat:"+minLat+",maxLat:"+maxLat+"");
-		Logger.debug("-------minLng:"+minLng+",maxLng:"+maxLng+"");
-		
-		List<TParkInfoPro_Loc> result = find.where().eq("type",1).between("latitude", minLat, maxLat).between("longitude", minLng, maxLng).findList();
-		
-		//未来可以再次优化优化？？？？？？？？
-		if(result!=null){
-			for(TParkInfoPro_Loc loc:result){
+
+		Logger.debug("-------minLat:" + minLat + ",maxLat:" + maxLat + "");
+		Logger.debug("-------minLng:" + minLng + ",maxLng:" + maxLng + "");
+
+		List<TParkInfoPro_Loc> result = find.where().eq("type", 1)
+				.between("latitude", minLat, maxLat)
+				.between("longitude", minLng, maxLng).findList();
+
+		// 未来可以再次优化优化？？？？？？？？
+		if (result != null) {
+			for (TParkInfoPro_Loc loc : result) {
 				long parkid = loc.parkInfo.parkId;
 				loc.parkInfo = TParkInfoProd.findDataById(parkid);
 			}
 		}
-		
+
 		return result;
 	}
+
 }
