@@ -50,6 +50,10 @@ public class TIncome extends Model {
 	@Expose
 	public double cashtotal;
 
+	@Column(columnDefinition = "decimal(12,2) default 0.0")
+	@Expose
+	public double counpontotal;
+	
 	@Expose
 	@Transient
 	public double incometoday;
@@ -76,7 +80,7 @@ public class TIncome extends Model {
 	@Expose
 	public double onlineIncomeTotal;
 
-	// 鏌ヨfinder锛岀敤浜庡叾浠栨柟娉曚腑闇�瑕佹煡璇㈢殑鍦烘櫙
+	// 查询finder，用于其他方法中需要查询的场景
 	public static Finder<Long, TIncome> find = new Finder<Long, TIncome>(
 			Long.class, TIncome.class);
 
@@ -89,14 +93,14 @@ public class TIncome extends Model {
 	}
 
 	/**
-	 * 鏂板缓鎴栨洿鏂版暟鎹�
+	 * 新建或更新数据
 	 * 
 	 * @param userinfo
 	 */
 	public static void saveData(final TIncome bean) {
 		Ebean.execute(new TxRunnable() {
 			public void run() {
-				// ------------鐢熸垚涓婚敭锛屾墍鏈夋彃鍏ユ暟鎹殑鏂规硶閮介渶瑕佽繖涓�-----------
+				// ------------生成主键，所有插入数据的方法都需要这个-----------
 				if (bean.incomeId == null || bean.incomeId <= 0) {
 					bean.createDate = new Date();
 					bean.updateDate = bean.createDate;
@@ -148,19 +152,19 @@ public class TIncome extends Model {
 	}
 
 	/**
-	 * 淇濆瓨瀵瑰簲鐨勬敹鐩�
+	 * 保存对应的收益
 	 * 
 	 * @param parkid
 	 * @param income
 	 */
 	public static void saveIncome(final long parkid, final double income,
-			final double cash) {
+			final double cash,final double counpontotal) {
 		Ebean.execute(new TxRunnable() {
 			public void run() {
 
 				TIncome incometb = findDataByParkid(parkid);
 
-				// ------------鐢熸垚涓婚敭锛屾墍鏈夋彃鍏ユ暟鎹殑鏂规硶閮介渶瑕佽繖涓�-----------
+				// ------------生成主键，所有插入数据的方法都需要这个-----------
 				if (incometb == null || incometb.incomeId == null
 						|| incometb.incomeId <= 0) {
 					incometb = new TIncome();
@@ -173,6 +177,7 @@ public class TIncome extends Model {
 					incometb.updateDate = incometb.createDate;
 					incometb.incometotal = income;
 					incometb.cashtotal = cash;
+					incometb.counpontotal=counpontotal;
 					Ebean.save(incometb);
 				} else {
 					incometb.incometotal = Arith
@@ -190,7 +195,7 @@ public class TIncome extends Model {
 
 		Ebean.execute(new TxRunnable() {
 			public void run() {
-				// 棣栧厛寰楀埌鎵�鏈夌殑鍋滆溅鍦猴紝鏈夎鍗曠殑
+				// 首先得到所有的停车场，有订单的
 				List<TOrderHis> orderHisArray = TOrderHis.find
 						.fetch("parkInfo").setDistinct(true).findList();
 
@@ -222,7 +227,7 @@ public class TIncome extends Model {
 	}
 
 	/**
-	 * 鍒犻櫎鏁版嵁
+	 * 删除数据
 	 * 
 	 * @param id
 	 */
@@ -231,7 +236,7 @@ public class TIncome extends Model {
 	}
 
 	/**
-	 * 寰楀埌鎵�鏈夋暟鎹紝鏈夊垎椤�
+	 * 得到所有数据，有分页
 	 * 
 	 * @param currentPage
 	 * @param pageSize
@@ -291,7 +296,7 @@ public class TIncome extends Model {
 	}
 
 	/**
-	 * 鏌ヨparkid瀵瑰簲鏀剁泭
+	 * 查询parkid对应收益
 	 * 
 	 * @param currentPage
 	 * @param pageSize
@@ -316,7 +321,7 @@ public class TIncome extends Model {
 	}
 
 	/**
-	 * 寰楀埌浠婂ぉ鐨勬敹鐩�
+	 * 得到今天的收益
 	 * 
 	 * @param parkId
 	 * @return
