@@ -141,7 +141,7 @@ public class TUseCouponEntity extends Model {
 
 		CommFindEntity<TUseCouponEntity> result = new CommFindEntity<TUseCouponEntity>();
 
-		Page<TUseCouponEntity> allData = find.fetch("userInfo")
+		Page<TUseCouponEntity> allData = find.orderBy("scanDate").fetch("userInfo")
 				.fetch("counponentity").where().eq("t0.userid", userid).eq("isable", 1)
 				.orderBy(orderBy).findPagingList(pageSize).setFetchAhead(false)
 				.getPage(currentPage);
