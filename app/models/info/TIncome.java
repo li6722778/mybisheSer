@@ -22,6 +22,8 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Page;
 import com.avaje.ebean.Query;
+import com.avaje.ebean.RawSql;
+import com.avaje.ebean.RawSqlBuilder;
 import com.avaje.ebean.SqlQuery;
 import com.avaje.ebean.SqlRow;
 import com.avaje.ebean.TxRunnable;
@@ -43,23 +45,18 @@ public class TIncome extends Model {
 	@Column(columnDefinition = "decimal(12,2) default 0.0")
 	@Expose
 	public double incometotal;
-	
+
 	@Column(columnDefinition = "decimal(12,2) default 0.0")
 	@Expose
 	public double cashtotal;
-	
-	@Column(columnDefinition = "decimal(12,2) default 0.0")
-	@Expose
-	public double counpontotal;
+
 	@Expose
 	@Transient
 	public double incometoday;
-	
+
 	@Expose
 	@Transient
 	public double incometodaycash;
-	
-	
 
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(columnDefinition = "timestamp NULL")
@@ -70,16 +67,16 @@ public class TIncome extends Model {
 	@Column(columnDefinition = "timestamp NULL")
 	@Expose
 	public Date updateDate;
-	
+
 	@Transient
 	@Expose
 	public int finishedOrder;
-	
+
 	@Transient
 	@Expose
 	public double onlineIncomeTotal;
 
-	// 查询finder，用于其他方法中需要查询的场景
+	// 鏌ヨfinder锛岀敤浜庡叾浠栨柟娉曚腑闇�瑕佹煡璇㈢殑鍦烘櫙
 	public static Finder<Long, TIncome> find = new Finder<Long, TIncome>(
 			Long.class, TIncome.class);
 
@@ -92,14 +89,14 @@ public class TIncome extends Model {
 	}
 
 	/**
-	 * 新建或更新数据
+	 * 鏂板缓鎴栨洿鏂版暟鎹�
 	 * 
 	 * @param userinfo
 	 */
 	public static void saveData(final TIncome bean) {
 		Ebean.execute(new TxRunnable() {
 			public void run() {
-				// ------------生成主键，所有插入数据的方法都需要这个-----------
+				// ------------鐢熸垚涓婚敭锛屾墍鏈夋彃鍏ユ暟鎹殑鏂规硶閮介渶瑕佽繖涓�-----------
 				if (bean.incomeId == null || bean.incomeId <= 0) {
 					bean.createDate = new Date();
 					bean.updateDate = bean.createDate;
@@ -111,56 +108,61 @@ public class TIncome extends Model {
 			}
 		});
 	}
-	
-	public static double findDonePayment(){
+
+	public static double findDonePayment() {
 		String sql = "SELECT sum(incometotal) as count FROM tb_income";
 		SqlQuery sq = Ebean.createSqlQuery(sql);
 		SqlRow sqlRow = sq.findUnique();
 		Double db = sqlRow.getDouble("count");
-		return  db==null?0: db;
+		return db == null ? 0 : db;
 	}
 
-	
 	public static Page<TIncome> pageByTypeAndFilter(int currentPage,
-			int pageSize, String orderBy,String filter) {
+			int pageSize, String orderBy, String filter) {
 
 		ExpressionList<TIncome> elist = find.where();
 
-		if (filter!=null&&!filter.trim().equals("")) {
-			//elist.eq("parkId", filter);
-			 String oql = "find TParkInfoProd(parkId) where TParkInfoProd.parkname like :parkname ";
-				   
-				 Query<TParkInfoProd> query = Ebean.createQuery(TParkInfoProd.class).select("parkId").where().ilike("parkname", "%"+filter+"%").query();
-			     elist.in("t0.parkId", query);
+		if (filter != null && !filter.trim().equals("")) {
+			// elist.eq("parkId", filter);
+			String oql = "find TParkInfoProd(parkId) where TParkInfoProd.parkname like :parkname ";
+
+			Query<TParkInfoProd> query = Ebean.createQuery(TParkInfoProd.class)
+					.select("parkId").where()
+					.ilike("parkname", "%" + filter + "%").query();
+			elist.in("t0.parkId", query);
 		}
 		Page<TIncome> allData = elist.orderBy(orderBy).fetch("parkInfo")
 				.findPagingList(pageSize).setFetchAhead(false)
 				.getPage(currentPage);
-		
+
 		if (allData.getList() != null) {
 			for (TIncome in : allData.getList()) {
 				in.incometoday = getTodayIncome(in.parkInfo.parkId);
-				in.finishedOrder = TOrderHis.findAllCountForPark(in.parkInfo.parkId);
-				in.onlineIncomeTotal = Arith.decimalPrice((in.incometotal-in.incometodaycash));
+				in.finishedOrder = TOrderHis
+						.findAllCountForPark(in.parkInfo.parkId);
+				in.onlineIncomeTotal = Arith
+						.decimalPrice((in.incometotal - in.incometodaycash));
 			}
 		}
 		return allData;
 	}
-	
+
 	/**
-	 * 保存对应的收益
+	 * 淇濆瓨瀵瑰簲鐨勬敹鐩�
 	 * 
 	 * @param parkid
 	 * @param income
 	 */
-	public static void saveIncome(final long parkid, final double income,final double cash,final double counpon) {
+	public static void saveIncome(final long parkid, final double income,
+			final double cash) {
 		Ebean.execute(new TxRunnable() {
 			public void run() {
 
 				TIncome incometb = findDataByParkid(parkid);
 
-				// ------------生成主键，所有插入数据的方法都需要这个-----------
-				if (incometb == null||incometb.incomeId==null||incometb.incomeId<=0) {
+				// ------------鐢熸垚涓婚敭锛屾墍鏈夋彃鍏ユ暟鎹殑鏂规硶閮介渶瑕佽繖涓�-----------
+				if (incometb == null || incometb.incomeId == null
+						|| incometb.incomeId <= 0) {
 					incometb = new TIncome();
 					TParkInfoProd parkInfo = new TParkInfoProd();
 					parkInfo.parkId = parkid;
@@ -170,12 +172,13 @@ public class TIncome extends Model {
 					incometb.createDate = new Date();
 					incometb.updateDate = incometb.createDate;
 					incometb.incometotal = income;
-					incometb.cashtotal=cash;
-					incometb.counpontotal=counpon;					
+					incometb.cashtotal = cash;
 					Ebean.save(incometb);
 				} else {
 					incometb.incometotal = Arith
 							.decimalPrice(incometb.incometotal + income);
+					incometb.cashtotal = Arith.decimalPrice(incometb.cashtotal
+							+ cash);
 					incometb.updateDate = new Date();
 					Ebean.update(incometb);
 				}
@@ -183,8 +186,43 @@ public class TIncome extends Model {
 		});
 	}
 
+	public static void initIncome() {
+
+		Ebean.execute(new TxRunnable() {
+			public void run() {
+				// 棣栧厛寰楀埌鎵�鏈夌殑鍋滆溅鍦猴紝鏈夎鍗曠殑
+				List<TOrderHis> orderHisArray = TOrderHis.find
+						.fetch("parkInfo").setDistinct(true).findList();
+
+				if (orderHisArray != null) {
+					for (TOrderHis orderHis : orderHisArray) {
+						String sql = "SELECT sum(pay_actu+coupon_used) as total, sum(coupon_used) as coupon, pay_method,ack_status FROM tb_order_his_py "
+								+ "where ack_status=2 and orderId in (select order_id from tb_order_his where parkId = "
+								+ orderHis.parkInfo.parkId
+								+ ") group by pay_method";
+
+						final RawSql rawSql = RawSqlBuilder.unparsed(sql)
+								.columnMapping("payTotal", "total")
+								.columnMapping("coupon", "couponUsed")
+								.columnMapping("pay_method", "payMethod")
+								.columnMapping("ack_status", "ackStatus")
+								.create();
+
+						Query<TOrderHis_Py> query = Ebean.find(
+								TOrderHis_Py.class).setRawSql(rawSql);
+
+						List<TOrderHis_Py> result = query.findList();
+
+					}
+
+				}
+			}
+		});
+
+	}
+
 	/**
-	 * 删除数据
+	 * 鍒犻櫎鏁版嵁
 	 * 
 	 * @param id
 	 */
@@ -193,7 +231,7 @@ public class TIncome extends Model {
 	}
 
 	/**
-	 * 得到所有数据，有分页
+	 * 寰楀埌鎵�鏈夋暟鎹紝鏈夊垎椤�
 	 * 
 	 * @param currentPage
 	 * @param pageSize
@@ -211,7 +249,8 @@ public class TIncome extends Model {
 		if (allData.getList() != null) {
 			for (TIncome in : allData.getList()) {
 				in.incometoday = getTodayIncome(in.parkInfo.parkId);
-				in.onlineIncomeTotal = Arith.decimalPrice((in.incometotal-in.incometodaycash));
+				in.onlineIncomeTotal = Arith
+						.decimalPrice((in.incometotal - in.incometodaycash));
 			}
 		}
 
@@ -240,18 +279,19 @@ public class TIncome extends Model {
 		Page<TIncome> allData = elist.orderBy(orderBy).fetch("parkInfo")
 				.findPagingList(pageSize).setFetchAhead(false)
 				.getPage(currentPage);
-		
+
 		if (allData.getList() != null) {
 			for (TIncome in : allData.getList()) {
 				in.incometoday = getTodayIncome(in.parkInfo.parkId);
-				in.onlineIncomeTotal = Arith.decimalPrice((in.incometotal-in.incometodaycash));
+				in.onlineIncomeTotal = Arith
+						.decimalPrice((in.incometotal - in.incometodaycash));
 			}
 		}
 		return allData;
 	}
 
 	/**
-	 * 查询parkid对应收益
+	 * 鏌ヨparkid瀵瑰簲鏀剁泭
 	 * 
 	 * @param currentPage
 	 * @param pageSize
@@ -267,16 +307,17 @@ public class TIncome extends Model {
 			TIncome income = allData.get(0);
 			income.incometoday = getTodayIncome(parkid);
 			income.finishedOrder = TOrderHis.findAllCountForPark(parkid);
-			income.onlineIncomeTotal = Arith.decimalPrice((income.incometotal-income.incometodaycash));
+			income.onlineIncomeTotal = Arith
+					.decimalPrice((income.incometotal - income.incometodaycash));
 			return income;
 		}
 
-		return  new TIncome();
+		return new TIncome();
 	}
 
-	
 	/**
-	 * 得到今天的收益
+	 * 寰楀埌浠婂ぉ鐨勬敹鐩�
+	 * 
 	 * @param parkId
 	 * @return
 	 */
@@ -290,12 +331,12 @@ public class TIncome extends Model {
 				if (pys != null) {
 					for (TOrderHis_Py py : pys) {
 						if (py.ackStatus == Constants.PAYMENT_STATUS_FINISH) {
-							todayotal += (py.payActu+py.couponUsed);
+							todayotal += (py.payActu + py.couponUsed);
 						}
-						
-//						if(py.payMethod==Constants.PAYMENT_TYPE_CASH){
-//							incometodaycash;
-//						}
+
+						// if(py.payMethod==Constants.PAYMENT_TYPE_CASH){
+						// incometodaycash;
+						// }
 					}
 				}
 			}
