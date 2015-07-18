@@ -71,27 +71,34 @@ var ParkingComments = function () {
     		 $('input:checkbox:checked').each(function() {
     	            checked+=$(this).val()+",";
     	        });
-    		 var p = $(this).attr("p");
-    		 var s = $(this).attr("s");
-    		 var o = $(this).attr("o");
-    		 var k = $(this).attr("k");
-    		 var v = $(this).attr("v");
     		 
-    		 var pageContent = $('.page-content');
-  		     var pageContentBody = $('.page-content .page-content-body');
-  		     
-  		   App.blockUI(pageContent, false);
-    		 $.get("/w/comment/deletes?i="+checked+"&p="+p+"&s="+s+"&o="+o+"&k="+k+"&v="+v,function(data){
-      				
-      				pageContentBody.html(data);
-                    App.fixContentHeight(); // fix content height
-                    App.initUniform(); // initialize uniform elements
-                    App.unblockUI(pageContent);
-      			});
+    		 if(checked.length>0)
+    		 {
+    			 
+    			 
+    			 var p = $(this).attr("p");
+        		 var s = $(this).attr("s");
+        		 var o = $(this).attr("o");
+        		 var k = $(this).attr("k");
+        		 var v = $(this).attr("v");
+        		 
+        		 var pageContent = $('.page-content');
+      		     var pageContentBody = $('.page-content .page-content-body');
+      		     
+      		   App.blockUI(pageContent, false);
+        		 $.get("/w/comment/deletes?i="+checked+"&p="+p+"&s="+s+"&o="+o+"&k="+k+"&v="+v,function(data){
+          				
+          				pageContentBody.html(data);
+                        App.fixContentHeight(); // fix content height
+                        App.initUniform(); // initialize uniform elements
+                        App.unblockUI(pageContent);
+          			});
+    		 }
+    	
     	 });
         	 
         	 
-        	 
+      	 
 
         	 
 

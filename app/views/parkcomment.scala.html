@@ -45,7 +45,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
 
 							<div class="portlet-title">
 
-								<div class="caption"><i class="icon-map-marker"></i>评论管理</div>
+								<div class="caption"><i class="icon-remove-circle"></i>评论管理</div>
 
 								<div class="tools">
 									<a href="javascript:;" class="reload"></a>
@@ -59,7 +59,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
 									<select class="small m-wrap" tabindex="1" id="key_search_parkingcomments">
 															<option value="">请选择分类</option>
 															<option value="parkComId" @if(key=="parkComId"){ selected }>评论编号</option>
-															<option value="parkInfo.parknam" @if(key=="parkInfo.parkname"){ selected }>停车场名</option>
+															<option value="parkInfo.parkname" @if(key=="parkInfo.parkname"){ selected }>停车场名</option>
 															<option value="comments" @if(key=="comments"){ selected }>评论内容</option>
                                                             <option value="rating" @if(key=="rating"){ selected }>星级</option>
                                                             <option value="createPerson" @if(key=="createPerson"){ selected }>评论人</option>         
@@ -73,7 +73,6 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
 										</button>
 										<ul class="dropdown-menu pull-right">
 										    <li><a href="javascript:;" id="button_delete_comment" p="@currentPage" s="@pageSize" o="@orderBy"  k="@key" v="@searchObj">删除评论</a></li>
-											<li><a>退回修改</a></li>
 										</ul>
 									</div>
 	
