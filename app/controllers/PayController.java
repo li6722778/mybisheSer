@@ -831,12 +831,20 @@ public class PayController extends Controller {
 					newpay.couponUsed = payOption.counponUsedMoneyForOut;
 
 					TOrder_Py.saveData(newpay);
+					
+					 List<TOrder_Py> pays = order.pay;
+					 if(pays==null){
+						 pays = new ArrayList<TOrder_Py>();
+						 order.pay = pays;
+					 }
+					 newpay.order = null;//解决gson递归分析的内存溢出问题
+					 pays.add(newpay);
 				}
 				
 				// ***********已经完成的订单需要移到历史表**************/
 				TOrderHis.moveToHisFromOrder(orderId,Constants.ORDER_TYPE_FINISH);
 				
-				String message = "停车"+payOption.parkSpentHour+"小时。应付"+payOption.payActualPriceForTotal+"元，已付"+payOption.payActualPriceForTotal+"元";
+				String message = "停车"+payOption.parkSpentHour+"小时。应付"+payOption.payActualPriceForTotal+"元，已付"+Arith.decimalPrice(payOption.payActualPriceForTotal-payOption.payActualPrice-payOption.counponUsedMoneyForOut)+"元";
 //				if(payOption.counponUsedMoneyForTotal>0){
 //					message+="(优惠券支付"+payOption.counponUsedMoneyForTotal+"元)";
 //				}
