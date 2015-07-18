@@ -23,6 +23,14 @@ import com.avaje.ebean.Page;
 import com.avaje.ebean.TxRunnable;
 import com.google.gson.annotations.Expose;
 
+
+import com.avaje.ebean.Expr;
+import com.avaje.ebean.ExpressionList;
+
+import com.avaje.ebean.Query;
+
+
+
 @Entity
 @Table(name = "tb_parking_comment")
 public class TParkInfo_Comment extends Model{
@@ -172,4 +180,35 @@ public class TParkInfo_Comment extends Model{
 		return find.byId(id);
 	}
 	
+	
+	
+	/**
+	 * 
+	 * @param currentPage
+	 * @param pageSize
+	 * @param orderBy
+	 * @param key
+	 * @param searchObj
+	 * @return
+	 */
+    public static Page<TParkInfo_Comment> pageByFilter(int currentPage,int pageSize, String orderBy,String key,String searchObj) {
+		ExpressionList<TParkInfo_Comment> elist = find.where();
+		
+		if(key!=null&&searchObj!=null&&!searchObj.trim().equals("")&&!key.trim().equals("")){
+			if(key.trim().toLowerCase().equals("createperson")){
+				elist.or(Expr.ilike("createPerson",  "%"+searchObj+"%"), Expr.ilike("updatePerson",  "%"+searchObj+"%"));
+			}else{
+			   elist.ilike(key, "%"+searchObj+"%");
+			}
+		}
+	
+		Page<TParkInfo_Comment> allData = elist.orderBy(orderBy).findPagingList(pageSize).setFetchAhead(false).getPage(currentPage);
+        return allData;
+    }
+	
+
+	
+	
+	
+
 }

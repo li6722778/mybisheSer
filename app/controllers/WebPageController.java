@@ -19,6 +19,7 @@ import models.info.TOrderHis;
 import models.info.TParkInfo;
 import models.info.TParkInfoPro_Loc;
 import models.info.TParkInfoProd;
+import models.info.TParkInfo_Comment;
 import models.info.TParkInfo_Img;
 import models.info.TParkInfo_Loc;
 import models.info.TParkInfo_adm;
@@ -105,6 +106,70 @@ public class WebPageController extends Controller {
 	}
 	
 	@Security.Authenticated(SecurityController.class)
+	public static Result gotoparkcomment(int currentPage, int pageSize,
+			String orderBy, String key, String searchObj) {
+		Logger.debug("goto gotoParkingProd");
+		Page<TParkInfo_Comment> allData = TParkInfo_Comment.pageByFilter(currentPage,
+				pageSize, orderBy, key, searchObj);
+		return ok(views.html.parkcomment.render(allData, currentPage, pageSize,
+				orderBy, key, searchObj));
+	}
+	
+	/**
+	 * 删除评论
+	 * @param pidarray
+	 * @return
+	 */
+	@Security.Authenticated(SecurityController.class)
+	public static Result deletecomments(String pidarray) {
+		Logger.info("GOTO deletecomments,FOR:" + pidarray);
+		if (pidarray != null && pidarray.length() > 0) {
+			String[] pids = pidarray.split(",");
+			for (String pidString : pids) {
+				try {
+					long pid = Long.parseLong(pidString);
+					Logger.info("try to delete orderid:" + pid);
+					TParkInfo_Comment.deleteData(pid);
+					LogController.info("delete order:"+pidString);
+				} catch (Exception e) {
+					Logger.error("deleteOrder:" + pidString, e);
+				}
+			}
+			return ok("" + pids.length);
+		}
+
+		return ok("0");
+	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoDetailParkingProd(long parking) {
+		Logger.debug("goto gotoDetailParkingProd");
+		TParkInfoProd allData = TParkInfoProd.findDataById(parking);
+
+		String makerString = "";
+		if (allData != null) {
+			List<TParkInfoPro_Loc> locAarray = allData.latLngArray;
+			if (locAarray != null) {
+
+				for (TParkInfoPro_Loc loc : locAarray) {
+					makerString += loc.longitude + "," + loc.latitude + "|";
+				}
+
+				if (makerString.length() > 0) {
+					makerString = makerString.substring(0,
+							makerString.length() - 2);
+				}
+			}
+		}
+
+		flash("makerString", makerString);
+
+		return ok(views.html.parkingdetailprod.render(allData));
+	}
+	
+	
+	
+	@Security.Authenticated(SecurityController.class)
 	public static Result gotoParkAccount(int currentPage, int pageSize,
 			String orderBy, String key, String searchObj,int isopen) {
 		Logger.debug("goto gotoParkAccount");
@@ -188,31 +253,7 @@ public class WebPageController extends Controller {
 				pageSize, orderBy, "", ""));
 	}
 
-	@Security.Authenticated(SecurityController.class)
-	public static Result gotoDetailParkingProd(long parking) {
-		Logger.debug("goto gotoDetailParkingProd");
-		TParkInfoProd allData = TParkInfoProd.findDataById(parking);
-
-		String makerString = "";
-		if (allData != null) {
-			List<TParkInfoPro_Loc> locAarray = allData.latLngArray;
-			if (locAarray != null) {
-
-				for (TParkInfoPro_Loc loc : locAarray) {
-					makerString += loc.longitude + "," + loc.latitude + "|";
-				}
-
-				if (makerString.length() > 0) {
-					makerString = makerString.substring(0,
-							makerString.length() - 2);
-				}
-			}
-		}
-
-		flash("makerString", makerString);
-
-		return ok(views.html.parkingdetailprod.render(allData));
-	}
+	
 
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoDetailParking(long parking) {

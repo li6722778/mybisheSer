@@ -1,0 +1,190 @@
+@(entityBean: com.avaje.ebean.Page[models.info.TParkInfo_Comment], 
+currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:String)
+
+
+
+             <!-- BEGIN PAGE HEADER-->
+				<div class="row-fluid">
+
+					<div class="span12">
+
+						<!-- BEGIN STYLE CUSTOMIZER -->
+						<!-- END BEGIN STYLE CUSTOMIZER --> 
+
+						<!-- BEGIN PAGE TITLE & BREADCRUMB-->
+
+						<h3 class="page-title">
+							评论管理<small>删除评论</small>
+						</h3>
+
+						<ul class="breadcrumb">
+
+							<li>
+
+								<i class="icon-home"></i>
+
+								<a href="/">主页</a> 
+
+								<i class="icon-angle-right"></i>
+
+							</li>
+
+							<li><a href="javascript:;">评论管理</a></li>
+							
+						</ul>
+
+						<!-- END PAGE TITLE & BREADCRUMB-->
+					</div>
+				</div>
+				<!-- END PAGE HEADER-->
+				
+				
+				<!-- BEGIN EXAMPLE TABLE PORTLET-->
+
+						<div class="portlet box grey" id="parkingprodcontent">
+
+							<div class="portlet-title">
+
+								<div class="caption"><i class="icon-map-marker"></i>评论管理</div>
+
+								<div class="tools">
+									<a href="javascript:;" class="reload"></a>
+								</div>
+
+							</div>
+
+							<div class="portlet-body">
+                              <div class="btn-group pull-left">    
+								<div class="input-append">											
+									<select class="small m-wrap" tabindex="1" id="key_search_parkingcomments">
+															<option value="">请选择分类</option>
+															<option value="parkComId" @if(key=="parkComId"){ selected }>评论编号</option>
+															<option value="parkInfo.parknam" @if(key=="parkInfo.parkname"){ selected }>停车场名</option>
+															<option value="comments" @if(key=="comments"){ selected }>评论内容</option>
+                                                            <option value="rating" @if(key=="rating"){ selected }>星级</option>
+                                                            <option value="createPerson" @if(key=="createPerson"){ selected }>评论人</option>         
+									</select>
+									<input class="m-wrap" size="10" type="text" placeholder="请输入关键字" value="@searchObj" id="value_search_parkingcomments" /><button class="btn green" id="searchParkingcommentsButton">搜索</button>
+								</div>
+						       </div>
+						       
+                                <div class="btn-group pull-right">
+										<button class="btn dropdown-toggle" data-toggle="dropdown">工具 <i class="icon-angle-down"></i>
+										</button>
+										<ul class="dropdown-menu pull-right">
+										    <li><a href="javascript:;" id="button_delete_comments" >删除</a></li>
+											<li><a>退回修改</a></li>
+										</ul>
+									</div>
+
+								</div>
+
+                     
+
+								<table class="table table-striped table-bordered table-advance table-hover" id="sample_1_prod">
+
+									<thead>
+
+										<tr>
+
+											<th style="width:8px;"><input type="checkbox" class="group-checkable" data-set="#sample_1_prod .checkboxes" /></th>
+
+											<th>评论编号</th>
+
+											<th >停车场名</th>
+											
+											<th >评论内容</th>
+											
+											<th class="hidden-480">星级</th>
+											<th class="hidden-480">评论创建人/评论时间</th>
+
+										</tr>
+
+									</thead>
+
+									<tbody>
+
+                            @for(TParkInfo_Comment <- entityBean.getList) {
+										<tr class="odd gradeX">
+											<td ><input type="checkbox" class="checkboxes" value="@TParkInfo_Comment.parkComId" name="commentsselect"  /></td>
+											<td>@TParkInfo_Comment.parkComId</td>
+											<td >@TParkInfo_Comment.parkInfo.parkname</td>
+											<td >@TParkInfo_Comment.comments</td>
+											<td class="hidden-480">@TParkInfo_Comment.rating 分</td>
+											<td class="hidden-480">@TParkInfo_Comment.createPerson / @if(TParkInfo_Comment.createDate!=null) {@TParkInfo_Comment.createDate.format("yyyy-MM-dd HH:mm:ss")}</td>
+										</tr>
+                         }
+										
+									</tbody>
+
+								</table>
+
+                        <div id="form_modal_qrimage" class="modal hide fade modal-vertical-centered" tabindex="-1" role="dialog" aria-labelledby="myModalLabel3" aria-hidden="true">
+
+									<div class="modal-body">
+									   <div class="row-fluid" id="qrimagepreview">
+						                           
+								        </div>
+								        
+								        <div id="site_activities_loading">
+										     <img src="/assets/image/loading.gif" alt="loading" />
+									   </div>
+ 
+ 
+
+									</div>
+									
+
+							</div>
+							
+							
+							  <div id="dialog_confirm_comments" title="确认删除评论?" class="hide">
+									<p><span class="icon icon-warning-sign"></span>
+										删除的评论不可恢复，确认操作码?
+									</p>
+								</div>
+
+					            <div id="pagination" class="pagination">
+					               <ul>
+						                @if(entityBean.hasPrev) {
+						                    <li class="prev">
+						                        <a  class="ajaxify" href="javascript:;" post="/w/comment?p=@(entityBean.getPageIndex - 1)&k=@key&v=@searchObj">&larr; 上一页</a>
+						                    </li>
+						                } else {
+						                    <li class="prev disabled">
+						                        <a>&larr; 上一页</a>
+						                    </li>
+						                }
+						                <li class="current">
+						                    <a>显示 @entityBean.getDisplayXtoYofZ(" to "," of ")</a>
+						                </li>
+						                @if(entityBean.hasNext) {
+						                    <li class="next">
+						                        <a class="ajaxify"  href="javascript:;" post="/w/comment?p=@(entityBean.getPageIndex + 1)&k=@key&v=@searchObj">下一页 &rarr;</a>
+						                    </li>
+						                } else {
+						                    <li class="next disabled">
+						                        <a>下一页 &rarr;</a>
+						                    </li>
+						                }
+					               </ul>
+					             </div>
+        
+        
+								<div class="clearfix">
+
+									<div class="alert">
+
+									<button class="close" data-dismiss="alert"></button>
+
+									<strong>注意!</strong>这里显示的生产环境正式数据，如需修改基本数据，请进入订单详情点击"调整"按钮，其他信息需要把数据回退到采集数据模式. 
+
+								</div>
+							</div>
+
+						</div>
+						
+
+	<script src="@routes.Assets.at("app/jquery.jqprint-0.3.js")"></script> 					
+	<script src="@routes.Assets.at("app/lib/parkingcomments.js")"></script> 
+				

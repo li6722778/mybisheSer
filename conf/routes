@@ -181,3 +181,11 @@ POST      /w/options                    controllers.WebPageController.gotoOption
 GET       /w/options/:otype                    controllers.WebPageController.gotoOptionsByType(otype:Integer)
 POST      /w/options/submit             controllers.WebPageController.saveOptionData()
 
+
+
+POST     /w/comment                       controllers.WebPageController.gotoparkcomment(p:Int ?= 0, s:Int ?= 10, o ?= "create_date desc",k?="",v?="")
+POST     /w/comment/delete                controllers.WebPageController.deletecomments(p ?= "")
+
+
+
+
