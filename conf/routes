@@ -184,7 +184,7 @@ POST      /w/options/submit             controllers.WebPageController.saveOption
 
 
 POST     /w/comment                       controllers.WebPageController.gotoparkcomment(p:Int ?= 0, s:Int ?= 10, o ?= "create_date desc",k?="",v?="")
-POST     /w/comment/delete                controllers.WebPageController.deletecomments(p ?= "")
+GET      /w/comment/deletes               controllers.WebPageController.deletecomments(i?= "",p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",k?="",v?="")
 
 
 

@@ -61,60 +61,34 @@ var ParkingComments = function () {
        		 
        	 });
     		
-        	
-       	 $('#button_delete_comments').click(function(){
-       		 
-       		 var checked = "";
-       		 $("input[name='commentsselect']:checked").each(function() {
-      	            checked+=$(this).val()+",";
-      	        });
-      		  $( "#dialog_confirm_comments" ).data("idArray",checked).dialog( "open" );
-       	 });
-       	 
 
        	 
 
-
-       	 $("#dialog_confirm_comments" ).dialog({
-       	      dialogClass: 'ui-dialog-green',
-       	      autoOpen: false,
-       	      resizable: false,
-       	      height: 210,
-       	      modal: true,
-       	      buttons: [
-       	      	{
-       	      		'class' : 'btn red',	
-       	      		"text" : "删除",
-       	      		click: function() {
-       	      			
-       	      			var pageContent = $('.page-content');
-       	      			var checked = $(this).data("idArray");
-       	      			var warndialog = $(this);
-       	      			 if(checked.length>0){
-       	      				 App.scrollTop();
-       	       		    	 var pageContent = $('.page-content');
-       	            		 App.blockUI(pageContent, false);
-       		        		 $.post("/w/comment/delete?p="+checked, {}, function (res) {
-       		                     App.unblockUI(pageContent);     		                    
-       		                     warndialog.dialog( "close" );
-       		                     
-       		                      $('#index_comment').click();
-       		                     
-       		                 });
-       	        	     }
-
-       	  			}
-       	      	},
-       	      	{
-       	      		'class' : 'btn',
-       	      		"text" : "取消",
-       	      		click: function() {
-       	    			$(this).dialog( "close" );
-       	  			}
-       	      	}
-       	      ]
-       	    });
-        	 
+        //delete
+       	 
+      	 $('#button_delete_comment').click(function(){
+    		 var checked = "";
+    		 $('input:checkbox:checked').each(function() {
+    	            checked+=$(this).val()+",";
+    	        });
+    		 var p = $(this).attr("p");
+    		 var s = $(this).attr("s");
+    		 var o = $(this).attr("o");
+    		 var k = $(this).attr("k");
+    		 var v = $(this).attr("v");
+    		 
+    		 var pageContent = $('.page-content');
+  		     var pageContentBody = $('.page-content .page-content-body');
+  		     
+  		   App.blockUI(pageContent, false);
+    		 $.get("/w/comment/deletes?i="+checked+"&p="+p+"&s="+s+"&o="+o+"&k="+k+"&v="+v,function(data){
+      				
+      				pageContentBody.html(data);
+                    App.fixContentHeight(); // fix content height
+                    App.initUniform(); // initialize uniform elements
+                    App.unblockUI(pageContent);
+      			});
+    	 });
         	 
         	 
         	 

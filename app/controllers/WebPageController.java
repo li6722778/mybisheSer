@@ -120,8 +120,11 @@ public class WebPageController extends Controller {
 	 * @param pidarray
 	 * @return
 	 */
+	
 	@Security.Authenticated(SecurityController.class)
-	public static Result deletecomments(String pidarray) {
+	public static Result deletecomments(String pidarray,int currentPage, int pageSize,
+			String orderBy, String key, String searchObj){
+		
 		Logger.info("GOTO deletecomments,FOR:" + pidarray);
 		if (pidarray != null && pidarray.length() > 0) {
 			String[] pids = pidarray.split(",");
@@ -135,11 +138,15 @@ public class WebPageController extends Controller {
 					Logger.error("deleteOrder:" + pidString, e);
 				}
 			}
-			return ok("" + pids.length);
+		return	gotoparkcomment( currentPage,pageSize,orderBy,key,searchObj);		
+
 		}
 
+		
+		
 		return ok("0");
 	}
+	
 	
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoDetailParkingProd(long parking) {
