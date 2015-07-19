@@ -335,6 +335,31 @@ update_person             varchar(50),
 constraint pk_tb_options_set primary key (option_id))
 ;
 
+create table tb_allowance (
+allowance_id              bigint auto_increment not null,
+money                     decimal(12,2) default 0.0,
+isopen                    integer(2) default 1,
+allowance_count           integer default 1,
+allowance_pay_type        integer(2) default 1,
+allowance_type            integer(2) default 1,
+allowance_type_value      integer default 0,
+allowance_timer           varchar(2000),
+update_date               timestamp NULL,
+update_name               varchar(255),
+constraint pk_tb_allowance primary key (allowance_id))
+;
+
+create table tb_allowance_offer (
+offer_id                  bigint  not null,
+money                     decimal(12,2) default 0.0,
+park_id                   bigint,
+park_name                 varchar(255),
+order_his_id              bigint,
+order_name                varchar(255),
+create_date               timestamp NULL,
+constraint pk_tb_allowance_offer primary key (offer_id))
+;
+
 alter table tb_order add constraint fk_tb_order_parkInfo_1 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
 create index ix_tb_order_parkInfo_1 on tb_order (parkId);
 alter table tb_order add constraint fk_tb_order_userInfo_2 foreign key (userid) references tb_user (userid) on delete restrict on update restrict;

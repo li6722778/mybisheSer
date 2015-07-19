@@ -1,13 +1,17 @@
+import models.info.TAllowance;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
 
 
 public class Global extends GlobalSettings{
+	
+	public static TAllowance currentAllowance;
+	
 	@Override
 	  public void onStart(Application app) {
 	    Logger.info("Application has started");
-	    
+
 	  }  
 
 	  @Override

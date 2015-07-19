@@ -16,6 +16,40 @@ create table income_count_entity (
   ack_status                integer)
 ;
 
+create table vw_map_makers (
+  park_loc_id               bigint,
+  park_free_count           integer,
+  is_open                   integer,
+  latitude                  double,
+  longitude                 double,
+  park_id                   double)
+;
+
+create table tb_allowance (
+  allowance_id              bigint auto_increment not null,
+  money                     decimal(12,2) default 0.0,
+  isopen                    integer(2) default 1,
+  allowance_count           integer default 1,
+  allowance_pay_type        integer(2) default 1,
+  allowance_type            integer(2) default 1,
+  allowance_type_value      integer default 0,
+  allowance_timer           varchar(2000),
+  update_date               timestamp NULL,
+  update_name               varchar(255),
+  constraint pk_tb_allowance primary key (allowance_id))
+;
+
+create table tb_allowance_offer (
+  offer_id                  bigint auto_increment not null,
+  money                     decimal(12,2) default 0.0,
+  park_id                   bigint,
+  park_name                 varchar(255),
+  order_his_id              bigint,
+  order_name                varchar(255),
+  create_date               timestamp NULL,
+  constraint pk_tb_allowance_offer primary key (offer_id))
+;
+
 create table tb_counpon_info (
   counpon_id                bigint auto_increment not null,
   counpon_code              varchar(255),
@@ -388,6 +422,12 @@ SET FOREIGN_KEY_CHECKS=0;
 drop table chart_city_entity;
 
 drop table income_count_entity;
+
+drop table vw_map_makers;
+
+drop table tb_allowance;
+
+drop table tb_allowance_offer;
 
 drop table tb_counpon_info;
 

@@ -42,7 +42,7 @@ public class MapFindController extends Controller{
 	 * @param orderBy
 	 * @return
 	 */
-	public static Result getNearbyParking(int currentPage, int pageSize,
+	public static Result getNearbyParkingForPreview(int currentPage, int pageSize,
 			String orderBy,double myLat,double myLng, float scope) {
 		Logger.info("getParkCommentsAllData");
 		CommFindEntity<TParkInfoPro_Loc> allData = TParkInfoPro_Loc.findPageData(currentPage,

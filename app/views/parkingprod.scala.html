@@ -100,6 +100,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
 
 											<th style="width:8px;"><input type="checkbox" class="group-checkable" data-set="#sample_1_prod .checkboxes" /></th>
 
+                                            <th class="hidden-480">编号</th>
 											<th>缩略图</th>
 
 											<th >停车场名</th>
@@ -118,6 +119,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String,key:String,searchObj:Str
                             @for(TParkInfo <- entityBean.getList) {
 										<tr class="odd gradeX">
 											<td ><input type="checkbox" class="checkboxes" value="@TParkInfo.parkId" /></td>
+											<td class="hidden-480">@TParkInfo.parkId</td>
 											<td>
 											 @if(TParkInfo.imgUrlArray!=null&&TParkInfo.imgUrlArray.length>0){
 											     <a class="ajaxify thumbnail"  href="javascript:;" post="/w/parkingprod/@TParkInfo.parkId" >

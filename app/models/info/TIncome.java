@@ -83,6 +83,10 @@ public class TIncome extends Model {
 	@Transient
 	@Expose
 	public double onlineIncomeTotal;
+	
+	@Transient
+	@Expose
+	public double allowance;
 
 	// 查询finder，用于其他方法中需要查询的场景
 	public static Finder<Long, TIncome> find = new Finder<Long, TIncome>(
@@ -150,8 +154,12 @@ public class TIncome extends Model {
 						.findAllCountForPark(in.parkInfo.parkId);
 				in.onlineIncomeTotal = Arith
 						.decimalPrice((in.incometotal - in.incometodaycash));
-				if(in.parkInfo!=null)
-					in.takeCashTotal=TTakeCash.findTakeCash(in.parkInfo.parkId);
+				if(in.parkInfo!=null){
+					 in.takeCashTotal=TTakeCash.findTakeCash(in.parkInfo.parkId);
+					 in.allowance = TAllowanceOffer.findTotalAllowanceByParkid(in.parkInfo.parkId);	
+					 in.incometotal = Arith
+								.decimalPrice(in.incometotal+in.allowance);
+				}
 			}
 		}
 		return allData;
@@ -249,7 +257,7 @@ public class TIncome extends Model {
 								totalIncome+=py.payTotal;
 								totalCoupon+=py.couponUsed;
 								if(py.payMethod==Constants.PAYMENT_TYPE_CASH){
-									totalCash +=py.payTotal;
+									totalCash +=Arith.decimalPrice(py.payTotal-py.couponUsed);
 								}
 							}
 							
@@ -307,8 +315,12 @@ public class TIncome extends Model {
 				in.incometoday = getTodayIncome(in.parkInfo.parkId);
 				in.onlineIncomeTotal = Arith
 						.decimalPrice((in.incometotal - in.incometodaycash));
-				if(in.parkInfo!=null)
+				if(in.parkInfo!=null){
 					in.takeCashTotal=TTakeCash.findTakeCash(in.parkInfo.parkId);
+				    in.allowance = TAllowanceOffer.findTotalAllowanceByParkid(in.parkInfo.parkId);
+				    in.incometotal = Arith
+							.decimalPrice(in.incometotal+in.allowance);
+				}
 			}
 		}
 
@@ -343,8 +355,12 @@ public class TIncome extends Model {
 				in.incometoday = getTodayIncome(in.parkInfo.parkId);
 				in.onlineIncomeTotal = Arith
 						.decimalPrice((in.incometotal - in.incometodaycash));
-				if(in.parkInfo!=null)
+				if(in.parkInfo!=null){
 				in.takeCashTotal=TTakeCash.findTakeCash(in.parkInfo.parkId);
+				in.allowance = TAllowanceOffer.findTotalAllowanceByParkid(in.parkInfo.parkId);
+				in.incometotal = Arith
+						.decimalPrice(in.incometotal+in.allowance);
+				}
 			}
 		}
 		return allData;
@@ -369,8 +385,12 @@ public class TIncome extends Model {
 			income.finishedOrder = TOrderHis.findAllCountForPark(parkid);
 			income.onlineIncomeTotal = Arith
 					.decimalPrice((income.incometotal - income.incometodaycash));
-			if(income.parkInfo!=null)
+			if(income.parkInfo!=null){
 			income.takeCashTotal=TTakeCash.findTakeCash(income.parkInfo.parkId);
+			income.allowance = TAllowanceOffer.findTotalAllowanceByParkid(income.parkInfo.parkId);
+			income.incometotal = Arith
+					.decimalPrice(income.incometotal+income.allowance);
+			}
 			return income;
 		}
 

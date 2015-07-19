@@ -16,6 +16,7 @@ POST     /a/reg/sendsms/:phone              controllers.SMSController.requestSMS
 GET		/a/ans                       controllers.MapFindController.findNearbyParking(a:Double?= 0, n:Double?=0, s:Float?=2)
 GET		/a/ans/simple                controllers.MapFindController.findNearbyParkingSimpleMode(a:Double?= 0, n:Double?=0, s:Float?=2)
 GET		/a/ans/:parklocid            controllers.MapFindController.findParkingEntrance(parklocid:Long)
+GET		/a/ans/nearby/pagelist              controllers.MapFindController.getNearbyParkingForPreview(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc",a:Double?= 0, n:Double?=0, h:Float?=2)
 
 POST    /pay/notify                   controllers.PayController.notifyPayResult()
 
@@ -181,7 +182,9 @@ POST      /w/options                    controllers.WebPageController.gotoOption
 GET       /w/options/:otype                    controllers.WebPageController.gotoOptionsByType(otype:Integer)
 POST      /w/options/submit             controllers.WebPageController.saveOptionData()
 
-
+POST      /w/allowance                          controllers.WebPageController.gotoAllowance()
+POST      /w/allowance/submit                   controllers.WebPageController.saveAllowanceData()
+POST      /w/allowanceoffer                     controllers.WebPageController.gotoAllowanceOffer(p:Int ?= 0, s:Int ?= 20, o ?= "createDate desc",f:Long?=0)
 
 POST     /w/comment                       controllers.WebPageController.gotoparkcomment(p:Int ?= 0, s:Int ?= 10, o ?= "create_date desc",k?="",v?="")
 GET      /w/comment/deletes               controllers.WebPageController.deletecomments(i?= "",p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",k?="",v?="")

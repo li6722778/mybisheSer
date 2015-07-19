@@ -247,6 +247,9 @@ public class TOrderHis extends Model {
 					    Logger.debug(">>>>delete used coupon");
 					}
 					
+					//看下是不是需要发放补贴
+					TAllowanceOffer.offerAllowance(orderHis);
+					
 					TOrder.deleteData(orderId);
 				}
 				
@@ -386,6 +389,18 @@ public class TOrderHis extends Model {
 		
 		return allData;
 	}
+	
+	/**
+	 * 得到当天的所有交易量
+	 * @param parkid
+	 * @param date
+	 * @return
+	 */
+	public static int findOnlyOrderTotalByParkid( long parkid) {
+		int total = find.where().eq("parkid", parkid).eq("date(order_date)", DateHelper.format(new Date(), "yyyyMMdd")).findRowCount();
+		return total;
+	}
+	
 	/**
 	 * 得到所有数据
 	 * @param parkid

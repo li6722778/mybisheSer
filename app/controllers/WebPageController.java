@@ -10,6 +10,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import models.info.ChartCityEntity;
+import models.info.TAllowance;
+import models.info.TAllowanceOffer;
 import models.info.TCouponEntity;
 import models.info.TIncome;
 import models.info.TLog;
@@ -1333,5 +1335,50 @@ public class WebPageController extends Controller {
 		}
 
 		return ok("提交成功.");
+	}
+	
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoAllowance() {
+		Logger.debug("goto gotoAllowance");
+		
+		TAllowance allowance = TAllowance.findAllowance();
+		
+		return ok(views.html.allowance.render(allowance));
+	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result saveAllowanceData() {
+		Logger.debug("goto saveAllowanceData");
+		// DynamicForm dynamicForm = Form.form().bindFromRequest();
+		Form<TAllowance> form = Form.form(TAllowance.class).bindFromRequest();
+		if (form.hasErrors()) {
+			JsonNode node = form.errorsAsJson();
+			Logger.error("###########getglobalError:" + node);
+			return badRequest(node.toString());
+		}
+		TAllowance info = form.get();
+		if (info != null) {
+			info.updateName=session("username");
+			if(info.allowanceId<=0){
+				TAllowance.saveData(info);
+			}else{
+				TAllowance.updateData(info);
+			}
+					
+			LogController.info("allowance was changed by "+info.updateName);
+		}
+
+		return ok("保存成功");
+	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoAllowanceOffer(int currentPage, int pageSize,
+			String orderBy, long filter) {
+		Logger.debug("goto gotoAllowanceOffer");
+		Page<TAllowanceOffer> allData = TAllowanceOffer.findAllowanceOffer(currentPage,
+				pageSize, orderBy, filter);
+		return ok(views.html.allowanceoffer.render(allData, currentPage, pageSize,
+				orderBy, filter));
 	}
 }
