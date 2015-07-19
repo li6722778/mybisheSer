@@ -4,10 +4,12 @@ import java.util.List;
 
 import models.info.MapMakers;
 import models.info.TParkInfoPro_Loc;
+import models.info.TTakeCash;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+import utils.CommFindEntity;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
@@ -29,6 +31,26 @@ public class MapFindController extends Controller{
 		JsonNode jsonNode = Json.parse(json);
 		// String jsonString = Json.stringify(json);
 		Logger.debug("List result:" + json);
+		return ok(jsonNode);
+	}
+	
+	
+	/**
+	 * 查询地图列表数据
+	 * @param currentPage
+	 * @param pageSize
+	 * @param orderBy
+	 * @return
+	 */
+	public static Result getNearbyParking(int currentPage, int pageSize,
+			String orderBy,double myLat,double myLng, float scope) {
+		Logger.info("getParkCommentsAllData");
+		CommFindEntity<TParkInfoPro_Loc> allData = TParkInfoPro_Loc.findPageData(currentPage,
+				pageSize, orderBy,myLat,myLng,scope);
+		String json = gsonBuilderWithExpose.toJson(allData);
+		JsonNode jsonNode = Json.parse(json);
+		// String jsonString = Json.stringify(json);
+		Logger.debug("CommFindEntity result:" + json);
 		return ok(jsonNode);
 	}
 	

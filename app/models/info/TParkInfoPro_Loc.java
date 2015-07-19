@@ -283,5 +283,52 @@ public class TParkInfoPro_Loc extends Model {
 
 		return result;
 	}
+	
+	
+	
+	/**
+	 * 查询地图列表停车场
+	 * 
+	 * @param currentPage
+	 * @param pageSize
+	 * @param orderBy
+	 * @return
+	 */
+	public static CommFindEntity<TParkInfoPro_Loc> findPageData(int currentPage,
+			int pageSize, String orderBy,double myLat,
+			double myLng, float scope) {
+		
+		// 先计算经纬度范围
+				double range = 180 / Math.PI * scope / 6372.797;
+				double lngR = range / Math.cos(myLat * Math.PI / 180.0);
+				double maxLat = myLat + range;
+				double minLat = myLat - range;
+				double maxLng = myLng + lngR;
+				double minLng = myLng - lngR;
+		
+
+		CommFindEntity<TParkInfoPro_Loc> result = new CommFindEntity<TParkInfoPro_Loc>();
+		
+		
+		Page<TParkInfoPro_Loc> allData =find.fetch("parkInfo").where().eq("t0.type", 1).eq("isOpen",1)
+		.between("latitude", minLat, maxLat)
+		.between("longitude", minLng, maxLng).orderBy(orderBy).findPagingList(pageSize).setFetchAhead(false)
+		.getPage(currentPage);
+
+//		Page<TParkInfoPro_Loc> allData = find.where().eq("parkid", parkId).orderBy(orderBy)
+//				.findPagingList(pageSize).setFetchAhead(false)
+//				.getPage(currentPage);
+		if (result != null) {
+			for (TParkInfoPro_Loc loc : allData.getList()) {
+				long parkid = loc.parkInfo.parkId;
+				loc.parkInfo = TParkInfoProd.findDataById(parkid);
+			}
+		}
+
+		result.setResult(allData.getList());
+		result.setRowCount(allData.getTotalRowCount());
+		result.setPageCount(allData.getTotalPageCount());
+		return result;
+	}
 
 }
