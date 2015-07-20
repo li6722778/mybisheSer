@@ -175,14 +175,27 @@ public class TIncome extends Model {
 		Ebean.execute(new TxRunnable() {
 			public void run() {
 
-				TIncome incometb = findDataByParkid(parkid);
-
-				// ------------生成主键，所有插入数据的方法都需要这个-----------
-				if (incometb == null || incometb.incomeId == null
-						|| incometb.incomeId <= 0) {
-					incometb = new TIncome();
+				
+				List<TIncome> allData = find.fetch("parkInfo").where().eq("t0.parkId", parkid).findList();
+				
+				//TIncome incometb = findDataByParkid(parkid);
+				
+				if(allData != null && allData.size()>0){ //数据库已经有该停车场的初始化数据，直接更新收益即可
+					TIncome	incometb = allData.get(0);
+					incometb.incometotal = Arith
+							.decimalPrice(incometb.incometotal + income);
+					incometb.cashtotal = Arith.decimalPrice(incometb.cashtotal
+							+ cash);
+					incometb.counpontotal = Arith.decimalPrice(incometb.counpontotal
+							+ counpontotal);
+					incometb.updateDate = new Date();
+					Ebean.update(incometb);
+					
+				}else{ //数据库没有该停车场的数据，重新new一个
+					TIncome incometb = new TIncome();
 					TParkInfoProd parkInfo = new TParkInfoProd();
 					parkInfo.parkId = parkid;
+					// ------------生成主键，所有插入数据的方法都需要这个-----------
 					incometb.incomeId = TPKGenerator.getPrimaryKey(
 							TIncome.class.getName(), "incomeId");
 					incometb.parkInfo = parkInfo;
@@ -192,16 +205,8 @@ public class TIncome extends Model {
 					incometb.cashtotal = cash;
 					incometb.counpontotal=counpontotal;
 					Ebean.save(incometb);
-				} else {
-					incometb.incometotal = Arith
-							.decimalPrice(incometb.incometotal + income);
-					incometb.cashtotal = Arith.decimalPrice(incometb.cashtotal
-							+ cash);
-					incometb.counpontotal = Arith.decimalPrice(incometb.counpontotal
-							+ counpontotal);
-					incometb.updateDate = new Date();
-					Ebean.update(incometb);
 				}
+				
 			}
 		});
 	}
