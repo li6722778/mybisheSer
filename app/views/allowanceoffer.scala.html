@@ -144,6 +144,10 @@ $('#searchAllowanceButton').click(function(){
 	  
      App.blockUI(pageContent, false);
      
+     if(key.length<=0){
+    	 key = 0;
+     }
+     
 	  $.post("/w/allowanceoffer?f="+key, {}, function (res) {
       App.unblockUI(pageContent);
       pageContentBody.html(res);
