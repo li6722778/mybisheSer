@@ -108,14 +108,14 @@
 																		<div class="controls">	
 																			<label class="radio line">
 																			<input type="radio" name="allowanceType" id="allowanceTypeXiandan" value="@entityBean.allowanceType" @if(entityBean.allowanceType==1){checked}/>
-																				当前TOP单发放补贴
+																				当天TOP单发放补贴
 																			</label>  
 																		</div>
 						                                             </div>
 											                                 <div class="control-group">
 																				<div class="controls">
 																						<input type="text" id="allowanceTypeValueXiandan" name="allowanceTypeValueXiandan" class="m-wrap span12" placeholder="多少单" value="@if(entityBean.allowanceType==1){ @entityBean.allowanceTypeValue }">
-																				        <span class="help-block">每天前X单中，每单发放一次补贴.注意，N为上面所填写数字</span>
+																				        <span class="help-block">当天前X单中，每单发放一次补贴.注意，X为上面所填写数字</span>
 																				 </div>
 																			</div>      
 				
@@ -162,7 +162,7 @@
 													<option value="w2">每月第二周-w2</option>
 													<option value="w3">每月第三周-w3</option>
 													<option value="w4">每月第四周-w4</option>
-													<option value="w5">每月第五周-w4</option>
+													<option value="w5">每月第五周-w5</option>
 												</optgroup>
 											</select>
 											
@@ -171,7 +171,7 @@
 
 									<button class="close" data-dismiss="alert"></button>
 
-									<strong>注意!</strong>注意:这里有个显示的控件问题，当前生效的补贴发放时间点，请观察左边框，左边框中没有的时间点，即是当前设置的发放时间
+									<strong>注意!</strong>这里有个显示的控件问题，当前生效的补贴发放时间点，右边框有些时候不能及时刷新出您保存的数据，请多次刷新，或者观察左边框，左边框中没有的时间点，即是当前设置的发放时间
 
 								</div>
 											<span class="help-block"></span>

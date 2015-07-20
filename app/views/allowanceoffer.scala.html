@@ -111,7 +111,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String, filter:Long)
 					               <ul>
 						                @if(entityBean.hasPrev) {
 						                    <li class="prev">
-						                        <a class="ajaxify" href="javascript:;"  post="/w/allowanceoffer?p=@(entityBean.getPageIndex - 1)&f=@flash.get("filter") ">&larr; 上一页</a>
+						                        <a class="ajaxify" href="javascript:;"  post="/w/allowanceoffer?p=@(entityBean.getPageIndex - 1)&f=@filter ">&larr; 上一页</a>
 						                    </li>
 						                } else {
 						                    <li class="prev disabled">
@@ -123,7 +123,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String, filter:Long)
 						                </li>
 						                @if(entityBean.hasNext) {
 						                    <li class="next">
-						                        <a class="ajaxify"  href="javascript:;" post="/w/allowanceoffer?p=@(entityBean.getPageIndex + 1)&f=@flash.get("filter") ">下一页 &rarr;</a>
+						                        <a class="ajaxify"  href="javascript:;" post="/w/allowanceoffer?p=@(entityBean.getPageIndex + 1)&f=@filter ">下一页 &rarr;</a>
 						                    </li>
 						                } else {
 						                    <li class="next disabled">
