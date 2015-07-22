@@ -299,7 +299,12 @@ public class TParkInfoProd extends Model {
 					feeDetail += "按次收费,每次"+bean.feeTypefixedHourMoney+"元/次";
 				}
 				if(bean.isDiscountAllday==1){
-					feeDetail+=",全天优惠:"+ bean.discountHourAlldayMoney+"元/天";
+					if(bean.feeType==1){
+						feeDetail+="。全天优惠计费:"+ bean.discountHourAlldayMoney+"元/小时";
+					}else{
+						feeDetail+="。全天优惠:"+ bean.discountHourAlldayMoney+"元/天";
+					}
+					
 				}
 				
 				if(bean.isDiscountSec==1){
