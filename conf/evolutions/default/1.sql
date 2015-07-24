@@ -290,6 +290,13 @@ create table tb_parking_comment (
   constraint pk_tb_parking_comment primary key (park_com_id))
 ;
 
+create table tb_parking_comment_keyword (
+  keyword_id                bigint auto_increment not null,
+  content                   varchar(255),
+  create_date               timestamp,
+  constraint pk_tb_parking_comment_keyword primary key (keyword_id))
+;
+
 create table tb_parking_img (
   park_img_id               bigint auto_increment not null,
   parkId                    bigint,
@@ -456,6 +463,8 @@ drop table tb_parking_prod_loc;
 drop table tb_parking_prod;
 
 drop table tb_parking_comment;
+
+drop table tb_parking_comment_keyword;
 
 drop table tb_parking_img;
 

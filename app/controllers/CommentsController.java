@@ -79,11 +79,12 @@ public class CommentsController extends Controller {
 		TParkInfo_Comment data = gsonBuilderWithExpose.fromJson(request, TParkInfo_Comment.class);
 		ComResponse<TParkInfo_Comment>  response = new ComResponse<TParkInfo_Comment>();
 		try {
-	
-		String keywords =TParkInfo_Comment_Keyword.getallkeywords();
-		Logger.info("list of keywords:" + keywords);		
-		String result = change(data.comments, keywords);
-		data.comments =result;
+	   String content = data.comments;
+	   boolean havekeyword =TParkInfo_Comment_Keyword.inkeywords(content);
+	   havekeyword =false;
+	   
+	   if(havekeyword==false)
+	   {
     	String username = flash("username");
 		data.createPerson = username;
 			TParkInfo_Comment.saveData(data);
@@ -91,6 +92,12 @@ public class CommentsController extends Controller {
 			response.setResponseEntity(data);
 			response.setExtendResponseContext("更新数据成功.");
 			LogController.info("save comments data:"+data.comments+",park:"+(data.parkInfo==null?0:data.parkInfo.parkId));
+	   }
+	   else if (havekeyword==true) {
+		   
+			response.setResponseStatus(ComResponse.STATUS_FAIL);
+			response.setErrorMessage("您提交的评论含有敏感词汇");
+	}
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
