@@ -22,6 +22,7 @@ import models.info.TParkInfo;
 import models.info.TParkInfoPro_Loc;
 import models.info.TParkInfoProd;
 import models.info.TParkInfo_Comment;
+import models.info.TParkInfo_Comment_Keyword;
 import models.info.TParkInfo_Img;
 import models.info.TParkInfo_Loc;
 import models.info.TParkInfo_adm;
@@ -141,7 +142,6 @@ public class WebPageController extends Controller {
 				}
 			}
 		return	gotoparkcomment( currentPage,pageSize,orderBy,key,searchObj);		
-
 		}
 
 		
@@ -149,7 +149,7 @@ public class WebPageController extends Controller {
 		return ok("0");
 	}
 	
-	
+
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoDetailParkingProd(long parking) {
 		Logger.debug("goto gotoDetailParkingProd");
@@ -174,6 +174,53 @@ public class WebPageController extends Controller {
 		flash("makerString", makerString);
 
 		return ok(views.html.parkingdetailprod.render(allData));
+	}
+	
+	
+	
+//关键字搜索
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotokeywordpage(int currentPage, int pageSize,String orderBy, String searchObj) {
+		Logger.debug("goto keywordpage");
+		Page<TParkInfo_Comment_Keyword> allData = TParkInfo_Comment_Keyword.pageByFilter(currentPage,pageSize, orderBy, searchObj);
+		return ok(views.html.commentskeyword.render(allData, currentPage, pageSize,orderBy, searchObj));
+	}
+	
+
+	//删除关键字
+	@Security.Authenticated(SecurityController.class)
+	public static Result deletekeyword(String pidarray,int currentPage, int pageSize,
+			String orderBy, String searchObj){
+		
+		Logger.info("GOTO deletekeyword,FOR:" + pidarray);
+		if (pidarray != null && pidarray.length() > 0) {
+			String[] pids = pidarray.split(",");
+			for (String pidString : pids) {
+				try {
+					long pid = Long.parseLong(pidString);
+					Logger.info("try to delete orderid:" + pid);
+					TParkInfo_Comment_Keyword.deleteData(pid);
+					LogController.info("delete order:"+pidString);
+				} catch (Exception e) {
+					Logger.error("deleteOrder:" + pidString, e);
+				}
+			}
+		return	gotokeywordpage(currentPage,pageSize,orderBy,searchObj);		
+		}	
+		return ok("0");
+	}
+	
+	//添加关键字
+	@Security.Authenticated(SecurityController.class)
+	public static Result addkeyword( String keyword,int currentPage, int pageSize,
+			String orderBy,String searchObj){
+		Logger.info("GOTO addkeyword,FOR:" + keyword);		
+	 if(keyword!=null&&keyword.toString().trim()!="")
+	 {		 
+		 TParkInfo_Comment_Keyword.saveData(keyword);
+		}	
+		return gotokeywordpage(currentPage, pageSize, orderBy, searchObj);
 	}
 	
 	

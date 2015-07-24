@@ -191,4 +191,6 @@ GET      /w/comment/deletes               controllers.WebPageController.deleteco
 
 
 
-
+POST     /w/commentskeyword                   controllers.WebPageController.gotokeywordpage(p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",v?="")
+GET      /w/commentskeyword/deletes            controllers.WebPageController.deletekeyword(i?= "",p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",v?="")
+POST     /w/commentskeyword/add               controllers.WebPageController.addkeyword(k?="",p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",v?="")

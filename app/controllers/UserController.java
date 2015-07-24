@@ -1,5 +1,6 @@
 package controllers;
 
+import models.info.TOptions;
 import models.info.TParkInfo_adm;
 import models.info.TVerifyCode;
 import models.info.TuserInfo;
@@ -167,6 +168,19 @@ public class UserController extends Controller {
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(user);
 			response.setExtendResponseContext("用户注册成功.");
+			
+			//判断是否赠送优惠劵
+			
+			TOptions options  = TOptions.findOption(2);
+			String  Counponcode = options.textObject;
+			if(Counponcode!=null&&!(Counponcode.toString().trim().equals(""))&&user!=null&&user.userid!=null)
+			{
+			CounponController.getcounpon(Counponcode, user.userid);
+			}
+				
+			
+			
+			
 			LogController.info("register user data:"+user.userPhone);
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);

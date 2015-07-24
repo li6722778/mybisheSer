@@ -1,6 +1,7 @@
 package controllers;
 
 import models.info.TParkInfo_Comment;
+import models.info.TParkInfo_Comment_Keyword;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -75,13 +76,16 @@ public class CommentsController extends Controller {
 	public static Result saveData() {
 		String request = request().body().asJson().toString();
 		Logger.info("start to post data:" + request);
-		
 		TParkInfo_Comment data = gsonBuilderWithExpose.fromJson(request, TParkInfo_Comment.class);
 		ComResponse<TParkInfo_Comment>  response = new ComResponse<TParkInfo_Comment>();
 		try {
-			
-			String username = flash("username");
-			data.createPerson = username;
+	
+		String keywords =TParkInfo_Comment_Keyword.getallkeywords();
+		Logger.info("list of keywords:" + keywords);		
+		String result = change(data.comments, keywords);
+		data.comments =result;
+    	String username = flash("username");
+		data.createPerson = username;
 			TParkInfo_Comment.saveData(data);
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(data);
@@ -121,4 +125,44 @@ public class CommentsController extends Controller {
 		JsonNode json = Json.parse(tempJsonString);
 		return ok(json);
 	}
+	
+	
+	
+	/**
+     * 
+     * @param sourse 检查的字符串
+     * @param target 屏蔽字字符串
+     * @return
+     */
+    public static String change(String sourse, String target) {
+  
+        if(sourse.isEmpty() || target.isEmpty())
+        return "";
+        char[] sourseChar=sourse.toCharArray();
+        char[] targetChar=target.toCharArray();
+        char[] resultChar=sourse.toCharArray();
+ 
+        for(int i=0;i<sourseChar.length;i++){
+            if(sourseChar[i]!=targetChar[0]) continue;
+            if(i==sourseChar.length-1) break;
+            resultChar[i]='*';
+            for(int j=i+1,k=1;k<targetChar.length;j++){
+                if(sourseChar[j]==' '){
+                    k=1;
+                    resultChar[j]='*';
+                    continue;
+                }
+                if(sourseChar[j]!=targetChar[k]){
+                    resultChar=sourse.toCharArray();
+                    break;
+                }
+                else resultChar[j]='*';
+                k++;
+                     
+            }
+        }
+         
+        return new String(resultChar);
+         
+    }
 }
