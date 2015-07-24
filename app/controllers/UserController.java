@@ -173,10 +173,18 @@ public class UserController extends Controller {
 			
 			TOptions options  = TOptions.findOption(2);
 			String  Counponcode = options.textObject;
-			if(Counponcode!=null&&!(Counponcode.toString().trim().equals(""))&&user!=null&&user.userid!=null)
+			if(Counponcode!=null&&!(Counponcode.toString().trim().equals("")))
 			{
-			CounponController.getcounpon(Counponcode, user.userid);
+				Counponcode=Counponcode.replace("，", ",");
+				String[] counponcodes=Counponcode.split(",");	
+			if(user!=null&&user.userid!=null&&counponcodes.length>0)
+			{
+				for(int i=0;i<counponcodes.length;i++){
+			CounponController.getcounpon(counponcodes[i], user.userid);
+				}
 			}
+			}
+			
 				
 			
 			
@@ -257,7 +265,6 @@ public class UserController extends Controller {
 	public static Result requestSMSVerify(Long phone){
 		Logger.info("start to request SMS verification");
 		//这里发送短信
-		
 		return ok("1");
 	}
 }
