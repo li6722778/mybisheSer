@@ -103,6 +103,11 @@ GET /a/takecash/delete/:id                         controllers.TakeCashControlle
 
 GET /a/reg/protocol                                controllers.OptionsController.getOptions(t:Int ?= 1)
 
+
+
+GET  /a/isshare/find/:id                          controllers.ShareController.getDataById(id:Long)
+
+
 ######################please DON'T change below URI!!!###################
 ########################below for web app################################
 

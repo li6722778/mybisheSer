@@ -367,6 +367,14 @@ create_date               timestamp,
 constraint pk_tb_parking_comment_keyword primary key (keyword_id))
 ;
 
+
+
+create table tb_share (
+userid                    bigint auto_increment not null,
+share                     integer(3) default 0,
+constraint pk_tb_share primary key (userid))
+;
+
 alter table tb_order add constraint fk_tb_order_parkInfo_1 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
 create index ix_tb_order_parkInfo_1 on tb_order (parkId);
 alter table tb_order add constraint fk_tb_order_userInfo_2 foreign key (userid) references tb_user (userid) on delete restrict on update restrict;
