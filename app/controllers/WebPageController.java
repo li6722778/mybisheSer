@@ -27,6 +27,7 @@ import models.info.TParkInfo_Img;
 import models.info.TParkInfo_Loc;
 import models.info.TParkInfo_adm;
 import models.info.TTakeCash;
+import models.info.TUseCouponEntity;
 import models.info.TVersion;
 import models.info.TuserInfo;
 import play.Logger;
@@ -1131,6 +1132,33 @@ public class WebPageController extends Controller {
 				orderBy, filter));
 	}
 
+	
+	
+
+	/**
+	 * 打开使用过优惠劵界面
+	 * @param currentPage
+	 * @param pageSize
+	 * @param orderBy
+	 * @param type
+	 * @param filter
+	 * @return
+	 */
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoCouponused(int currentPage, int pageSize,
+			String orderBy, String filter) {
+		Logger.debug("goto gotoCouponused,filter" + filter);
+		Page<TOrderHis> allData = TOrderHis.pageByTypeAndFilter(currentPage,
+				pageSize, orderBy, filter);
+
+		flash("filter", filter);
+		if (allData != null) {
+			Logger.debug("##########goto gotoCoupon,total:"+ allData.getTotalRowCount());
+		}
+
+		return ok(views.html.couponused.render(allData, currentPage, pageSize,
+				orderBy, filter));
+	}
 	/**
 	 * 打开新增用户页面
 	 * @return

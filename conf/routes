@@ -170,6 +170,7 @@ POST       /w/takecash/update/:status       controllers.WebPageController.update
 
 POST      /w/coupon/add                          controllers.WebPageController.gotoCouponAdd()
 POST      /w/coupon                              controllers.WebPageController.gotoCoupon(p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",f ?="")
+POST      /w/coupon/used                         controllers.WebPageController.gotoCouponused(p:Int ?= 0, s:Int ?= 10, o ?="couponId desc",f ?="")
 POST      /w/coupon/add/submit                   controllers.WebPageController.saveCouponData()
 POST      /w/coupon/delete                       controllers.WebPageController.deleteCoupon(p ?= "")
 GET       /w/coupon/open                         controllers.WebPageController.updateCouponOpenClose(p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",f?="",pid?="")

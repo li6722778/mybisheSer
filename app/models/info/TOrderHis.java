@@ -27,9 +27,7 @@ import utils.DateHelper;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Page;
-import com.avaje.ebean.RawSql;
-import com.avaje.ebean.RawSqlBuilder;
-import com.avaje.ebean.SqlQuery;
+import com.avaje.ebean.Query;
 import com.avaje.ebean.TxRunnable;
 import com.google.gson.annotations.Expose;
 
@@ -419,5 +417,42 @@ public class TOrderHis extends Model {
 		result.setRowCount(allData.getTotalRowCount());
 		result.setPageCount(allData.getTotalPageCount());
 		return result;
+	}
+	
+	
+	public static Page<TOrderHis> pageByTypeAndFilter(int currentPage,
+			int pageSize, String orderBy, String filter) {
+		
+		Query<TOrderHis_Py> query = Ebean.createQuery(TOrderHis_Py.class).select("order.orderId").where().eq("payMethod",4).query();
+
+		ExpressionList<TOrderHis> elist = find.fetch("parkInfo").where().gt("couponId", 0).in("orderId", query);
+		
+		if (filter != null && !filter.trim().equals("")) {
+			elist.ilike("orderCity", "%" + filter + "%");
+		}
+		
+
+		Page<TOrderHis> allData = elist.orderBy(orderBy)
+				.findPagingList(pageSize).setFetchAhead(false)
+				.getPage(currentPage);
+		List<TOrderHis>  tOrderHis =allData.getList();
+		
+	 if(tOrderHis!=null&&tOrderHis.size()>0)
+	 {
+		 
+		 for(int i=0;i<tOrderHis.size();i++)
+		 {
+			long tempcoupnid =tOrderHis.get(i).couponId;
+			TCouponEntity tCouponEntity = TCouponEntity.findDataById(tempcoupnid);
+		     allData.getList().get(i).discountSecHourMoneyOrder=tCouponEntity.money;
+			 tCouponEntity=null;	 
+		 }
+		 
+	 }
+	
+		
+		
+
+		return allData;
 	}
 }
