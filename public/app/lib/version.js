@@ -4,7 +4,7 @@
 var Version = function () {
     
     return {
-        //main function to initiate the module
+        // main function to initiate the module
         init: function () {
         	
         	 $('#submitversionbutton').click(function(){
@@ -36,6 +36,20 @@ var Version = function () {
   			   
   				   $("#dataFormVersion").ajaxSubmit(options);
   		   });
+        	 
+        	 
+        	 
+        	 $('#addbutton').click(function(){
+        		 
+        		 $('#addfile').append("<input type=\"file\" name='number' multiple>");
+        		 
+  		   });
+        	 
+        	 
+        	 
+        	 
+        	 
+        	 
         	 
         	
         }
