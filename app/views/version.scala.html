@@ -138,11 +138,7 @@
 
 
 
-			<div id="dialog_confirm_image" title="确认删除该图片吗?" class="hide">
-				<p>
-					<span class="icon icon-warning-sign"></span> 删除的图像不可恢复，确认操作码?
-				</p>
-			</div>
+
 			</br> </br> </br>
 
 			<!-- BEGIN GALLERY MANAGER PORTLET-->
@@ -186,12 +182,6 @@
 
 							</button>
 
-							<button type="button" class="btn red delete">
-
-								<i class="icon-trash icon-white"></i> <span>删除</span>
-
-							</button>
-
 						</div>
 						
 						
@@ -203,7 +193,7 @@
 
 					</div>
 					
-						@for(path <- truepaths) { <img src="file:///@path" alt="停车场" /> 
+						@for(path <- truepaths) { <img src="@path" alt="停车场" /> 
 
 			} 
 			

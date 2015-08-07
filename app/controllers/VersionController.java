@@ -2,6 +2,7 @@ package controllers;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -104,12 +105,11 @@ public class VersionController extends Controller {
 				|| image_store_guide_path.length() <= 0) {
 			image_store_guide_path = "/temp/guide";
 		}
-		
-		//清空文件夹
-		
-	        deleteFile(new File(image_store_guide_path));
-		
-		
+
+		// 清空文件夹
+
+		deleteFile(new File(image_store_guide_path));
+
 		// 用户图片类型
 		String imgType = ConfigHelper.getString("image.store.type");
 		Logger.info(">>>>image.store.type:" + imgType);
@@ -174,42 +174,54 @@ public class VersionController extends Controller {
 		}
 		return null;
 	}
-	
-	
-    /**
-     * 删除文件夹下的所有文件
-     * @param oldPath
-     */
-    public static void deleteFile(File oldPath) {
-          if (oldPath.isDirectory()) {
-           File[] files = oldPath.listFiles();
-           for (File file : files) {
-             deleteFile(file);
-           }
-          }else{
-            oldPath.delete();
-          }
-        }
-    
-    public static List<String> showAllFiles(File dir) throws Exception{
-    	  File[] fs = dir.listFiles();
-     	  List<String> filepath = new ArrayList<String>();
-     	  filepath.clear();
-    	  for(int i=0; i<fs.length; i++){
-    	   System.out.println(fs[i].getAbsolutePath());
-    	   filepath.add(i, fs[i].getAbsolutePath());
-    	   if(fs[i].isDirectory()){
-    	    try{
-    	     showAllFiles(fs[i]);
-    	    }catch(Exception e){}
-    	   }
-    	  }
-    	  
-    	  return  filepath;
-    	  
-    	 }
-    
-    
+
+	/**
+	 * 删除文件夹下的所有文件
+	 * 
+	 * @param oldPath
+	 */
+	public static void deleteFile(File oldPath) {
+		if (oldPath.isDirectory()) {
+			File[] files = oldPath.listFiles();
+			for (File file : files) {
+				deleteFile(file);
+			}
+		} else {
+			oldPath.delete();
+		}
+	}
+
+	public static List<String> showAllFiles(File dir) throws Exception {
+		File[] fs = dir.listFiles();
+		List<String> filepath = new ArrayList<String>();
+		filepath.clear();
+		for (int i = 0; i < fs.length; i++) {
+
+			String path = fs[i].toString();
+			if (path.contains(".jpg")) {
+				filepath.add(i, fs[i].getAbsolutePath());
+				if (fs[i].isDirectory()) {
+					try {
+						showAllFiles(fs[i]);
+					} catch (Exception e) {
+					}
+				}
+			} else if (path.contains(".png")) {
+				filepath.add(i, fs[i].getAbsolutePath());
+				if (fs[i].isDirectory()) {
+					try {
+						showAllFiles(fs[i]);
+					} catch (Exception e) {
+					}
+				}
+
+			}
+		}
+
+		return filepath;
+
+	}
+
 	/**
 	 * 跳转版本界面
 	 * 
@@ -225,23 +237,19 @@ public class VersionController extends Controller {
 		List<String> path = new ArrayList<String>();
 		File root = new File(image_store_guide_path);
 		try {
-			 path = VersionController.showAllFiles(root);
+			path = VersionController.showAllFiles(root);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			root = null;
 		}
-		finally{
-			root=null;
-		}
-		
+
 		String json = gsonBuilderWithExpose.toJson(path);
 		JsonNode jsonNode = Json.parse(json);
 		Logger.debug("got Data:" + json);
 		return ok(jsonNode);
-	
+
 	}
-    
-    
-    	
 
 }
