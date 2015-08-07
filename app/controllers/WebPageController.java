@@ -56,6 +56,8 @@ public class WebPageController extends Controller {
 	// 图片存储路径
 	public static String image_store_guide_path = ConfigHelper
 			.getString("image.store.guide.path");
+	public static String image_url_header = ConfigHelper
+			.getString("image.url.header");
 
 	/**
 	 * 
@@ -1057,11 +1059,18 @@ public class WebPageController extends Controller {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		finally{
-			root=null;
+		
+		List<String> truepaths =new ArrayList<String>();
+		for(int i =0;i<path.size();i++)
+		{
+		    String truepath = image_url_header+path.get(i);
+		    truepaths.add(truepath);
+		    truepath=null;
+		     
 		}
-		Logger.debug("goto gotoVersion"+path.toString());
-		return ok(views.html.version.render(tversion,path));
+		
+		Logger.debug("goto gotoVersion"+truepaths);
+		return ok(views.html.version.render(tversion,truepaths));
 	}
 
 	@Security.Authenticated(SecurityController.class)

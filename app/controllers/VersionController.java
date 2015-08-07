@@ -7,12 +7,14 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
+import models.info.TOrder;
 import models.info.TVersion;
 import play.Logger;
 import play.cache.Cached;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.Security;
 import play.mvc.Http.MultipartFormData;
 import play.mvc.Http.MultipartFormData.FilePart;
 import utils.ComResponse;
@@ -206,6 +208,40 @@ public class VersionController extends Controller {
     	  return  filepath;
     	  
     	 }
+    
+    
+	/**
+	 * 跳转版本界面
+	 * 
+	 * @return
+	 */
+	@Security.Authenticated(SecurityController.class)
+	public static Result getgudicepic() {
+		Logger.debug("goto gotoVersion");
+		if (image_store_guide_path == null
+				|| image_store_guide_path.length() <= 0) {
+			image_store_guide_path = "/temp/guide";
+		}
+		List<String> path = new ArrayList<String>();
+		File root = new File(image_store_guide_path);
+		try {
+			 path = VersionController.showAllFiles(root);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally{
+			root=null;
+		}
+		
+		String json = gsonBuilderWithExpose.toJson(path);
+		JsonNode jsonNode = Json.parse(json);
+		Logger.debug("got Data:" + json);
+		return ok(jsonNode);
+	
+	}
+    
+    
     	
 
 }

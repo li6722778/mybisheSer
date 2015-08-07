@@ -1,4 +1,4 @@
-@(entityBean: models.info.TVersion,paths: List[String])
+@(entityBean: models.info.TVersion,truepaths: List[String])
 <!-- BEGIN PAGE HEADER-->
 <div class="row-fluid" id="parkingtitle">
 
@@ -192,15 +192,21 @@
 
 							</button>
 
-							<input type="checkbox" class="toggle fileupload-toggle-checkbox">
-
 						</div>
+						
+						
+						
 
 						<!-- The global progress information -->
 
-
+      
 
 					</div>
+					
+						@for(path <- truepaths) { <img src="file:///@path" alt="停车场" /> 
+
+			} 
+			
 
 					<!-- The loading indicator is shown during file processing -->
 
@@ -248,13 +254,8 @@
 
 
 			<!--/row-->
-			
-				@for(path <- paths) {
-		
-					<img src="@path" alt="停车场" />
-			
-			}
 
+		
 
 			<div class="form-actions">
 				<button type="button" id="submitversionbutton" class="btn blue">
@@ -264,7 +265,7 @@
 			</div>
 
 
-		
+
 
 
 
@@ -315,5 +316,5 @@
 
 <script src="@routes.Assets.at("app/lib/form-fileupload.js")"></script>
 
-<script src="@routes.Assets.at("javascripts/jquery.form.js")" type="text/javascript"></script>
+<script src="@routes.Assets.at("	javascripts/jquery.form.js")" type="text/javascript"></script>
 <script src="@routes.Assets.at("app/lib/version.js")" type="text/javascript"></script>
