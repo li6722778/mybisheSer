@@ -49,5 +49,12 @@ public class Constants {
 	//订单将要过期时间
 	public static final int ORDER_EXPIRE_MIN = 5;
 	
+	//PayIn的payway
+	public static final int PAYIN_PAY_ZFB=0;
+	public static final int PAYIN_PAY_WX=1;
 	
+	//PayIn的payway
+		public static final int PAYOUT_PAY_ZFB=0;
+		public static final int PAYOUT_PAY_WX=2;
+		public static final int PAYOUT_PAY_CASH=1;
 }

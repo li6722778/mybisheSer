@@ -9,12 +9,28 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+
+
+
+
+
+
+
+
+
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
 import models.ChebolePayOptions;
+
 import models.info.TCouponEntity;
 import models.info.TOrder;
 import models.info.TOrderHis;
@@ -22,10 +38,15 @@ import models.info.TOrder_Py;
 import models.info.TParkInfoPro_Loc;
 import models.info.TParkInfoProd;
 import models.info.TUseCouponEntity;
+import models.info.TVerifyCode;
 import models.info.TuserInfo;
 import play.Logger;
 import play.libs.Akka;
 import play.libs.Json;
+import play.libs.F.Function;
+import play.libs.ws.WS;
+import play.libs.ws.WSClient;
+import play.libs.ws.WSResponse;
 import play.mvc.Controller;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
@@ -34,12 +55,18 @@ import utils.ComResponse;
 import utils.ConfigHelper;
 import utils.Constants;
 import utils.DateHelper;
+import wxutils.ConstantUtil;
+import wxutils.MD5;
+import wxutils.Util;
 import action.BasicAuth;
+
+
 
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 
 /**
  * 付款
@@ -268,9 +295,14 @@ public class PayController extends Controller {
 					if (payment == null) {
 						payment = new TOrder_Py();
 					}
-
-					int payWay = Constants.PAYMENT_TYPE_ZFB;
-
+					int payWay;
+					 if(userSelectedpayWay==Constants.PAYIN_PAY_ZFB)
+					 {
+					 payWay = Constants.PAYMENT_TYPE_ZFB;
+					 }else
+					 {
+					 payWay = Constants.PAYMENT_TYPE_WEIXIN;
+					 }
 					if (chebolePayOptions.useCounpon) {
 						if (chebolePayOptions.payActualPrice <= 0) { // 如果小于0，肯定是优惠券就够用了
 							payWay = Constants.PAYMENT_COUPON;
@@ -315,6 +347,7 @@ public class PayController extends Controller {
 					
 					
 					payment.payActu = chebolePayOptions.payActualPrice;
+					
 					payment.payMethod = payWay;
 					payment.payTotal = chebolePayOptions.payOrginalPrice;
 
@@ -348,6 +381,7 @@ public class PayController extends Controller {
 					 * 这里生成aili pay String
 					 ***********************************************************************/
 					// 订单
+					if(userSelectedpayWay==Constants.PAYIN_PAY_ZFB){
 					String orderInfo = getOrderInfo(dataBean, payment.parkPyId,
 							payment.payActu);
 					Logger.debug(" ******ali pay ******order info:" + orderInfo);
@@ -367,9 +401,32 @@ public class PayController extends Controller {
 					Logger.debug(" ******ali pay ******payInfo:" + payInfo);
 
 					chebolePayOptions.payInfo = payInfo;
+					}
+					else if(userSelectedpayWay==Constants.PAYIN_PAY_WX)
+					{
+						/*********************************************************************
+						 * 这里生成微信
+						 ***********************************************************************/
+						//微信支付相关代码
+						out_trade_no=""+payment.parkPyId;
+						Logger.debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@out_trade_no:" + out_trade_no);
+						//access_token=getAccessToken();
+						actmoney=(int) (chebolePayOptions.payActualPrice*100);
+						wxstring=GetPrepayIdTask(out_trade_no,actmoney);
+						chebolePayOptions.payInfo=wxstring;
+						Logger.debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@payInfo:" + chebolePayOptions.payInfo);
+					}
 					chebolePayOptions.order = dataBean;
 					chebolePayOptions.paymentId = payment.parkPyId;
-
+					
+				
+					/*********************************************************************
+					 * 微信测试
+					 ***********************************************************************/
+					
+					
+//					String takeacce=getAccessToken();
+//					Logger.debug(" @@@@@@@@@@@@@@@@@@@@@@" + takeacce);
 					/*********************************************************************
 					 * 生成完毕
 					 ***********************************************************************/
@@ -698,7 +755,7 @@ public class PayController extends Controller {
 	public static Result payForOut(long orderId, String scanResult,int payway,String clientId) {
 
 		Logger.info("pay for out, order id:" + orderId);
-
+		Logger.info("@@@@@@@@@@@@@@@@@@@@@@@@:" + payway);
 		ComResponse<ChebolePayOptions> response = new ComResponse<ChebolePayOptions>();
 		ChebolePayOptions payOption = new ChebolePayOptions();
 		TOrder order = TOrder.findDataById(orderId);
@@ -766,12 +823,15 @@ public class PayController extends Controller {
 
 					}
 				}
-
-				int payWay = Constants.PAYMENT_TYPE_ZFB;
+				int payWay;
+				if(payway==Constants.PAYMENT_TYPE_ZFB)
+					payWay = Constants.PAYMENT_TYPE_ZFB;
+				else
+					payWay=Constants.PAYMENT_TYPE_WEIXIN;
 
 				if (payOption.useCounpon) {
 					payWay = Constants.PAYMENT_COUPON
-							+ Constants.PAYMENT_TYPE_ZFB;
+							+ payWay;
 				}
 			
 
@@ -788,8 +848,11 @@ public class PayController extends Controller {
 
 				// 生成alipay的info
 				// 订单
-				String orderInfo = getOrderInfo(order, newpay.parkPyId,
-						newpay.payActu);
+			
+				if(payway==Constants.PAYMENT_TYPE_ZFB)
+				{
+					String orderInfo = getOrderInfo(order, newpay.parkPyId,
+							newpay.payActu);
 				Logger.debug(" ******ali pay ******order info:" + orderInfo);
 				// 对订单做RSA 签名
 				String sign = sign(orderInfo);
@@ -807,6 +870,22 @@ public class PayController extends Controller {
 				Logger.debug(" ******ali pay ******payInfo:" + payInfo);
 
 				payOption.payInfo = payInfo;
+				}else if(payway==Constants.PAYMENT_TYPE_WEIXIN)
+				{
+					
+					/*********************************************************************
+					 * 这里生成微信
+					 ***********************************************************************/
+					//微信支付相关代码
+					out_trade_no=""+newpay.parkPyId;
+					Logger.debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@out_trade_no:" + out_trade_no);
+					//access_token=getAccessToken();
+					actmoney=(int) (payOption.payActualPrice*100);
+					wxstring=GetPrepayIdTask(out_trade_no,actmoney);
+					payOption.payInfo=wxstring;
+					Logger.debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@payInfo:" + payOption.payInfo);
+					
+				}
 				payOption.paymentId = newpay.parkPyId;
 
 				response.setExtendResponseContext("出场付款单数据生成成功，并且返回支付串.");
@@ -1540,4 +1619,265 @@ public class PayController extends Controller {
 		}
 		return ok("success");
 	}
+	
+	
+	
+	//*******************************************
+	//*******************************************
+	//微信支付相关代码
+	//*******************************************
+	//*******************************************
+	private static String access_token = "";
+	static  WSClient ws=WS.client();
+	  private static String  prepayid;
+	  
+	  static String wxstring;
+	   
+	  static int actmoney;
+	  
+	  static String out_trade_no;
+
+	
+	
+	
+	
+	//访问微信服务端获得prepayid
+private  static String GetPrepayIdTask(String out_trade_no,int money)
+{
+	String url = String.format("https://api.mch.weixin.qq.com/pay/unifiedorder");
+	String entity = genProductArgs(out_trade_no,money);
+
+	//Log.e("orion",entity);
+
+	byte[] buf = Util.httpPost(url, entity);
+
+	String content = new String(buf);
+	wxstring=content;
+	Logger.debug("@@@@@@@@@@@@@@@@@@@@prepayid" + content);
+
+	return content;
+	
+
+}
+	
+	
+	//获得预付订单所需要的entity
+	private static String genProductArgs(String payid,int money) {
+		StringBuffer xml = new StringBuffer();
+
+		try {
+			String	nonceStr = genNonceStr();
+
+
+			xml.append("</xml>");
+            List<NameValuePair> packageParams = new LinkedList<NameValuePair>();
+			packageParams.add(new BasicNameValuePair("appid", ConstantUtil.APP_ID));
+			packageParams.add(new BasicNameValuePair("body", "Parking Fee"));
+			packageParams.add(new BasicNameValuePair("mch_id", "1262322801"));
+			packageParams.add(new BasicNameValuePair("nonce_str", nonceStr));
+			packageParams.add(new BasicNameValuePair("notify_url", "http://121.40.35.3/test"));
+			packageParams.add(new BasicNameValuePair("out_trade_no",genOutTradNo()));
+			packageParams.add(new BasicNameValuePair("spbill_create_ip","127.0.0.1"));
+			packageParams.add(new BasicNameValuePair("total_fee",""+money));
+			packageParams.add(new BasicNameValuePair("trade_type", "APP"));
+
+
+			String sign = genPackageSign(packageParams);
+			packageParams.add(new BasicNameValuePair("sign", sign));
+			String	xmlstring =toXml(packageParams);
+		
+          
+			Logger.debug("################xmlstring" + xmlstring);
+			return xmlstring;
+		} catch (Exception e){
+
+
+		
+			return null;
+		}
+		
+
+	}
+	
+	
+	
+	
+	
+	private static String genNonceStr() {
+		Random random = new Random();
+		return MD5.getMessageDigest(String.valueOf(random.nextInt(10000)).getBytes());
+	}
+	
+	private static String genOutTradNo() {
+		Random random = new Random();
+		return MD5.getMessageDigest(String.valueOf(random.nextInt(10000)).getBytes());
+	}
+	
+	
+	/**
+	 生成签名
+	 */
+
+	private static String genPackageSign(List<NameValuePair> params) {
+		StringBuilder sb = new StringBuilder();
+		
+		for (int i = 0; i < params.size(); i++) {
+			sb.append(params.get(i).getName());
+			sb.append('=');
+			sb.append(params.get(i).getValue());
+			sb.append('&');
+		}
+		sb.append("key=");
+		sb.append(ConstantUtil.APP_KEY);
+		
+
+		String packageSign = MD5.getMessageDigest(sb.toString().getBytes()).toUpperCase();
+		
+		return packageSign;
+	}
+	private static String genAppSign(List<NameValuePair> params) {
+		StringBuilder sb = new StringBuilder();
+
+		for (int i = 0; i < params.size(); i++) {
+			sb.append(params.get(i).getName());
+			sb.append('=');
+			sb.append(params.get(i).getValue());
+			sb.append('&');
+		}
+		sb.append("key=");
+		sb.append(ConstantUtil.APP_KEY);
+
+       sb.append("sign str\n"+sb.toString()+"\n\n");
+		String appSign = MD5.getMessageDigest(sb.toString().getBytes()).toUpperCase();
+		
+		return appSign;
+	}
+	private static String toXml(List<NameValuePair> params) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<xml>");
+		for (int i = 0; i < params.size(); i++) {
+			sb.append("<"+params.get(i).getName()+">");
+
+
+			sb.append(params.get(i).getValue());
+			sb.append("</"+params.get(i).getName()+">");
+		}
+		sb.append("</xml>");
+
+		
+		return sb.toString();
+	}
+
+	
+	
+	/**
+	 * 支付成功后的回调，目前只是写入日志表
+	 * 
+	 * @return
+	 */
+	public static Result notifyPayResultForWX() {
+		Logger.info("###########get feedback from aili post#############");
+		try {
+			String request = request().body().toString();
+
+			Map<String, String[]> params = request().body().asFormUrlEncoded();
+			String[] paramsNumber = params.get("out_trade_no");
+			String paymentIdString = paramsNumber == null ? "-1"
+					: paramsNumber[0];
+
+			String[] trade_status = params.get("trade_status");
+			String status = trade_status == null ? "unknow" : trade_status[0];
+
+			String[] total_fee = params.get("total_fee");
+			String fee = total_fee == null ? "0" : total_fee[0];
+
+			String[] trade_no = params.get("trade_no");
+			String ailiNo = trade_no == null ? "0" : trade_no[0];
+			long paymentId = Long.parseLong(paymentIdString);
+
+			TOrder_Py order = TOrder_Py.findDataById(paymentId);
+
+			if (status.trim().equals("WAIT_BUYER_PAY")) {
+
+				if (order != null) {
+					order.ackDate = new Date();
+					order.ackStatus = Constants.PAYMENT_STATUS_PENDING;
+					Set<String> options = new HashSet<String>();
+					options.add("ackDate");
+					options.add("ackStatus");
+					Ebean.update(order, options);
+
+				}
+
+			} else if (status.trim().equals("TRADE_SUCCESS")) { // 如果交易成功，更新订单状态并且推送消息
+				try {
+					if (order != null) {
+						if (order.ackStatus != Constants.PAYMENT_STATUS_FINISH) {
+							order.ackDate = new Date();
+							order.ackStatus = Constants.PAYMENT_STATUS_FINISH;
+							Set<String> options = new HashSet<String>();
+							options.add("ackDate");
+							options.add("ackStatus");
+							Ebean.update(order, options);
+
+							// 状态更新后，如果是刚下订单，需要推送消息
+							// start to push
+							TOrder torder = order.order;
+							if (torder != null) {
+								if (torder.parkInfo != null
+										&& torder.userInfo != null
+										&& torder.startDate == null
+										&& torder.endDate == null) {
+									
+									if(torder.couponId>0){
+										TUseCouponEntity userCoupon = TUseCouponEntity.getExistCouponByUserIdAndId(torder.couponId, torder.userInfo.userid);
+										if(userCoupon.isable==1){
+											Set<String> optionsCoupon = new HashSet<String>();
+											userCoupon.isable=2; //设置为正在使用
+											optionsCoupon.add("isable");
+											Ebean.update(userCoupon,optionsCoupon);;
+										}
+									}
+									
+									PushController.pushToParkAdmin(
+											torder.parkInfo.parkId,
+											"" + torder.userInfo.userPhone,
+											torder.parkInfo.parkname,torder.orderId);
+
+									// 开始一个任务去设置过期任务
+									scheduleTaskForOverdue(torder.orderId);
+
+								} else {
+									Logger.warn("push service is not working. torder.parkInfo!=null&&torder.userInfo!=null&&torder.startDate==null&&torder.endDate==null");
+								}
+							} else {
+								Logger.warn("push service is not working. order is empty for paymentid:"
+										+ order.parkPyId);
+							}
+
+						}
+					}
+
+				} catch (Exception e) {
+					Logger.error("notifyPayResult", e);
+				}
+
+			}
+
+			LogController.info(
+					"notify-->payment id:" + paymentId + ",status:" + status
+							+ ",total fee:" + fee + ",aili_trade_no:" + ailiNo,
+					"alipay");
+
+			Logger.info("#####feedback:" + request);
+
+		} catch (Exception e) {
+			LogController.info("exception:" + e.getMessage(), "alipay");
+		}
+		return ok("success");
+	}
+	
+	
+	
+	
 }
