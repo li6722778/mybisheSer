@@ -308,7 +308,7 @@ public class PayController extends Controller {
 							payWay = Constants.PAYMENT_COUPON;
 						} else {
 							payWay = Constants.PAYMENT_COUPON
-									+ Constants.PAYMENT_TYPE_ZFB;
+									+ payWay;
 						}
 					} else {
 						if (chebolePayOptions.payActualPrice <= 0) { // 如果小于0，肯定是搞活动不要钱了
@@ -409,12 +409,11 @@ public class PayController extends Controller {
 						 ***********************************************************************/
 						//微信支付相关代码
 						out_trade_no=""+payment.parkPyId;
-						Logger.debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@out_trade_no:" + out_trade_no);
 						//access_token=getAccessToken();
 						actmoney=(int) (chebolePayOptions.payActualPrice*100);
 						wxstring=GetPrepayIdTask(out_trade_no,actmoney);
-						chebolePayOptions.payInfo=wxstring;
-						Logger.debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@payInfo:" + chebolePayOptions.payInfo);
+						chebolePayOptions.payInfo=wxstring+","+ConstantUtil.APP_KEY;
+						Logger.debug("payInfo:" + chebolePayOptions.payInfo);
 					}
 					chebolePayOptions.order = dataBean;
 					chebolePayOptions.paymentId = payment.parkPyId;
@@ -425,7 +424,7 @@ public class PayController extends Controller {
 					 ***********************************************************************/
 					
 					
-//					String takeacce=getAccessToken();
+//					String takeacce=getAccessToken();+","+ConstantUtil.APP_KEY
 //					Logger.debug(" @@@@@@@@@@@@@@@@@@@@@@" + takeacce);
 					/*********************************************************************
 					 * 生成完毕
@@ -755,7 +754,6 @@ public class PayController extends Controller {
 	public static Result payForOut(long orderId, String scanResult,int payway,String clientId) {
 
 		Logger.info("pay for out, order id:" + orderId);
-		Logger.info("@@@@@@@@@@@@@@@@@@@@@@@@:" + payway);
 		ComResponse<ChebolePayOptions> response = new ComResponse<ChebolePayOptions>();
 		ChebolePayOptions payOption = new ChebolePayOptions();
 		TOrder order = TOrder.findDataById(orderId);
@@ -878,12 +876,14 @@ public class PayController extends Controller {
 					 ***********************************************************************/
 					//微信支付相关代码
 					out_trade_no=""+newpay.parkPyId;
-					Logger.debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@out_trade_no:" + out_trade_no);
+					Logger.debug("out_trade_no:" + out_trade_no);
 					//access_token=getAccessToken();
 					actmoney=(int) (payOption.payActualPrice*100);
 					wxstring=GetPrepayIdTask(out_trade_no,actmoney);
-					payOption.payInfo=wxstring;
-					Logger.debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@payInfo:" + payOption.payInfo);
+					
+					
+					payOption.payInfo=wxstring+","+ConstantUtil.APP_KEY;
+					Logger.debug("WX payInfo:" + payOption.payInfo);
 					
 				}
 				payOption.paymentId = newpay.parkPyId;
@@ -1652,8 +1652,7 @@ private  static String GetPrepayIdTask(String out_trade_no,int money)
 	byte[] buf = Util.httpPost(url, entity);
 
 	String content = new String(buf);
-	wxstring=content;
-	Logger.debug("@@@@@@@@@@@@@@@@@@@@prepayid" + content);
+//	wxstring=content;
 
 	return content;
 	
@@ -1673,11 +1672,11 @@ private  static String GetPrepayIdTask(String out_trade_no,int money)
             List<NameValuePair> packageParams = new LinkedList<NameValuePair>();
 			packageParams.add(new BasicNameValuePair("appid", ConstantUtil.APP_ID));
 			packageParams.add(new BasicNameValuePair("body", "Parking Fee"));
-			packageParams.add(new BasicNameValuePair("mch_id", "1262322801"));
+			packageParams.add(new BasicNameValuePair("mch_id", ConstantUtil.MCH_ID));
 			packageParams.add(new BasicNameValuePair("nonce_str", nonceStr));
-			packageParams.add(new BasicNameValuePair("notify_url", "http://121.40.35.3/test"));
-			packageParams.add(new BasicNameValuePair("out_trade_no",genOutTradNo()));
-			packageParams.add(new BasicNameValuePair("spbill_create_ip","127.0.0.1"));
+			packageParams.add(new BasicNameValuePair("notify_url", "http://114.215.155.185/test"));
+			packageParams.add(new BasicNameValuePair("out_trade_no",payid));
+			packageParams.add(new BasicNameValuePair("spbill_create_ip","114.215.155.185"));
 			packageParams.add(new BasicNameValuePair("total_fee",""+money));
 			packageParams.add(new BasicNameValuePair("trade_type", "APP"));
 
@@ -1685,9 +1684,6 @@ private  static String GetPrepayIdTask(String out_trade_no,int money)
 			String sign = genPackageSign(packageParams);
 			packageParams.add(new BasicNameValuePair("sign", sign));
 			String	xmlstring =toXml(packageParams);
-		
-          
-			Logger.debug("################xmlstring" + xmlstring);
 			return xmlstring;
 		} catch (Exception e){
 

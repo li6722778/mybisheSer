@@ -12,7 +12,7 @@ public class ConstantUtil {
   //detail
   public static  String detail="停车费";
   //商户号
-   public static final String MCH_ID = "1233848001";
+   public static final String MCH_ID = "1262322801";
 
 
 //  API密钥，在商户平台设置
