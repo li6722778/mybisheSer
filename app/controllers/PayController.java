@@ -16,21 +16,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-
-
-
-
-
-
-
-
-
-
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-
 import models.ChebolePayOptions;
-
 import models.info.TCouponEntity;
 import models.info.TOrder;
 import models.info.TOrderHis;
@@ -38,12 +24,15 @@ import models.info.TOrder_Py;
 import models.info.TParkInfoPro_Loc;
 import models.info.TParkInfoProd;
 import models.info.TUseCouponEntity;
-import models.info.TVerifyCode;
 import models.info.TuserInfo;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
 import play.Logger;
 import play.libs.Akka;
+import play.libs.F.Promise;
 import play.libs.Json;
-import play.libs.F.Function;
 import play.libs.ws.WS;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
@@ -57,10 +46,8 @@ import utils.Constants;
 import utils.DateHelper;
 import wxutils.ConstantUtil;
 import wxutils.MD5;
-import wxutils.Util;
+import wxutils.MD5Util;
 import action.BasicAuth;
-
-
 
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -94,7 +81,7 @@ public class PayController extends Controller {
 	// 支付完成后的回调
 	public static final String NOTIFY_AILIPAY = ConfigHelper
 			.getString("bank.ailipay.notify");
-
+	
 	/**
 	 * sign the order info. 对订单信息进行签名
 	 * 
@@ -1647,14 +1634,34 @@ private  static String GetPrepayIdTask(String out_trade_no,int money)
 	String url = String.format("https://api.mch.weixin.qq.com/pay/unifiedorder");
 	String entity = genProductArgs(out_trade_no,money);
 
-	//Log.e("orion",entity);
-
-	byte[] buf = Util.httpPost(url, entity);
-
-	String content = new String(buf);
+	Promise<WSResponse> promise = ws.url(url).setHeader("Content-Type", "application/json;charset=UTF-8")
+    .setHeader("Accept","application/json").setTimeout(5000)
+    .post(entity);
+    
+//    map(new Function<WSResponse, Result>() {
+//       @Override
+//       public Result apply(WSResponse response) {
+//       	JsonNode jsonString = response.asJson();
+//       	
+//           Logger.info("SMS Response:"+jsonString);
+//       	
+//           return ok();
+//       }});
+	
+	
+//	byte[] buf = Util.httpPost(url, entity);
+//	String content = new String(buf);
+	
+	WSResponse response = promise.get(5000);
+	String feedbackMessage = response.getBody();
+	try{
+	Logger.info("######feedback from wexin:"+new String(feedbackMessage.getBytes(),"iso-8859-1"));
+	}catch(Exception e){
+		
+	}
 //	wxstring=content;
 
-	return content;
+	return feedbackMessage;
 	
 
 }
@@ -1662,33 +1669,31 @@ private  static String GetPrepayIdTask(String out_trade_no,int money)
 	
 	//获得预付订单所需要的entity
 	private static String genProductArgs(String payid,int money) {
-		StringBuffer xml = new StringBuffer();
-
 		try {
 			String	nonceStr = genNonceStr();
-
-
-			xml.append("</xml>");
+            StringBuffer sb=new StringBuffer(payid);
+            sb.append("a");
             List<NameValuePair> packageParams = new LinkedList<NameValuePair>();
 			packageParams.add(new BasicNameValuePair("appid", ConstantUtil.APP_ID));
-			packageParams.add(new BasicNameValuePair("body", "Parking Fee"));
+			packageParams.add(new BasicNameValuePair("body", "中文乱码"));
 			packageParams.add(new BasicNameValuePair("mch_id", ConstantUtil.MCH_ID));
 			packageParams.add(new BasicNameValuePair("nonce_str", nonceStr));
 			packageParams.add(new BasicNameValuePair("notify_url", "http://114.215.155.185/test"));
-			packageParams.add(new BasicNameValuePair("out_trade_no",payid));
+			packageParams.add(new BasicNameValuePair("out_trade_no",sb.append(genOutTradNo()).toString()));
 			packageParams.add(new BasicNameValuePair("spbill_create_ip","114.215.155.185"));
 			packageParams.add(new BasicNameValuePair("total_fee",""+money));
 			packageParams.add(new BasicNameValuePair("trade_type", "APP"));
-
-
+			Logger.info("prepayid" +sb );
 			String sign = genPackageSign(packageParams);
+			
 			packageParams.add(new BasicNameValuePair("sign", sign));
+			
 			String	xmlstring =toXml(packageParams);
+			//String signMessage =new String(xmlstring.getBytes(), "UTF-8");
+			Logger.debug("#######sign message for weixin:" +xmlstring );
 			return xmlstring;
 		} catch (Exception e){
-
-
-		
+			Logger.error("WEIXIN Exception",e);
 			return null;
 		}
 		
@@ -1706,7 +1711,8 @@ private  static String GetPrepayIdTask(String out_trade_no,int money)
 	
 	private static String genOutTradNo() {
 		Random random = new Random();
-		return MD5.getMessageDigest(String.valueOf(random.nextInt(10000)).getBytes());
+		//return MD5.getMessageDigest(String.valueOf(random.nextInt(10000)).getBytes());
+		return String.valueOf(random.nextInt(10000));
 	}
 	
 	
@@ -1727,27 +1733,28 @@ private  static String GetPrepayIdTask(String out_trade_no,int money)
 		sb.append(ConstantUtil.APP_KEY);
 		
 
-		String packageSign = MD5.getMessageDigest(sb.toString().getBytes()).toUpperCase();
+		String packageSign =MD5Util.MD5Encode(sb.toString(), "utf-8");
+		//String packageSign = MD5.getMessageDigest(sb.toString().getBytes()).toUpperCase();
 		
 		return packageSign;
 	}
-	private static String genAppSign(List<NameValuePair> params) {
-		StringBuilder sb = new StringBuilder();
-
-		for (int i = 0; i < params.size(); i++) {
-			sb.append(params.get(i).getName());
-			sb.append('=');
-			sb.append(params.get(i).getValue());
-			sb.append('&');
-		}
-		sb.append("key=");
-		sb.append(ConstantUtil.APP_KEY);
-
-       sb.append("sign str\n"+sb.toString()+"\n\n");
-		String appSign = MD5.getMessageDigest(sb.toString().getBytes()).toUpperCase();
-		
-		return appSign;
-	}
+//	private static String genAppSign(List<NameValuePair> params) {
+//		StringBuilder sb = new StringBuilder();
+//
+//		for (int i = 0; i < params.size(); i++) {
+//			sb.append(params.get(i).getName());
+//			sb.append('=');
+//			sb.append(params.get(i).getValue());
+//			sb.append('&');
+//		}
+//		sb.append("key=");
+//		sb.append(ConstantUtil.APP_KEY);
+//
+//       sb.append("sign str\n"+sb.toString()+"\n\n");
+//		String appSign = MD5.getMessageDigest(sb.toString().getBytes()).toUpperCase();
+//		
+//		return appSign;
+//	}
 	private static String toXml(List<NameValuePair> params) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<xml>");
@@ -1760,7 +1767,6 @@ private  static String GetPrepayIdTask(String out_trade_no,int money)
 		}
 		sb.append("</xml>");
 
-		
 		return sb.toString();
 	}
 
