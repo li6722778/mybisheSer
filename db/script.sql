@@ -372,6 +372,7 @@ constraint pk_tb_parking_comment_keyword primary key (keyword_id))
 create table tb_share (
 userid                    bigint auto_increment not null,
 share                     integer(3) default 0,
+sharet_date               timestamp NULL,
 constraint pk_tb_share primary key (userid))
 ;
 
