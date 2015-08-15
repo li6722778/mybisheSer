@@ -1,5 +1,7 @@
 package controllers;
 
+import java.util.Date;
+
 import models.info.TOptions;
 import models.info.TParkInfo_Comment;
 import models.info.TParkInfo_Comment_Keyword;
@@ -10,6 +12,7 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import utils.ComResponse;
+import utils.DateHelper;
 import action.BasicAuth;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -22,7 +25,6 @@ public class ShareController extends Controller {
 			.excludeFieldsWithoutExposeAnnotation()
 			.setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 
-
 	/**
 	 * 查询分享记录
 	 * 
@@ -30,41 +32,74 @@ public class ShareController extends Controller {
 	 */
 
 	public static Result getDataById(Long id) {
+		
+		
 		Logger.info("start to query data");
 		ComResponse<TShare> response = new ComResponse<TShare>();
 		TShare share = TShare.findDataById(id);
-	//不在分享表中，赠送优惠劵
-		if(share==null||share.equals(""))
-		{
+		// 获取每日可分享次数
+		TOptions option = TOptions.findOption(4);
+		String times = option.textObject;
+		int time = Integer.valueOf(times).intValue();
+		// 不在分享表中，赠送优惠劵
+		if (share==null) {
 			// 赠送优惠劵
-			TOptions options = TOptions.findOption(3);
-			String Counponcode = options.textObject;
-			if (Counponcode != null&& !(Counponcode.toString().trim().equals(""))) {
-				Counponcode = Counponcode.replace("，", ",");
-				String[] counponcodes = Counponcode.split(",");
-				if (counponcodes.length > 0) {
-					for (int i = 0; i < counponcodes.length; i++) {
-						CounponController.getcounpon(counponcodes[i], id);
-					}
-				}
-			}
+			sendCounpon(id);
 			TShare.saveshare(id);
 			response.setResponseStatus(ComResponse.STATUS_OK);
-			
-			
 		}
+
+		// 在分享列表中
+		else if (share!= null) {
+			// 比较日期 当前日期>列表分享记录日期 说明当天没参与过分享活动
+			Date date = new Date();
+			String nowdate =DateHelper.format(date,"yy-mm-dd 00:00:00");
+			String dbdate =DateHelper.format(share.sharetDate,"yy-mm-dd 00:00:00");
+			Date nowdate2 = DateHelper.getStringtoDate(nowdate, "yy-mm-dd 00:00:00");
+			Date dbdate2= DateHelper.getStringtoDate(dbdate, "yy-mm-dd 00:00:00");
+			if ((nowdate2.compareTo(dbdate2)) > 0) {
+				// 赠送优惠劵
+				sendCounpon(id);
+				TShare.saveshare(id, 1);
+				response.setResponseStatus(ComResponse.STATUS_OK);
+			}else if ((nowdate2.compareTo(dbdate2))==0) {
+				// 说明当前分享次数<限定设置分享次数
+				if (share.share < time) {
+					sendCounpon(id);
+					TShare.saveshare(id, share.share + 1);
+					response.setResponseStatus(ComResponse.STATUS_OK);
+				}
+				//说明当天分享次数已经用完
+				else if (share.share>=time) {
+					response.setResponseStatus(ComResponse.STATUS_FAIL);
+				}
+
+
+			} 
+			
 		
-		else {
-			response.setResponseStatus(ComResponse.STATUS_FAIL);
+
 		}
-		
 		String tempJsonString = gsonBuilderWithExpose.toJson(response);
 		JsonNode json = Json.parse(tempJsonString);
 		return ok(json);
-		
-	
+
 	}
-	
-	
-	
+
+	public static void sendCounpon(Long id) {
+
+		// 赠送优惠劵
+		TOptions options = TOptions.findOption(3);
+		String Counponcode = options.textObject;
+		if (Counponcode != null && !(Counponcode.toString().trim().equals(""))) {
+			Counponcode = Counponcode.replace("，", ",");
+			String[] counponcodes = Counponcode.split(",");
+			if (counponcodes.length > 0) {
+				for (int i = 0; i < counponcodes.length; i++) {
+					CounponController.getsharecounpon(counponcodes[i], id);
+				}
+			}
+		}
+	}
+
 }
