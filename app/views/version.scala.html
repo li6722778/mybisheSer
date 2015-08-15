@@ -126,7 +126,12 @@
 								value="@entityBean.forceUpdate"
 								@if(entityBean.forceUpdate==1){checked} /> 强制更新
 							</label>
-							<p class="help-block">"提示更新"将在用户端弹出提示信息，用户可以关闭不更新。"强制更新"会弹出提示信息，强制用户更新</p>
+							<label class="radio"> <input type="radio"
+								id="forceUpdateXx" name="forceGroup"
+								value="@entityBean.forceUpdate"
+								@if(entityBean.forceUpdate==3){checked} /> 消息通知
+							</label>
+							<p class="help-block">"提示更新"将在用户端弹出提示信息，用户可以关闭不更新；"强制更新"会弹出提示信息，强制用户更新；"消息通知"仅仅只有消息弹出，不会有更新按钮</p>
 
 						</div>
 					</div>
