@@ -35,6 +35,10 @@ public class TVersion extends Model{
 	@Column(length = 100)
 	public String updatesContent;
 	
+	@Expose
+	@Column(length = 1000)
+	public String downloadTarget;
+	
 	public static Finder<Long, TVersion> find = new Finder<Long, TVersion>(
 			Long.class, TVersion.class);
 	

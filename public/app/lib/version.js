@@ -36,9 +36,20 @@ var Version = function () {
 			    	  $("#forceUpdate").val("3");
 			       }
   			   
+	  			    var timers = "";
+	   				$("#role_multi_select option:selected").each(function(){ 
+	   					timers=timers+$(this).val()+",";
+	   				});
+	   				
+	   				$("#downloadTarget").val(timers);
+  			       
   				   $("#dataFormVersion").ajaxSubmit(options);
   		   });
         	 
+        	 
+        	 var handleMultiSelect = function () {
+     	        $('#role_multi_select').multiSelect();        
+     	    };
         	 
         	 
         	 $('#addbutton').click(function(){
@@ -48,12 +59,29 @@ var Version = function () {
   		   });
         	 
         	 
-        	 
-        	 
-        	 
-        	 
-        	 
-        	
+     	    var initSelects = function(timers){
+     	    	
+                if(timers.length>0){
+                	$.each(timers.split(","), function(i,e){
+                		if(e.length>0){
+                			//alert("selected:"+e);
+                	       $("#role_multi_select option[value='" + e + "']").prop("selected", true);
+                		}
+                	});
+                }
+    	    }
+    	    
+     	    $('#cancelAll').click(function(){
+     	    	var selectedIndexs = $("#downloadTarget").val();
+     	    	
+     	    	$('#role_multi_select').multiSelect("deselect_all");  
+     	    	 
+     	    	$("#downloadTarget").val("");
+     	    });
+     	    
+    	    
+    	    initSelects($("#downloadTarget").val());
+    	    handleMultiSelect();
         }
 
     };
