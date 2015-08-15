@@ -13,6 +13,7 @@ import com.google.gson.annotations.Expose;
 
 import play.Logger;
 import play.api.libs.iteratee.internal;
+import play.data.format.Formats;
 import play.db.ebean.Model;
 import play.db.ebean.Model.Finder;
 import play.libs.Crypto;
@@ -34,6 +35,11 @@ public class TShare extends Model {
 	@Expose
 	public int share;
 
+	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
+	@Column(columnDefinition = "timestamp NULL")
+	@Expose
+	public Date sharetDate;
+
 	// 查询finder，用于其他方法中需要查询的场景
 	public static Finder<Long, TShare> find = new Finder<Long, TShare>(
 			Long.class, TShare.class);
@@ -50,44 +56,18 @@ public class TShare extends Model {
 	}
 
 	/**
-	 * 查询是否分享
-	 * 
-	 * @param userinfo
-	 * @return
-	 */
-	public static boolean isshare(final Long userid) {
-
-		TShare tShare = findDataById(userid);
-
-		if (tShare ==null) {
-			return false;
-		} else {
-			int isshare = tShare.share;
-
-			if (isshare == 1) {
-				return true;
-			}
-
-			else {
-				return false;
-			}
-
-		}
-
-	}
-
-	/**
-	 * 保存分享
+	 * 保存分享记录,之前无分享记录
 	 * 
 	 * @param
 	 */
-	public static void saveshare(final Long userid) {
+	public static void saveshare(final Long userid ) {
 
 		Ebean.execute(new TxRunnable() {
 			public void run() {
 				TShare tShare = new TShare();
 				tShare.userid = userid;
-				tShare.share = 1;
+				tShare.share =1;
+				tShare.sharetDate = new Date();
 				Ebean.save(tShare);
 
 			}
@@ -95,5 +75,27 @@ public class TShare extends Model {
 		});
 
 	}
+	
+	/**
+	 * 保存分享记录,存在分享记录
+	 * 
+	 * @param
+	 */
+	public static void saveshare(final Long userid ,final int time) {
+
+		Ebean.execute(new TxRunnable() {
+			public void run() {
+			TShare share =TShare.findDataById(userid);
+			share.userid =userid;
+			share.share =time;
+			share.sharetDate= new  Date();
+			Ebean.update(share);
+
+			}
+
+		});
+
+	}
+	
 
 }
