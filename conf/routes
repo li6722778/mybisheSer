@@ -24,7 +24,7 @@ POST    /pay/notify                   controllers.PayController.notifyPayResult(
 GET     /a/push/register/:userid              controllers.PushController.registerAdmUser(userid:Long,clientId?="")
 
 #######version###############
-GET  /a/version                               controllers.VersionController.getVersion()
+GET  /a/version                               controllers.VersionController.getVersion(userid:Long?=0,userType:Int?=0,userCity?="",currentVersion:Long?=0,os?="")
 
 #######below for android app######
 GET  /a/user/find/:userid                      controllers.UserController.getDataById(userid:Long)

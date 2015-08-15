@@ -43,8 +43,8 @@ public class VersionController extends Controller {
 	 * @param orderBy
 	 * @return
 	 */
-	public static Result getVersion() {
-		Logger.info("start to get all data");
+	public static Result getVersion(long userid,int userType,String userCity,long clientVersion,String os) {
+		Logger.info("start to get version ,userid:"+userid+",userType:"+userType+",userCity:"+userCity+",clientVersion:"+clientVersion+",os:"+os);
 		String json = gsonBuilderWithExpose.toJson(TVersion.findVersion());
 		JsonNode jsonNode = Json.parse(json);
 		// String jsonString = Json.stringify(json);

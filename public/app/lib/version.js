@@ -30,8 +30,10 @@ var Version = function () {
   			  
   			       if($("#forceUpdateTs").is(':checked')){
 			    	 $("#forceUpdate").val("0");
-			       }else{
+			       }else if($("#forceUpdateQz").is(':checked')){
 			    	 $("#forceUpdate").val("1");
+			       }else{
+			    	  $("#forceUpdate").val("3");
 			       }
   			   
   				   $("#dataFormVersion").ajaxSubmit(options);
