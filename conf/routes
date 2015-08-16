@@ -101,7 +101,7 @@ POST /a/takecash/save                              controllers.TakeCashControlle
 GET /a/takecash/delete/:id                         controllers.TakeCashController.deleteData(id:Long)
 
 GET /a/reg/protocol                                controllers.OptionsController.getOptions(t:Int ?= 1)
-GET /a/getoption/:type                             controllers.OptionsController.getOption(id:Int)
+GET /a/getoption/:type                             controllers.OptionsController.getOption(type:Int)
 
 
 
