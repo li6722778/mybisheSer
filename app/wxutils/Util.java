@@ -1,6 +1,5 @@
 package wxutils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -39,6 +38,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+
 
 
 
@@ -248,4 +248,6 @@ public class Util {
 		}
 		return result;
 	}
+	
+	
 }
