@@ -20,7 +20,6 @@ GET		/a/ans/nearby/pagelist              controllers.MapFindController.getNearby
 
 POST    /pay/notify                   controllers.PayController.notifyPayResult()
 
-##ge tui user resgiter
 GET     /a/push/register/:userid              controllers.PushController.registerAdmUser(userid:Long,clientId?="")
 
 #######version###############
@@ -102,6 +101,7 @@ POST /a/takecash/save                              controllers.TakeCashControlle
 GET /a/takecash/delete/:id                         controllers.TakeCashController.deleteData(id:Long)
 
 GET /a/reg/protocol                                controllers.OptionsController.getOptions(t:Int ?= 1)
+GET /a/getoption/:type                             controllers.OptionsController.getOption(id:Int)
 
 
 
