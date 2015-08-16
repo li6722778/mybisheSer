@@ -1675,7 +1675,7 @@ private  static String GetPrepayIdTask(String out_trade_no,int money)
             sb.append("a");
             List<NameValuePair> packageParams = new LinkedList<NameValuePair>();
 			packageParams.add(new BasicNameValuePair("appid", ConstantUtil.APP_ID));
-			packageParams.add(new BasicNameValuePair("body", "中文乱码"));
+			packageParams.add(new BasicNameValuePair("body", "停车费"));
 			packageParams.add(new BasicNameValuePair("mch_id", ConstantUtil.MCH_ID));
 			packageParams.add(new BasicNameValuePair("nonce_str", nonceStr));
 			packageParams.add(new BasicNameValuePair("notify_url", "http://114.215.155.185/test"));
