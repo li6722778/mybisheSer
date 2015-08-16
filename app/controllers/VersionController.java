@@ -58,7 +58,8 @@ public class VersionController extends Controller {
 		
 			String target = version.downloadTarget;
 			boolean need = false;
-			if(target!=null&&target.trim().equals("")){
+			if(target!=null&&!target.trim().equals("")){
+				
 				String[] targetArray = target.split(",");
 				for(String tar:targetArray){
 					if(tar.trim().equals(userType+"")){
