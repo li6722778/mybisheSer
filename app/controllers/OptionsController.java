@@ -37,6 +37,19 @@ public class OptionsController extends Controller {
 	}
 
 
+/**
+ * 获取具体某个option
+ * @param type
+ * @return
+ */
+	public static Result getOption(int type) {
+		Logger.info("start to get option:"+type);
+		String json = gsonBuilderWithExpose.toJson(TOptions.findOption(type));
+		JsonNode jsonNode = Json.parse(json);
+		// String jsonString = Json.stringify(json);
+		Logger.debug("getOptions result:" + json);
+		return ok(jsonNode);
+	}
 
 	
 	

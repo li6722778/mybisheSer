@@ -9,7 +9,7 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 #controllers.ExternalAssets.at??
 
-GET      /a/login/:phone                           controllers.LoginController.loginUser(phone:Long)
+GET      /a/login/:phone                           controllers.LoginController.loginUser(phone:Long,currentVersion:Long?=0,os?="unknow")
 POST     /a/reg/sendreset/:phone          controllers.SMSController.requestResetPasswd(phone:Long,t:Int?=0)
 POST     /a/reg/sendsms/:phone              controllers.SMSController.requestSMSVerify(phone:Long)
 
@@ -20,11 +20,10 @@ GET		/a/ans/nearby/pagelist              controllers.MapFindController.getNearby
 
 POST    /pay/notify                   controllers.PayController.notifyPayResult()
 
-##ge tui user resgiter
 GET     /a/push/register/:userid              controllers.PushController.registerAdmUser(userid:Long,clientId?="")
 
 #######version###############
-GET  /a/version                               controllers.VersionController.getVersion(userid:Long?=0,userType:Int?=0,userCity?="",currentVersion:Long?=0,os?="")
+GET  /a/version                               controllers.VersionController.getVersion(userid:Long?=0,userType:Int?=0,userCity?="",currentVersion:Long?=0,os?="unknow")
 
 #######below for android app######
 GET  /a/user/find/:userid                      controllers.UserController.getDataById(userid:Long)
@@ -102,6 +101,7 @@ POST /a/takecash/save                              controllers.TakeCashControlle
 GET /a/takecash/delete/:id                         controllers.TakeCashController.deleteData(id:Long)
 
 GET /a/reg/protocol                                controllers.OptionsController.getOptions(t:Int ?= 1)
+GET /a/getoption/:type                             controllers.OptionsController.getOption(id:Int)
 
 
 
