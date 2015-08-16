@@ -34,13 +34,27 @@ public class ShareController extends Controller {
 	public static Result getDataById(Long id) {
 		
 		
-		Logger.info("start to query data");
+		Logger.info("start to query share information");
 		ComResponse<TShare> response = new ComResponse<TShare>();
 		TShare share = TShare.findDataById(id);
 		// 获取每日可分享次数
 		TOptions option = TOptions.findOption(4);
 		String times = option.textObject;
-		int time = Integer.valueOf(times).intValue();
+		if(times==null||times.trim().equals("")){
+			times="0";
+		}
+		int timeint = 0;
+		try{
+			timeint = Integer.valueOf(times).intValue();
+		}catch(Exception e){
+			Logger.error("share:option.textObject",e);
+		}
+		
+		if(timeint==0){ //如果没有设置
+			
+			response.setResponseStatus(ComResponse.STATUS_FAIL);
+			Logger.warn("没有设置分享次数");
+		}else
 		// 不在分享表中，赠送优惠劵
 		if (share==null) {
 			// 赠送优惠劵
@@ -53,10 +67,10 @@ public class ShareController extends Controller {
 		else if (share!= null) {
 			// 比较日期 当前日期>列表分享记录日期 说明当天没参与过分享活动
 			Date date = new Date();
-			String nowdate =DateHelper.format(date,"yy-mm-dd 00:00:00");
-			String dbdate =DateHelper.format(share.sharetDate,"yy-mm-dd 00:00:00");
-			Date nowdate2 = DateHelper.getStringtoDate(nowdate, "yy-mm-dd 00:00:00");
-			Date dbdate2= DateHelper.getStringtoDate(dbdate, "yy-mm-dd 00:00:00");
+			String nowdate =DateHelper.format(date,"yyyy-MM-dd 00:00:00");
+			String dbdate =DateHelper.format(share.sharetDate,"yyyy-MM-dd 00:00:00");
+			Date nowdate2 = DateHelper.getStringtoDate(nowdate, "yyyy-MM-dd 00:00:00");
+			Date dbdate2= DateHelper.getStringtoDate(dbdate, "yyyy-MM-dd 00:00:00");
 			if ((nowdate2.compareTo(dbdate2)) > 0) {
 				// 赠送优惠劵
 				sendCounpon(id);
@@ -64,13 +78,13 @@ public class ShareController extends Controller {
 				response.setResponseStatus(ComResponse.STATUS_OK);
 			}else if ((nowdate2.compareTo(dbdate2))==0) {
 				// 说明当前分享次数<限定设置分享次数
-				if (share.share < time) {
+				if (share.share < timeint) {
 					sendCounpon(id);
 					TShare.saveshare(id, share.share + 1);
 					response.setResponseStatus(ComResponse.STATUS_OK);
 				}
 				//说明当天分享次数已经用完
-				else if (share.share>=time) {
+				else if (share.share>=timeint) {
 					response.setResponseStatus(ComResponse.STATUS_FAIL);
 				}
 

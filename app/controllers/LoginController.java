@@ -23,14 +23,14 @@ public class LoginController extends Controller {
 			.setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 
 	@BasicAuth
-	public static Result loginUser(Long userphone) {
+	public static Result loginUser(Long userphone,long currentVersion,String os) {
 		Logger.info("start to login with" + userphone);
 		TuserInfo userinfo = TuserInfo.findDataByPhoneId(userphone);
 		String json = gsonBuilderWithExpose.toJson(userinfo);
 
 		JsonNode jsonNode = Json.parse(json);
 		Logger.debug("got Data:" + json);
-		LogController.debug(userphone + " logined");
+		LogController.debug(userphone + " logined,version:"+currentVersion+",os:"+os);
 		return ok(jsonNode);
 	}
 

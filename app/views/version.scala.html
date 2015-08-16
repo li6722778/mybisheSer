@@ -1,5 +1,7 @@
 @(entityBean: models.info.TVersion,truepaths: List[String])
 <!-- BEGIN PAGE HEADER-->
+   <link href="@routes.Assets.at("stylesheets/multi-select-metro.css")" rel="stylesheet" />
+	<link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/bootstrap-toggle-buttons.css")" />
 <div class="row-fluid" id="parkingtitle">
 
 	<div class="span12">
@@ -10,7 +12,7 @@
 		<!-- BEGIN PAGE TITLE & BREADCRUMB-->
 
 		<h3 class="page-title">
-			移动端版本 <small>版本发布,版本消息弹出和升级地址</small>
+			移动端版本 <small>版本发布,版本消息弹出和升级地址,只针对Android手机,苹果手机请在App Store中升级</small>
 		</h3>
 
 		<ul class="breadcrumb">
@@ -32,11 +34,7 @@
 	<div class="portlet-title">
 
 		<div class="caption">
-			<i class="icon-mobile-phone"></i>移动端手机版本发布
-		</div>
-
-		<div class="tools">
-			<a href="javascript:;" class="reload"></a>
+			<i class="icon-mobile-phone"></i>移动端版本发布(Android)
 		</div>
 
 	</div>
@@ -47,6 +45,7 @@
 		<form action="/w/version/submit" method="POST" id="dataFormVersion"
 			class="horizontal-form" enctype="multipart/form-data">
 			<div id="remotemessage"></div>
+			<input type="hidden" id="downloadTarget" name="downloadTarget"  value="@entityBean.downloadTarget">
 			<input type="hidden" id="versionId" name="versionId"
 				value="@entityBean.versionId"> <input type="hidden"
 				id="forceUpdate" name="forceUpdate" value="@entityBean.forceUpdate">
@@ -126,7 +125,12 @@
 								value="@entityBean.forceUpdate"
 								@if(entityBean.forceUpdate==1){checked} /> 强制更新
 							</label>
-							<p class="help-block">"提示更新"将在用户端弹出提示信息，用户可以关闭不更新。"强制更新"会弹出提示信息，强制用户更新</p>
+							<label class="radio"> <input type="radio"
+								id="forceUpdateXx" name="forceGroup"
+								value="@entityBean.forceUpdate"
+								@if(entityBean.forceUpdate==3){checked} /> 消息通知
+							</label>
+							<p class="help-block">"提示更新"将在用户端弹出提示信息，用户可以关闭不更新；"强制更新"会弹出提示信息，强制用户更新；"消息通知"仅仅只有消息弹出，不会有更新按钮</p>
 
 						</div>
 					</div>
@@ -134,25 +138,36 @@
 
 
 			</div>
+			
+     <div class="row-fluid">
+				<div class="span6 ">
 
+                       <div class="control-group">
 
+										<label class="control-label">升级对象 <small><a href="javascript:;" id="cancelAll">取消所有</a></small></label> 
 
+										<div class="controls">
 
+											<select multiple="multiple" id="role_multi_select" name="role_multi_select[]">
+													<option value="10">普通用户</option>
+													<option value="20">车场管理员</option>
+													<option value="21">车场管理负责人</option>
+													<option value="31">后台用户</option>
+													<option value="30">数据采集</option>
+											</select>
+											
+											<span class="help-block"></span>
 
-			</br> </br> </br>
+										</div>
 
+									</div>
+
+                </div>
+      </div>
+
+		<h3 class="form-section">上传引导页图片</h3>
 			<!-- BEGIN GALLERY MANAGER PORTLET-->
-			<div class="portlet box grey">
-				<div class="portlet-title">
-					<div class="caption">
-						<i class="icon-picture"></i>上传引导页图片
-					</div>
-					<div class="tools">
-						<a href="javascript:;" class="reload"></a>
-					</div>
-				</div>
 
-				<div class="portlet-body">
 
 					<!-- BEGIN GALLERY MANAGER PANEL-->
 
@@ -233,10 +248,6 @@
 
 					<!-- END GALLERY MANAGER PAGINATION-->
 
-				</div>
-
-			</div>
-
 			<!-- END GALLERY MANAGER PORTLET-->
 
 
@@ -306,5 +317,13 @@
 
 <script src="@routes.Assets.at("app/lib/form-fileupload.js")"></script>
 
-<script src="@routes.Assets.at("	javascripts/jquery.form.js")" type="text/javascript"></script>
+<script type="text/javascript" src="@routes.Assets.at("javascripts/select2.min.js")"></script>
+<script type="text/javascript" src="@routes.Assets.at("javascripts/bootstrap-datetimepicker.js")"></script>
+<script type="text/javascript" src="@routes.Assets.at("javascripts/clockface.js")"></script>
+<script type="text/javascript" src="@routes.Assets.at("javascripts/jquery.inputmask.bundle.min.js")"></script>   
+<script type="text/javascript" src="@routes.Assets.at("javascripts/jquery.input-ip-address-control-1.0.min.js")"></script>
+<script type="text/javascript" src="@routes.Assets.at("javascripts/jquery.toggle.buttons.js")"></script>
+<script src="@routes.Assets.at("javascripts/jquery.multi-select.js")" src="media/js/"></script>	
+
+<script src="@routes.Assets.at("javascripts/jquery.form.js")" type="text/javascript"></script>
 <script src="@routes.Assets.at("app/lib/version.js")" type="text/javascript"></script>

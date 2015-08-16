@@ -27,13 +27,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class VersionController extends Controller {
-	public static Gson gsonBuilderWithExpose = new GsonBuilder()
-			.excludeFieldsWithoutExposeAnnotation()
+	public static Gson gsonBuilderWithExpose = new GsonBuilder().excludeFieldsWithoutExposeAnnotation()
 			.setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 
 	// 图片存储路径
-	public static String image_store_guide_path = ConfigHelper
-			.getString("image.store.guide.path");
+	public static String image_store_guide_path = ConfigHelper.getString("image.store.guide.path");
 
 	/**
 	 * 版本
@@ -43,13 +41,43 @@ public class VersionController extends Controller {
 	 * @param orderBy
 	 * @return
 	 */
-	public static Result getVersion() {
-		Logger.info("start to get all data");
-		String json = gsonBuilderWithExpose.toJson(TVersion.findVersion());
-		JsonNode jsonNode = Json.parse(json);
-		// String jsonString = Json.stringify(json);
-		Logger.debug("CommFindEntity result:" + json);
-		return ok(jsonNode);
+	public static Result getVersion(long userid, int userType, String userCity, long clientVersion, String os) {
+		Logger.info("start to get version ,userid:" + userid + ",userType:" + userType + ",userCity:" + userCity
+				+ ",clientVersion:" + clientVersion + ",os:" + os);
+		
+		TVersion version = TVersion.findVersion();
+		
+		if(os.equals("unknow")){ //前800个用户，没有获取用户版本信息之前的老版本
+			String json = gsonBuilderWithExpose.toJson(version);
+			JsonNode jsonNode = Json.parse(json);
+			// String jsonString = Json.stringify(json);
+			Logger.debug("CommFindEntity result:" + json);
+			return ok(jsonNode);
+			
+		}else{
+		
+			String target = version.downloadTarget;
+			boolean need = false;
+			if(target!=null&&target.trim().equals("")){
+				String[] targetArray = target.split(",");
+				for(String tar:targetArray){
+					if(tar.trim().equals(userType+"")){
+						need = true;
+						break;
+					}
+				}
+			}
+			if(!need){ //不需要升级
+				version = new TVersion();
+			}
+			
+			String json = gsonBuilderWithExpose.toJson(version);
+			JsonNode jsonNode = Json.parse(json);
+			// String jsonString = Json.stringify(json);
+			Logger.debug("CommFindEntity result:" + json);
+		    return ok(jsonNode);
+		}
+		
 	}
 
 	/**
@@ -101,8 +129,7 @@ public class VersionController extends Controller {
 	private static List<String> getUploadNode() throws IOException {
 		MultipartFormData body = request().body().asMultipartFormData();
 		Logger.info(">>>>image_store_guide_path:" + image_store_guide_path);
-		if (image_store_guide_path == null
-				|| image_store_guide_path.length() <= 0) {
+		if (image_store_guide_path == null || image_store_guide_path.length() <= 0) {
 			image_store_guide_path = "/temp/guide";
 		}
 
@@ -134,17 +161,14 @@ public class VersionController extends Controller {
 				StringBuilder _newFile = new StringBuilder("g");
 				_newFile.append(i + 1).append(".").append(imgtype);
 				// 相对路径
-				String newFileName = image_store_guide_path
-						+ _newFile.toString();
+				String newFileName = image_store_guide_path + _newFile.toString();
 
-				Logger.info(">>>>rename [" + file.getCanonicalPath() + "] to ["
-						+ newFileName + "]");
+				Logger.info(">>>>rename [" + file.getCanonicalPath() + "] to [" + newFileName + "]");
 
 				// 存储在服务器上的绝对路径
 				File remoteFile = new File(newFileName);
 				if (!remoteFile.getParentFile().exists()) {
-					Logger.debug(">>>>create path:"
-							+ remoteFile.getParentFile().getCanonicalPath());
+					Logger.debug(">>>>create path:" + remoteFile.getParentFile().getCanonicalPath());
 					remoteFile.getParentFile().mkdirs();
 				}
 
@@ -195,26 +219,28 @@ public class VersionController extends Controller {
 		File[] fs = dir.listFiles();
 		List<String> filepath = new ArrayList<String>();
 		filepath.clear();
-		for (int i = 0; i < fs.length; i++) {
+		if (fs != null) {
+			for (int i = 0; i < fs.length; i++) {
 
-			String path = fs[i].toString();
-			if (path.contains(".jpg")) {
-				filepath.add(i, fs[i].getAbsolutePath());
-				if (fs[i].isDirectory()) {
-					try {
-						showAllFiles(fs[i]);
-					} catch (Exception e) {
+				String path = fs[i].toString();
+				if (path.contains(".jpg")) {
+					filepath.add(i, fs[i].getAbsolutePath());
+					if (fs[i].isDirectory()) {
+						try {
+							showAllFiles(fs[i]);
+						} catch (Exception e) {
+						}
 					}
-				}
-			} else if (path.contains(".png")) {
-				filepath.add(i, fs[i].getAbsolutePath());
-				if (fs[i].isDirectory()) {
-					try {
-						showAllFiles(fs[i]);
-					} catch (Exception e) {
+				} else if (path.contains(".png")) {
+					filepath.add(i, fs[i].getAbsolutePath());
+					if (fs[i].isDirectory()) {
+						try {
+							showAllFiles(fs[i]);
+						} catch (Exception e) {
+						}
 					}
-				}
 
+				}
 			}
 		}
 
@@ -230,8 +256,7 @@ public class VersionController extends Controller {
 	@Security.Authenticated(SecurityController.class)
 	public static Result getgudicepic() {
 		Logger.debug("goto gotoVersion");
-		if (image_store_guide_path == null
-				|| image_store_guide_path.length() <= 0) {
+		if (image_store_guide_path == null || image_store_guide_path.length() <= 0) {
 			image_store_guide_path = "/temp/guide";
 		}
 		List<String> path = new ArrayList<String>();

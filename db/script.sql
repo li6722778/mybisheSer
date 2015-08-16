@@ -281,6 +281,7 @@ force_update              integer(2) default 0,
 version                   bigint,
 update_url                varchar(100),
 updates_content           varchar(100),
+download_target           varchar(1000),
 constraint pk_tb_client_ver primary key (version_id))
 ;
 
