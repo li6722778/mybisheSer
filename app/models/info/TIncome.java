@@ -12,12 +12,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import play.data.format.Formats;
-import play.db.ebean.Model;
-import utils.Arith;
-import utils.CommFindEntity;
-import utils.Constants;
-
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Page;
@@ -28,6 +22,12 @@ import com.avaje.ebean.SqlQuery;
 import com.avaje.ebean.SqlRow;
 import com.avaje.ebean.TxRunnable;
 import com.google.gson.annotations.Expose;
+
+import play.data.format.Formats;
+import play.db.ebean.Model;
+import utils.Arith;
+import utils.CommFindEntity;
+import utils.Constants;
 
 @Entity
 @Table(name = "tb_income")
@@ -87,6 +87,16 @@ public class TIncome extends Model {
 	@Transient
 	@Expose
 	public double allowance;
+	
+	//网上支付得到数据
+	@Transient
+	@Expose
+	public double feeWeb;
+	
+	//还能体现的总额
+	@Transient
+	@Expose
+	public double feeTakecashInBalance;
 
 	// 查询finder，用于其他方法中需要查询的场景
 	public static Finder<Long, TIncome> find = new Finder<Long, TIncome>(
@@ -149,21 +159,35 @@ public class TIncome extends Model {
 
 		if (allData.getList() != null) {
 			for (TIncome in : allData.getList()) {
-				in.incometoday = getTodayIncome(in.parkInfo.parkId);
-				in.finishedOrder = TOrderHis
-						.findAllCountForPark(in.parkInfo.parkId);
-				in.onlineIncomeTotal = Arith
-						.decimalPrice((in.incometotal - in.incometodaycash));
-				if(in.parkInfo!=null){
-					 in.takeCashTotal=TTakeCash.findTakeCash(in.parkInfo.parkId);
-					 in.allowance = TAllowanceOffer.findTotalAllowanceByParkid(in.parkInfo.parkId);	
-					 in.incometotal = Arith
-								.decimalPrice(in.incometotal+in.allowance);
-				}
+				calculationIncome(in,in.parkInfo.parkId);
 			}
 		}
 		return allData;
 	}
+	
+	
+	//计算核心逻辑
+	private static void calculationIncome(TIncome income,long parkId){
+		//今日收益
+		income.incometoday = getTodayIncome(parkId);
+		//已经完成的订单总数
+		income.finishedOrder = TOrderHis.findAllCountForPark(parkId);
+		//网上交易总额
+		income.onlineIncomeTotal = Arith.decimalPrice((income.incometotal - income.incometodaycash));
+		if(income.parkInfo!=null){
+			//已经体现的总数
+			income.takeCashTotal=TTakeCash.findTakeCash(income.parkInfo.parkId);
+			//已经拿到的补贴总数
+			income.allowance = TAllowanceOffer.findTotalAllowanceByParkid(income.parkInfo.parkId);
+		}
+		//全部收入的总额，加补贴
+		income.incometotal = Arith.decimalPrice(income.incometotal+income.allowance);
+		
+		//这里的顺序不能变
+		income.feeWeb = Arith.decimalPrice(income.incometotal-income.cashtotal-income.counpontotal-income.allowance);
+		income.feeTakecashInBalance = Arith.decimalPrice(income.incometotal-income.cashtotal-income.takeCashTotal);
+	}
+	
 
 	/**
 	 * 保存对应的收益
@@ -317,15 +341,7 @@ public class TIncome extends Model {
 				.getPage(currentPage);
 		if (allData.getList() != null) {
 			for (TIncome in : allData.getList()) {
-				in.incometoday = getTodayIncome(in.parkInfo.parkId);
-				in.onlineIncomeTotal = Arith
-						.decimalPrice((in.incometotal - in.incometodaycash));
-				if(in.parkInfo!=null){
-					in.takeCashTotal=TTakeCash.findTakeCash(in.parkInfo.parkId);
-				    in.allowance = TAllowanceOffer.findTotalAllowanceByParkid(in.parkInfo.parkId);
-				    in.incometotal = Arith
-							.decimalPrice(in.incometotal+in.allowance);
-				}
+				calculationIncome(in,in.parkInfo.parkId);
 			}
 		}
 
@@ -357,15 +373,7 @@ public class TIncome extends Model {
 
 		if (allData.getList() != null) {
 			for (TIncome in : allData.getList()) {
-				in.incometoday = getTodayIncome(in.parkInfo.parkId);
-				in.onlineIncomeTotal = Arith
-						.decimalPrice((in.incometotal - in.incometodaycash));
-				if(in.parkInfo!=null){
-				in.takeCashTotal=TTakeCash.findTakeCash(in.parkInfo.parkId);
-				in.allowance = TAllowanceOffer.findTotalAllowanceByParkid(in.parkInfo.parkId);
-				in.incometotal = Arith
-						.decimalPrice(in.incometotal+in.allowance);
-				}
+				calculationIncome(in,in.parkInfo.parkId);
 			}
 		}
 		return allData;
@@ -386,16 +394,7 @@ public class TIncome extends Model {
 
 		if (allData != null && allData.size() > 0) {
 			TIncome income = allData.get(0);
-			income.incometoday = getTodayIncome(parkid);
-			income.finishedOrder = TOrderHis.findAllCountForPark(parkid);
-			income.onlineIncomeTotal = Arith
-					.decimalPrice((income.incometotal - income.incometodaycash));
-			if(income.parkInfo!=null){
-			income.takeCashTotal=TTakeCash.findTakeCash(income.parkInfo.parkId);
-			income.allowance = TAllowanceOffer.findTotalAllowanceByParkid(income.parkInfo.parkId);
-			income.incometotal = Arith
-					.decimalPrice(income.incometotal+income.allowance);
-			}
+			calculationIncome(income,parkid);
 			return income;
 		}
 

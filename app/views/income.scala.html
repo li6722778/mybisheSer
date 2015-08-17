@@ -104,17 +104,48 @@ currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
 										
 										<div class="portfolio-info">
 
-											系统收益
+											全部收益
 
-											<span>¥@TIncome.onlineIncomeTotal</span>
+											<span>¥@TIncome.incometotal</span>
+
+										</div>
+										<div class="portfolio-info">
+
+											可提金额
+
+											<span>¥@TIncome.feeTakecashInBalance</span>
 
 										</div>
 										
 										<div class="portfolio-info">
 
-											补贴
+											已提取金额
+
+											<span>¥@TIncome.takeCashTotal</span>
+
+										</div>
+										
+										<div class="portfolio-info">
+
+											网上收益
+
+											<span>¥@TIncome.feeWeb</span>
+
+										</div>
+										
+										<div class="portfolio-info">
+
+											已补贴
 
 											<span>¥@TIncome.allowance</span>
+
+										</div>
+										
+										<div class="portfolio-info">
+
+											优惠卷
+
+											<span>¥@TIncome.counpontotal</span>
 
 										</div>
 										
@@ -125,6 +156,8 @@ currentPage: Integer, pageSize: Integer,orderBy: String, filter:String)
 											<span>¥@TIncome.cashtotal</span>
 
 										</div>
+										
+										
 
 
                                        <div class="portfolio-info">
