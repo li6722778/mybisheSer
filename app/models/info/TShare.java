@@ -1,6 +1,8 @@
 package models.info;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -84,13 +86,16 @@ public class TShare extends Model {
 	public static void saveshare(final Long userid ,final int time) {
 
 		Ebean.execute(new TxRunnable() {
-			public void run() {
-			TShare share =TShare.findDataById(userid);
-			share.userid =userid;
-			share.share =time;
-			share.sharetDate= new  Date();
-			Ebean.update(share);
-
+			public void run() {	
+				TShare share =TShare.findDataById(userid);
+				share.userid =userid;
+				share.share =time;
+				share.sharetDate= new  Date();			
+				Set<String> options = new HashSet<String>();
+				options.add("userid");
+				options.add("share");
+				options.add("sharetDate");
+				Ebean.update(share, options);
 			}
 
 		});
