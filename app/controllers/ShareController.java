@@ -65,8 +65,17 @@ public class ShareController extends Controller {
 
 		// 在分享列表中
 		else if (share!= null) {
-			// 比较日期 当前日期>列表分享记录日期 说明当天没参与过分享活动
+			
 			Date date = new Date();
+			Date lastsharedate = share.sharetDate;
+			
+			//获取上次插入的时间和现在的时间差
+			Long result =(date.getTime())-(lastsharedate.getTime()); 
+			
+			//最近3秒内没有插入数据
+			if(result>3000){
+
+			// 比较日期 当前日期>列表分享记录日期 说明当天没参与过分享活动
 			String nowdate =DateHelper.format(date,"yyyy-MM-dd 00:00:00");
 			String dbdate =DateHelper.format(share.sharetDate,"yyyy-MM-dd 00:00:00");
 			Date nowdate2 = DateHelper.getStringtoDate(nowdate, "yyyy-MM-dd 00:00:00");
@@ -93,6 +102,11 @@ public class ShareController extends Controller {
 			
 		
 
+		}
+			//最近3秒内插入过数据
+			else {
+				response.setResponseStatus(ComResponse.STATUS_FAIL);
+			}
 		}
 		String tempJsonString = gsonBuilderWithExpose.toJson(response);
 		JsonNode json = Json.parse(tempJsonString);
