@@ -86,7 +86,7 @@ public class TUseCouponEntity extends Model {
 	 * @return
 	 */
 	public static TUseCouponEntity getExistCouponByUserIdAndId(long id, long userid) {
-		List<TUseCouponEntity>  total = find.where().eq("counponId", id).eq("userid", userid).findList();
+		List<TUseCouponEntity>  total = find.where().eq("counponId", id).eq("userid", userid).eq("isable", 1).findList();
 		return total!=null&&total.size()>0 ? total.get(0) :null;
 	}
 
@@ -113,7 +113,7 @@ public class TUseCouponEntity extends Model {
 	
 	public static void setUseCoupon(final long id, final long userid){
 		
-		List<TUseCouponEntity> all = find.where().eq("counponId", id)
+		List<TUseCouponEntity> all = find.where().ne("isable", 0).eq("counponId", id)
 				.eq("userid", userid).findList();
 		if (all != null) {
 			for (TUseCouponEntity useCoouponEntity : all) {
@@ -123,6 +123,7 @@ public class TUseCouponEntity extends Model {
 				options.add("isable");
 				options.add("useDate");
 				Ebean.update(useCoouponEntity, options);
+				break;
 			}
 		}
 		

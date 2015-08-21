@@ -1,5 +1,6 @@
 package controllers;
 
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.KeyFactory;
@@ -8,6 +9,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,6 +31,10 @@ import models.info.TuserInfo;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
+
 import play.Logger;
 import play.libs.Akka;
 import play.libs.F.Promise;
@@ -38,6 +44,7 @@ import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.twirl.api.Xml;
 import scala.concurrent.duration.Duration;
 import utils.Arith;
 import utils.ComResponse;
@@ -49,10 +56,19 @@ import wxutils.MD5;
 import wxutils.MD5Util;
 import action.BasicAuth;
 
+
+
+
+
+
+
+
+
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 
 
 /**
@@ -399,6 +415,9 @@ public class PayController extends Controller {
 						//access_token=getAccessToken();
 						actmoney=(int) (chebolePayOptions.payActualPrice*100);
 						wxstring=GetPrepayIdTask(out_trade_no,actmoney);
+						//***********text
+						Map<String,String> aa=decodeXml(wxstring);
+						//*******
 						chebolePayOptions.payInfo=wxstring+","+ConstantUtil.APP_KEY;
 						Logger.debug("payInfo:" + chebolePayOptions.payInfo);
 					}
@@ -1678,7 +1697,7 @@ private  static String GetPrepayIdTask(String out_trade_no,int money)
 			packageParams.add(new BasicNameValuePair("body", "停车费"));
 			packageParams.add(new BasicNameValuePair("mch_id", ConstantUtil.MCH_ID));
 			packageParams.add(new BasicNameValuePair("nonce_str", nonceStr));
-			packageParams.add(new BasicNameValuePair("notify_url", "http://114.215.155.185/test"));
+			packageParams.add(new BasicNameValuePair("notify_url", "http://114.215.155.185/pay/wxnotify"));
 			packageParams.add(new BasicNameValuePair("out_trade_no",sb.append(genOutTradNo()).toString()));
 			packageParams.add(new BasicNameValuePair("spbill_create_ip","114.215.155.185"));
 			packageParams.add(new BasicNameValuePair("total_fee",""+money));
@@ -1780,106 +1799,157 @@ private  static String GetPrepayIdTask(String out_trade_no,int money)
 	public static Result notifyPayResultForWX() {
 		Logger.info("###########get feedback from aili post#############");
 		try {
-			String request = request().body().toString();
-
-			Map<String, String[]> params = request().body().asFormUrlEncoded();
-			String[] paramsNumber = params.get("out_trade_no");
-			String paymentIdString = paramsNumber == null ? "-1"
-					: paramsNumber[0];
-
-			String[] trade_status = params.get("trade_status");
-			String status = trade_status == null ? "unknow" : trade_status[0];
-
-			String[] total_fee = params.get("total_fee");
-			String fee = total_fee == null ? "0" : total_fee[0];
-
-			String[] trade_no = params.get("trade_no");
-			String ailiNo = trade_no == null ? "0" : trade_no[0];
-			long paymentId = Long.parseLong(paymentIdString);
-
-			TOrder_Py order = TOrder_Py.findDataById(paymentId);
-
-			if (status.trim().equals("WAIT_BUYER_PAY")) {
-
-				if (order != null) {
-					order.ackDate = new Date();
-					order.ackStatus = Constants.PAYMENT_STATUS_PENDING;
-					Set<String> options = new HashSet<String>();
-					options.add("ackDate");
-					options.add("ackStatus");
-					Ebean.update(order, options);
-
-				}
-
-			} else if (status.trim().equals("TRADE_SUCCESS")) { // 如果交易成功，更新订单状态并且推送消息
-				try {
-					if (order != null) {
-						if (order.ackStatus != Constants.PAYMENT_STATUS_FINISH) {
-							order.ackDate = new Date();
-							order.ackStatus = Constants.PAYMENT_STATUS_FINISH;
-							Set<String> options = new HashSet<String>();
-							options.add("ackDate");
-							options.add("ackStatus");
-							Ebean.update(order, options);
-
-							// 状态更新后，如果是刚下订单，需要推送消息
-							// start to push
-							TOrder torder = order.order;
-							if (torder != null) {
-								if (torder.parkInfo != null
-										&& torder.userInfo != null
-										&& torder.startDate == null
-										&& torder.endDate == null) {
-									
-									if(torder.couponId>0){
-										TUseCouponEntity userCoupon = TUseCouponEntity.getExistCouponByUserIdAndId(torder.couponId, torder.userInfo.userid);
-										if(userCoupon.isable==1){
-											Set<String> optionsCoupon = new HashSet<String>();
-											userCoupon.isable=2; //设置为正在使用
-											optionsCoupon.add("isable");
-											Ebean.update(userCoupon,optionsCoupon);;
-										}
-									}
-									
-									PushController.pushToParkAdmin(
-											torder.parkInfo.parkId,
-											"" + torder.userInfo.userPhone,
-											torder.parkInfo.parkname,torder.orderId);
-
-									// 开始一个任务去设置过期任务
-									scheduleTaskForOverdue(torder.orderId);
-
-								} else {
-									Logger.warn("push service is not working. torder.parkInfo!=null&&torder.userInfo!=null&&torder.startDate==null&&torder.endDate==null");
-								}
-							} else {
-								Logger.warn("push service is not working. order is empty for paymentid:"
-										+ order.parkPyId);
-							}
-
-						}
-					}
-
-				} catch (Exception e) {
-					Logger.error("notifyPayResult", e);
-				}
-
-			}
-
-			LogController.info(
-					"notify-->payment id:" + paymentId + ",status:" + status
-							+ ",total fee:" + fee + ",aili_trade_no:" + ailiNo,
-					"alipay");
-
-			Logger.info("#####feedback:" + request);
+			
+		
+		String request = request().body().toString();
+		LogController.info("notifyPayResultForWX request:" + request, "wxpay");
+//			Map<String, String[]> params = request().body().asFormUrlEncoded();
+//			String[] paramsNumber = params.get("out_trade_no");
+//			String paymentIdString = paramsNumber == null ? "-1"
+//					: paramsNumber[0];
+//
+//			String[] trade_status = params.get("trade_status");
+//			String status = trade_status == null ? "unknow" : trade_status[0];
+//
+//			String[] total_fee = params.get("total_fee");
+//			String fee = total_fee == null ? "0" : total_fee[0];
+//
+//			String[] trade_no = params.get("trade_no");
+//			String ailiNo = trade_no == null ? "0" : trade_no[0];
+//			long paymentId = Long.parseLong(paymentIdString);
+//
+//			TOrder_Py order = TOrder_Py.findDataById(paymentId);
+//
+//			if (status.trim().equals("WAIT_BUYER_PAY")) {
+//
+//				if (order != null) {
+//					order.ackDate = new Date();
+//					order.ackStatus = Constants.PAYMENT_STATUS_PENDING;
+//					Set<String> options = new HashSet<String>();
+//					options.add("ackDate");
+//					options.add("ackStatus");
+//					Ebean.update(order, options);
+//
+//				}
+//
+//			} else if (status.trim().equals("TRADE_SUCCESS")) { // 如果交易成功，更新订单状态并且推送消息
+//				try {
+//					if (order != null) {
+//						if (order.ackStatus != Constants.PAYMENT_STATUS_FINISH) {
+//							order.ackDate = new Date();
+//							order.ackStatus = Constants.PAYMENT_STATUS_FINISH;
+//							Set<String> options = new HashSet<String>();
+//							options.add("ackDate");
+//							options.add("ackStatus");
+//							Ebean.update(order, options);
+//
+//							// 状态更新后，如果是刚下订单，需要推送消息
+//							// start to push
+//							TOrder torder = order.order;
+//							if (torder != null) {
+//								if (torder.parkInfo != null
+//										&& torder.userInfo != null
+//										&& torder.startDate == null
+//										&& torder.endDate == null) {
+//									
+//									if(torder.couponId>0){
+//										TUseCouponEntity userCoupon = TUseCouponEntity.getExistCouponByUserIdAndId(torder.couponId, torder.userInfo.userid);
+//										if(userCoupon.isable==1){
+//											Set<String> optionsCoupon = new HashSet<String>();
+//											userCoupon.isable=2; //设置为正在使用
+//											optionsCoupon.add("isable");
+//											Ebean.update(userCoupon,optionsCoupon);;
+//										}
+//									}
+//									
+//									PushController.pushToParkAdmin(
+//											torder.parkInfo.parkId,
+//											"" + torder.userInfo.userPhone,
+//											torder.parkInfo.parkname,torder.orderId);
+//
+//									// 开始一个任务去设置过期任务
+//									scheduleTaskForOverdue(torder.orderId);
+//
+//								} else {
+//									Logger.warn("push service is not working. torder.parkInfo!=null&&torder.userInfo!=null&&torder.startDate==null&&torder.endDate==null");
+//								}
+//							} else {
+//								Logger.warn("push service is not working. order is empty for paymentid:"
+//										+ order.parkPyId);
+//							}
+//
+//						}
+//					}
+//
+//				} catch (Exception e) {
+//					Logger.error("notifyPayResult", e);
+//				}
+//
+//			}
+//
+//			LogController.info(
+//					"notify-->payment id:" + paymentId + ",status:" + status
+//							+ ",total fee:" + fee + ",aili_trade_no:" + ailiNo,
+//					"alipay");
+//
+//			Logger.info("#####feedback:" + request);
 
 		} catch (Exception e) {
-			LogController.info("exception:" + e.getMessage(), "alipay");
+			LogController.info("exception:" + e.getMessage(), "wxpay");
 		}
 		return ok("success");
 	}
 	
-	
+	//解析预订单，获得预订单号，并生成最后一次签名后传回服务端
+	public static Map<String,String> decodeXml(String content) {
+
+		try {
+			XmlPullParserFactory pullParserFactory = XmlPullParserFactory.newInstance();
+			Map<String, String> xml = new HashMap<String, String>();
+			XmlPullParser parser =pullParserFactory.newPullParser();
+			parser.setInput(new StringReader(content));
+			int event = parser.getEventType();
+			while (event != XmlPullParser.END_DOCUMENT) {
+				String nodeName=parser.getName();
+				switch (event) {
+					case XmlPullParser.START_DOCUMENT:
+
+						break;
+					case XmlPullParser.START_TAG:
+
+						if("xml".equals(nodeName)==false){
+							//瀹炰緥鍖杝tudent瀵硅薄
+							xml.put(nodeName,parser.nextText());
+						}
+						break;
+					case XmlPullParser.END_TAG:
+						break;
+				}
+				event = parser.next();
+			}
+			xml.get("return_code");
+			
+			List<NameValuePair> signParams = new LinkedList<NameValuePair>();
+			signParams.add(new BasicNameValuePair("appid", ConstantUtil.APP_ID));
+			signParams.add(new BasicNameValuePair("noncestr", wxutils.WXUtil.getNonceStr()));
+			signParams.add(new BasicNameValuePair("package", "Sign=WXPay"));
+			signParams.add(new BasicNameValuePair("partnerid", ConstantUtil.MCH_ID));
+			signParams.add(new BasicNameValuePair("prepayid", xml.get("prepay_id").toString()));
+			signParams.add(new BasicNameValuePair("timestamp", wxutils.WXUtil.getTimeStamp()));
+			
+			String  sign=wxutils.WXUtil.genAppSign(signParams,ConstantUtil.APP_KEY);
+			
+			signParams.add(new BasicNameValuePair("sign", sign));
+			String	xmlstring=toXml(signParams);
+			Logger.info("@@@@@@@@@@@@@@@@@@@"+xml.get("prepay_id").toString());
+			Logger.info("@@@@@@@@@@@@@@@@@@@"+sign);
+			return xml;
+		} catch (Exception e) {
+			Logger.error("orion",e.toString());
+		}
+		return null;
+
+	}
 	
 	
 }

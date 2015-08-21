@@ -19,6 +19,7 @@ GET		/a/ans/:parklocid            controllers.MapFindController.findParkingEntra
 GET		/a/ans/nearby/pagelist              controllers.MapFindController.getNearbyParkingForPreview(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc",a:Double?= 0, n:Double?=0, h:Float?=2)
 
 POST    /pay/notify                   controllers.PayController.notifyPayResult()
+POST    /pay/wxnotify                   controllers.PayController.notifyPayResultForWX()
 
 GET     /a/push/register/:userid              controllers.PushController.registerAdmUser(userid:Long,clientId?="")
 
