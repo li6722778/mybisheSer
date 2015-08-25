@@ -107,6 +107,10 @@ GET /a/getoption/:type                             controllers.OptionsController
 
 
 GET  /a/isshare/find/:id                          controllers.ShareController.getDataById(id:Long)
+GET  /a/sendshare/                                controllers.ShareController.sendShareById(t:Long,u:Long)
+GET /a/share/:uniqueurl                           controllers.ShareController.saveuniqueurl(uniqueurl:Long)
+
+
 
 
 ######################please DON'T change below URI!!!###################

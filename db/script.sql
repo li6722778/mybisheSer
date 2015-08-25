@@ -377,6 +377,23 @@ sharet_date               timestamp NULL,
 constraint pk_tb_share primary key (userid))
 ;
 
+
+create table tb_uniqueurl (
+url                       bigint auto_increment not null,
+sharetime                 integer(3) default 0,
+sharet_date               timestamp NULL,
+userphone_object          varchar(150),
+constraint pk_tb_uniqueurl primary key (url))
+; 
+
+
+create table tb_unregisteruser (
+user_phone                bigint auto_increment not null,
+sharetime                 integer(3) default 0,
+sharet_date               timestamp NULL,
+constraint pk_tb_unregisteruser primary key (user_phone))
+;
+
 alter table tb_order add constraint fk_tb_order_parkInfo_1 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
 create index ix_tb_order_parkInfo_1 on tb_order (parkId);
 alter table tb_order add constraint fk_tb_order_userInfo_2 foreign key (userid) references tb_user (userid) on delete restrict on update restrict;

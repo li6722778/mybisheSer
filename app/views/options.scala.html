@@ -1,158 +1,159 @@
 @(entityBean: models.info.TOptions)
-             <!-- BEGIN PAGE HEADER-->
-				<div class="row-fluid" id="parkingtitle">
+<!-- BEGIN PAGE HEADER-->
+<div class="row-fluid" id="parkingtitle">
 
-					<div class="span12">
+	<div class="span12">
 
-						<!-- BEGIN STYLE CUSTOMIZER -->
-						<!-- END BEGIN STYLE CUSTOMIZER --> 
+		<!-- BEGIN STYLE CUSTOMIZER -->
+		<!-- END BEGIN STYLE CUSTOMIZER -->
 
-						<!-- BEGIN PAGE TITLE & BREADCRUMB-->
+		<!-- BEGIN PAGE TITLE & BREADCRUMB-->
 
-						<h3 class="page-title">
-							 参数设置<small>系统参数的生成和修改</small>
-						</h3>
+		<h3 class="page-title">
+			参数设置<small>系统参数的生成和修改</small>
+		</h3>
 
-						<ul class="breadcrumb">
+		<ul class="breadcrumb">
 
-							<li>
+			<li><i class="icon-home"></i> <a href="/">主页</a> <i
+				class="icon-angle-right"></i></li>
 
-								<i class="icon-home"></i>
+			<li><a href="javascript:;">参数发布</a></li>
 
-								<a href="/">主页</a> 
+		</ul>
 
-								<i class="icon-angle-right"></i>
+		<!-- END PAGE TITLE & BREADCRUMB-->
+	</div>
+</div>
+<!-- END PAGE HEADER-->
 
-							</li>
+<div class="portlet box grey" id="userlist">
 
-							<li><a href="javascript:;">参数发布</a></li>
-							
-						</ul>
+	<div class="portlet-title">
 
-						<!-- END PAGE TITLE & BREADCRUMB-->
+		<div class="caption">
+			<i class="icon-mobile-phone"></i>参数发布
+		</div>
+
+		<div class="tools">
+			<a href="javascript:;" class="reload"></a>
+		</div>
+
+	</div>
+
+	<div class="portlet-body form">
+
+		<!-- BEGIN FORM-->
+		<form action="/w/options/submit " method="POST" id="dataFormOptions"
+			class="horizontal-form">
+			<div id="remotemessage"></div>
+			<input type="hidden" id="optionId" name="optionId"
+				value="@entityBean.optionId"> <input type="hidden"
+				id="longTextObject" name="longTextObject" value=""> <input
+				type="hidden" id="textObject" name="textObject" value=""> <input
+				type="hidden" id="optionType" name="optionType" value="">
+			<div class="row-fluid">
+				<div class="span6 ">
+					<div class="control-group">
+						<label class="control-label">参数名称</label>
+
+						<div class="controls">
+
+							<select data-placeholder="请选择参数类型"
+								class="chosen-with-diselect span6" tabindex="-1" id="selOption">
+
+								<option value="0" @if(entityBean.optionType==0){selected}></option>
+								<option value="2" @if(entityBean.optionType==2){selected}>注册优惠劵</option>
+								<option value="3" @if(entityBean.optionType==3){selected}>分享赠送优惠劵</option>
+								<option value="4" @if(entityBean.optionType==4){selected}>每日可分享次数</option>
+								<option value="5" @if(entityBean.optionType==5){selected}>填写手机号获取优惠劵</option>
+								<option value="1" @if(entityBean.optionType==1){selected}>注册协议</option>
+							</select>
+
+						</div>
+
 					</div>
 				</div>
-				<!-- END PAGE HEADER-->
 
-				<div class="portlet box grey" id="userlist">
+				<!--/span-->
 
-							<div class="portlet-title">
+			</div>
 
-								<div class="caption"><i class="icon-mobile-phone"></i>参数发布</div>
+			<!--/row-->
 
-								<div class="tools">
-									<a href="javascript:;" class="reload"></a>
-								</div>
+			<div class="row-fluid">
 
-							</div>
+				<div class="span12">
 
-                   <div class="portlet-body form">
-				
-						<!-- BEGIN FORM-->
-                       <form action="/w/options/submit " method="POST" id="dataFormOptions" class="horizontal-form">
-                                   <div id="remotemessage"></div>
-                                    <input type="hidden" id="optionId" name="optionId"  value="@entityBean.optionId">
-                                     <input type="hidden" id="longTextObject" name="longTextObject"  value="">
-                                     <input type="hidden" id="textObject" name="textObject"  value="">
-                                     <input type="hidden" id="optionType" name="optionType"  value="">
-												<div class="row-fluid">
-													<div class="span6 ">
-														<div class="control-group">
-															<label class="control-label">参数名称</label>
-						
-																<div class="controls">
-						
-																	<select data-placeholder="请选择参数类型" class="chosen-with-diselect span6" tabindex="-1" id="selOption">
-						
-																		<option value="0" @if(entityBean.optionType==0){ selected}></option>
-						                                                <option value="2" @if(entityBean.optionType==2){ selected}>注册优惠劵</option>
-						                                                 <option value="3" @if(entityBean.optionType==3){ selected}>分享赠送优惠劵</option>
-						                                                  <option value="4" @if(entityBean.optionType==4){ selected}>每日可分享次数</option>
-																		<option value="1" @if(entityBean.optionType==1){ selected}>注册协议</option>
-																	</select>
-						
-																</div>
-															
-														</div>
-													</div>
+					<div class="control-group">
 
-													<!--/span-->
+						<label class="control-label">参数内容</label>
 
-												</div>
+						<div class="controls">
 
-												<!--/row-->
-
-												<div class="row-fluid">
-
-                                                      <div class="span12">
-
-														<div class="control-group">
-
-															<label class="control-label">参数内容</label>
-
-															<div class="controls">
-					
-																<textarea class="span6 m-wrap" rows="10" id="option_context">
+							<textarea class="span6 m-wrap" rows="10" id="option_context">
 																@if(entityBean.longTextObject!=null&&entityBean.longTextObject.length>0){ 
 																  @entityBean.longTextObject 
 																}else{
 																  @entityBean.textObject 
 																}
 																</textarea>
-					
-															</div>
 
-														</div>
-													</div>
-													<!--/span-->
-
-												</div>
-												
-	
-													
-												<!--/row-->        
-
-												<div class="row-fluid">
-													<div class="span6 ">
-						                                     <div class="control-group">
-																<label class="control-label">内容类型</label>
-																<div class="controls">
-						
-																	<label class="radio">
-																	<input type="radio" id="typecomm" name="texttype" value="" @if(entityBean.textObject!=null&&entityBean.textObject.length>0){checked}/>
-																	    普通文本(250个字符)
-																	</label>
-						
-																	<label class="radio">
-																	<input type="radio" id="typelong" name="texttype" value="" @if(entityBean.longTextObject!=null&&entityBean.longTextObject.length>0){checked} />
-																	  长文本
-																	</label>  
-																	<p class="help-block">长文本原则上可以存储最大4GB的内容</p>
-																	
-																</div>
-															</div>
-													</div>
-
-								
-												</div>
-
-												<!--/row--> 
-
-
-												<div class="form-actions">
-													<button type="button" id="submitOptionsbutton" class="btn blue"><i class="icon-ok"></i>提交</button>
-													<button type="button" class="btn">取消</button>
-												</div>
-
-				                    </form>
-
-											<!-- END FORM--> 
-							</div>
-							
-
-
-					  
 						</div>
-						
-   <script src="@routes.Assets.at("javascripts/jquery.form.js")" type="text/javascript" ></script>
-	<script src="@routes.Assets.at("app/lib/options.js")" type="text/javascript" ></script>
+
+					</div>
+				</div>
+				<!--/span-->
+
+			</div>
+
+
+
+			<!--/row-->
+
+			<div class="row-fluid">
+				<div class="span6 ">
+					<div class="control-group">
+						<label class="control-label">内容类型</label>
+						<div class="controls">
+
+							<label class="radio"> <input type="radio" id="typecomm"
+								name="texttype" value=""
+								@if(entityBean.textObject!=null&&entityBean.textObject.length>0){checked}/>
+								普通文本(250个字符)
+							</label> <label class="radio"> <input type="radio" id="typelong"
+								name="texttype" value=""
+								@if(entityBean.longTextObject!=null&&entityBean.longTextObject.length>0){checked}
+								/> 长文本
+							</label>
+							<p class="help-block">长文本原则上可以存储最大4GB的内容</p>
+
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+
+			<!--/row-->
+
+
+			<div class="form-actions">
+				<button type="button" id="submitOptionsbutton" class="btn blue">
+					<i class="icon-ok"></i>提交
+				</button>
+				<button type="button" class="btn">取消</button>
+			</div>
+
+		</form>
+
+		<!-- END FORM-->
+	</div>
+
+
+
+
+</div>
+
+<script src="@routes.Assets.at("javascripts/jquery.form.js")" type="text/javascript"></script>
+<script src="@routes.Assets.at("app/lib/options.js")" type="text/javascript"></script>
