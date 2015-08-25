@@ -64,6 +64,20 @@ create table tb_counpon_info (
   constraint pk_tb_counpon_info primary key (counpon_id))
 ;
 
+create table tb_counpon_info_his (
+  counpon_id                bigint auto_increment not null,
+  counpon_code              varchar(255),
+  money                     decimal(12,2) default 0.0,
+  count                     integer default 1,
+  scancount                 integer default 1,
+  isable                    integer(2) default 1,
+  start_date                timestamp NULL,
+  end_date                  timestamp NULL,
+  create_date               timestamp NOT NULL,
+  create_name               varchar(255),
+  constraint pk_tb_counpon_info_his primary key (counpon_id))
+;
+
 create table tb_income (
   income_id                 bigint auto_increment not null,
   parkId                    bigint,
@@ -332,6 +346,13 @@ create table tb_parking_adm (
   constraint pk_tb_parking_adm primary key (park_adm_id))
 ;
 
+create table tb_share (
+  userid                    bigint auto_increment not null,
+  share                     integer(3) default 0,
+  sharet_date               timestamp NULL,
+  constraint pk_tb_share primary key (userid))
+;
+
 create table tb_takecash (
   takecashid                bigint auto_increment not null,
   takemoney                 decimal(12,2) default 0.0,
@@ -350,11 +371,21 @@ create table tb_takecash (
 create table tb_counpon_use (
   id                        bigint auto_increment not null,
   userid                    bigint,
-  counponId                 bigint,
+  counpon_id                bigint,
   isable                    integer(2) default 1,
   scan_date                 timestamp NULL,
   use_date                  timestamp NULL,
   constraint pk_tb_counpon_use primary key (id))
+;
+
+create table tb_counpon_use_his (
+  id                        bigint auto_increment not null,
+  userid                    bigint,
+  counpon_id                bigint,
+  isable                    integer(2) default 1,
+  scan_date                 timestamp NULL,
+  use_date                  timestamp NULL,
+  constraint pk_tb_counpon_use_his primary key (id))
 ;
 
 create table tb_verify_code (
@@ -370,6 +401,7 @@ create table tb_client_ver (
   version                   bigint,
   update_url                varchar(100),
   updates_content           varchar(100),
+  download_target           varchar(1000),
   constraint pk_tb_client_ver primary key (version_id))
 ;
 
@@ -417,8 +449,8 @@ alter table tb_parking_adm add constraint fk_tb_parking_adm_userInfo_14 foreign 
 create index ix_tb_parking_adm_userInfo_14 on tb_parking_adm (userid);
 alter table tb_counpon_use add constraint fk_tb_counpon_use_userInfo_15 foreign key (userid) references tb_user (userid) on delete restrict on update restrict;
 create index ix_tb_counpon_use_userInfo_15 on tb_counpon_use (userid);
-alter table tb_counpon_use add constraint fk_tb_counpon_use_counponentity_16 foreign key (counponId) references tb_counpon_info (counpon_id) on delete restrict on update restrict;
-create index ix_tb_counpon_use_counponentity_16 on tb_counpon_use (counponId);
+alter table tb_counpon_use_his add constraint fk_tb_counpon_use_his_userInfo_16 foreign key (userid) references tb_user (userid) on delete restrict on update restrict;
+create index ix_tb_counpon_use_his_userInfo_16 on tb_counpon_use_his (userid);
 
 
 
@@ -437,6 +469,8 @@ drop table tb_allowance;
 drop table tb_allowance_offer;
 
 drop table tb_counpon_info;
+
+drop table tb_counpon_info_his;
 
 drop table tb_income;
 
@@ -472,9 +506,13 @@ drop table tb_parking_loc;
 
 drop table tb_parking_adm;
 
+drop table tb_share;
+
 drop table tb_takecash;
 
 drop table tb_counpon_use;
+
+drop table tb_counpon_use_his;
 
 drop table tb_verify_code;
 
