@@ -156,14 +156,13 @@ public class ShareController extends Controller {
 				times = Integer.parseInt(counponcodes[4]);
 			}
 		}
-		if(times!=0){
+		if(times!=0&&uniqueurl!=null){
 		// 获取该url已经被那些手机号领取,如果已经领取过 则返回
 		String phoneobjects = uniqueurl.userphoneObject;
 		//之前没有用户使用过该url链接
 		if(phoneobjects==null&&counponcodes!=null)
 		{	
 			sendtouser(telephonenumber, uniqueurl, times, counponcodes);
-			Logger.info("s11111");
 			response.setResponseStatus(ComResponse.STATUS_OK);	
 		}
 		 //该url链接已经被使用，查询该手机号是否在该url中记录过
@@ -185,14 +184,24 @@ public class ShareController extends Controller {
 				if(sendreuslt==true)
 				{
 					response.setResponseStatus(ComResponse.STATUS_OK);	}
-				else {
+			}
+			//该用户已经通过该url领取过优惠劵
+			else if (result==true) {
+					response.setResponseEntity("have got");
 					response.setResponseStatus(ComResponse.STATUS_FAIL);
-				}
 			}
 		}
+		//分享次数已经用完
+		if(uniqueurl.sharetime>=times)
+		{
+			response.setResponseEntity("used over");
+			response.setResponseStatus(ComResponse.STATUS_FAIL);
 		}
+		}
+		
 		else {
-				
+			response.setResponseEntity("not exist url");
+			response.setResponseStatus(ComResponse.STATUS_FAIL);
 		}
 
 		String tempJsonString = gsonBuilderWithExpose.toJson(response);
