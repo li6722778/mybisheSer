@@ -415,8 +415,8 @@ public class PayController extends Controller {
 						//access_token=getAccessToken();
 						actmoney=(int) (chebolePayOptions.payActualPrice*100);
 						wxstring=GetPrepayIdTask(out_trade_no,actmoney);
-						//***********text
-						Map<String,String> aa=decodeXml(wxstring);
+						//***********解析获得第二次加密相关neir
+						//Map<String,String> aa=decodeXml(wxstring);
 						//*******
 						chebolePayOptions.payInfo=wxstring+","+ConstantUtil.APP_KEY;
 						Logger.debug("payInfo:" + chebolePayOptions.payInfo);

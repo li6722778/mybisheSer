@@ -159,6 +159,7 @@ public class TIncome extends Model {
 
 		if (allData.getList() != null) {
 			for (TIncome in : allData.getList()) {
+				if(in!=null&&in.parkInfo!=null)
 				calculationIncome(in,in.parkInfo.parkId);
 			}
 		}
