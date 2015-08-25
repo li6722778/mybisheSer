@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import models.ChebolePayOptions;
 import models.info.TCouponEntity;
+import models.info.TCouponHis;
 import models.info.TOrder;
 import models.info.TOrderHis;
 import models.info.TOrder_Py;
@@ -55,6 +56,7 @@ import wxutils.ConstantUtil;
 import wxutils.MD5;
 import wxutils.MD5Util;
 import action.BasicAuth;
+
 
 
 
@@ -517,6 +519,14 @@ public class PayController extends Controller {
 					.findDataById(order.couponId);
 			if (couponEntity != null) {
 				couponPrice = couponEntity.money;
+			}else
+			{
+				TCouponHis couponhis = TCouponHis
+						.findDataById(order.couponId);
+				if(couponhis!=null)
+				{
+					couponPrice = couponhis.money;
+				}
 			}
 		}
 
@@ -1020,21 +1030,31 @@ public class PayController extends Controller {
 
 					// 是否能够使用用户选择的优惠卷
 					if (counponId > 0) {
+						double money=0d;
 						TCouponEntity couponEntity = TCouponEntity
 								.findDataById(counponId);
-						if (couponEntity != null) {
-							realPayPrice = realPayPrice - couponEntity.money;
-							if (realPayPrice < 0) {
-								couponUsedMoney = Arith
-										.decimalPrice(couponEntity.money
-												- Math.abs(realPayPrice));
-								realPayPrice = 0;
-							} else {
-								couponUsedMoney = couponEntity.money;
-							}
-
-							useCounpon = true;
+						if(couponEntity!=null)
+						{
+							money=couponEntity.money;
+						}else
+						{
+							TCouponHis couponhis = TCouponHis
+									.findDataById(counponId);
+							money=couponhis.money;
 						}
+
+						realPayPrice = realPayPrice - money;
+						if (realPayPrice < 0) {
+							couponUsedMoney = Arith
+									.decimalPrice(money
+											- Math.abs(realPayPrice));
+							realPayPrice = 0;
+						} else {
+							couponUsedMoney =money;
+						}
+
+						useCounpon = true;
+					
 					}
 
 					ChebolePayOptions payOption = new ChebolePayOptions();

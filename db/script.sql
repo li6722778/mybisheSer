@@ -261,7 +261,7 @@ constraint pk_tb_parking_adm primary key (park_adm_id))
 create table tb_counpon_use (
 id                        bigint  not null,
 userid                    bigint,
-counponId                 bigint,
+counpon_id                 bigint,
 isable                    integer(2) default 1,
 scan_date                 timestamp NULL,
 use_date                  timestamp NULL,
@@ -377,6 +377,50 @@ sharet_date               timestamp NULL,
 constraint pk_tb_share primary key (userid))
 ;
 
+
+create table tb_uniqueurl (
+url                       bigint auto_increment not null,
+sharetime                 integer(3) default 0,
+sharet_date               timestamp NULL,
+userphone_object          varchar(150),
+constraint pk_tb_uniqueurl primary key (url))
+; 
+
+
+create table tb_unregisteruser (
+user_phone                bigint auto_increment not null,
+sharetime                 integer(3) default 0,
+sharet_date               timestamp NULL,
+constraint pk_tb_unregisteruser primary key (user_phone))
+;
+
+
+create table tb_counpon_use_his (
+id                        bigint not null,
+userid                    bigint,
+counpon_id                 bigint,
+isable                    integer(2) default 1,
+scan_date                 timestamp NULL,
+use_date                  timestamp NULL,
+constraint pk_tb_counpon_use_his primary key (id))
+;
+
+
+create table tb_counpon_info_his (
+counpon_id                bigint  not null,
+counpon_code              varchar(255),
+money                     decimal(12,2) default 0.0,
+count                     integer default 1,
+scancount                 integer default 1,
+isable                    integer(2) default 1,
+start_date                timestamp NULL,
+end_date                  timestamp NULL,
+create_date               timestamp NOT NULL,
+create_name               varchar(255),
+constraint pk_tb_counpon_info_his primary key (counpon_id))
+;
+
+
 alter table tb_order add constraint fk_tb_order_parkInfo_1 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
 create index ix_tb_order_parkInfo_1 on tb_order (parkId);
 alter table tb_order add constraint fk_tb_order_userInfo_2 foreign key (userid) references tb_user (userid) on delete restrict on update restrict;
@@ -405,7 +449,7 @@ alter table tb_parking_adm add constraint fk_tb_parking_adm_userInfo_13 foreign 
 create index ix_tb_parking_adm_userInfo_13 on tb_parking_adm (userid);
 alter table tb_counpon_use add constraint fk_tb_counpon_use_userInfo_14 foreign key (userid) references tb_user (userid) on delete restrict on update restrict;
 create index ix_tb_counpon_use_userInfo_14 on tb_counpon_use (userid);
-alter table tb_counpon_use add constraint fk_tb_counpon_use_counponentity_15 foreign key (counponId) references tb_counpon_info (counpon_id) on delete restrict on update restrict;
-create index ix_tb_counpon_use_counponentity_15 on tb_counpon_use (counponId);
+--alter table tb_counpon_use add constraint fk_tb_counpon_use_counponentity_15 foreign key (counponId) references tb_counpon_info (counpon_id) on delete restrict on update restrict;
+--create index ix_tb_counpon_use_counponentity_15 on tb_counpon_use (counponId);
 alter table tb_income add constraint fk_tb_income_parkInfo_1 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
 create index ix_tb_income_parkInfo_1 on tb_income (parkId);
