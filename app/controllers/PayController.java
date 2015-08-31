@@ -470,6 +470,274 @@ public class PayController extends Controller {
 		return ok(json);
 	}
 
+	
+	
+	/**
+	 * 最新第一次付款。 计次收费原则上只有一次付款 分段收费有二次付款
+	 * 微信支付两次加密移到服务端
+	 * 
+	 * @param parkingProdId
+	 * @return
+	 */
+	@BasicAuth
+	public static Result payForInNew(long parkingProdId, String city,
+			double latitude, double longitude,int userSelectedpayWay,String clientId) {
+		Logger.info("start to generator order and generator aili pay for:"
+				+ parkingProdId + ",city:" + city);
+		String request = request().body().asJson().toString();
+		Logger.debug("start to post data:" + request);
+
+		ChebolePayOptions chebolePayOptions = gsonBuilderWithExpose.fromJson(
+				request, ChebolePayOptions.class);
+
+		ComResponse<ChebolePayOptions> response = new ComResponse<ChebolePayOptions>();
+		try {
+
+			if (parkingProdId > 0) {
+				TParkInfoProd infoPark = TParkInfoProd
+						.findDataById(parkingProdId);
+				String useridString = flash("userid");
+				TuserInfo user = null;
+				try {
+					user = TuserInfo.findDataById(Long.parseLong(useridString));
+				} catch (Exception e) {
+					Logger.error("", e);
+					throw new Exception("获取当前操作用户失败");
+				}
+				if (infoPark != null && user != null) {
+					//查询当前停车场是否可以下订单
+					 List<TParkInfoPro_Loc>  locs = infoPark.latLngArray;
+					 if(locs==null||locs.size()<=0){
+						 throw new Exception("当前停车场异常，无进场坐标无法导航");
+					 }else{
+						 TParkInfoPro_Loc loc= locs.get(0);
+						 if(loc.isOpen!=1){
+							 throw new Exception("当前停车场已经关闭，请选择其他停车场");
+						 }
+					 }
+
+					// 首先判断一下是否需要新建订单
+					TOrder dataBean = null;
+					// 付款单
+					TOrder_Py payment = null;
+					if (chebolePayOptions.order != null
+							&& chebolePayOptions.order.orderId != null
+							&& chebolePayOptions.order.orderId > 0) { // 该订单已经存在
+						dataBean = TOrder
+								.findDataById(chebolePayOptions.order.orderId);
+						Logger.debug("订单已经存在");
+						if (dataBean.orderStatus == Constants.ORDER_TYPE_FINISH) {// 订单已经完成了
+							throw new Exception("订单已经完成，不能再次付款");
+						}
+						// 查看当前状态下是否有付款单
+						if (dataBean.pay != null) {
+							// 付款单
+							long payID = chebolePayOptions.paymentId;
+							payment = TOrder_Py.findDataById(payID);
+							if (payment != null) {
+
+								if (payment.ackStatus == Constants.PAYMENT_STATUS_FINISH) {
+									throw new Exception("该订单付款单已经支付完成");
+								}
+								if (payment.ackStatus == Constants.PAYMENT_STATUS_PENDING) {
+									throw new Exception("付款单正在等待支付接口响应,请不要重复付款");
+								}
+								Logger.debug("订单中的付款单已经存在");
+							} else {
+								// 指定的付款单是空的，就从订单中看看是否有之前没有付款成功的订单
+								List<TOrder_Py> oldplays = dataBean.pay;
+								if (oldplays != null && oldplays.size() > 0) {
+									for (TOrder_Py pay : oldplays) {
+										if (pay.ackStatus == Constants.PAYMENT_STATUS_START
+												|| pay.ackStatus == Constants.PAYMENT_STATUS_EXCPTION) {
+											payment = pay;
+											break;
+										}
+									}
+								}
+							}
+
+						}
+
+					}
+					if (dataBean == null) {
+						dataBean = new TOrder(); // 生成一个新的订单
+						dataBean.latitude = latitude;
+						dataBean.longitude = longitude;
+					}
+					if (payment == null) {
+						payment = new TOrder_Py();
+					}
+					int payWay;
+					 if(userSelectedpayWay==Constants.PAYIN_PAY_ZFB)
+					 {
+					 payWay = Constants.PAYMENT_TYPE_ZFB;
+					 }else
+					 {
+					 payWay = Constants.PAYMENT_TYPE_WEIXIN;
+					 }
+					if (chebolePayOptions.useCounpon) {
+						if (chebolePayOptions.payActualPrice <= 0) { // 如果小于0，肯定是优惠券就够用了
+							payWay = Constants.PAYMENT_COUPON;
+						} else {
+							payWay = Constants.PAYMENT_COUPON
+									+ payWay;
+						}
+					} else {
+						if (chebolePayOptions.payActualPrice <= 0) { // 如果小于0，肯定是搞活动不要钱了
+							payWay = Constants.PAYMENT_DISCOUNT;
+						}
+					}
+					
+					
+
+					Date currentDate = new Date();
+					dataBean.orderCity = city;
+					if(dataBean.orderDate==null){
+					    dataBean.orderDate = currentDate;
+					}
+					dataBean.orderName = "停车费:" + infoPark.parkname;
+					dataBean.orderStatus = Constants.ORDER_TYPE_START;
+					dataBean.parkInfo = infoPark;
+					dataBean.userInfo = user;
+					dataBean.couponId = chebolePayOptions.counponId;
+					
+					
+					//copy当时的停车计价标准
+					dataBean.orderFeeType = infoPark.feeType; 
+					dataBean.orderDetail = infoPark.detail;
+					dataBean.feeTypefixedHourMoneyOrder = infoPark.feeTypefixedHourMoney;
+					dataBean.feeTypeSecInScopeHourMoneyOrder=infoPark.feeTypeSecInScopeHourMoney;
+					dataBean.feeTypeSecInScopeHoursOrder=infoPark.feeTypeSecInScopeHours;
+					dataBean.feeTypeSecOutScopeHourMoneyOrder=infoPark.feeTypeSecOutScopeHourMoney;
+					dataBean.isDiscountAlldayOrder=infoPark.isDiscountAllday;
+					dataBean.isDiscountSecOrder = infoPark.isDiscountSec;
+					dataBean.discountHourAlldayMoneyOrder = infoPark.discountHourAlldayMoney;
+					dataBean.discountSecEndHourOrder = infoPark.discountSecEndHour;
+					dataBean.discountSecHourMoneyOrder = infoPark.discountSecHourMoney;
+					dataBean.discountSecStartHourOrder = infoPark.discountSecStartHour;
+                    //copy完成
+					
+					
+					payment.payActu = chebolePayOptions.payActualPrice;
+					
+					payment.payMethod = payWay;
+					payment.payTotal = chebolePayOptions.payOrginalPrice;
+
+					payment.ackStatus = Constants.PAYMENT_STATUS_START;
+					payment.ackDate = null;
+
+					payment.createPerson = user.userName;
+					payment.payDate = currentDate;
+
+					payment.couponUsed = chebolePayOptions.counponUsedMoneyForIn;
+
+					List<TOrder_Py> pays = new ArrayList<TOrder_Py>();
+					pays.add(payment);
+
+					dataBean.pay = pays;
+
+					
+					// ***************组合订单完毕******************
+
+					TOrder.saveData(dataBean);
+					//注册一个待推送的消息
+					if(clientId!=null&&!clientId.trim().equals("")){
+						PushController.registerClientUserForIn(dataBean.orderId, clientId);
+					}
+				
+					Logger.debug("本次实际付款金额:" + payment.payActu + "元,orderId:"
+							+ dataBean.orderId + ",payment id:"
+							+ payment.parkPyId);
+
+					/*********************************************************************
+					 * 这里生成aili pay String
+					 ***********************************************************************/
+					// 订单
+					if(userSelectedpayWay==Constants.PAYIN_PAY_ZFB){
+					String orderInfo = getOrderInfo(dataBean, payment.parkPyId,
+							payment.payActu);
+					Logger.debug(" ******ali pay ******order info:" + orderInfo);
+					// 对订单做RSA 签名
+					String sign = sign(orderInfo);
+					Logger.debug(" ******ali pay ******sign:" + sign);
+					try {
+						// 仅需对sign 做URL编码
+						sign = URLEncoder.encode(sign, "UTF-8");
+					} catch (UnsupportedEncodingException e) {
+						Logger.error("generatorOrderStringAndGetPayInfo", e);
+					}
+					// 完整的符合支付宝参数规范的订单信息
+					final String payInfo = orderInfo + "&sign=\"" + sign
+							+ "\"&" + getSignType();
+
+					Logger.debug(" ******ali pay ******payInfo:" + payInfo);
+
+					chebolePayOptions.payInfo = payInfo;
+					}
+					else if(userSelectedpayWay==Constants.PAYIN_PAY_WX)
+					{
+						/*********************************************************************
+						 * 这里生成微信
+						 ***********************************************************************/
+						//微信支付相关代码
+						out_trade_no=""+payment.parkPyId;
+						//access_token=getAccessToken();
+						actmoney=(int) (chebolePayOptions.payActualPrice*100);
+						wxstring=GetPrepayIdTask(out_trade_no,actmoney);
+						//***********解析获得第二次加密相关neir
+						chebolePayOptions.payInfo=decodeXml(wxstring);
+						Logger.debug("payInfo:" + chebolePayOptions.payInfo);
+					}
+					chebolePayOptions.order = dataBean;
+					chebolePayOptions.paymentId = payment.parkPyId;
+					
+				
+					/*********************************************************************
+					 * 微信测试
+					 ***********************************************************************/
+					
+					
+//					String takeacce=getAccessToken();+","+ConstantUtil.APP_KEY
+//					Logger.debug(" @@@@@@@@@@@@@@@@@@@@@@" + takeacce);
+					/*********************************************************************
+					 * 生成完毕
+					 ***********************************************************************/
+					response.setResponseStatus(ComResponse.STATUS_OK);
+					response.setResponseEntity(chebolePayOptions);
+					response.setExtendResponseContext("订单数据生成成功，并且返回支付串.");
+					LogController
+							.info("generated order and payment successfully:"
+									+ dataBean.orderName + ",from "
+									+ user.userPhone + ",bill:"
+									+ chebolePayOptions.payActualPrice);
+
+					if (chebolePayOptions.payActualPrice <= 0) {
+						response.setExtendResponseContext("pass");
+						throw new Exception("当前您无需付费,请前往停车场扫码进场");
+					}
+
+				} else {
+					throw new Exception("服务端数据不完整不能生成订单.");
+				}
+
+			} else {
+				throw new Exception("无效的停车场ID:" + parkingProdId);
+			}
+		} catch (Exception e) {
+			response.setResponseStatus(ComResponse.STATUS_FAIL);
+			response.setResponseEntity(chebolePayOptions);
+			response.setErrorMessage(e.getMessage());
+			Logger.error("", e);
+		}
+		String tempJsonString = gsonBuilderWithExpose.toJson(response);
+		JsonNode json = Json.parse(tempJsonString);
+
+		return ok(json);
+	}
+
+	
+	
 	/**
 	 * 分段收费才需要算出当前停了多少钱
 	 * @param orderId
@@ -518,14 +786,14 @@ public class PayController extends Controller {
 			TCouponEntity couponEntity = TCouponEntity
 					.findDataById(order.couponId);
 			if (couponEntity != null) {
-				couponPrice = couponEntity.money;
+				couponPrice = Arith.decimalPrice(couponEntity.money);
 			}else
 			{
 				TCouponHis couponhis = TCouponHis
 						.findDataById(order.couponId);
 				if(couponhis!=null)
 				{
-					couponPrice = couponhis.money;
+					couponPrice =Arith.decimalPrice(couponhis.money);
 				}
 			}
 		}
@@ -899,6 +1167,227 @@ public class PayController extends Controller {
 					
 					
 					payOption.payInfo=wxstring+","+ConstantUtil.APP_KEY;
+					Logger.debug("WX payInfo:" + payOption.payInfo);
+					
+				}
+				payOption.paymentId = newpay.parkPyId;
+
+				response.setExtendResponseContext("出场付款单数据生成成功，并且返回支付串.");
+
+				LogController.info("generator order successfully:"
+						+ order.orderName + ",from " + username);
+			} else {
+				response.setExtendResponseContext("pass");
+
+
+				//用了优惠券才没有产生费用，这里我们还是需要生成一个订单
+				if(payOption.useCounpon){
+					Date currentDate = new Date();
+					newpay.payActu = payOption.payActualPrice;
+					newpay.payMethod = Constants.PAYMENT_COUPON;
+					newpay.payTotal = payOption.payOrginalPrice;
+					newpay.ackStatus = Constants.ORDER_TYPE_FINISH;
+					newpay.createPerson = username;
+					newpay.payDate = currentDate;
+					newpay.ackDate =currentDate;
+					newpay.order = order;
+					newpay.couponUsed = payOption.counponUsedMoneyForOut;
+
+					TOrder_Py.saveData(newpay);
+					
+					 List<TOrder_Py> pays = order.pay;
+					 if(pays==null){
+						 pays = new ArrayList<TOrder_Py>();
+						 order.pay = pays;
+					 }
+					 newpay.order = null;//解决gson递归分析的内存溢出问题
+					 pays.add(newpay);
+				}
+				
+				// ***********已经完成的订单需要移到历史表**************/
+				TOrderHis.moveToHisFromOrder(orderId,Constants.ORDER_TYPE_FINISH);
+				
+				String message = "停车"+payOption.parkSpentHour+"小时。应付"+payOption.payActualPriceForTotal+"元，已付"+Arith.decimalPrice(payOption.payActualPriceForTotal-payOption.payActualPrice-payOption.counponUsedMoneyForOut)+"元";
+//				if(payOption.counponUsedMoneyForTotal>0){
+//					message+="(优惠券支付"+payOption.counponUsedMoneyForTotal+"元)";
+//				}
+				if(payOption.counponUsedMoneyForOut>0){
+					message+="，优惠券支付"+payOption.counponUsedMoneyForOut+"元";
+				}
+				message+="，还需付0元。";
+				
+				throw new Exception(message);
+			}
+
+			/*********************************************************************
+			 * 生成完毕
+			 ***********************************************************************/
+			response.setResponseStatus(ComResponse.STATUS_OK);
+			response.setResponseEntity(payOption);
+		} catch (Exception e) {
+			if (response.getExtendResponseContext() != null
+					&& (response.getExtendResponseContext().equals("pass"))) {
+
+				order.endDate = new Date();
+				order.orderStatus = Constants.ORDER_TYPE_FINISH;
+				payOption.order = order;
+				response.setResponseEntity(payOption);
+			}else if (response.getExtendResponseContext() != null
+					&& (response.getExtendResponseContext().equals("wait"))) {
+				
+				order.endDate = new Date();
+				payOption.order = order;
+				response.setResponseEntity(payOption);
+
+			}
+			response.setResponseStatus(ComResponse.STATUS_FAIL);
+			response.setErrorMessage(e.getMessage());
+			Logger.error("updatePayment", e);
+		}
+		String tempJsonString = gsonBuilderWithExpose.toJson(response);
+		JsonNode json = Json.parse(tempJsonString);
+		return ok(json);
+	}
+	
+	
+	
+	/**
+	 * 最新第二次付款
+	 * 20150825将微信支付第二次加密移动到服务端
+	 * @param orderId
+	 * @return
+	 */
+	@BasicAuth
+	public static Result payForOutNew(long orderId, String scanResult,int payway,String clientId) {
+
+		Logger.info("pay for out, order id:" + orderId);
+		ComResponse<ChebolePayOptions> response = new ComResponse<ChebolePayOptions>();
+		ChebolePayOptions payOption = new ChebolePayOptions();
+		TOrder order = TOrder.findDataById(orderId);
+		try {
+			long parkIdFromScan = ScanController.decodeScan(scanResult);
+			
+			payOption = calculationPriceForCurrentPark(order,parkIdFromScan);
+			
+			String username = flash("username");
+
+			/****************************** 生成新的付款单 *************************/
+			/****************************************************************/
+			TOrder_Py newpay = new TOrder_Py();
+
+			if (payOption.payActualPrice > 0) {
+
+				if (order.orderStatus == Constants.ORDER_TYPE_FINISH) {// 订单已经完成了
+					throw new Exception("订单已经完成，不能再次付款");
+				}
+				
+				
+				 if(payway==Constants.PAYMENT_TYPE_CASH){//用户付现金
+					 response.setExtendResponseContext("wait");
+					 double actPay= Arith.decimalPrice(payOption.payActualPrice);
+
+						//还是发个消息给管理员吧
+						PushController.pushToParkAdminForRequestPay(
+								order.parkInfo.parkId, ""
+										+ order.userInfo.userPhone,
+										actPay,order.orderId);
+						
+						 
+						 //先注册一个消息，等结账后可以推送给我
+						PushController.registerClientUser(order.orderId, clientId);
+											
+						String message = "停车"+payOption.parkSpentHour+"小时。应付"+payOption.payActualPriceForTotal+"元，已付"+Arith.decimalPrice(payOption.payActualPriceForTotal-payOption.payActualPrice-payOption.counponUsedMoneyForOut)+"元";
+//						if(payOption.counponUsedMoneyForIn>0){
+//							message+="(优惠券支付"+payOption.counponUsedMoneyForIn+"元)";
+//						}
+						if(payOption.counponUsedMoneyForOut>0){
+							message+="，优惠券支付"+payOption.counponUsedMoneyForOut+"元";
+						}
+						message+="，还需付现金"+actPay+"元。";
+
+					 throw new Exception(message);
+				 }
+				
+				// 查看当前状态下是否有付款单
+				if (order.pay != null) {
+
+					List<TOrder_Py> orderPys = order.pay;
+
+					if (orderPys != null) {
+						// 只需要判断当前pending的付款单
+						for (TOrder_Py payment : orderPys) {
+							if (payment.ackStatus == Constants.PAYMENT_STATUS_PENDING) {
+								throw new Exception("当前订单已经有一笔付款["
+										+ payment.payActu + "元]正在等待支付接口响应");
+							} else if (payment.ackStatus == Constants.PAYMENT_STATUS_START
+									|| payment.ackStatus == Constants.PAYMENT_STATUS_EXCPTION) {
+								newpay.parkPyId = payment.parkPyId; // 这里传对象有问题
+								break;
+							}
+						}
+
+					}
+				}
+				int payWay;
+				if(payway==Constants.PAYMENT_TYPE_ZFB)
+					payWay = Constants.PAYMENT_TYPE_ZFB;
+				else
+					payWay=Constants.PAYMENT_TYPE_WEIXIN;
+
+				if (payOption.useCounpon) {
+					payWay = Constants.PAYMENT_COUPON
+							+ payWay;
+				}
+			
+
+				newpay.payActu = payOption.payActualPrice;
+				newpay.payMethod = payWay;
+				newpay.payTotal = payOption.payOrginalPrice;
+				newpay.ackStatus = Constants.PAYMENT_STATUS_START;
+				newpay.createPerson = username;
+				newpay.payDate = new Date();
+				newpay.order = order;
+				newpay.couponUsed = payOption.counponUsedMoneyForOut;
+
+				TOrder_Py.saveData(newpay);
+
+				// 生成alipay的info
+				// 订单
+			
+				if(payway==Constants.PAYMENT_TYPE_ZFB)
+				{
+					String orderInfo = getOrderInfo(order, newpay.parkPyId,
+							newpay.payActu);
+				Logger.debug(" ******ali pay ******order info:" + orderInfo);
+				// 对订单做RSA 签名
+				String sign = sign(orderInfo);
+				Logger.debug(" ******ali pay ******sign:" + sign);
+				try {
+					// 仅需对sign 做URL编码
+					sign = URLEncoder.encode(sign, "UTF-8");
+				} catch (UnsupportedEncodingException e) {
+					Logger.error("generatorOrderStringAndGetPayInfo", e);
+				}
+				// 完整的符合支付宝参数规范的订单信息
+				final String payInfo = orderInfo + "&sign=\"" + sign + "\"&"
+						+ getSignType();
+
+				Logger.debug(" ******ali pay ******payInfo:" + payInfo);
+
+				payOption.payInfo = payInfo;
+				}else if(payway==Constants.PAYMENT_TYPE_WEIXIN)
+				{
+					
+					/*********************************************************************
+					 * 这里生成微信
+					 ***********************************************************************/
+					//微信支付相关代码
+					out_trade_no=""+newpay.parkPyId;
+					Logger.debug("out_trade_no:" + out_trade_no);
+					//access_token=getAccessToken();
+					actmoney=(int) (payOption.payActualPrice*100);
+					wxstring=GetPrepayIdTask(out_trade_no,actmoney);
+					payOption.payInfo=decodeXml(wxstring);
 					Logger.debug("WX payInfo:" + payOption.payInfo);
 					
 				}
@@ -1921,7 +2410,7 @@ private  static String GetPrepayIdTask(String out_trade_no,int money)
 	}
 	
 	//解析预订单，获得预订单号，并生成最后一次签名后传回服务端
-	public static Map<String,String> decodeXml(String content) {
+	public static String decodeXml(String content) {
 
 		try {
 			XmlPullParserFactory pullParserFactory = XmlPullParserFactory.newInstance();
@@ -1948,7 +2437,8 @@ private  static String GetPrepayIdTask(String out_trade_no,int money)
 				event = parser.next();
 			}
 			xml.get("return_code");
-			
+			if(xml.get("prepay_id")!=null)
+			{
 			List<NameValuePair> signParams = new LinkedList<NameValuePair>();
 			signParams.add(new BasicNameValuePair("appid", ConstantUtil.APP_ID));
 			signParams.add(new BasicNameValuePair("noncestr", wxutils.WXUtil.getNonceStr()));
@@ -1961,9 +2451,9 @@ private  static String GetPrepayIdTask(String out_trade_no,int money)
 			
 			signParams.add(new BasicNameValuePair("sign", sign));
 			String	xmlstring=toXml(signParams);
-			Logger.info("@@@@@@@@@@@@@@@@@@@"+xml.get("prepay_id").toString());
-			Logger.info("@@@@@@@@@@@@@@@@@@@"+sign);
-			return xml;
+			return xmlstring;
+			}
+			
 		} catch (Exception e) {
 			Logger.error("orion",e.toString());
 		}

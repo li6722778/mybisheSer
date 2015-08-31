@@ -184,7 +184,7 @@ public class TAllowanceOffer extends Model{
     }
 	
 	private static String getWeekOfMonth(){
-		  String[] weekMonth = {"w1", "w2", "w3", "w4", "w5"};
+		  String[] weekMonth = {"w1", "w2", "w3", "w4", "w5","w6","w7"};
     	  Calendar c = Calendar.getInstance();
     	  int week = c.get(Calendar.WEEK_OF_MONTH)-1;//获取是本月的第几周
     	  if(week<0){

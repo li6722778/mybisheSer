@@ -454,7 +454,7 @@ public class TOrderHis extends Model {
 			{
 				money=tCouponEntity.money;
 			}
-		     allData.getList().get(i).discountSecHourMoneyOrder=money;
+		     allData.getList().get(i).discountSecHourMoneyOrder=Arith.decimalPrice(money);
 			 tCouponEntity=null;	 
 		 }
 		 
