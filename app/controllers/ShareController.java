@@ -35,13 +35,15 @@ public class ShareController extends Controller {
 	 * @return
 	 */
 
-	public static Result getDataById(Long id,Long url) {
+	public static Result getDataById(Long id, Long url) {
 
 		Logger.info("start to query share information");
 		ComResponse<String> response = new ComResponse<String>();
-		
-		//保存唯一的url
+
+		if(url!=0)
+		{// 保存唯一的url
 		saveuniqueurl(url);
+		}
 		TShare share = TShare.findDataById(id);
 		// 获取每日可分享次数
 		TOptions option = TOptions.findOption(4);
@@ -150,106 +152,107 @@ public class ShareController extends Controller {
 		final Tuniqueurl uniqueurl = Tuniqueurl.findDataById(url);
 		// 获取后台设置的每个url可用次数
 		TOptions options = TOptions.findOption(5);
-		 int times = 0;
-		 String[] counponcodes = null;
+		int times = 0;
+		String[] counponcodes = null;
 		String Counponcode = options.textObject;
-		if (Counponcode != null&& !(Counponcode.toString().trim().equals(""))) {
+		if (Counponcode != null && !(Counponcode.toString().trim().equals(""))) {
 			Counponcode = Counponcode.replace("，", ",");
-			 counponcodes = Counponcode.split(",");
+			counponcodes = Counponcode.split(",");
 			if (counponcodes.length > 0 && counponcodes.length == 5) {
 				// 获取option的第5个参数 为一个链接的可用次数
 				times = Integer.parseInt(counponcodes[4]);
 			}
 		}
-		if(times!=0&&uniqueurl!=null){
-			 if (uniqueurl.sharetime>=times) {	
-					//分享次数已经用完
-						response.setResponseEntity("5");
-						Logger.info("555555");
-						response.setResponseStatus(ComResponse.STATUS_FAIL);
-				}
-			
-			 else{	
-		// 获取该url已经被那些手机号领取,如果已经领取过 则返回
-		String phoneobjects = uniqueurl.userphoneObject;
-		//之前没有用户使用过该url链接
-		if(phoneobjects==null&&counponcodes!=null)
-		{	
-			Logger.info("111111111");
-		int sendresult =sendtouser(telephonenumber, uniqueurl, times, counponcodes);
-		if(sendresult==0)
-		{   response.setResponseEntity("0");
-			response.setResponseStatus(ComResponse.STATUS_FAIL);
-		}
-		//新用户返回4
-		if(sendresult==4)
-		{	response.setResponseEntity("10");
-			response.setResponseStatus(ComResponse.STATUS_OK);	}
-		//老用户返回的获取优惠劵金额
-		else {
-			response.setResponseEntity(sendresult+"");
-			response.setResponseStatus(ComResponse.STATUS_OK);
-		}	
-		}
-		 //该url链接已经被使用，查询该手机号是否在该url中记录过
-		else if (phoneobjects!= null&& !(phoneobjects.toString().trim().equals(""))) {
-			String[] phoneobject = phoneobjects.split(",");
-			boolean  result = false;
-			String telephone =Long.toString(telephonenumber);
-			for(String temptelephone:phoneobject)
-			{
-				 if(temptelephone.equals(telephone)){
-					 result = true;
-					  break;
-					 }
-			}
-			
-			//手机号不在该url的分享记录中
-			if(result==false) {
-			int  sendreuslt =sendtouser(telephonenumber, uniqueurl, times, counponcodes);
-			
-			if(sendreuslt==0)
-			{   response.setResponseEntity("0");
+		if (times != 0 && uniqueurl != null) {
+			if (uniqueurl.sharetime >= times) {
+				// 分享次数已经用完
+				response.setResponseEntity("5");
+				Logger.info("555555");
 				response.setResponseStatus(ComResponse.STATUS_FAIL);
 			}
-			//新用户返回4
-			if(sendreuslt==4)
-			{	response.setResponseEntity("10");
-				response.setResponseStatus(ComResponse.STATUS_OK);	}
-			
+
 			else {
-				response.setResponseEntity(sendreuslt+"");
-				response.setResponseStatus(ComResponse.STATUS_OK);
+				// 获取该url已经被那些手机号领取,如果已经领取过 则返回
+				String phoneobjects = uniqueurl.userphoneObject;
+				// 之前没有用户使用过该url链接
+				if (phoneobjects == null && counponcodes != null) {
+					Logger.info("111111111");
+					int sendresult = sendtouser(telephonenumber, uniqueurl,
+							times, counponcodes);
+					if (sendresult == 0) {
+						response.setResponseEntity("0");
+						response.setResponseStatus(ComResponse.STATUS_FAIL);
+					}
+					// 新用户返回4
+					if (sendresult == 4) {
+						response.setResponseEntity("10");
+						response.setResponseStatus(ComResponse.STATUS_OK);
+					}
+					// 老用户返回的获取优惠劵金额
+					else {
+						response.setResponseEntity(sendresult + "");
+						response.setResponseStatus(ComResponse.STATUS_OK);
+					}
+				}
+				// 该url链接已经被使用，查询该手机号是否在该url中记录过
+				else if (phoneobjects != null
+						&& !(phoneobjects.toString().trim().equals(""))) {
+					String[] phoneobject = phoneobjects.split(",");
+					boolean result = false;
+					String telephone = Long.toString(telephonenumber);
+					for (String temptelephone : phoneobject) {
+						if (temptelephone.equals(telephone)) {
+							result = true;
+							break;
+						}
+					}
+
+					// 手机号不在该url的分享记录中
+					if (result == false) {
+						int sendreuslt = sendtouser(telephonenumber, uniqueurl,
+								times, counponcodes);
+
+						if (sendreuslt == 0) {
+							response.setResponseEntity("0");
+							response.setResponseStatus(ComResponse.STATUS_FAIL);
+						}
+						// 新用户返回4
+						if (sendreuslt == 4) {
+							response.setResponseEntity("10");
+							response.setResponseStatus(ComResponse.STATUS_OK);
+						}
+
+						else {
+							response.setResponseEntity(sendreuslt + "");
+							response.setResponseStatus(ComResponse.STATUS_OK);
+						}
+					}
+					// 该用户已经通过该url领取过优惠劵
+					else if (result == true) {
+						response.setResponseEntity("4");
+						Logger.info("444444");
+						response.setResponseStatus(ComResponse.STATUS_FAIL);
+					}
+				}
 			}
-			}
-			//该用户已经通过该url领取过优惠劵
-			else if (result==true) {
-					response.setResponseEntity("4");
-					Logger.info("444444");
-					response.setResponseStatus(ComResponse.STATUS_FAIL);
-			}
-		}
-			 }
 		}
 		String tempJsonString = gsonBuilderWithExpose.toJson(response);
-		return ok("success_jsonpCallback("+tempJsonString+")");
+		return ok("success_jsonpCallback(" + tempJsonString + ")");
 
 	}
 
-	public static int sendrandomshareCounpon(String[] counponcodes,Long id) {
+	public static int sendrandomshareCounpon(String[] counponcodes, Long id) {
 		// 参数设置的 第2.3.4 为给老用户发放的优惠劵
 		int max = 3;
 		int min = 1;
 		int random = 0;
-			if (counponcodes.length > 0) {
-				// 获取随机优惠劵编号
+		if (counponcodes.length > 0) {
+			// 获取随机优惠劵编号
 			random = (int) Math.round(Math.random() * (max - min) + min);
-				CounponController.getsharecounpon(counponcodes[random], id);
-			}
-			return random;
+			CounponController.getsharecounpon(counponcodes[random], id);
 		}
-
-	
+		return random;
+	}
 
 	/**
 	 * 分享后为每个链接生成的唯一标识记录次数
@@ -257,20 +260,15 @@ public class ShareController extends Controller {
 	 * @param url
 	 * @return
 	 */
-	public static Result saveuniqueurl(Long url) {
+	public static boolean saveuniqueurl(Long url) {
 		Logger.info("start to query sendshare information");
-		ComResponse<String> response = new ComResponse<String>();
 		try {
 			Tuniqueurl.saveTuniqueurl(url);
-			response.setResponseStatus(ComResponse.STATUS_OK);
+			return true;
 		} catch (Exception e) {
-			response.setResponseStatus(ComResponse.STATUS_FAIL);
+			Logger.error("saveeeeorr"+ e);
 		}
-
-		String tempJsonString = gsonBuilderWithExpose.toJson(response);
-		JsonNode json = Json.parse(tempJsonString);
-		return ok(json);
-
+		return false;
 	}
 
 	public static void sendunregistshareCounpon(Long id) {
@@ -287,46 +285,57 @@ public class ShareController extends Controller {
 		}
 
 	}
-	
+
 	/**
 	 * 给网页端输入的手机号发送优惠劵
+	 * 
 	 * @param telephonenumber
 	 * @param uniqueurl
 	 */
-	public static int sendtouser(Long telephonenumber,Tuniqueurl uniqueurl,int times, String[] counponcodes){
-		//返回标识
-	       int result ;
-			// 证明该链接的分享获取优惠劵次数未用完
-	
-			if (uniqueurl.sharetime < times) {
-				// 判断是老用户还是新用户
-				TuserInfo userInfo = TuserInfo.findDataByPhoneId(telephonenumber);
+	public static int sendtouser(Long telephonenumber, Tuniqueurl uniqueurl,
+			int times, String[] counponcodes) {
+		// 返回标识
+		int result;
+		// 证明该链接的分享获取优惠劵次数未用完
 
-				// 老用户
-				if (userInfo != null) {
-					// 随机赠送优惠劵
-					result=sendrandomshareCounpon(counponcodes,userInfo.userid);
-					// url的分享次数加一
-					Tuniqueurl.updateTuniqueurl(uniqueurl.url,uniqueurl.sharetime + 1,telephonenumber.toString());
-					return result;
-				}
-				// 新用户,记录用户信息，注册后赠送优惠劵
-				else if (userInfo == null) {
-					Tunregisteruser unregisteruser = Tunregisteruser.findDataById(telephonenumber);
-					// 不在未注册用户列表中
-					if (unregisteruser == null) {
-						Tunregisteruser.saveunregistershare(telephonenumber);
-						Tuniqueurl.updateTuniqueurl(uniqueurl.url,uniqueurl.sharetime + 1,telephonenumber.toString());
-						return 4;
-					} else if (unregisteruser != null) {
-						Tunregisteruser.updateunregistershare(telephonenumber,unregisteruser.sharetime + 1);
-						Tuniqueurl.updateTuniqueurl(uniqueurl.url,uniqueurl.sharetime + 1,telephonenumber.toString());
-						return 4;
-					}
+		if (uniqueurl.sharetime < times) {
+			// 判断是老用户还是新用户
+			TuserInfo userInfo = TuserInfo.findDataByPhoneId(telephonenumber);
 
-				}
+			// 老用户
+			if (userInfo != null) {
+				// 随机赠送优惠劵
+				result = sendrandomshareCounpon(counponcodes, userInfo.userid);
+				// url的分享次数加一
+				Tuniqueurl.updateTuniqueurl(uniqueurl.url,
+						uniqueurl.sharetime + 1, telephonenumber.toString());
+				return result;
 			}
-			return 0;	
+			// 新用户,记录用户信息，注册后赠送优惠劵
+			else if (userInfo == null) {
+				Tunregisteruser unregisteruser = Tunregisteruser
+						.findDataById(telephonenumber);
+				// 不在未注册用户列表中
+				if (unregisteruser == null) {
+					Tunregisteruser.saveunregistershare(telephonenumber);
+					Tuniqueurl
+							.updateTuniqueurl(uniqueurl.url,
+									uniqueurl.sharetime + 1,
+									telephonenumber.toString());
+					return 4;
+				} else if (unregisteruser != null) {
+					Tunregisteruser.updateunregistershare(telephonenumber,
+							unregisteruser.sharetime + 1);
+					Tuniqueurl
+							.updateTuniqueurl(uniqueurl.url,
+									uniqueurl.sharetime + 1,
+									telephonenumber.toString());
+					return 4;
+				}
+
+			}
+		}
+		return 0;
 	}
-	
+
 }
