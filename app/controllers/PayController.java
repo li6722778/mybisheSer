@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 
 import models.ChebolePayOptions;
 import models.info.TCouponEntity;
-import models.info.TCouponHis;
 import models.info.TOrder;
 import models.info.TOrderHis;
 import models.info.TOrder_Py;
@@ -56,16 +55,6 @@ import wxutils.ConstantUtil;
 import wxutils.MD5;
 import wxutils.MD5Util;
 import action.BasicAuth;
-
-
-
-
-
-
-
-
-
-
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
@@ -417,8 +406,8 @@ public class PayController extends Controller {
 						//access_token=getAccessToken();
 						actmoney=(int) (chebolePayOptions.payActualPrice*100);
 						wxstring=GetPrepayIdTask(out_trade_no,actmoney);
-						//***********解析获得第二次加密相关neir
-						//Map<String,String> aa=decodeXml(wxstring);
+						//***********text
+						String aa=decodeXml(wxstring);
 						//*******
 						chebolePayOptions.payInfo=wxstring+","+ConstantUtil.APP_KEY;
 						Logger.debug("payInfo:" + chebolePayOptions.payInfo);
@@ -795,6 +784,7 @@ public class PayController extends Controller {
 				{
 					couponPrice =Arith.decimalPrice(couponhis.money);
 				}
+				couponPrice = couponEntity.money;
 			}
 		}
 
@@ -1519,31 +1509,21 @@ public class PayController extends Controller {
 
 					// 是否能够使用用户选择的优惠卷
 					if (counponId > 0) {
-						double money=0d;
 						TCouponEntity couponEntity = TCouponEntity
 								.findDataById(counponId);
-						if(couponEntity!=null)
-						{
-							money=couponEntity.money;
-						}else
-						{
-							TCouponHis couponhis = TCouponHis
-									.findDataById(counponId);
-							money=couponhis.money;
-						}
+						if (couponEntity != null) {
+							realPayPrice = realPayPrice - couponEntity.money;
+							if (realPayPrice < 0) {
+								couponUsedMoney = Arith
+										.decimalPrice(couponEntity.money
+												- Math.abs(realPayPrice));
+								realPayPrice = 0;
+							} else {
+								couponUsedMoney = couponEntity.money;
+							}
 
-						realPayPrice = realPayPrice - money;
-						if (realPayPrice < 0) {
-							couponUsedMoney = Arith
-									.decimalPrice(money
-											- Math.abs(realPayPrice));
-							realPayPrice = 0;
-						} else {
-							couponUsedMoney =money;
+							useCounpon = true;
 						}
-
-						useCounpon = true;
-					
 					}
 
 					ChebolePayOptions payOption = new ChebolePayOptions();
