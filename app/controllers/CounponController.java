@@ -198,6 +198,7 @@ public class CounponController extends Controller{
 					databean.Id=null;
 					databean.userInfo=useinfo;
 					databean.counponentity=counponbean;
+					databean.counponId=counponbean.counponId;
 					databean.isable = 1;
 					TUseCouponEntity.saveData(databean);
 					//更新优惠信息表
