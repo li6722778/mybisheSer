@@ -443,8 +443,18 @@ public class TOrderHis extends Model {
 		 for(int i=0;i<tOrderHis.size();i++)
 		 {
 			long tempcoupnid =tOrderHis.get(i).couponId;
+			double money=0d;
 			TCouponEntity tCouponEntity = TCouponEntity.findDataById(tempcoupnid);
-		     allData.getList().get(i).discountSecHourMoneyOrder=tCouponEntity.money;
+			if(tCouponEntity==null)
+			{
+				TCouponHis	tCouponhis=TCouponHis.findDataById(tempcoupnid);
+				if(tCouponhis!=null)
+					money=tCouponhis.money;
+			}else
+			{
+				money=tCouponEntity.money;
+			}
+		     allData.getList().get(i).discountSecHourMoneyOrder=money;
 			 tCouponEntity=null;	 
 		 }
 		 

@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import models.ChebolePayOptions;
 import models.info.TCouponEntity;
+import models.info.TCouponHis;
 import models.info.TOrder;
 import models.info.TOrderHis;
 import models.info.TOrder_Py;
@@ -55,6 +56,7 @@ import wxutils.ConstantUtil;
 import wxutils.MD5;
 import wxutils.MD5Util;
 import action.BasicAuth;
+
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;

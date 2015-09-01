@@ -3,7 +3,9 @@ package controllers;
 import java.util.Date;
 
 import models.info.TCouponEntity;
+import models.info.TCouponHis;
 import models.info.TUseCouponEntity;
+import models.info.TUseCouponHis;
 import models.info.TuserInfo;
 import play.Logger;
 import play.libs.Json;
@@ -38,13 +40,18 @@ public class CounponController extends Controller{
 	public static Result getcounpon(String counponcode,Long userid)
 	{
 		
-		
 		ComResponse<TCouponEntity>  response = new ComResponse<TCouponEntity>();
 		TCouponEntity counponbean=TCouponEntity.findentityByCode(counponcode);
 		TuserInfo useinfo;
 		if(counponbean==null||(counponbean.count>0&&counponbean.scancount>=counponbean.count)||counponbean.isable==0||counponbean.isable==2)
 		{
 			Logger.debug("not find TCouponEntity");
+			if(counponbean!=null&&counponbean.scancount>=counponbean.count&&!TUseCouponEntity.findExistCouponByCouponId(counponbean.counponId))
+			{
+				
+				TCouponHis.moveToHis(counponbean);
+				
+			}
 			return ok();
 			
 		}else
@@ -61,6 +68,10 @@ public class CounponController extends Controller{
 			}else{//优惠券没有开始时间
 				if(endDate!=null){//失效了
 					if(endDate.before(currentDate)){
+						if(!TUseCouponEntity.findExistCouponByCouponId(counponbean.counponId))
+						{
+							TCouponHis.moveToHis(counponbean);
+						}
 						Logger.debug("not find coupon as end Date before current Date");
 						return ok();
 					}
@@ -71,6 +82,10 @@ public class CounponController extends Controller{
 			if(endDate!=null){//失效了
 				if(endDate.before(currentDate)){
 					if(startDate.before(currentDate)){
+						if(!TUseCouponEntity.findExistCouponByCouponId(counponbean.counponId))
+						{
+							TCouponHis.moveToHis(counponbean);
+						}
 						Logger.debug("not find coupon as end Date before current Date");
 						return ok();
 					}
@@ -78,7 +93,7 @@ public class CounponController extends Controller{
 			}
 			
 			//判断是否已经有优惠券了
-			if(TUseCouponEntity.findExistCouponByUserIdAndId(counponbean.counponId, userid)){
+			if(TUseCouponEntity.findExistCouponByUserIdAndId(counponbean.counponId, userid)||TUseCouponHis.findExistCouponByUserIdAndId(counponbean.counponId, userid)){
 				Logger.debug("existing coupon!");
 				return ok();
 			}
@@ -98,6 +113,7 @@ public class CounponController extends Controller{
 					databean.Id=null;
 					databean.userInfo=useinfo;
 					databean.counponentity=counponbean;
+					databean.counponId=counponbean.counponId;
 					databean.isable = 1;
 					TUseCouponEntity.saveData(databean);
 					//更新优惠信息表
@@ -120,10 +136,7 @@ public class CounponController extends Controller{
 			
 		
 		}
-		
-		
-		
-	}
+		}
 		
 	
 	@BasicAuth

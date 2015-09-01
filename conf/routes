@@ -85,8 +85,11 @@ POST /a/pay/update/:orderid/:payid/:status         controllers.PayController.upd
 GET  /a/pay/out/adm/:parkid/:orderId               controllers.PayController.parkingOutForAdm(parkid:Long,orderId:Long, m:Double?=0)
 GET  /a/pay/findpay/:orderId/:parkId               controllers.PayController.getCurrentNeededPay(orderId:Long,parkId:Long)
 
+
 POST /a/pay/out/:orderId                           controllers.PayController.payForOut(orderId:Long,o ?= "",payway:Int?=0,clientId?="")
+POST /a/pay/outnew/:orderId                           controllers.PayController.payForOutNew(orderId:Long,o ?= "",payway:Int?=0,clientId?="")
 POST /a/pay/in/:parkid                             controllers.PayController.payForIn(parkid:Long,c?= "",lt:Double?=0,ln:Double?=0,payway:Int?=0,clientId?="")
+POST /a/pay/innew/:parkid                             controllers.PayController.payForInNew(parkid:Long,c?= "",lt:Double?=0,ln:Double?=0,payway:Int?=0,clientId?="")
 GET  /a/scan/entrance/:orderId                     controllers.ScanController.scanForIn(orderId:Long,o ?= "")
 
 POST /a/parkinfo/savepic                           controllers.UploadController.upload()
@@ -106,8 +109,8 @@ GET /a/getoption/:type                             controllers.OptionsController
 
 
 
-GET  /a/isshare/find/:id                          controllers.ShareController.getDataById(id:Long)
-GET  /a/sendshare/                                controllers.ShareController.sendShareById(t:Long,u:Long)
+GET  /a/isshare/find                          controllers.ShareController.getDataById(id:Long?=0,url:Long?=0)
+GET  /a/sendshare                                controllers.ShareController.sendShareById(t:Long?=0,u:Long?=0)
 GET /a/share/:uniqueurl                           controllers.ShareController.saveuniqueurl(uniqueurl:Long)
 
 
