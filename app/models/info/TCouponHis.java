@@ -135,7 +135,7 @@ public class TCouponHis extends Model{
 		 */
 		public static void moveToHis(final TCouponEntity tcoup){
 			Logger.info("move to history table");
-			TCouponHis tcouhis=new TCouponHis();
+			final TCouponHis tcouhis=new TCouponHis();
 			Ebean.execute(new TxRunnable() {
 				public void run() {
 					tcouhis.counponCode=tcoup.counponCode;
