@@ -14,6 +14,7 @@ import models.info.ChartCityEntity;
 import models.info.TAllowance;
 import models.info.TAllowanceOffer;
 import models.info.TCouponEntity;
+import models.info.TCouponHis;
 import models.info.TIncome;
 import models.info.TLog;
 import models.info.TOptions;
@@ -1200,6 +1201,36 @@ public class WebPageController extends Controller {
 		return ok(views.html.coupon.render(allData, currentPage, pageSize,
 				orderBy, filter));
 	}
+	
+	
+	
+	/**
+	 * 打开优使用过的惠劵
+	 * 
+	 * @param currentPage
+	 * @param pageSize
+	 * @param orderBy
+	 * @param type
+	 * @param filter
+	 * @return
+	 */
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoCouponinfohis(int currentPage, int pageSize,
+			String orderBy, String filter) {
+		Logger.debug("goto gotoCoupon,filter" + filter);
+		Page<TCouponHis> allData = TCouponHis.pageByTypeAndFilter(
+				currentPage, pageSize, orderBy, filter);
+
+		flash("filter", filter);
+		if (allData != null) {
+			Logger.debug("##########goto gotoCoupon,total:"
+					+ allData.getTotalRowCount());
+		}
+
+		return ok(views.html.couponinfousedlist.render(allData, currentPage, pageSize,
+				orderBy, filter));
+	}
+	
 
 	/**
 	 * 打开使用过优惠劵界面

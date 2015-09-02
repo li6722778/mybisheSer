@@ -340,4 +340,16 @@ public class OrderController extends Controller {
 		return ok(jsonNode);
 	}
 	
+	@BasicAuth
+	public static Result moveordertohis(Long orderId,int status)
+	{
+		
+	    TOrderHis.moveToHisFromOrder(orderId, status);
+		return ok();
+		
+	}
+	
+	
+	
+	
 }
