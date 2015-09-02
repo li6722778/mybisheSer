@@ -237,4 +237,13 @@ public class TAllowanceOffer extends Model{
 		return db == null ? 0 : Arith
 				.decimalPrice(db);
 	}
+	
+	public static double findTotalTodayAllowanceByParkid(long parkid) {
+		String sql = "SELECT sum(money) as count FROM tb_allowance_offer where park_id="+parkid +" and date(create_date)='"+DateHelper.format(new Date(), "yyyyMMdd")+"'";
+		SqlQuery sq = Ebean.createSqlQuery(sql);
+		SqlRow sqlRow = sq.findUnique();
+		Double db = sqlRow.getDouble("count");
+		return db == null ? 0 : Arith
+				.decimalPrice(db);
+	}
 }

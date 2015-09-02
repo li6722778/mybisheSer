@@ -426,6 +426,7 @@ public class TIncome extends Model {
 					}
 				}
 			}
+			todayotal+=TAllowanceOffer.findTotalTodayAllowanceByParkid(parkId);
 			return Arith.decimalPrice(todayotal);
 		} else {
 			return 0.0;

@@ -382,7 +382,7 @@ public class TOrderHis extends Model {
 		
 //		String sql = "select * from chebole.tb_order where parkId=:parkid and date(order_date) = curdate();";
 		
-		 List<TOrderHis> allData = find.fetch("pay").where().eq("parkid", parkid).eq("date(order_date)", DateHelper.format(new Date(), "yyyyMMdd")).findList();
+		 List<TOrderHis> allData = find.fetch("pay").where().eq("parkid", parkid).eq("date(end_date)", DateHelper.format(new Date(), "yyyyMMdd")).findList();
 		
 		
 		return allData;
