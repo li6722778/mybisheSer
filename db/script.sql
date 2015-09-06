@@ -379,12 +379,12 @@ constraint pk_tb_share primary key (userid))
 
 
 create table tb_uniqueurl (
-url                       bigint auto_increment not null,
+url                       varchar(255) not null,
 sharetime                 integer(3) default 0,
 sharet_date               timestamp NULL,
 userphone_object          varchar(150),
 constraint pk_tb_uniqueurl primary key (url))
-; 
+;
 
 
 create table tb_unregisteruser (

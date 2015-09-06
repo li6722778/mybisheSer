@@ -9,14 +9,14 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 #controllers.ExternalAssets.at??
 
-GET      /a/login/:phone                           controllers.LoginController.loginUser(phone:Long,currentVersion:Long?=0,os?="unknow")
+GET      /a/login/:phone                  controllers.LoginController.loginUser(phone:Long,currentVersion:Long?=0,os?="unknow")
 POST     /a/reg/sendreset/:phone          controllers.SMSController.requestResetPasswd(phone:Long,t:Int?=0)
-POST     /a/reg/sendsms/:phone              controllers.SMSController.requestSMSVerify(phone:Long)
+POST     /a/reg/sendsms/:phone            controllers.SMSController.requestSMSVerify(phone:Long)
 
 GET		/a/ans                       controllers.MapFindController.findNearbyParking(a:Double?= 0, n:Double?=0, s:Float?=2)
 GET		/a/ans/simple                controllers.MapFindController.findNearbyParkingSimpleMode(a:Double?= 0, n:Double?=0, s:Float?=2)
 GET		/a/ans/:parklocid            controllers.MapFindController.findParkingEntrance(parklocid:Long)
-GET		/a/ans/nearby/pagelist              controllers.MapFindController.getNearbyParkingForPreview(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc",a:Double?= 0, n:Double?=0, h:Float?=2)
+GET		/a/ans/nearby/pagelist       controllers.MapFindController.getNearbyParkingForPreview(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc",a:Double?= 0, n:Double?=0, h:Float?=2)
 
 POST    /pay/notify                   controllers.PayController.notifyPayResult()
 POST    /pay/wxnotify                   controllers.PayController.notifyPayResultForWX()
@@ -109,8 +109,8 @@ GET /a/getoption/:type                             controllers.OptionsController
 
 
 
-GET  /a/isshare/find                          controllers.ShareController.getDataById(id:Long?=0,url:Long?=0)
-GET  /a/sendshare                                controllers.ShareController.sendShareById(t:Long?=0,u:Long?=0)
+GET  /a/isshare/find                          controllers.ShareController.getDataById(id:Long?=0,url:String?=null)
+GET  /a/sendshare                                controllers.ShareController.sendShareById(t:Long?=0,u:String?=null)
 
 
 
