@@ -154,9 +154,11 @@ public class Tuniqueurl extends Model {
 	{
 		Ebean.execute(new TxRunnable() {
 			public void run() {
+				Logger.debug("ResetOldeditionURL:::reset");
 				Tuniqueurl uniqueurl = Tuniqueurl.findDataById("xxxxx");
 				uniqueurl.sharetime=0;
 				uniqueurl.userphoneObject=null;
+				uniqueurl.sharetDate = new Date();
 				Ebean.update(uniqueurl);
 			}
 

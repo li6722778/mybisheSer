@@ -155,7 +155,7 @@ public class ShareController extends Controller {
 
 		Logger.info("start to query sendshare information");
 		ComResponse<String> response = new ComResponse<String>();
-		
+		Logger.debug("sendShareById:"+telephonenumber+",url:"+url);
 		//定时任务
 		if(url.equals("xxxxx"))
 		{
@@ -310,7 +310,7 @@ public class ShareController extends Controller {
 		if (counponcodes.length > 0) {
 			// 获取随机优惠劵编号
 			random = (int) Math.round(Math.random() * (max - min) + min);
-			CounponController.getsharecounpon(counponcodes[random], id);
+			CounponController.getsharecounpon(counponcodes[random-1], id);
 		}
 		return random;
 	}
