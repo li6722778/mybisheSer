@@ -18,6 +18,7 @@ import play.mvc.Result;
 import utils.ComResponse;
 import utils.CommFindEntity;
 import utils.RoleConstants;
+import views.html.log;
 import action.BasicAuth;
 
 import com.avaje.ebean.Ebean;
@@ -208,9 +209,13 @@ public class UserController extends Controller {
 			// 判断在未注册用户表中 是否存在该用户，存在查询用户获得优惠劵次数赠送优惠劵
 			final Tunregisteruser unregisteruser = Tunregisteruser.findDataById(user.userPhone);
 			if (unregisteruser != null) {
+				
+				
 				Ebean.execute(new TxRunnable() {
 					public void run() {
+					
 						int times = unregisteruser.sharetime;
+						Logger.info("user:" + unregisteruser.userPhone+"times:"+times);
 						//根据用户的获取优惠劵次数发放优惠劵
 						for (int i = 0; i < times; i++) {
 							ShareController.sendunregistshareCounpon(user.userid);

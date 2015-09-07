@@ -192,7 +192,7 @@ public class CounponController extends Controller{
 			{
 				
 				try {
-					//更新用户优惠表
+					//更新用户优惠表 lwei
 					TUseCouponEntity databean=new TUseCouponEntity();
 					databean.scanDate=new Date();
 					databean.Id=null;
