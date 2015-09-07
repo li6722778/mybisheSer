@@ -45,6 +45,11 @@ public class TUseCouponHis extends Model {
 	@Column(columnDefinition = "integer(2) default 1")
 	@Expose
 	public int isable;
+	
+	//0表示优惠券，1表示分享获得
+		@Column(columnDefinition = "integer(2) default 0")
+		@Expose
+		public int type;
 
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(columnDefinition = "timestamp NULL")

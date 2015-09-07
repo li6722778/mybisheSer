@@ -2,6 +2,7 @@ package models.info;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,6 +54,11 @@ public class TUseCouponEntity extends Model {
 	@Column(columnDefinition = "integer(2) default 1")
 	@Expose
 	public int isable;
+	
+	//0表示优惠券，1表示分享获得
+	@Column(columnDefinition = "integer(2) default 0")
+	@Expose
+	public int type;
 
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(columnDefinition = "timestamp NULL")
@@ -175,6 +181,7 @@ public class TUseCouponEntity extends Model {
 					//tusehis.counponentity=useCoouponEntity.counponentity;
 					tusehis.counponId=useCoouponEntity.counponId;
 					tusehis.isable=0;
+					tusehis.type=useCoouponEntity.type;
 					tusehis.scanDate=useCoouponEntity.scanDate;
 					tusehis.useDate=useCoouponEntity.useDate;
 					tusehis.userInfo=useCoouponEntity.userInfo;
@@ -266,9 +273,31 @@ public class TUseCouponEntity extends Model {
 				Date endDate = couponEntity.endDate;
 				Date currentDate = new Date();
 				//
-				if(endDate!=null&&endDate.before(currentDate)){
+				if(couponUse.type==0&&endDate!=null&&endDate.before(currentDate)){
+					//正常优惠券判断
 					removeNum++;
 					continue;
+				}else if(couponUse.type==1&&couponUse.scanDate!=null)
+				{
+					//分享优惠判断，将有效期
+					
+					TOptions tempday=TOptions.findOption(8);
+					if(tempday!=null&&tempday.textObject!=null)
+					{
+					 int day=Integer.valueOf(tempday.textObject.toString().trim());
+					GregorianCalendar gc=new GregorianCalendar(); 
+					gc.setTime(couponUse.scanDate);
+				    gc.add(gc.DATE, +day);
+				   if(gc.getTime().before(currentDate))
+				   {
+					   movetohiscouponinfo(couponUse);
+					   removeNum++;
+					   continue;
+					   
+				   }
+				   newCouponArray.add(couponUse);
+				   continue;
+					}
 				}
 				
 				newCouponArray.add(couponUse);
@@ -280,6 +309,32 @@ public class TUseCouponEntity extends Model {
 		result.setRowCount(allData.getTotalRowCount()-removeNum);
 		result.setPageCount(allData.getTotalPageCount());
 		return result;
+	}
+	
+	
+	
+	public static void movetohiscouponinfo(TUseCouponEntity useCoouponEntity)
+	{
+		TUseCouponHis tusehis=new TUseCouponHis();
+		if(useCoouponEntity!=null&&useCoouponEntity.Id>0)
+		{
+			tusehis.Id=useCoouponEntity.Id;
+			//tusehis.counponentity=useCoouponEntity.counponentity;
+			tusehis.counponId=useCoouponEntity.counponId;
+			tusehis.isable=0;
+			tusehis.type=useCoouponEntity.type;
+			tusehis.scanDate=useCoouponEntity.scanDate;
+			tusehis.useDate=useCoouponEntity.useDate;
+			tusehis.userInfo=useCoouponEntity.userInfo;
+			
+		
+			TUseCouponHis.saveData(tusehis);
+		Ebean.delete(TUseCouponEntity.class,useCoouponEntity.Id);
+		//将优惠劵移动到历史表
+		CouponMoveToHis(useCoouponEntity.counponId);
+		
+		}
+		
 	}
 
 	/**

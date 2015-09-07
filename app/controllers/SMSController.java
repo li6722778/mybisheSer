@@ -246,10 +246,14 @@ public class SMSController extends Controller {
 		// 得到手机号
 		String phoneString = String.valueOf(phone);
 
+		TOptions optionsday=TOptions.findOption(8);
+		int day=0;
+		if(optionsday!=null&&optionsday.textObject!=null)
+		  day=Integer.valueOf(optionsday.textObject.toString().trim());
 		// 得到优惠劵价格
 		
 		String prices =String.valueOf(price);
-		String param = prices+"元优惠劵";
+		String param = prices+"元"+","+day+"天";
 
 		if (rest_3part_smsparam != null
 				&& !rest_3part_smsparam.trim().equals("")) {
@@ -266,7 +270,7 @@ public class SMSController extends Controller {
 		try {
 			// 组合json bean
 			TemplateSMS templateSMS = new TemplateSMS(rest_3part_smsappid,
-					param, rest_3part_noticeCounpon, phoneString);
+					param, "12676", phoneString);
 			Gson gson = new Gson();
 			String body = gson.toJson(templateSMS);
 			body = "{\"templateSMS\":" + body + "}";
