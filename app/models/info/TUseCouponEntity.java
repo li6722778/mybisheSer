@@ -294,6 +294,9 @@ public class TUseCouponEntity extends Model {
 					   removeNum++;
 					   continue;
 					   
+				   }else
+				   {
+					   couponUse.useDate=gc.getTime();
 				   }
 				   newCouponArray.add(couponUse);
 				   continue;
