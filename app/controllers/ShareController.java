@@ -2,6 +2,7 @@ package controllers;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 import models.info.TOptions;
@@ -20,6 +21,7 @@ import utils.DateHelper;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.TxRunnable;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.deser.std.DateDeserializers.SqlDateDeserializer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -35,14 +37,19 @@ public class ShareController extends Controller {
 	 * @return
 	 */
 
-	public static Result getDataById(Long id, Long url) {
+	public static Result getDataById(Long id, String url) {
 
 		Logger.info("start to query share information");
 		ComResponse<String> response = new ComResponse<String>();
 
-		if(url!=0)
-		{// 保存唯一的url
-		saveuniqueurl(url);
+		if (url != null) {// 保存唯一的url
+			//查询该url是否在Tunqueurl表中
+			Tuniqueurl  uniqueurl = Tuniqueurl.findDataById(url);
+			if(uniqueurl==null)
+			{
+		   Logger.info("right  not exist");
+			saveuniqueurl(url);
+			}
 		}
 		TShare share = TShare.findDataById(id);
 		// 获取每日可分享次数
@@ -73,7 +80,6 @@ public class ShareController extends Controller {
 
 		// 在分享列表中
 		else if (share != null) {
-
 			Date date = new Date();
 			Date lastsharedate = share.sharetDate;
 
@@ -144,10 +150,25 @@ public class ShareController extends Controller {
 	 * 输入手机号赠送优惠劵
 	 */
 
-	public static Result sendShareById(final Long telephonenumber, Long url) {
+	public static Result sendShareById(final Long telephonenumber, String url) {
 
 		Logger.info("start to query sendshare information");
 		ComResponse<String> response = new ComResponse<String>();
+		
+		//定时任务
+		if(url=="xxx")
+		{
+			Tuniqueurl uniqueurl = Tuniqueurl.findDataById(url);
+			Date  date =new  Date();
+			Date  sqlDate =uniqueurl.sharetDate;
+			long result = (date.getTime()-sqlDate.getTime())/ (24 * 60 * 60 * 1000);
+			if(result>=1)
+			{
+				Tuniqueurl.ResetOldeditionURL();
+			}
+		}
+		
+		
 		// 获取url的已分享次数
 		final Tuniqueurl uniqueurl = Tuniqueurl.findDataById(url);
 		// 获取后台设置的每个url可用次数
@@ -163,17 +184,44 @@ public class ShareController extends Controller {
 				times = Integer.parseInt(counponcodes[4]);
 			}
 		}
-		if (times != 0 && uniqueurl != null) {
+		if (times!= 0 && uniqueurl!= null) {
+			
+
 			if (uniqueurl.sharetime >= times) {
 				// 分享次数已经用完
-				response.setResponseEntity("5");
-				Logger.info("555555");
-				response.setResponseStatus(ComResponse.STATUS_FAIL);
+				// 判断手机号是否在分享列表中
+				String phoneobjects = uniqueurl.userphoneObject;
+				String[] phoneobject = phoneobjects.split(",");
+				boolean result = false;
+				String telephone = Long.toString(telephonenumber);
+				for (String temptelephone : phoneobject) {
+					if (temptelephone.equals(telephone)) {
+						result = true;
+						break;
+					}
+				}
+
+				// 在分享列表中
+				if (result == true) {
+					response.setResponseEntity("4");
+					Logger.info("444444");
+					response.setResponseStatus(ComResponse.STATUS_FAIL);
+				}
+
+				else if (result == false) {
+					response.setResponseEntity("5");
+					Logger.info("555555");
+					response.setResponseStatus(ComResponse.STATUS_FAIL);
+				}
+
 			}
 
 			else {
+				
+				Logger.info("---"+uniqueurl.url);
 				// 获取该url已经被那些手机号领取,如果已经领取过 则返回
 				String phoneobjects = uniqueurl.userphoneObject;
+				Logger.info("---"+uniqueurl.userphoneObject);
 				// 之前没有用户使用过该url链接
 				if (phoneobjects == null && counponcodes != null) {
 					Logger.info("111111111");
@@ -186,11 +234,13 @@ public class ShareController extends Controller {
 					// 新用户返回4
 					if (sendresult == 4) {
 						response.setResponseEntity("10");
+						SMSController.requestSMSmessage(telephonenumber, 10);
 						response.setResponseStatus(ComResponse.STATUS_OK);
 					}
 					// 老用户返回的获取优惠劵金额
 					else {
 						response.setResponseEntity(sendresult + "");
+						SMSController.requestSMSmessage(telephonenumber, sendresult+1);
 						response.setResponseStatus(ComResponse.STATUS_OK);
 					}
 				}
@@ -219,11 +269,13 @@ public class ShareController extends Controller {
 						// 新用户返回4
 						if (sendreuslt == 4) {
 							response.setResponseEntity("10");
+							SMSController.requestSMSmessage(telephonenumber, 10);
 							response.setResponseStatus(ComResponse.STATUS_OK);
 						}
 
 						else {
 							response.setResponseEntity(sendreuslt + "");
+							SMSController.requestSMSmessage(telephonenumber, sendreuslt+1);
 							response.setResponseStatus(ComResponse.STATUS_OK);
 						}
 					}
@@ -260,13 +312,13 @@ public class ShareController extends Controller {
 	 * @param url
 	 * @return
 	 */
-	public static boolean saveuniqueurl(Long url) {
+	public static boolean saveuniqueurl(String url) {
 		Logger.info("start to query sendshare information");
 		try {
 			Tuniqueurl.saveTuniqueurl(url);
 			return true;
 		} catch (Exception e) {
-			Logger.error("saveeeeorr"+ e);
+			Logger.error("saveeeeorr" + e);
 		}
 		return false;
 	}
@@ -274,13 +326,13 @@ public class ShareController extends Controller {
 	public static void sendunregistshareCounpon(Long id) {
 
 		// 赠送优惠劵
-		TOptions options = TOptions.findOption(4);
+		TOptions options = TOptions.findOption(5);
 		String Counponcode = options.textObject;
 		if (Counponcode != null && !(Counponcode.toString().trim().equals(""))) {
 			Counponcode = Counponcode.replace("，", ",");
 			String[] counponcodes = Counponcode.split(",");
 			if (counponcodes.length > 0) {
-				CounponController.getsharecounpon(counponcodes[1], id);
+				CounponController.getsharecounpon(counponcodes[0], id);
 			}
 		}
 
@@ -337,5 +389,6 @@ public class ShareController extends Controller {
 		}
 		return 0;
 	}
+	
 
 }

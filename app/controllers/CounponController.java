@@ -171,8 +171,7 @@ public class CounponController extends Controller{
 					}
 				}
 				
-			}
-			
+			}		
 			if(endDate!=null){//失效了
 				if(endDate.before(currentDate)){
 					if(startDate.before(currentDate)){
@@ -200,6 +199,8 @@ public class CounponController extends Controller{
 					databean.counponentity=counponbean;
 					databean.counponId=counponbean.counponId;
 					databean.isable = 1;
+					
+					
 					TUseCouponEntity.saveData(databean);
 					//更新优惠信息表
 					counponbean.scancount=counponbean.scancount+1;

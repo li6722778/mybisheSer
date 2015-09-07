@@ -1226,7 +1226,6 @@ public class WebPageController extends Controller {
 			Logger.debug("##########goto gotoCoupon,total:"
 					+ allData.getTotalRowCount());
 		}
-
 		return ok(views.html.couponinfousedlist.render(allData, currentPage, pageSize,
 				orderBy, filter));
 	}
