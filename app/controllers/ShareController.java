@@ -17,6 +17,7 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import utils.ComResponse;
 import utils.DateHelper;
+import views.html.log;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.TxRunnable;
@@ -42,7 +43,7 @@ public class ShareController extends Controller {
 		Logger.info("start to query share information");
 		ComResponse<String> response = new ComResponse<String>();
 
-		if (url != null) {// 保存唯一的url
+		if (url!= null) {// 保存唯一的url
 			//查询该url是否在Tunqueurl表中
 			Tuniqueurl  uniqueurl = Tuniqueurl.findDataById(url);
 			if(uniqueurl==null)
@@ -156,8 +157,9 @@ public class ShareController extends Controller {
 		ComResponse<String> response = new ComResponse<String>();
 		
 		//定时任务
-		if(url=="xxx")
+		if(url.equals("xxxxx"))
 		{
+			
 			Tuniqueurl uniqueurl = Tuniqueurl.findDataById(url);
 			Date  date =new  Date();
 			Date  sqlDate =uniqueurl.sharetDate;
@@ -232,7 +234,7 @@ public class ShareController extends Controller {
 						response.setResponseStatus(ComResponse.STATUS_FAIL);
 					}
 					// 新用户返回4
-					if (sendresult == 4) {
+					if (sendresult ==4) {
 						response.setResponseEntity("10");
 						SMSController.requestSMSmessage(telephonenumber, 10);
 						response.setResponseStatus(ComResponse.STATUS_OK);
@@ -240,7 +242,14 @@ public class ShareController extends Controller {
 					// 老用户返回的获取优惠劵金额
 					else {
 						response.setResponseEntity(sendresult + "");
-						SMSController.requestSMSmessage(telephonenumber, sendresult+1);
+						if(sendresult==3){
+							Logger.info("333333333333333-----"+sendresult);
+							SMSController.requestSMSmessage(telephonenumber, sendresult+2);
+						}
+						else {
+							Logger.info("xxxxxxxxxxxxxxxx"+sendresult);
+							SMSController.requestSMSmessage(telephonenumber, sendresult+1);
+						}
 						response.setResponseStatus(ComResponse.STATUS_OK);
 					}
 				}

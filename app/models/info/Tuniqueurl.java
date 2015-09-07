@@ -107,24 +107,20 @@ public class Tuniqueurl extends Model {
 			if(uniqueurl.userphoneObject==null){
 				uniqueurl.url = url;
 				uniqueurl.sharetime = time;
-				uniqueurl.sharetDate = new Date();
 				uniqueurl.userphoneObject=userphoneObject;
 				Set<String> options = new HashSet<String>();
 				options.add("url");
 				options.add("sharetime");
-				options.add("sharetDate");
 				options.add("userphoneObject");
 				Ebean.update(uniqueurl, options);
 			}
 			else if(uniqueurl.userphoneObject!=null){
 				uniqueurl.url = url;
 				uniqueurl.sharetime = time;
-				uniqueurl.sharetDate = new Date();
 				uniqueurl.userphoneObject=uniqueurl.userphoneObject+','+userphoneObject;
 				Set<String> options = new HashSet<String>();
 				options.add("url");
 				options.add("sharetime");
-				options.add("sharetDate");
 				options.add("userphoneObject");
 				Ebean.update(uniqueurl, options);
 			}
