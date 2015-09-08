@@ -1,9 +1,6 @@
 package controllers;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
 
 import models.info.TOptions;
 import models.info.TShare;
@@ -11,18 +8,13 @@ import models.info.Tuniqueurl;
 import models.info.Tunregisteruser;
 import models.info.TuserInfo;
 import play.Logger;
-import play.api.libs.iteratee.internal;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import utils.ComResponse;
 import utils.DateHelper;
-import views.html.log;
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.TxRunnable;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.DateDeserializers.SqlDateDeserializer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -131,6 +123,12 @@ public class ShareController extends Controller {
 
 	}
 
+	
+	
+	public static Result getDataById(Long id) {
+
+		return getDataById(id,null);
+	}
 	public static void sendCounpon(Long id) {
 
 		// 赠送优惠劵
@@ -155,7 +153,6 @@ public class ShareController extends Controller {
 
 		Logger.info("start to query sendshare information");
 		ComResponse<String> response = new ComResponse<String>();
-		
 		//定时任务
 		if(url.equals("xxxxx"))
 		{
@@ -235,13 +232,14 @@ public class ShareController extends Controller {
 					}
 					// 新用户返回4
 					if (sendresult ==4) {
-						response.setResponseEntity("10");
+						
 						SMSController.requestSMSmessage(telephonenumber, 10);
+						response.setResponseEntity("10");
 						response.setResponseStatus(ComResponse.STATUS_OK);
 					}
 					// 老用户返回的获取优惠劵金额
 					else {
-						response.setResponseEntity(sendresult + "");
+						
 						if(sendresult==3){
 							Logger.info("333333333333333-----"+sendresult);
 							SMSController.requestSMSmessage(telephonenumber, sendresult+2);
@@ -250,6 +248,7 @@ public class ShareController extends Controller {
 							Logger.info("xxxxxxxxxxxxxxxx"+sendresult);
 							SMSController.requestSMSmessage(telephonenumber, sendresult+1);
 						}
+						response.setResponseEntity(sendresult + "");
 						response.setResponseStatus(ComResponse.STATUS_OK);
 					}
 				}
@@ -277,15 +276,18 @@ public class ShareController extends Controller {
 						}
 						// 新用户返回4
 						if (sendreuslt == 4) {
-							response.setResponseEntity("10");
+							
 							SMSController.requestSMSmessage(telephonenumber, 10);
+							response.setResponseEntity("10");
 							response.setResponseStatus(ComResponse.STATUS_OK);
 						}
 
 						else {
-							response.setResponseEntity(sendreuslt + "");
+							
 							SMSController.requestSMSmessage(telephonenumber, sendreuslt+1);
+							response.setResponseEntity(sendreuslt + "");
 							response.setResponseStatus(ComResponse.STATUS_OK);
+							
 						}
 					}
 					// 该用户已经通过该url领取过优惠劵
@@ -310,7 +312,7 @@ public class ShareController extends Controller {
 		if (counponcodes.length > 0) {
 			// 获取随机优惠劵编号
 			random = (int) Math.round(Math.random() * (max - min) + min);
-			CounponController.getsharecounpon(counponcodes[random], id);
+			CounponController.getsharecounpon(counponcodes[random-1], id);
 		}
 		return random;
 	}
