@@ -263,6 +263,7 @@ id                        bigint  not null,
 userid                    bigint,
 counpon_id                 bigint,
 isable                    integer(2) default 1,
+type                    integer(2) default 0,
 scan_date                 timestamp NULL,
 use_date                  timestamp NULL,
 constraint pk_tb_counpon_use primary key (id))
@@ -398,10 +399,11 @@ constraint pk_tb_unregisteruser primary key (user_phone))
 
 
 create table tb_counpon_use_his (
-id                        bigint not null,
+id                        bigint auto_increment not null,
 userid                    bigint,
-counpon_id                 bigint,
+counpon_id                bigint,
 isable                    integer(2) default 1,
+type                      integer(2) default 0,
 scan_date                 timestamp NULL,
 use_date                  timestamp NULL,
 constraint pk_tb_counpon_use_his primary key (id))
