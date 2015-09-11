@@ -241,7 +241,7 @@ public class SMSController extends Controller {
 		//查看option 发送优惠劵赠送短信是否打开
 		
 		TOptions options = TOptions.findOption(7);
-		if(options.textObject!=null&&options.textObject=="1")
+		if(options.textObject!=null&&options.textObject.toString().trim().equals("1"))
 		{
 		// 得到手机号
 		String phoneString = String.valueOf(phone);

@@ -1,9 +1,6 @@
 package controllers;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
 
 import models.info.TOptions;
 import models.info.TShare;
@@ -11,18 +8,13 @@ import models.info.Tuniqueurl;
 import models.info.Tunregisteruser;
 import models.info.TuserInfo;
 import play.Logger;
-import play.api.libs.iteratee.internal;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import utils.ComResponse;
 import utils.DateHelper;
-import views.html.log;
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.TxRunnable;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.DateDeserializers.SqlDateDeserializer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -33,8 +25,7 @@ public class ShareController extends Controller {
 			.setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 
 	/**
-	 * 查询分享记录
-	 * 
+	 * 查询分享记录,获得优惠劵
 	 * @return
 	 */
 
@@ -131,6 +122,11 @@ public class ShareController extends Controller {
 
 	}
 
+	
+	//查询分享记录,获得优惠劵,这里只是针对2015081601的版本用户
+	public static Result getDataByIds(Long id) {
+		return getDataById(id,null);
+	}
 	public static void sendCounpon(Long id) {
 
 		// 赠送优惠劵
@@ -155,7 +151,6 @@ public class ShareController extends Controller {
 
 		Logger.info("start to query sendshare information");
 		ComResponse<String> response = new ComResponse<String>();
-		Logger.debug("sendShareById:"+telephonenumber+",url:"+url);
 		//定时任务
 		if(url.equals("xxxxx"))
 		{
@@ -206,13 +201,13 @@ public class ShareController extends Controller {
 				// 在分享列表中
 				if (result == true) {
 					response.setResponseEntity("4");
-					Logger.info("444444");
+					Logger.info("已经领取过该url链接分享的优惠劵");
 					response.setResponseStatus(ComResponse.STATUS_FAIL);
 				}
 
 				else if (result == false) {
 					response.setResponseEntity("5");
-					Logger.info("555555");
+					Logger.info("该url的分享次数已经用完");
 					response.setResponseStatus(ComResponse.STATUS_FAIL);
 				}
 
@@ -226,7 +221,6 @@ public class ShareController extends Controller {
 				Logger.info("---"+uniqueurl.userphoneObject);
 				// 之前没有用户使用过该url链接
 				if (phoneobjects == null && counponcodes != null) {
-					Logger.info("111111111");
 					int sendresult = sendtouser(telephonenumber, uniqueurl,
 							times, counponcodes);
 					if (sendresult == 0) {
@@ -235,21 +229,25 @@ public class ShareController extends Controller {
 					}
 					// 新用户返回4
 					if (sendresult ==4) {
-						response.setResponseEntity("10");
+						
 						SMSController.requestSMSmessage(telephonenumber, 10);
+						Logger.info("分享成功，获取10元优惠劵");
+						response.setResponseEntity("10");
 						response.setResponseStatus(ComResponse.STATUS_OK);
 					}
 					// 老用户返回的获取优惠劵金额
 					else {
-						response.setResponseEntity(sendresult + "");
+						
 						if(sendresult==3){
-							Logger.info("333333333333333-----"+sendresult);
+							Logger.info("分享成功，获取5元优惠劵");
 							SMSController.requestSMSmessage(telephonenumber, sendresult+2);
 						}
 						else {
-							Logger.info("xxxxxxxxxxxxxxxx"+sendresult);
+							Logger.info("分享成功，获取优惠劵:"+sendresult+"元");
 							SMSController.requestSMSmessage(telephonenumber, sendresult+1);
 						}
+						
+						response.setResponseEntity(sendresult + "");
 						response.setResponseStatus(ComResponse.STATUS_OK);
 					}
 				}
@@ -272,26 +270,39 @@ public class ShareController extends Controller {
 								times, counponcodes);
 
 						if (sendreuslt == 0) {
+						Logger.info("分享失败，");
 							response.setResponseEntity("0");
 							response.setResponseStatus(ComResponse.STATUS_FAIL);
 						}
 						// 新用户返回4
 						if (sendreuslt == 4) {
-							response.setResponseEntity("10");
+							
+							Logger.info("分享成功，获取优惠劵:10元");
 							SMSController.requestSMSmessage(telephonenumber, 10);
+							response.setResponseEntity("10");
 							response.setResponseStatus(ComResponse.STATUS_OK);
 						}
-
+						
+				       // 老用户返回的获取优惠劵金额 返回2，3，5
+						
+						if(sendreuslt==3){
+							Logger.info("分享成功，获取5元优惠劵");
+							SMSController.requestSMSmessage(telephonenumber, sendreuslt+2);
+						}
 						else {
-							response.setResponseEntity(sendreuslt + "");
+							Logger.info("分享成功，获取优惠劵:"+sendreuslt+"元");
 							SMSController.requestSMSmessage(telephonenumber, sendreuslt+1);
-							response.setResponseStatus(ComResponse.STATUS_OK);
 						}
+						
+						response.setResponseEntity(sendreuslt + "");
+						response.setResponseStatus(ComResponse.STATUS_OK);
+					
+
 					}
 					// 该用户已经通过该url领取过优惠劵
 					else if (result == true) {
 						response.setResponseEntity("4");
-						Logger.info("444444");
+						Logger.info("已经领取过该url链接分享的优惠劵");
 						response.setResponseStatus(ComResponse.STATUS_FAIL);
 					}
 				}
