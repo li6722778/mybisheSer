@@ -116,6 +116,12 @@ GET  /a/sendshare                                controllers.ShareController.sen
 
 
 
+GET  /w/saveuser         controllers.WXuserinfoController.saveuserinfo(o:String?=null,n:String?=null,h:String?=null,g:Int ?= 0,u:String?=null,p:String?=null)
+GET  /w/showuser         controllers.WXuserinfoController.getuserinfolist(u:String?=null)
+GET /w/getcurretnuser    controllers.WXuserinfoController.getcurrentuserinfo(o:String?=null)
+
+
+
 
 ######################please DON'T change below URI!!!###################
 ########################below for web app################################
