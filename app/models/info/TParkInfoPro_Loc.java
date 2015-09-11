@@ -331,4 +331,46 @@ public class TParkInfoPro_Loc extends Model {
 		return result;
 	}
 
+	
+	/**
+	 * 查询地图列表停车场
+	 * 
+	 * @param currentPage
+	 * @param pageSize
+	 * @param orderBy
+	 * @return
+	 */
+	public static List<TParkInfoPro_Loc> findPageDataAll(double myLat,
+			double myLng, float scope) {
+		
+		// 先计算经纬度范围
+				double range = 180 / Math.PI * scope / 6372.797;
+				double lngR = range / Math.cos(myLat * Math.PI / 180.0);
+				double maxLat = myLat + range;
+				double minLat = myLat - range;
+				double maxLng = myLng + lngR;
+				double minLng = myLng - lngR;
+		
+
+		CommFindEntity<TParkInfoPro_Loc> result = new CommFindEntity<TParkInfoPro_Loc>();
+		
+		
+		List<TParkInfoPro_Loc> allData =find.fetch("parkInfo").where().eq("t0.type", 1).eq("isOpen",1)
+		.between("latitude", minLat, maxLat)
+		.between("longitude", minLng, maxLng).findList();
+
+//		Page<TParkInfoPro_Loc> allData = find.where().eq("parkid", parkId).orderBy(orderBy)
+//				.findPagingList(pageSize).setFetchAhead(false)
+//				.getPage(currentPage);
+		if (allData != null) {
+			for (TParkInfoPro_Loc loc : allData) {
+				long parkid = loc.parkInfo.parkId;
+				loc.parkInfo = TParkInfoProd.findDataById(parkid);
+			}
+		}
+
+		
+		return allData;
+	}
+	
 }
