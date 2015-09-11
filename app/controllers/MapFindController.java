@@ -54,6 +54,26 @@ public class MapFindController extends Controller{
 		return ok(jsonNode);
 	}
 	
+	
+	
+	/**
+	 * 查询地图列表所有数据
+	 * @param currentPage
+	 * @param pageSize
+	 * @param orderBy
+	 * @return
+	 */
+	public static Result getNearbyParkingForPreviewAll(double myLat,double myLng, float scope) {
+		Logger.info("getParkCommentsAllData");
+		List<TParkInfoPro_Loc> allData = TParkInfoPro_Loc.findPageDataAll(myLat,myLng,scope);
+		String json = gsonBuilderWithExpose.toJson(allData);
+		JsonNode jsonNode = Json.parse(json);
+		// String jsonString = Json.stringify(json);
+		Logger.debug("CommFindEntity result:" + json);
+		return ok(jsonNode);
+	}
+	
+	
 	public static Result findParkingEntrance(long parkLocId) {
 		Logger.debug("start to find Entrance by"+parkLocId);
 		TParkInfoPro_Loc locData = TParkInfoPro_Loc.getLocationPointByKey(parkLocId);

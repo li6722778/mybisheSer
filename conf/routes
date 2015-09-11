@@ -16,6 +16,7 @@ POST     /a/reg/sendsms/:phone            controllers.SMSController.requestSMSVe
 GET		/a/ans                       controllers.MapFindController.findNearbyParking(a:Double?= 0, n:Double?=0, s:Float?=2)
 GET		/a/ans/simple                controllers.MapFindController.findNearbyParkingSimpleMode(a:Double?= 0, n:Double?=0, s:Float?=2)
 GET		/a/ans/:parklocid            controllers.MapFindController.findParkingEntrance(parklocid:Long)
+GET		/a/ans/nearby/all                       controllers.MapFindController.getNearbyParkingForPreviewAll(a:Double?= 0, n:Double?=0, s:Float?=2)
 GET		/a/ans/nearby/pagelist       controllers.MapFindController.getNearbyParkingForPreview(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc",a:Double?= 0, n:Double?=0, h:Float?=2)
 
 POST    /pay/notify                   controllers.PayController.notifyPayResult()
