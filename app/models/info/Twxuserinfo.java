@@ -37,7 +37,7 @@ public class Twxuserinfo extends Model{
 	@Expose
 	public String nickname;
 	
-	@Column(length = 50)
+	@Column(length = 1000)
 	@Expose
 	public String headimgurl;
 	
