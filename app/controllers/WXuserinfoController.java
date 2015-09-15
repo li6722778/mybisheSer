@@ -82,20 +82,7 @@ public class WXuserinfoController extends Controller {
 	}
 	
 	
-	public static Result updateuserinfo(String userphone,String url,String openid) {
-		Logger.info("change phonenumber");
-		ComResponse<String> response = new ComResponse<String>();
-		try {
-			Twxuserinfo.updateuserinfo(url, userphone, openid);
-			response.setResponseStatus(ComResponse.STATUS_OK);
-			LogController.info("change phonenumber");
-		} catch (Exception e) {
-			response.setResponseStatus(ComResponse.STATUS_FAIL);
-		}
-		
-		String tempJsonString = gsonBuilderWithExpose.toJson(response);
-		return ok("success_jsonpCallback(" + tempJsonString + ")");
-	}
+
 	
 	
 	public static String getRandomshareword()

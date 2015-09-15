@@ -148,7 +148,7 @@ public class Twxuserinfo extends Model{
 	 */
 	public static Twxuserinfo getwxuserinfo(String openid) {
 		List<Twxuserinfo> result = find.where().eq("openid", openid).findList();
-		if(result!=null)
+		if(result!=null&&result.size()>0)
 		{	Twxuserinfo wxuserinfo=result.get(0);
 		return wxuserinfo;
 		}
