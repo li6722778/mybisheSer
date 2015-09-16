@@ -30,10 +30,10 @@ public class Twxuserinfo extends Model{
 	private static final long serialVersionUID = 1L;
 
 	@Expose
-	@Column(length = 20)
+	@Column(length = 100)
 	public String openid;
 	
-	@Column(length = 20)
+	@Column(length = 100)
 	@Expose
 	public String nickname;
 	
@@ -48,7 +48,7 @@ public class Twxuserinfo extends Model{
 	public Date sharetDate;
 	
 	
-	@Column(length = 50)
+	@Column(length = 1000)
 	@Expose
 	public String shareword;
 	

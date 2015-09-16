@@ -410,5 +410,27 @@ public class ShareController extends Controller {
 		return 0;
 	}
 	
-
+	//点击分享按钮之后直接保存url信息（解决留在微信后链接无效问题）
+	public static Result saveurl(String url){
+		Logger.info("start to save url");
+		ComResponse<String> response = new ComResponse<String>();
+		//查询是否有记录
+		Tuniqueurl tuniqueurl =Tuniqueurl.findDataById(url);
+		if(tuniqueurl==null){
+		try {
+			Tuniqueurl.saveTuniqueurl(url);
+			response.setResponseStatus(ComResponse.STATUS_OK);
+		} catch (Exception e) {
+			Logger.error("saveeeeorr" + e);
+			response.setResponseStatus(ComResponse.STATUS_FAIL);
+		}
+		}
+		else {
+			Logger.info("url is exist");
+			response.setResponseStatus(ComResponse.STATUS_OK);
+		}
+		String tempJsonString = gsonBuilderWithExpose.toJson(response);
+		return ok(tempJsonString);
+		
+	}
 }

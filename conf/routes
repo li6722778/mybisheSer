@@ -111,9 +111,10 @@ GET /a/getoption/:type                             controllers.OptionsController
 
 
 
-GET  /a/isshare/find                             controllers.ShareController.getDataById(id:Long?=0,url:String?=null)
-GET  /a/isshare/find/:id                         controllers.ShareController.getDataByIds(id:Long)
-GET  /a/sendshare                                controllers.ShareController.sendShareById(t:Long?=0,u:String?=null)
+GET  /a/isshare/find                           controllers.ShareController.getDataById(id:Long?=0,url:String?=null)
+GET  /a/isshare/find/:id                       controllers.ShareController.getDataByIds(id:Long)
+GET  /a/sendshare                              controllers.ShareController.sendShareById(t:Long?=0,u:String?=null)
+GET  /a/saveurl                                controllers.ShareController.saveurl(url:String?=null)
 
 
 
