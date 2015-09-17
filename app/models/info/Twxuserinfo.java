@@ -23,7 +23,6 @@ import com.google.gson.annotations.Expose;
 @Table(name = "tb_wxuser")
 public class Twxuserinfo extends Model{
 	
-
 	/**
 	 * 
 	 */
@@ -95,8 +94,6 @@ public class Twxuserinfo extends Model{
 
 	}
 	
-	
-	
 	public static void updateuserinfo(final String url,final String phonenumber,final String openid) {
 
 		Ebean.execute(new TxRunnable() {
@@ -104,13 +101,11 @@ public class Twxuserinfo extends Model{
 				Twxuserinfo userinfo= find.where().eq("uniqueurl", url).eq("openid", openid).findUnique();
 				userinfo.userphone=phonenumber;
 				Ebean.update(userinfo);
-
 			}
 
 		});
 
 	}
-
 
 
 	/**
@@ -120,8 +115,7 @@ public class Twxuserinfo extends Model{
 	 * @return
 	 */
 	public static List<Twxuserinfo> getwxuserinfos(String url) {
-		List<Twxuserinfo> result = find.where().eq("uniqueurl", url).ne("getcoupnprice", null)
-				.findList();
+		List<Twxuserinfo> result = find.where().eq("uniqueurl", url).ne("getcoupnprice", null).findList();
 		return result;
 	}
 	
@@ -149,9 +143,21 @@ public class Twxuserinfo extends Model{
 	public static Twxuserinfo getwxuserinfo(String openid) {
 		List<Twxuserinfo> result = find.where().eq("openid", openid).findList();
 		if(result!=null&&result.size()>0)
-		{	Twxuserinfo wxuserinfo=result.get(0);
-		return wxuserinfo;
+		{	Twxuserinfo wxuserinfo=result.get(result.size()-1);
+		    return wxuserinfo;
 		}
+
+		return null;
+	}
+	
+	
+	public static Twxuserinfo getsharestatue(String openid,String url) {
+		Twxuserinfo wxuserinfo = find.where().eq("uniqueurl", url).eq("openid", openid).findUnique();
+		if(wxuserinfo!=null)
+		{
+			return wxuserinfo;
+		}
+		
 		return null;
 	}
 	

@@ -118,11 +118,14 @@ GET  /a/saveurl                                controllers.ShareController.saveu
 GET  /a/saveredicturl                          controllers.DirectController.saveredicturl(u:String?=null,r:String?=null)
 GET  /a/findredicturl                          controllers.DirectController.getdirecturl(u:String?=null)
 POST /a/redicturl/save                         controllers.DirectController.saveData()
+GET /a/redicturl/save                          controllers.DirectController.saveData()
+
 
 
 GET  /w/saveuser         controllers.WXuserinfoController.saveuserinfo(o:String?=null,n:String?=null,h:String?=null,g:Int ?= 0,u:String?=null,p:String?=null)
 GET  /w/showuser         controllers.WXuserinfoController.getuserinfolist(u:String?=null)
 GET /w/getcurretnuser    controllers.WXuserinfoController.getcurrentuserinfo(o:String?=null)
+GET /w/getsharerecord    controllers.WXuserinfoController.getsharerecord(o:String?=null,u:String?=null)
 
 
 

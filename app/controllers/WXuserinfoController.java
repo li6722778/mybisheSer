@@ -113,5 +113,13 @@ public class WXuserinfoController extends Controller {
 		return ok(jsonNode);
 	}
 	
+	public static Result getsharerecord(String openid,String url) {
+		Logger.info("start to get userinfolist");
+		String json = gsonBuilderWithExpose.toJson(Twxuserinfo.getsharestatue(openid,url));
+		JsonNode jsonNode = Json.parse(json);
+		Logger.debug("got Data:" + json);
+		return ok(jsonNode);
+	}
+	
 
 }
