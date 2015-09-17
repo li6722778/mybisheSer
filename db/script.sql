@@ -424,6 +424,16 @@ create_name               varchar(255),
 constraint pk_tb_counpon_info_his primary key (counpon_id))
 ;
 
+create table tb_wxuser (
+openid                    varchar(100),
+nickname                  varchar(100),
+headimgurl                varchar(1000),
+sharet_date               timestamp NULL,
+shareword                 varchar(1000),
+getcoupnprice             integer,
+uniqueurl                 varchar(50),
+userphone                 varchar(30))
+;
 
 alter table tb_order add constraint fk_tb_order_parkInfo_1 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
 create index ix_tb_order_parkInfo_1 on tb_order (parkId);

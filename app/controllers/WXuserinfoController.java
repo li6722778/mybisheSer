@@ -1,22 +1,18 @@
 package controllers;
 
-import java.util.Date;
 import java.util.Random;
 
 import models.info.TOptions;
-import models.info.TuserInfo;
 import models.info.Twxuserinfo;
-import action.BasicAuth;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import utils.ComResponse;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * @author mxs E-mail:308348194@qq.com

@@ -115,7 +115,9 @@ GET  /a/isshare/find                           controllers.ShareController.getDa
 GET  /a/isshare/find/:id                       controllers.ShareController.getDataByIds(id:Long)
 GET  /a/sendshare                              controllers.ShareController.sendShareById(t:Long?=0,u:String?=null)
 GET  /a/saveurl                                controllers.ShareController.saveurl(url:String?=null)
-
+GET  /a/saveredicturl                          controllers.DirectController.saveredicturl(u:String?=null,r:String?=null)
+GET  /a/findredicturl                          controllers.DirectController.getdirecturl(u:String?=null)
+POST /a/redicturl/save                         controllers.DirectController.saveData()
 
 
 GET  /w/saveuser         controllers.WXuserinfoController.saveuserinfo(o:String?=null,n:String?=null,h:String?=null,g:Int ?= 0,u:String?=null,p:String?=null)
