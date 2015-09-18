@@ -1513,6 +1513,20 @@ public class WebPageController extends Controller {
 		return ok("提交成功.");
 	}
 
+	
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoAllowanceUser() {
+		Logger.debug("goto gotoAllowance");
+
+		TAllowance allowance = TAllowance.findAllowanceUser();
+
+		return ok(views.html.allowanceUser.render(allowance));
+	}
+
+	
+	
+	
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoAllowance() {
 		Logger.debug("goto gotoAllowance");

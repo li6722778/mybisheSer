@@ -27,6 +27,10 @@ public class ChebolePayOptions {
 	@Expose
     public double payActualPrice;
 	
+	//用户补贴
+	@Expose
+    public double userAllowance;
+	
 	@Expose
 	public double counponUsedMoneyForTotal;
 	
@@ -49,4 +53,5 @@ public class ChebolePayOptions {
 	@Expose
 	public String keepToDate;
 	
+
 }

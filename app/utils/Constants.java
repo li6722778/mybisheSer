@@ -33,6 +33,7 @@ public class Constants {
 	public static final int PAYMENT_COUPONCASH=PAYMENT_TYPE_CASH+PAYMENT_COUPON;
 	public static final int PAYMENT_COUPONDISCOUNTCASH=PAYMENT_TYPE_CASH+PAYMENT_DISCOUNT+PAYMENT_COUPON;
 	public static final int PAYMENT_DISCOUNTCASH=PAYMENT_TYPE_CASH+PAYMENT_DISCOUNT;
+	public static final int PAYMENT_lijian=21;
 	
 	public static final int USER_TYPE_NORMAL=10;
 	public static final int USER_TYPE_PADMIN=20;

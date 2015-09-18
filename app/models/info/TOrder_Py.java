@@ -1,6 +1,7 @@
 package models.info;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -116,5 +117,15 @@ public class TOrder_Py extends Model{
 		return  db==null?0: db;
 	}
 	
-	
+	public static TOrder_Py findforuserallow(long orderid)
+	{
+		
+		List<TOrder_Py> torderpy=find.where().eq("orderId", orderid).eq("payMethod", Constants.PAYMENT_lijian).findList();
+				
+		if(torderpy==null||torderpy.size()==0){
+			return new TOrder_Py();
+		}
+		return torderpy.get(torderpy.size()-1);
+		      
+	}
 }

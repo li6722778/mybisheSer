@@ -94,7 +94,20 @@ public class TAllowance extends Model{
 	 */
 	public static TAllowance findAllowance() {
 
-		List<TAllowance> allowance = find.findList();
+		List<TAllowance> allowance = find.where().eq("allowancePayType", 0).findList();
+		if(allowance==null||allowance.size()==0){
+			return new TAllowance();
+		}
+		return allowance.get(allowance.size()-1);
+	}
+	
+	/**
+	 * 获得用户的数据
+	 * @return
+	 */
+	public static TAllowance findAllowanceUser() {
+
+		List<TAllowance> allowance = find.where().eq("allowancePayType", 1).findList();
 		if(allowance==null||allowance.size()==0){
 			return new TAllowance();
 		}
