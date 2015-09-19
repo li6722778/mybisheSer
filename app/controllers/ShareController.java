@@ -165,7 +165,6 @@ public class ShareController extends Controller {
 			}
 		}
 		
-		
 		// 获取url的已分享次数
 		final Tuniqueurl uniqueurl = Tuniqueurl.findDataById(url);
 		// 获取后台设置的每个url可用次数
@@ -221,8 +220,7 @@ public class ShareController extends Controller {
 				Logger.info("---"+uniqueurl.userphoneObject);
 				// 之前没有用户使用过该url链接
 				if (phoneobjects == null && counponcodes != null) {
-					int sendresult = sendtouser(telephonenumber, uniqueurl,
-							times, counponcodes);
+					int sendresult = sendtouser(telephonenumber, uniqueurl,times, counponcodes);
 					if (sendresult == 0) {
 						response.setResponseEntity("0");
 						response.setResponseStatus(ComResponse.STATUS_FAIL);
@@ -243,7 +241,7 @@ public class ShareController extends Controller {
 							SMSController.requestSMSmessage(telephonenumber, sendresult+2);
 						}
 						else {
-							Logger.info("分享成功，获取优惠劵:"+sendresult+"元");
+							Logger.info("分享成功，获取优惠劵:"+(sendresult+1)+"元");
 							SMSController.requestSMSmessage(telephonenumber, sendresult+1);
 						}
 						
@@ -252,8 +250,7 @@ public class ShareController extends Controller {
 					}
 				}
 				// 该url链接已经被使用，查询该手机号是否在该url中记录过
-				else if (phoneobjects != null
-						&& !(phoneobjects.toString().trim().equals(""))) {
+				else if (phoneobjects != null&& !(phoneobjects.toString().trim().equals(""))) {
 					String[] phoneobject = phoneobjects.split(",");
 					boolean result = false;
 					String telephone = Long.toString(telephonenumber);
@@ -266,38 +263,34 @@ public class ShareController extends Controller {
 
 					// 手机号不在该url的分享记录中
 					if (result == false) {
-						int sendreuslt = sendtouser(telephonenumber, uniqueurl,
-								times, counponcodes);
-
-						if (sendreuslt == 0) {
-						Logger.info("分享失败，");
+						int sendresult = sendtouser(telephonenumber, uniqueurl,times, counponcodes);
+						if (sendresult == 0) {
 							response.setResponseEntity("0");
 							response.setResponseStatus(ComResponse.STATUS_FAIL);
 						}
 						// 新用户返回4
-						if (sendreuslt == 4) {
+						if (sendresult ==4) {
 							
-							Logger.info("分享成功，获取优惠劵:10元");
 							SMSController.requestSMSmessage(telephonenumber, 10);
+							Logger.info("分享成功，获取10元优惠劵");
 							response.setResponseEntity("10");
 							response.setResponseStatus(ComResponse.STATUS_OK);
 						}
-						
-				       // 老用户返回的获取优惠劵金额 返回2，3，5
-						
-						if(sendreuslt==3){
-							Logger.info("分享成功，获取5元优惠劵");
-							SMSController.requestSMSmessage(telephonenumber, sendreuslt+2);
-						}
+						// 老用户返回的获取优惠劵金额
 						else {
-							Logger.info("分享成功，获取优惠劵:"+sendreuslt+"元");
-							SMSController.requestSMSmessage(telephonenumber, sendreuslt+1);
+							
+							if(sendresult==3){
+								Logger.info("分享成功，获取5元优惠劵");
+								SMSController.requestSMSmessage(telephonenumber, sendresult+2);
+							}
+							else {
+								Logger.info("分享成功，获取优惠劵:"+(sendresult+1)+"元");
+								SMSController.requestSMSmessage(telephonenumber, sendresult+1);
+							}
+							
+							response.setResponseEntity(sendresult + "");
+							response.setResponseStatus(ComResponse.STATUS_OK);
 						}
-						
-						response.setResponseEntity(sendreuslt + "");
-						response.setResponseStatus(ComResponse.STATUS_OK);
-					
-
 					}
 					// 该用户已经通过该url领取过优惠劵
 					else if (result == true) {
@@ -367,20 +360,18 @@ public class ShareController extends Controller {
 	public static int sendtouser(Long telephonenumber, Tuniqueurl uniqueurl,
 			int times, String[] counponcodes) {
 		// 返回标识
-		int result;
+		int result=0;
 		// 证明该链接的分享获取优惠劵次数未用完
 
 		if (uniqueurl.sharetime < times) {
 			// 判断是老用户还是新用户
 			TuserInfo userInfo = TuserInfo.findDataByPhoneId(telephonenumber);
-
 			// 老用户
 			if (userInfo != null) {
 				// 随机赠送优惠劵
 				result = sendrandomshareCounpon(counponcodes, userInfo.userid);
 				// url的分享次数加一
-				Tuniqueurl.updateTuniqueurl(uniqueurl.url,
-						uniqueurl.sharetime + 1, telephonenumber.toString());
+				Tuniqueurl.updateTuniqueurl(uniqueurl.url,uniqueurl.sharetime + 1, telephonenumber.toString());
 				return result;
 			}
 			// 新用户,记录用户信息，注册后赠送优惠劵
