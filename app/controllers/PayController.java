@@ -424,8 +424,7 @@ public class PayController extends Controller {
 					 ***********************************************************************/
 					
 					
-//					String takeacce=getAccessToken();+","+ConstantUtil.APP_KEY
-//					Logger.debug(" @@@@@@@@@@@@@@@@@@@@@@" + takeacce);
+
 					/*********************************************************************
 					 * 生成完毕
 					 ***********************************************************************/
@@ -628,9 +627,6 @@ public class PayController extends Controller {
 					List<TOrder_Py> pays = new ArrayList<TOrder_Py>();
 					if(s!=0&&chebolePayOptions.userAllowance>0)
 					{
-						
-						
-	                	
 	                	 orderPy.payTotal=chebolePayOptions.userAllowance;
 	                	 orderPy.payActu=0.0;
 	                	 orderPy.couponUsed=chebolePayOptions.userAllowance;
@@ -724,8 +720,7 @@ public class PayController extends Controller {
 					 ***********************************************************************/
 					
 					
-//					String takeacce=getAccessToken();+","+ConstantUtil.APP_KEY
-//					Logger.debug(" @@@@@@@@@@@@@@@@@@@@@@" + takeacce);
+
 					/*********************************************************************
 					 * 生成完毕
 					 ***********************************************************************/
@@ -754,7 +749,8 @@ public class PayController extends Controller {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setResponseEntity(chebolePayOptions);
 			response.setErrorMessage(e.getMessage());
-			Logger.error("", e);
+			Logger.error("", e.getMessage());
+			Logger.info("", e);
 		}
 		String tempJsonString = gsonBuilderWithExpose.toJson(response);
 		JsonNode json = Json.parse(tempJsonString);
@@ -1245,7 +1241,7 @@ public class PayController extends Controller {
 					 newpay.order = null;//解决gson递归分析的内存溢出问题
 					 pays.add(newpay);
 				}
-				
+			
 				// ***********已经完成的订单需要移到历史表**************/
 				TOrderHis.moveToHisFromOrder(orderId,Constants.ORDER_TYPE_FINISH);
 				
@@ -1284,7 +1280,8 @@ public class PayController extends Controller {
 			}
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
-			Logger.error("updatePayment", e);
+			Logger.error("updatePayment", e.getMessage());
+			Logger.info("updatePayment", e);
 		}
 		String tempJsonString = gsonBuilderWithExpose.toJson(response);
 		JsonNode json = Json.parse(tempJsonString);
@@ -1505,7 +1502,8 @@ public class PayController extends Controller {
 			}
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
-			Logger.error("updatePayment", e);
+			Logger.error("updatePayment", e.getMessage());
+			Logger.info("updatePayment",e);
 		}
 		String tempJsonString = gsonBuilderWithExpose.toJson(response);
 		JsonNode json = Json.parse(tempJsonString);
@@ -1585,7 +1583,7 @@ public class PayController extends Controller {
 						
 						
 					}
-					realPayPrice=realPayPrice-actuserallowan;
+					realPayPrice=Arith.decimalPrice(realPayPrice-actuserallowan);
 					ChebolePayOptions payOption = new ChebolePayOptions();
 					payOption.payActualPrice = Arith.decimalPrice(realPayPrice);
 					payOption.payOrginalPrice = Arith
@@ -1594,7 +1592,7 @@ public class PayController extends Controller {
 					payOption.useCounpon = useCounpon;
 					payOption.counponId = counponId;
 					payOption.counponUsedMoneyForIn = couponUsedMoney;
-					payOption.userAllowance=actuserallowan;
+					payOption.userAllowance= Arith.decimalPrice(actuserallowan);
 					if (keepMinus > 0) {
 						try {
 							payOption.keepToDate = DateHelper.format(DateHelper
@@ -1628,7 +1626,8 @@ public class PayController extends Controller {
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
-			Logger.error("", e);
+			Logger.error("", e.getMessage());
+			Logger.info("",e);
 		}
 
 		String tempJsonString = gsonBuilderWithExpose.toJson(response);
@@ -1878,7 +1877,8 @@ public class PayController extends Controller {
 			newThread.start();
 
 		} catch (Exception e) {
-			Logger.error("scheduleTaskForOverdue", e);
+			Logger.error("scheduleTaskForOverdue", e.getMessage());
+			Logger.info("scheduleTaskForOverdue", e);
 		}
 	}
 
@@ -1890,6 +1890,8 @@ public class PayController extends Controller {
 		try {
 			TOrder_Py order = TOrder_Py.findDataById(payId);
 			if (order != null) {
+				//更新立减订单
+				updatelijian(order.order.pay,status);
 				if (status == Constants.PAYMENT_STATUS_FINISH) {
 
 					if (order.ackStatus != Constants.PAYMENT_STATUS_FINISH) {
@@ -1904,8 +1906,7 @@ public class PayController extends Controller {
 						// start to push
 						TOrder torder = order.order;
 						if (torder != null) {
-							//更新立减订单
-							updatelijian(torder.pay);
+							
 							if (torder.parkInfo != null
 									&& torder.userInfo != null
 									&& torder.startDate == null
@@ -2508,11 +2509,9 @@ private  static String GetPrepayIdTask(String out_trade_no,int money)
 	{
 		double actuserallowan=0.0d;
 		// 添加用户补贴
-		Logger.debug("###########realPayPrice" + realPayPrice);
 		if (realPayPrice != 0) {
 			TAllowance userallow = TAllowance.findAllowanceUser();
 			
-			Logger.debug("##############:" + userallow.allowanceId+"userallow.paytype"+userallow.allowancePayType);
 			if (userallow != null &&userallow.isopen==1&& userallow.allowancePayType == 1&&userallow.allowanceTypeValue>0) {
                  if(userallow.allowanceType==1)
                  {
@@ -2521,14 +2520,12 @@ private  static String GetPrepayIdTask(String out_trade_no,int money)
                 	 {
                 		 actuserallowan=realPayPrice;
                 		 realPayPrice=0;
-                			Logger.debug("##############actuserallowan" +actuserallowan);
                 		                     		 
                 	 }else
                 	 {
                 		 realPayPrice= Arith.decimalPrice(realPayPrice-userallow.allowanceTypeValue);
                 		 actuserallowan=userallow.allowanceTypeValue;
                 		 
-                			Logger.debug("@@@@@@@@@@@@@@@@@@@realPayPrice" +realPayPrice);
                 	 }
                
                  }else
@@ -2575,13 +2572,13 @@ private  static String GetPrepayIdTask(String out_trade_no,int money)
 	}
 	
 	//更新状态函数
-	public static void updatelijian(List<TOrder_Py> orderpys)
+	public static void updatelijian(List<TOrder_Py> orderpys,int status)
 	{
 		for(TOrder_Py temp:orderpys)
 		{
-			if(temp.payMethod==Constants.PAYMENT_lijian&&temp.ackStatus!=Constants.PAYMENT_STATUS_FINISH)
+			if(temp.payMethod==Constants.PAYMENT_lijian)
 			{
-				temp.ackStatus= Constants.PAYMENT_STATUS_FINISH;;
+				temp.ackStatus= status;
 				temp.ackDate=new Date();
 				Set<String> options = new HashSet<String>();
 				options.add("ackDate");
