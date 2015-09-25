@@ -373,6 +373,7 @@ create table tb_counpon_use (
   userid                    bigint,
   counpon_id                bigint,
   isable                    integer(2) default 1,
+  type                      integer(2) default 0,
   scan_date                 timestamp NULL,
   use_date                  timestamp NULL,
   constraint pk_tb_counpon_use primary key (id))
@@ -383,6 +384,7 @@ create table tb_counpon_use_his (
   userid                    bigint,
   counpon_id                bigint,
   isable                    integer(2) default 1,
+  type                      integer(2) default 0,
   scan_date                 timestamp NULL,
   use_date                  timestamp NULL,
   constraint pk_tb_counpon_use_his primary key (id))
@@ -405,6 +407,42 @@ create table tb_client_ver (
   constraint pk_tb_client_ver primary key (version_id))
 ;
 
+create table tb_redicturl (
+  uniqueurl                 varchar(50) not null,
+  redicturl                 varchar(1000),
+  constraint pk_tb_redicturl primary key (uniqueurl))
+;
+
+create table tb_smsmodel (
+  type                      integer auto_increment not null,
+  cotent                    varchar(1000),
+  descripe                  varchar(500),
+  constraint pk_tb_smsmodel primary key (type))
+;
+
+create table tb_smssenduser (
+  id                        integer auto_increment not null,
+  telephone                 varchar(20),
+  type                      integer,
+  cotent                    varchar(1000),
+  constraint pk_tb_smssenduser primary key (id))
+;
+
+create table tb_uniqueurl (
+  url                       varchar(255) not null,
+  sharetime                 integer(3) default 0,
+  sharet_date               timestamp NULL,
+  userphone_object          varchar(150),
+  constraint pk_tb_uniqueurl primary key (url))
+;
+
+create table tb_unregisteruser (
+  user_phone                bigint auto_increment not null,
+  sharetime                 integer(3) default 0,
+  sharet_date               timestamp NULL,
+  constraint pk_tb_unregisteruser primary key (user_phone))
+;
+
 create table tb_user (
   userid                    bigint auto_increment not null,
   user_name                 varchar(50) not null,
@@ -417,6 +455,17 @@ create table tb_user (
   create_person             varchar(50),
   update_person             varchar(50),
   constraint pk_tb_user primary key (userid))
+;
+
+create table tb_wxuser (
+  openid                    varchar(100),
+  nickname                  varchar(100),
+  headimgurl                varchar(1000),
+  sharet_date               timestamp NULL,
+  shareword                 varchar(1000),
+  getcoupnprice             integer,
+  uniqueurl                 varchar(50),
+  userphone                 varchar(30))
 ;
 
 alter table tb_income add constraint fk_tb_income_parkInfo_1 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
@@ -518,7 +567,19 @@ drop table tb_verify_code;
 
 drop table tb_client_ver;
 
+drop table tb_redicturl;
+
+drop table tb_smsmodel;
+
+drop table tb_smssenduser;
+
+drop table tb_uniqueurl;
+
+drop table tb_unregisteruser;
+
 drop table tb_user;
+
+drop table tb_wxuser;
 
 SET FOREIGN_KEY_CHECKS=1;
 

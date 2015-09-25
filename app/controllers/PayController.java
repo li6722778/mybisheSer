@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import models.ChebolePayOptions;
+import models.info.TAllowance;
 import models.info.TCouponEntity;
 import models.info.TCouponHis;
 import models.info.TOrder;
@@ -423,8 +424,7 @@ public class PayController extends Controller {
 					 ***********************************************************************/
 					
 					
-//					String takeacce=getAccessToken();+","+ConstantUtil.APP_KEY
-//					Logger.debug(" @@@@@@@@@@@@@@@@@@@@@@" + takeacce);
+
 					/*********************************************************************
 					 * 生成完毕
 					 ***********************************************************************/
@@ -466,13 +466,13 @@ public class PayController extends Controller {
 	/**
 	 * 最新第一次付款。 计次收费原则上只有一次付款 分段收费有二次付款
 	 * 微信支付两次加密移到服务端
-	 * 
+	 * 参数s表示判断是否为可以开启用户补贴的标识 为0表示可以，为1表示不行。
 	 * @param parkingProdId
 	 * @return
 	 */
 	@BasicAuth
 	public static Result payForInNew(long parkingProdId, String city,
-			double latitude, double longitude,int userSelectedpayWay,String clientId) {
+			double latitude, double longitude,int userSelectedpayWay,String clientId,int s) {
 		Logger.info("start to generator order and generator aili pay for:"
 				+ parkingProdId + ",city:" + city);
 		String request = request().body().asJson().toString();
@@ -511,6 +511,8 @@ public class PayController extends Controller {
 					TOrder dataBean = null;
 					// 付款单
 					TOrder_Py payment = null;
+					//立减订单
+					TOrder_Py orderPy = null;
 					if (chebolePayOptions.order != null
 							&& chebolePayOptions.order.orderId != null
 							&& chebolePayOptions.order.orderId > 0) { // 该订单已经存在
@@ -522,6 +524,15 @@ public class PayController extends Controller {
 						}
 						// 查看当前状态下是否有付款单
 						if (dataBean.pay != null) {
+							//立减订单
+						for(TOrder_Py temp:dataBean.pay)
+						{
+							if(temp.payMethod==Constants.PAYMENT_lijian)
+							{
+								orderPy=temp;
+							}
+							
+						}
 							// 付款单
 							long payID = chebolePayOptions.paymentId;
 							payment = TOrder_Py.findDataById(payID);
@@ -558,6 +569,10 @@ public class PayController extends Controller {
 					}
 					if (payment == null) {
 						payment = new TOrder_Py();
+					}
+					if(orderPy==null)
+					{
+						orderPy=new TOrder_Py();
 					}
 					int payWay;
 					 if(userSelectedpayWay==Constants.PAYIN_PAY_ZFB)
@@ -608,12 +623,25 @@ public class PayController extends Controller {
 					dataBean.discountSecHourMoneyOrder = infoPark.discountSecHourMoney;
 					dataBean.discountSecStartHourOrder = infoPark.discountSecStartHour;
                     //copy完成
-					
-					
+					//添加立减的order_py
+					List<TOrder_Py> pays = new ArrayList<TOrder_Py>();
+					if(s!=0&&chebolePayOptions.userAllowance>0)
+					{
+	                	 orderPy.payTotal=chebolePayOptions.userAllowance;
+	                	 orderPy.payActu=0.0;
+	                	 orderPy.couponUsed=chebolePayOptions.userAllowance;
+	                	 orderPy.payMethod=Constants.PAYMENT_lijian;
+	                	 orderPy.ackStatus=Constants.PAYMENT_STATUS_START;
+	                	 orderPy.ackDate=new Date();
+	                	 orderPy.payDate=new Date();
+	                	 orderPy.createPerson=user.userName;
+	                	 pays.add(orderPy);
+						
+					}
 					payment.payActu = chebolePayOptions.payActualPrice;
 					
 					payment.payMethod = payWay;
-					payment.payTotal = chebolePayOptions.payOrginalPrice;
+					payment.payTotal = chebolePayOptions.payOrginalPrice-chebolePayOptions.userAllowance;
 
 					payment.ackStatus = Constants.PAYMENT_STATUS_START;
 					payment.ackDate = null;
@@ -622,10 +650,13 @@ public class PayController extends Controller {
 					payment.payDate = currentDate;
 
 					payment.couponUsed = chebolePayOptions.counponUsedMoneyForIn;
+					
+					
 
-					List<TOrder_Py> pays = new ArrayList<TOrder_Py>();
+					
 					pays.add(payment);
 
+					
 					dataBean.pay = pays;
 
 					
@@ -689,8 +720,7 @@ public class PayController extends Controller {
 					 ***********************************************************************/
 					
 					
-//					String takeacce=getAccessToken();+","+ConstantUtil.APP_KEY
-//					Logger.debug(" @@@@@@@@@@@@@@@@@@@@@@" + takeacce);
+
 					/*********************************************************************
 					 * 生成完毕
 					 ***********************************************************************/
@@ -719,7 +749,8 @@ public class PayController extends Controller {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setResponseEntity(chebolePayOptions);
 			response.setErrorMessage(e.getMessage());
-			Logger.error("", e);
+			Logger.error("", e.getMessage());
+			Logger.info("", e);
 		}
 		String tempJsonString = gsonBuilderWithExpose.toJson(response);
 		JsonNode json = Json.parse(tempJsonString);
@@ -759,6 +790,8 @@ public class PayController extends Controller {
 		double totalAlreadyPay = 0.0;
 		double actuAlreadyPay = 0.0;
 		double actuUsedCoupon = 0.0;
+		//用户优惠的金额
+		double userallance = 0.0;
 		boolean isDiscount = false;
 		boolean useCounpon = false;
 
@@ -773,6 +806,10 @@ public class PayController extends Controller {
 
 		// 总共停车小时
 		double spentHour = 0.0;
+		
+		
+
+
 		if (order.couponId > 0) {
 			TCouponEntity couponEntity = TCouponEntity
 					.findDataById(order.couponId);
@@ -801,9 +838,16 @@ public class PayController extends Controller {
 				// 状态为完成和处理中的，总价都要计算上，因为“处理中”可能是支付接口问题，单根据支付宝协议，会在几个小时内post结果信息
 				if (p.ackStatus == Constants.ORDER_TYPE_FINISH
 						|| p.ackStatus == Constants.ORDER_TYPE_PENDING) {
+					if(p.payMethod!=Constants.PAYMENT_lijian)
+					{
 					totalAlreadyPay += p.payTotal;
 					actuAlreadyPay += p.payActu;
 					couponUsed += p.couponUsed;
+					}else
+					{
+						totalAlreadyPay += p.payTotal;
+						userallance+=p.couponUsed;
+					}
 				}
 			}
 			canbeUsedCoupon = Arith.decimalPrice(Math.abs(couponPrice
@@ -880,6 +924,8 @@ public class PayController extends Controller {
 				+ newpriceWithCouponAndDiscount);
 		Logger.debug("pay for out:::::::::::show Orginal Price:"
 				+ newpriceWithoutCouponAndDiscount);
+		Logger.debug("pay for out:::::::::::show Orginal Price:"
+				+ userallance);
 		
 		
 
@@ -892,9 +938,9 @@ public class PayController extends Controller {
 		payOption.counponUsedMoneyForOut = actuUsedCoupon;
 		payOption.order = order;
 		payOption.parkSpentHour = spentHour;
-		
+		payOption.userAllowance=userallance;
 		//计算出当前总共需要需要多少钱
-		payOption.payActualPriceForTotal = Arith.decimalPrice(actuAlreadyPay+newpriceWithCouponAndDiscount+couponUsed+actuUsedCoupon);
+		payOption.payActualPriceForTotal = Arith.decimalPrice(actuAlreadyPay+newpriceWithCouponAndDiscount+couponUsed+actuUsedCoupon+userallance);
 		payOption.payOrginalPriceFoTotal = Arith.decimalPrice(totalAlreadyPay+newpriceWithoutCouponAndDiscount);
 		payOption.counponUsedMoneyForTotal= Arith.decimalPrice(couponUsed+actuUsedCoupon);
 	
@@ -1195,7 +1241,7 @@ public class PayController extends Controller {
 					 newpay.order = null;//解决gson递归分析的内存溢出问题
 					 pays.add(newpay);
 				}
-				
+			
 				// ***********已经完成的订单需要移到历史表**************/
 				TOrderHis.moveToHisFromOrder(orderId,Constants.ORDER_TYPE_FINISH);
 				
@@ -1234,7 +1280,8 @@ public class PayController extends Controller {
 			}
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
-			Logger.error("updatePayment", e);
+			Logger.error("updatePayment", e.getMessage());
+			Logger.info("updatePayment", e);
 		}
 		String tempJsonString = gsonBuilderWithExpose.toJson(response);
 		JsonNode json = Json.parse(tempJsonString);
@@ -1455,7 +1502,8 @@ public class PayController extends Controller {
 			}
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
-			Logger.error("updatePayment", e);
+			Logger.error("updatePayment", e.getMessage());
+			Logger.info("updatePayment",e);
 		}
 		String tempJsonString = gsonBuilderWithExpose.toJson(response);
 		JsonNode json = Json.parse(tempJsonString);
@@ -1469,7 +1517,7 @@ public class PayController extends Controller {
 	 * @param counponId
 	 * @return
 	 */
-	public static Result getRealPayInfo(long parkingProdId, long counponId) {
+	public static Result getRealPayInfo(long parkingProdId, long counponId,int s) {
 
 		Logger.info("start to get real price for:" + parkingProdId
 				+ ",counponId:" + counponId);
@@ -1527,7 +1575,15 @@ public class PayController extends Controller {
 							useCounpon = true;
 						}
 					}
-
+					//s表示新版本 包含
+					double actuserallowan=0.0d;
+					if(s!=0)
+					{
+						actuserallowan=lijianGetPay(realPayPrice);
+						
+						
+					}
+					realPayPrice=Arith.decimalPrice(realPayPrice-actuserallowan);
 					ChebolePayOptions payOption = new ChebolePayOptions();
 					payOption.payActualPrice = Arith.decimalPrice(realPayPrice);
 					payOption.payOrginalPrice = Arith
@@ -1536,6 +1592,7 @@ public class PayController extends Controller {
 					payOption.useCounpon = useCounpon;
 					payOption.counponId = counponId;
 					payOption.counponUsedMoneyForIn = couponUsedMoney;
+					payOption.userAllowance= Arith.decimalPrice(actuserallowan);
 					if (keepMinus > 0) {
 						try {
 							payOption.keepToDate = DateHelper.format(DateHelper
@@ -1569,7 +1626,8 @@ public class PayController extends Controller {
 		} catch (Exception e) {
 			response.setResponseStatus(ComResponse.STATUS_FAIL);
 			response.setErrorMessage(e.getMessage());
-			Logger.error("", e);
+			Logger.error("", e.getMessage());
+			Logger.info("",e);
 		}
 
 		String tempJsonString = gsonBuilderWithExpose.toJson(response);
@@ -1819,7 +1877,8 @@ public class PayController extends Controller {
 			newThread.start();
 
 		} catch (Exception e) {
-			Logger.error("scheduleTaskForOverdue", e);
+			Logger.error("scheduleTaskForOverdue", e.getMessage());
+			Logger.info("scheduleTaskForOverdue", e);
 		}
 	}
 
@@ -1831,6 +1890,8 @@ public class PayController extends Controller {
 		try {
 			TOrder_Py order = TOrder_Py.findDataById(payId);
 			if (order != null) {
+				//更新立减订单
+				updatelijian(order.order.pay,status);
 				if (status == Constants.PAYMENT_STATUS_FINISH) {
 
 					if (order.ackStatus != Constants.PAYMENT_STATUS_FINISH) {
@@ -1845,6 +1906,7 @@ public class PayController extends Controller {
 						// start to push
 						TOrder torder = order.order;
 						if (torder != null) {
+							
 							if (torder.parkInfo != null
 									&& torder.userInfo != null
 									&& torder.startDate == null
@@ -2443,5 +2505,91 @@ private  static String GetPrepayIdTask(String out_trade_no,int money)
 
 	}
 	
+	public static double lijianGetPay(double realPayPrice)
+	{
+		double actuserallowan=0.0d;
+		// 添加用户补贴
+		if (realPayPrice != 0) {
+			TAllowance userallow = TAllowance.findAllowanceUser();
+			
+			if (userallow != null &&userallow.isopen==1&& userallow.allowancePayType == 1&&userallow.allowanceTypeValue>0) {
+                 if(userallow.allowanceType==1)
+                 {
+                	 //按照固定金额优惠
+                	 if(realPayPrice<=userallow.allowanceTypeValue)
+                	 {
+                		 actuserallowan=realPayPrice;
+                		 realPayPrice=0;
+                		                     		 
+                	 }else
+                	 {
+                		 realPayPrice= Arith.decimalPrice(realPayPrice-userallow.allowanceTypeValue);
+                		 actuserallowan=userallow.allowanceTypeValue;
+                		 
+                	 }
+               
+                 }else
+                 {
+                	 //按照比例来
+                	 if(userallow.allowanceTypeValue<100&&userallow.allowanceTypeValue>0)
+                	 {
+                		 //需要减少的钱
+                		 actuserallowan=Arith.decimalPrice(realPayPrice*(userallow.allowanceTypeValue)/100);
+                		 
+                		 
+                	 }
+                	 
+                	 
+                 }
+                 
+                 
+//                 TOrder_Py orderPy=TOrder_Py.findforuserallow(order.orderId);
+//                 if(orderPy!=null)
+//                 {
+//                	 orderPy.payTotal=actuserallowan;
+//                	 orderPy.couponUsed=actuserallowan;
+//                
+//                 }else
+//                 {
+//                 
+//                	 orderPy =new TOrder_Py();
+//            	 orderPy.order=order;
+//            	 orderPy.payTotal=actuserallowan;
+//            	 orderPy.payActu=0.0;
+//            	 orderPy.couponUsed=actuserallowan;
+//            	 orderPy.payMethod=21;
+//            	 orderPy.ackStatus=2;
+//            	 orderPy.ackDate=new Date();
+//            	 orderPy.payDate=new Date();
+//            	 orderPy.createPerson="aaa";
+//            	
+//                 }
+//                 TOrder_Py.saveData(orderPy);
+			}
+		}
+		return actuserallowan;
+		
+	}
+	
+	//更新状态函数
+	public static void updatelijian(List<TOrder_Py> orderpys,int status)
+	{
+		for(TOrder_Py temp:orderpys)
+		{
+			if(temp.payMethod==Constants.PAYMENT_lijian)
+			{
+				temp.ackStatus= status;
+				temp.ackDate=new Date();
+				Set<String> options = new HashSet<String>();
+				options.add("ackDate");
+				options.add("ackStatus");
+				Ebean.update(temp, options);
+			}
+			
+		}
+		
+		
+		
+	}
 	
 }

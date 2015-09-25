@@ -82,7 +82,7 @@ GET /a/counpon/getcounpon                              controllers.CounponContro
 ##GET /a/counpon/insetdata                             controllers.CounponController.setcounpon()####
 GET /a/counpon/findcounponbyuserid/:userid             controllers.CounponController.getAllDataByUser(p:Int ?= 0, s:Int ?= 10, o ?= "scanDate desc",userid:Long)
 
-GET  /a/pay/price/:parkid                          controllers.PayController.getRealPayInfo(parkid:Long,c:Long ?=0)
+GET  /a/pay/price/:parkid                          controllers.PayController.getRealPayInfo(parkid:Long,c:Long ?=0,s:Int ?=0)
 POST /a/pay/update/:orderid/:payid/:status         controllers.PayController.updatePayment(orderid:Long,payid:Long,status:Integer,u?="false")
 GET  /a/pay/out/adm/:parkid/:orderId               controllers.PayController.parkingOutForAdm(parkid:Long,orderId:Long, m:Double?=0)
 GET  /a/pay/findpay/:orderId/:parkId               controllers.PayController.getCurrentNeededPay(orderId:Long,parkId:Long)
@@ -91,7 +91,7 @@ GET  /a/pay/findpay/:orderId/:parkId               controllers.PayController.get
 POST /a/pay/out/:orderId                           controllers.PayController.payForOut(orderId:Long,o ?= "",payway:Int?=0,clientId?="")
 POST /a/pay/outnew/:orderId                           controllers.PayController.payForOutNew(orderId:Long,o ?= "",payway:Int?=0,clientId?="")
 POST /a/pay/in/:parkid                             controllers.PayController.payForIn(parkid:Long,c?= "",lt:Double?=0,ln:Double?=0,payway:Int?=0,clientId?="")
-POST /a/pay/innew/:parkid                             controllers.PayController.payForInNew(parkid:Long,c?= "",lt:Double?=0,ln:Double?=0,payway:Int?=0,clientId?="")
+POST /a/pay/innew/:parkid                             controllers.PayController.payForInNew(parkid:Long,c?= "",lt:Double?=0,ln:Double?=0,payway:Int?=0,clientId?="",s:Int ?=0)
 GET  /a/scan/entrance/:orderId                     controllers.ScanController.scanForIn(orderId:Long,o ?= "")
 
 POST /a/parkinfo/savepic                           controllers.UploadController.upload()
@@ -218,6 +218,10 @@ POST      /w/options                    controllers.WebPageController.gotoOption
 GET       /w/options/:otype                    controllers.WebPageController.gotoOptionsByType(otype:Integer)
 POST      /w/options/submit             controllers.WebPageController.saveOptionData()
 
+
+POST      /w/allowanceuser                          controllers.WebPageController.gotoAllowanceUser()
+
+POST      /w/allowanceuser/submit                   controllers.WebPageController.saveAllowanceDataForUser()
 POST      /w/allowance                          controllers.WebPageController.gotoAllowance()
 POST      /w/allowance/submit                   controllers.WebPageController.saveAllowanceData()
 POST      /w/allowanceoffer                     controllers.WebPageController.gotoAllowanceOffer(p:Int ?= 0, s:Int ?= 20, o ?= "createDate desc",f:Long?=0)

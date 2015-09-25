@@ -1,3 +1,8 @@
 eclipse.preferences.version=1
+encoding//app/views/allowance.scala.html=UTF-8
+encoding//app/views/commentskeyword.scala.html=UTF-8
+encoding//app/views/coupondirectsend.scala.html=UTF-8
 encoding//app/views/couponinfousedlist.scala.html=UTF-8
+encoding//app/views/options.scala.html=UTF-8
+encoding//app/views/smspush.scala.html=UTF-8
 encoding/<project>=UTF-8

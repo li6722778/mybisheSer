@@ -62,6 +62,14 @@ public class TParkInfo extends Model {
 	@Column(nullable = false, length = 30)
 	@Expose
 	public long ownerPhone;
+	
+	@Constraints.Required
+	@Column(nullable = false, length = 30)
+	@Expose
+	public long parkPhone;
+	@Column(columnDefinition = "integer(2) default 0")
+	@Expose
+	public int teleable;
 
 	@Size(max = 255)
 	@Expose

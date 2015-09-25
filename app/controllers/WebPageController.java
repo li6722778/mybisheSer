@@ -1514,6 +1514,20 @@ public class WebPageController extends Controller {
 		return ok("提交成功.");
 	}
 
+	
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoAllowanceUser() {
+		Logger.debug("goto gotoAllowance");
+
+		TAllowance allowance = TAllowance.findAllowanceUser();
+
+		return ok(views.html.allowanceUser.render(allowance));
+	}
+
+	
+	
+	
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoAllowance() {
 		Logger.debug("goto gotoAllowance");
@@ -1536,6 +1550,7 @@ public class WebPageController extends Controller {
 		TAllowance info = form.get();
 		if (info != null) {
 			info.updateName = session("username");
+			info.allowancePayType=0;
 			if (info.allowanceId <= 0) {
 				TAllowance.saveData(info);
 			} else {
@@ -1657,4 +1672,32 @@ public class WebPageController extends Controller {
 		return ok("保存成功");
 	}
 	
+	
+	
+	//用户补贴保存
+		@Security.Authenticated(SecurityController.class)
+		public static Result saveAllowanceDataForUser() {
+			Logger.debug("goto saveAllowanceData");
+			// DynamicForm dynamicForm = Form.form().bindFromRequest();
+			Form<TAllowance> form = Form.form(TAllowance.class).bindFromRequest();
+			if (form.hasErrors()) {
+				JsonNode node = form.errorsAsJson();
+				Logger.error("###########getglobalError:" + node);
+				return badRequest(node.toString());
+			}
+			TAllowance info = form.get();
+			if (info != null) {
+				info.allowancePayType=1;
+				info.updateName = session("username");
+				if (info.allowanceId <= 0) {
+					TAllowance.saveData(info);
+				} else {
+					TAllowance.updateData(info);
+				}
+
+				LogController.info("allowance was changed by " + info.updateName);
+			}
+
+			return ok("保存成功");
+		}
 }

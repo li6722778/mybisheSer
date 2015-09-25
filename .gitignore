@@ -11,3 +11,4 @@ dist
 /.idea_modules
 /RUNNING_PID
 /bin/
+/app/

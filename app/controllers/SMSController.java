@@ -370,56 +370,66 @@ public class SMSController extends Controller {
 	public static boolean smspush (String phoneString)
 	{
 		
-		try {
-			String param = ",升级成功即享20元代金券";
-	
-
-			if (rest_3part_smsparam != null
-					&& !rest_3part_smsparam.trim().equals("")) {
-				param += "," + rest_3part_smsparam;
-			}
-			// 组合json bean
-			//TemplateSMS templateSMS = new TemplateSMS(rest_3part_smsappid, "12676", phoneString);
-			TemplateSMS templateSMS = new TemplateSMS(rest_3part_smsappid,
-					param, "13688", phoneString);
-			Gson gson = new Gson();
-			String body = gson.toJson(templateSMS);
-			body = "{\"templateSMS\":" + body + "}";
-			Date currentDate = new Date();
-			String timestamp = DateHelper.format(currentDate, "yyyyMMddHHmmss");
-			String src = rest_3part_accountsid + ":" + timestamp;
-			String auth = EncryptUtil.base64Encoder(src);
-			String signature = getSignature(rest_3part_accountsid,
-					rest_3part_token, timestamp);
-
-			String realUrl = rest_3part_smsuri + "?sig=" + signature;
-			Logger.debug("-----real url:" + realUrl);
-			Logger.debug("-----real body:" + body);
-
-			ws.url(realUrl)
-					.setHeader("Content-Type",
-							"application/json;;charset=utf-8")
-					.setHeader("Accept", "application/json")
-					.setHeader("Authorization", auth).setTimeout(5000)
-					.post(body).map(new Function<WSResponse, Result>() {
-						@Override
-						public Result apply(WSResponse response) {
-							JsonNode jsonString = response.asJson();
-
-							Logger.info("SMS Response:" + jsonString);
-
-							return ok();
-						}
-					});
-			return true;
-			
-			
-		} catch (Exception e) {
-			Logger.error("requestSMSVerify", e);
+		TOptions options =TOptions.findOption(15);
+		if(options.textObject==""||options.textObject==null||options.textObject.equals(""))
+		{
+			Logger.debug("param is  null");
 			return false;
+		}
+		else {
+			String param = options.textObject;
+			try {
+				
+
+				if (rest_3part_smsparam != null
+						&& !rest_3part_smsparam.trim().equals("")) {
+					param += "," + rest_3part_smsparam;
+				}
+				// 组合json bean
+				//TemplateSMS templateSMS = new TemplateSMS(rest_3part_smsappid, "12676", phoneString);
+				TemplateSMS templateSMS = new TemplateSMS(rest_3part_smsappid,
+						param, "13688", phoneString);
+				Gson gson = new Gson();
+				String body = gson.toJson(templateSMS);
+				body = "{\"templateSMS\":" + body + "}";
+				Date currentDate = new Date();
+				String timestamp = DateHelper.format(currentDate, "yyyyMMddHHmmss");
+				String src = rest_3part_accountsid + ":" + timestamp;
+				String auth = EncryptUtil.base64Encoder(src);
+				String signature = getSignature(rest_3part_accountsid,
+						rest_3part_token, timestamp);
+
+				String realUrl = rest_3part_smsuri + "?sig=" + signature;
+				Logger.debug("-----real url:" + realUrl);
+				Logger.debug("-----real body:" + body);
+
+				ws.url(realUrl)
+						.setHeader("Content-Type",
+								"application/json;;charset=utf-8")
+						.setHeader("Accept", "application/json")
+						.setHeader("Authorization", auth).setTimeout(5000)
+						.post(body).map(new Function<WSResponse, Result>() {
+							@Override
+							public Result apply(WSResponse response) {
+								JsonNode jsonString = response.asJson();
+
+								Logger.info("SMS Response:" + jsonString);
+
+								return ok();
+							}
+						});
+				return true;
+				
+				
+			} catch (Exception e) {
+				Logger.error("requestSMSVerify", e);
+				return false;
+				
+			}
 			
 		}
 		
+	
 		
 	}
 	
