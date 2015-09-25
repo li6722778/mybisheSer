@@ -42,6 +42,7 @@ import play.mvc.Http.MultipartFormData;
 import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
 import play.mvc.Security;
+import scala.annotation.elidable;
 import utils.CommFindEntity;
 import utils.ConfigHelper;
 import utils.Constants;
@@ -1556,4 +1557,104 @@ public class WebPageController extends Controller {
 		return ok(views.html.allowanceoffer.render(allData, currentPage,
 				pageSize, orderBy, filter));
 	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotoredirectsend() {
+		Logger.debug("goto to redirectsendcoupnpage");
+		TOptions options =TOptions.findOption(13);
+		Logger.debug("result>>"+options.textObject);
+		return ok(views.html.coupondirectsend.render(options));
+	}
+	//直接赠送优惠券
+		@Security.Authenticated(SecurityController.class)
+	public static Result redirectsend(String  phonelist) {
+		Logger.debug("start to redirectsendcoupn"+phonelist);
+		//遍历phonelist
+		//查看option设置的 优惠券编码
+		TOptions options = TOptions.findOption(12);
+		if(options.textObject!="")
+		{
+			String coupncode =options.textObject;
+			Logger.debug("coupncode is>>"+options.textObject);
+			String[] phonearray = phonelist.trim().split(",");
+			for(int i=0;i<phonearray.length;i++)
+			{
+					//查询用户id
+					long phone = Long.parseLong(phonearray[i]);
+					TuserInfo userInfo=TuserInfo.findDataByPhoneId(phone);
+					if(userInfo==null)
+					{
+						Logger.debug("havent find in usertable >>"+phone);
+					}
+					else {
+						Logger.debug("start to redirectsendcoupn to>>"+phone);
+						//赠送优惠券
+						CounponController.getsharecounpon(coupncode, userInfo.userid);
+					}
+				
+				
+				
+			}
+			
+		}
+		else {
+			Logger.debug("coupncode is null");
+		}
+	
+		return ok("保存成功");
+	}
+	//直接赠送优惠券短信推送开关
+	@Security.Authenticated(SecurityController.class)
+	public static Result changeoption(String  type) {
+		Logger.debug("change the sms send");
+		try {
+			TOptions options =TOptions.findOption(13);
+			options.textObject=type;
+			TOptions.updateData(options);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			Logger.debug("change the sms send fail");
+		}
+		return ok("保存成功");
+	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result gotosmspush() {
+		Logger.debug("goto to redirectsendcoupnpage");
+		TOptions options =TOptions.findOption(14);
+		Logger.debug(" smspush option :"+options.textObject);
+		return ok(views.html.smspush.render(options));
+	}
+	//短信推送开关
+	@Security.Authenticated(SecurityController.class)
+	public static Result changepushoption(String  type) {
+		Logger.debug("change the sms send");
+		try {
+			TOptions options =TOptions.findOption(14);
+			options.textObject=type;
+			TOptions.updateData(options);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			Logger.debug("change the sms send fail");
+		}
+		return ok("保存成功");
+	}
+	//短信推送
+	@Security.Authenticated(SecurityController.class)
+	public static Result smspush(String  mode) {
+		Logger.debug(" the sms push start");
+		try {
+			if(mode=="1"||mode.equals("1"))
+			{
+				Logger.debug(" model 1 sms push start");
+				SMSController.requestSMSmessageModel();
+			}
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			Logger.debug("sms push fail");
+		}
+		return ok("保存成功");
+	}
+	
 }

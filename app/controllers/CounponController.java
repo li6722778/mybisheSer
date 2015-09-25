@@ -119,7 +119,6 @@ public class CounponController extends Controller{
 					//更新优惠信息表
 					counponbean.scancount=counponbean.scancount+1;
 					TCouponEntity.saveData(counponbean);
-					
 					response.setResponseStatus(ComResponse.STATUS_OK);
 					response.setResponseEntity(counponbean);
 					response.setExtendResponseContext("更新数据成功.");
@@ -204,8 +203,7 @@ public class CounponController extends Controller{
 					TUseCouponEntity.saveData(databean);
 					//更新优惠信息表
 					counponbean.scancount=counponbean.scancount+1;
-					TCouponEntity.saveData(counponbean);
-					
+					TCouponEntity.saveData(counponbean);		
 					response.setResponseStatus(ComResponse.STATUS_OK);
 					response.setResponseEntity(counponbean);
 					response.setExtendResponseContext("更新数据成功.");

@@ -130,6 +130,13 @@ GET /w/getsharerecord    controllers.WXuserinfoController.getsharerecord(o:Strin
 
 
 
+
+
+
+
+
+
+
 ######################please DON'T change below URI!!!###################
 ########################below for web app################################
 
@@ -221,5 +228,11 @@ GET      /w/comment/deletes               controllers.WebPageController.deleteco
 
 
 POST     /w/commentskeyword                   controllers.WebPageController.gotokeywordpage(p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",v?="")
-GET      /w/commentskeyword/deletes            controllers.WebPageController.deletekeyword(i?= "",p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",v?="")
+GET      /w/commentskeyword/deletes           controllers.WebPageController.deletekeyword(i?= "",p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",v?="")
 POST     /w/commentskeyword/add               controllers.WebPageController.addkeyword(k?="",p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",v?="")
+POST     /w/redirectsend                      controllers.WebPageController.gotoredirectsend()
+GET     /w/redirectsendphonelist                       controllers.WebPageController.redirectsend(p:String?=null)
+GET     /w/changesmssendoption                controllers.WebPageController.changeoption(t:String?=null)
+POST   /w/user/smspush                        controllers.WebPageController.gotosmspush() 
+GET     /w/changesmspushoption                controllers.WebPageController.changepushoption(t:String?=null)
+GET     /w/smspush                            controllers.WebPageController.smspush(m:String?=null)                

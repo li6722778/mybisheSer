@@ -435,6 +435,21 @@ uniqueurl                 varchar(50),
 userphone                 varchar(30))
 ;
 
+create table tb_smssenduser (
+id                        integer auto_increment not null,
+telephone                 varchar(20),
+type                      integer,
+cotent                    varchar(1000),
+constraint pk_tb_smssenduser primary key (id))
+;
+
+create table tb_smsmodel (
+type                      integer auto_increment not null,
+cotent                    varchar(1000),
+descripe                  varchar(500),
+constraint pk_tb_smsmodel primary key (type))
+;
+
 alter table tb_order add constraint fk_tb_order_parkInfo_1 foreign key (parkId) references tb_parking_prod (park_id) on delete restrict on update restrict;
 create index ix_tb_order_parkInfo_1 on tb_order (parkId);
 alter table tb_order add constraint fk_tb_order_userInfo_2 foreign key (userid) references tb_user (userid) on delete restrict on update restrict;
