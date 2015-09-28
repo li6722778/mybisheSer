@@ -485,6 +485,91 @@ public class SMSController extends Controller {
 		 return ok("系统错误");
 		
 	}
+	
+	
+	
+	/**
+	 * 定向发送优惠劵赠送短信
+	 * 
+	 * @return
+	 */
+	public static Result redirectsendcoupnsms(final long phone, final double price) {
+		Logger.info("start to redirect :" + phone);
+		
+		//定向发送优惠券短信开关
+		TOptions options = TOptions.findOption(13);
+		if(options.textObject!=null&&options.textObject.toString().trim().equals("1"))
+		{
+		// 得到手机号
+		String phoneString = String.valueOf(phone);
+
+		TOptions optionsday=TOptions.findOption(8);
+		int day=0;
+		if(optionsday!=null&&optionsday.textObject!=null)
+		  day=Integer.valueOf(optionsday.textObject.toString().trim());
+		// 得到优惠劵价格
+		
+		String prices =String.valueOf(price);
+		String param = prices+"元"+","+day+"天";
+
+		if (rest_3part_smsparam != null
+				&& !rest_3part_smsparam.trim().equals("")) {
+			param += "," + rest_3part_smsparam;
+		}
+
+		Logger.debug("-----rest_3part_accountsid:" + rest_3part_accountsid);
+		Logger.debug("-----rest_3part_smsuri:" + rest_3part_smsuri);
+		Logger.debug("-----rest_3part_smsappid:" + rest_3part_smsappid);
+		Logger.debug("-----rest_3part_smstmpid:" + rest_3part_noticeCounpon);
+		Logger.debug("-----rest_3part_smsparam:" + param);
+		Logger.debug("-----rest_3part_token:" + rest_3part_token);
+
+		try {
+			// 组合json bean
+			TemplateSMS templateSMS = new TemplateSMS(rest_3part_smsappid,
+					param, "12676", phoneString);
+			Gson gson = new Gson();
+			String body = gson.toJson(templateSMS);
+			body = "{\"templateSMS\":" + body + "}";
+
+			Date currentDate = new Date();
+			String timestamp = DateHelper.format(currentDate, "yyyyMMddHHmmss");
+			String src = rest_3part_accountsid + ":" + timestamp;
+			String auth = EncryptUtil.base64Encoder(src);
+
+			String signature = getSignature(rest_3part_accountsid,
+					rest_3part_token, timestamp);
+
+			String realUrl = rest_3part_smsuri + "?sig=" + signature;
+			Logger.debug("-----real url:" + realUrl);
+			Logger.debug("-----real body:" + body);
+
+			ws.url(realUrl)
+					.setHeader("Content-Type",
+							"application/json;;charset=utf-8")
+					.setHeader("Accept", "application/json")
+					.setHeader("Authorization", auth).setTimeout(5000)
+					.post(body).map(new Function<WSResponse, Result>() {
+						@Override
+						public Result apply(WSResponse response) {
+							JsonNode jsonString = response.asJson();
+
+							Logger.info("SMS Response:" + jsonString);
+
+							return ok();
+						}
+					});
+
+			return ok("验证码请求中,请注意短信查收");
+			
+		} catch (Exception e) {
+			Logger.error("requestSMSVerify", e);
+			return ok("验证码短信发送失败，请联系管理员.");
+		}
+		}
+		Logger.info("not open the sendsms option");
+        return ok("系统错误");
+	}
 
 
 
