@@ -1039,6 +1039,11 @@ public class WebPageController extends Controller {
 		Logger.debug("goto gotoParkingChart");
 		return ok(views.html.chartparking.render());
 	}
+	
+	public static Result gotoUserChart() {
+		Logger.debug("goto gotoUserChart");
+		return ok(views.html.chartuser.render());
+	}
 
 	/**
 	 * 跳转版本界面
@@ -1117,6 +1122,22 @@ public class WebPageController extends Controller {
 				.getTop30OrderForEachCity(days);
 
 		String json = OrderController.gsonBuilderWithExpose.toJson(map);
+		JsonNode jsonNode = Json.parse(json);
+		Logger.debug("return json:" + json);
+		return ok(jsonNode);
+	}
+	
+	/**
+	 * 返回json的用户赠涨量
+	 * 
+	 * @param city
+	 * @return
+	 */
+	public static Result getUserIncreaseChart(int days) {
+		Logger.debug("goto getUserIncreaseChart for days:" + days);
+		HashMap<String, List<ChartCityEntity>> map = ChartCityEntity.getTop30UserForEachDay(days);
+
+		String json = UserController.gsonBuilderWithExpose.toJson(map);
 		JsonNode jsonNode = Json.parse(json);
 		Logger.debug("return json:" + json);
 		return ok(jsonNode);
