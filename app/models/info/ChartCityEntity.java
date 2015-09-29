@@ -88,6 +88,31 @@ public class ChartCityEntity{
 		
 		return map;
 	}
+	
+	/**
+	 * 得到最近n天的每天用户注册增长量ß
+	 * @param city
+	 * @return
+	 */
+	public static HashMap<String,List<ChartCityEntity>> getTop30UserForEachDay(final int days){
+		
+		HashMap<String,List<ChartCityEntity>> map =new HashMap<String,List<ChartCityEntity>>();
+		
+				String sql = "select count(userid) as countorder,date_format(create_date,'%m/%d/%Y') as datestring "
+						+ "from (select a.userid,a.user_phone,a.create_date from tb_user a ) as c "
+						+ "where date_format(create_date,'%m%d') between date_format(date_sub(now(), interval "+days+" day),'%m%d') and date_format(now(),'%m%d') group by date_format(create_date,'%Y%m%d') order by create_date desc";
+				
+				final RawSql rawSql = RawSqlBuilder.unparsed(sql)
+						.columnMapping("countorder", "countOrder")
+				        .columnMapping("datestring", "dateString")
+				        .create();
+				final List<ChartCityEntity> ls = Ebean.find(ChartCityEntity.class).setRawSql(rawSql).findList();
+				
+				map.put("用户注册数", getRecentlyEmtyDay(ls));
+			
+		
+		return map;
+	}
 
 	/**
 	 * 把今天之后，没有数据的天数都填写上
