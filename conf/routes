@@ -175,7 +175,10 @@ POST      /w/user/add/submit                   controllers.WebPageController.sav
 POST      /w/user/delete                       controllers.WebPageController.deleteUser(p ?= "")
 POST      /w/user/update                       controllers.WebPageController.updateUser(t:Int ?= 10, p ?= "",admpark?="")
 POST      /w/user/adm/add                       controllers.WebPageController.addUserAdm(p ?= "",admpark?="")
-POST      /w/user/adm/delete                       controllers.WebPageController.deleteUserAdm(p ?= "",admpark?="")
+POST      /w/user/adm/delete                    controllers.WebPageController.deleteUserAdm(p ?= "",admpark?="")
+POST      /w/userchart                         controllers.WebPageController.gotoUserChart()
+GET       /w/getbackupuserList                 controllers.ExportController.getBackupUserList()
+GET       /w/downloaduser                      controllers.ExportController.downloaduser(file ?= "")
 
 POST      /w/user/changepw/:phone/:type          controllers.WebPageController.updatedUserPasswdData(phone:String,type:Integer)
 POST      /w/user/gotomulitpasswd               controllers.WebPageController.gotoMutipPasswd(p?="")
@@ -207,6 +210,7 @@ GET       /w/coupon/open                         controllers.WebPageController.u
 
 GET      /w/chart/caiji                          controllers.WebPageController.getPersonOrderChart(p:Int?= 30)
 GET      /w/chart/order                          controllers.WebPageController.getCityOrderChart(p:Int?= 30)
+GET      /w/chart/user                          controllers.WebPageController.getUserIncreaseChart(p:Int?= 30)
 
 POST      /w/version                          controllers.WebPageController.gotoVersion()
 POST      /w/version/submit                   controllers.WebPageController.saveVersionData()
@@ -235,8 +239,9 @@ POST     /w/commentskeyword                   controllers.WebPageController.goto
 GET      /w/commentskeyword/deletes           controllers.WebPageController.deletekeyword(i?= "",p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",v?="")
 POST     /w/commentskeyword/add               controllers.WebPageController.addkeyword(k?="",p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",v?="")
 POST     /w/redirectsend                      controllers.WebPageController.gotoredirectsend()
-GET     /w/redirectsendphonelist                       controllers.WebPageController.redirectsend(p:String?=null)
+GET     /w/redirectsendphonelist              controllers.WebPageController.redirectsend(p:String?=null)
 GET     /w/changesmssendoption                controllers.WebPageController.changeoption(t:String?=null)
 POST   /w/user/smspush                        controllers.WebPageController.gotosmspush() 
 GET     /w/changesmspushoption                controllers.WebPageController.changepushoption(t:String?=null)
-GET     /w/smspush                            controllers.WebPageController.smspush(m:String?=null)                
+GET     /w/smspush                            controllers.WebPageController.smspush(m:String?=null)
+GET     /w/savesmspushmodel                   controllers.WebPageController.addsmspushmodel(i:String?=null,c:String?=null)                                

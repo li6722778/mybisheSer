@@ -31,6 +31,7 @@ import models.info.TParkInfo_adm;
 import models.info.TTakeCash;
 import models.info.TUseCouponEntity;
 import models.info.TVersion;
+import models.info.Tsmsmodel;
 import models.info.TuserInfo;
 import play.Logger;
 import play.data.DynamicForm;
@@ -1039,6 +1040,11 @@ public class WebPageController extends Controller {
 		Logger.debug("goto gotoParkingChart");
 		return ok(views.html.chartparking.render());
 	}
+	
+	public static Result gotoUserChart() {
+		Logger.debug("goto gotoUserChart");
+		return ok(views.html.chartuser.render());
+	}
 
 	/**
 	 * 跳转版本界面
@@ -1117,6 +1123,22 @@ public class WebPageController extends Controller {
 				.getTop30OrderForEachCity(days);
 
 		String json = OrderController.gsonBuilderWithExpose.toJson(map);
+		JsonNode jsonNode = Json.parse(json);
+		Logger.debug("return json:" + json);
+		return ok(jsonNode);
+	}
+	
+	/**
+	 * 返回json的用户赠涨量
+	 * 
+	 * @param city
+	 * @return
+	 */
+	public static Result getUserIncreaseChart(int days) {
+		Logger.debug("goto getUserIncreaseChart for days:" + days);
+		HashMap<String, List<ChartCityEntity>> map = ChartCityEntity.getTop30UserForEachDay(days);
+
+		String json = UserController.gsonBuilderWithExpose.toJson(map);
 		JsonNode jsonNode = Json.parse(json);
 		Logger.debug("return json:" + json);
 		return ok(jsonNode);
@@ -1580,6 +1602,8 @@ public class WebPageController extends Controller {
 		Logger.debug("result>>"+options.textObject);
 		return ok(views.html.coupondirectsend.render(options));
 	}
+	
+	
 	//直接赠送优惠券
 		@Security.Authenticated(SecurityController.class)
 	public static Result redirectsend(String  phonelist) {
@@ -1597,6 +1621,7 @@ public class WebPageController extends Controller {
 					//查询用户id
 					long phone = Long.parseLong(phonearray[i]);
 					TuserInfo userInfo=TuserInfo.findDataByPhoneId(phone);
+					TCouponEntity couponEntity =TCouponEntity.findentityByCode(options.textObject);
 					if(userInfo==null)
 					{
 						Logger.debug("havent find in usertable >>"+phone);
@@ -1605,6 +1630,7 @@ public class WebPageController extends Controller {
 						Logger.debug("start to redirectsendcoupn to>>"+phone);
 						//赠送优惠券
 						CounponController.getsharecounpon(coupncode, userInfo.userid);
+						SMSController.redirectsendcoupnsms(phone, couponEntity.money);
 					}
 				
 				
@@ -1637,8 +1663,10 @@ public class WebPageController extends Controller {
 	public static Result gotosmspush() {
 		Logger.debug("goto to redirectsendcoupnpage");
 		TOptions options =TOptions.findOption(14);
+	    List<Tsmsmodel> modeList=new ArrayList<Tsmsmodel>();
+	    modeList=Tsmsmodel.getallsmsmodel();
 		Logger.debug(" smspush option :"+options.textObject);
-		return ok(views.html.smspush.render(options));
+		return ok(views.html.smspush.render(options,modeList));
 	}
 	//短信推送开关
 	@Security.Authenticated(SecurityController.class)
@@ -1657,9 +1685,11 @@ public class WebPageController extends Controller {
 	//短信推送
 	@Security.Authenticated(SecurityController.class)
 	public static Result smspush(String  mode) {
-		Logger.debug(" the sms push start");
+		Logger.debug(" the sms push start"+mode);
+		Tsmsmodel modeltype =Tsmsmodel.getsmsmodel(mode);
+		Logger.debug(" the sms push modeltype>>"+modeltype.type);	
 		try {
-			if(mode=="1"||mode.equals("1"))
+			if(modeltype.type==1)
 			{
 				Logger.debug(" model 1 sms push start");
 				SMSController.requestSMSmessageModel();
@@ -1699,5 +1729,13 @@ public class WebPageController extends Controller {
 			}
 
 			return ok("保存成功");
+		}
+		
+		//添加短信推送模板
+		@Security.Authenticated(SecurityController.class)
+		public static Result addsmspushmodel(String smspushid,String smspushcontext) {
+			Logger.debug("start to save smspushmodel");
+			boolean result =Tsmsmodel.savesmsmodel(smspushid, smspushcontext);
+			return ok(""+result);
 		}
 }

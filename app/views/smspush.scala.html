@@ -1,4 +1,4 @@
-@(entityBean: models.info.TOptions)
+@(entityBean: models.info.TOptions, entityList: List[models.info.Tsmsmodel])
     <link href="@routes.Assets.at("stylesheets/multi-select-metro.css")" rel="stylesheet" />
 	<link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/bootstrap-toggle-buttons.css")" />
 <!-- BEGIN PAGE HEADER-->
@@ -61,8 +61,20 @@
          <div >			
 		  </div>
 			</div>
+			
+			
+						<div class="controls">
+                            <label class="control-label" for="firstName">添加模板</label>
+							<textarea class="span6 m-wrap" rows="10" id="model_context">
+																</textarea>
+						</div>
+						  
+								<div class="input-append">											
+									<input class="m-wrap" size="10" type="text" placeholder="请输入模板id" id="model_id" /><button  type="button" class="btn green" id="addmodel">添加新模板</button>
+								</div>
+							
            <div class="control-group">
-        <label class="control-label" for="firstName">短信推送</label>
+           <label class="control-label" for="firstName">短信推送</label>
               <div class="controls">
 				 <div class="success-toggle-button">
 					   <input type="checkbox" id="issendsmsCheckbox" name="isopenCheckbox" class="toggle" @if(entityBean.textObject=="1"){ checked }/>
@@ -70,8 +82,16 @@
 															
 		</div>
 		</div>
-	
-											
+		  <div class="control-group">
+	 <label class="control-label" for="firstName">短信模板</label>
+      @for(entity <- entityList) {
+    <input type="radio" name="model" value="@entity.cotent" />
+      模板编号: @entity.cotent
+      模板内容: @entity.descripe<br>
+      }
+
+</div>
+												
 
 			<div class="form-actions">
 				<button type="button" id="submitOptionsbutton" class="btn blue">
