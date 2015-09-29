@@ -1,7 +1,7 @@
 /**
- * 用户赠涨类
+ * 停车场订单类
  */
-var UserChartList = function () {
+var ParkOrderChartList = function () {
     
     return {
         //main function to initiate the module
@@ -9,7 +9,7 @@ var UserChartList = function () {
 
              function chart2(jsonData) {
            
-                 var plot = $.plot($("#chart_user"), jsonData, {
+                 var plot = $.plot($("#chart_orderpark"), jsonData, {
                          series: {
                              lines: {
                                  show: true,
@@ -65,7 +65,7 @@ var UserChartList = function () {
                  }
 
                  var previousPoint = null;
-                 $("#chart_user").bind("plothover", function (event, pos, item) {
+                 $("#chart_orderpark").bind("plothover", function (event, pos, item) {
                      $("#x").text(pos.x.toFixed(2));
                      $("#y").text(pos.y.toFixed(2));
 
@@ -77,7 +77,7 @@ var UserChartList = function () {
                              var x = $.datepicker.formatDate('yy/mm/dd', new Date(item.datapoint[0])),
                                  y = item.datapoint[1];
 
-                             showTooltip(item.pageX, item.pageY, item.series.label+ y + "[" + x + "]");
+                             showTooltip(item.pageX, item.pageY, item.series.label+ y + "单[" + x + "]");
                          }
                      } else {
                          $("#tooltip").remove();
@@ -93,7 +93,7 @@ var UserChartList = function () {
             	 if(hasloading==1){
             	    App.blockUI(pageContent, false);
             	 }
-            	 $.get("/w/chart/user?p="+days,function(result){
+            	 $.get("/w/chart/orderpark?p="+days,function(result){
             		 if(result){
             			 
             			 var plotData = [];
@@ -133,67 +133,6 @@ var UserChartList = function () {
             	$('#label_days').html("180天");
        	    });
              
-            
-            //获取备份数据并且刷新界面
-            var fetchbackupList = function(){
-            	
-            	$("#button_export_user").attr("disabled",false); 
-            	$("#button_export_alluser").attr("disabled",false); 
-            	
-            	$("#form_modal_userbackup .userbacklist").html("请等待");
-            	 $.get("/w/getbackupList?typeName=.user.csv",function(result){
-               		 if(result){
-               			$("#form_modal_userbackup .userbacklist").html("");
-               			 $.each(result, function(index, value) {
-               				$("<tr class=\"odd gradeX\">" +
-                   					"<td class=\"hidden-480\">"+value.createDate+"</td>" +
-                   					"<td >"+value.fileName+"</td>" +
-                   					"<td class=\"hidden-480\">"+value.fileSize+"k</td>" +
-                   					"<td class=\"hidden-480\"><a href=\"/w/downloaduser?file="+value.fileName+"\" target=\"_parent\"><i class=\"icon-cloud-download\"></i></a></td></tr>").appendTo("#form_modal_userbackup .userbacklist");
-           			     });
-               		 }
-          			});
-            };
-//                        
-           //导出数据，并且刷新界面
-           var startExport = function(fullbackup){
-        	   $("#exportmessage").html("")
-           	$("#button_export_user").attr("disabled",true); 
-        	$("#button_export_alluser").attr("disabled",true); 
-        		var orderasc = 0;
-            	if($("#orderasc").is(':checked')){
-            		orderasc = 0;
-            	}else{
-            		orderasc = 1;
-            	}
-            	$.get("/w/export/user?fullbackup="+fullbackup+"&asc="+orderasc, function(result){
-            		$("#exportmessage").html("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font size=3 color=red>"+result+"</font>")
-            		if (result == "任务完成"){
-            			//alert("任务完成,开始刷新列表")
-            			fetchbackupList();
-            		}
-            	});
-           };
-           
-           //点击了导出数据menu
-           $('.popup_export').click(function(){
-  	    	    $("#exportmessage").html("")
-  	    	    //get total of parking
-  	    	    fetchbackupList();
-  	    	
-   	        });
-            
-            //增量备份
-            $('#button_export_user').click(function(){
-            	startExport(0);
-       	    });
-            
-          //所有备份
-            $('#button_export_alluser').click(function(){
-            	startExport(1);
-       	    });
-            
-             //初始化默认用30天的数据
              jumpto(30,0);
              
         }
@@ -206,7 +145,7 @@ var UserChartList = function () {
 
 
 jQuery(document).ready(function() {    
-	UserChartList.init();
+	ParkOrderChartList.init();
 });
 
 

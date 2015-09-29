@@ -188,6 +188,7 @@ POST      /w/orderhis                                 controllers.WebPageControl
 POST      /w/orderhis/:orderid                        controllers.WebPageController.gotoDetailOrderHis(orderid:Long,from?="order")
 GET      /w/order/setexception                       controllers.WebPageController.setExceptionOrder(p ?= "")
 POST      /w/orderchart                          controllers.WebPageController.gotoOrderChart()
+POST      /w/orderchartparking                          controllers.WebPageController.gotoOrderParkChart()
 GET      /w/order/delete                        controllers.WebPageController.deleteOrder(p ?= "")
 
 POST      /w/parkaccount                   controllers.WebPageController.gotoParkAccount(p:Int ?= 0, s:Int ?= 10, o ?= "approveDate desc",k?="",v?="",open:Int?=-1)    
@@ -195,8 +196,8 @@ POST      /w/parkaccount/update/:parkId    controllers.WebPageController.savePar
 POST      /w/income                        controllers.WebPageController.gotoIncome(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc", f ?="")
 POST      /w/income/init                   controllers.WebPageController.gotoInitIncome(p:Int ?= 0, s:Int ?= 10, o ?= "updateDate desc", f ?="")
 POST      /w/income/:parkid                controllers.WebPageController.gotoIncomeDetailOrderHis(p:Int ?= 0, s:Int ?= 10, o ?= "orderDate desc",parkid:Long,f?="")
-POST      /w/takecash                      controllers.WebPageController.gotoTakeCash(p:Int ?= 0, s:Int ?= 10, o ?= "askdata desc")
-POST       /w/takecash/update/:status       controllers.WebPageController.updateTakeCash(p:Int ?= 0, s:Int ?= 10, o ?= "askdata desc",status:Int, pid?="")
+POST      /w/takecash                      controllers.WebPageController.gotoTakeCash(p:Int ?= 0, s:Int ?= 20, o ?= "askdata desc",f:Int?= 0)
+POST       /w/takecash/update/:status       controllers.WebPageController.updateTakeCash(p:Int ?= 0, s:Int ?= 20, o ?= "askdata desc",status:Int, pid?="")
 
 POST      /w/coupon/add                          controllers.WebPageController.gotoCouponAdd()
 POST      /w/coupon                              controllers.WebPageController.gotoCoupon(p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",f ?="")
@@ -208,6 +209,7 @@ GET       /w/coupon/open                         controllers.WebPageController.u
 
 GET      /w/chart/caiji                          controllers.WebPageController.getPersonOrderChart(p:Int?= 30)
 GET      /w/chart/order                          controllers.WebPageController.getCityOrderChart(p:Int?= 30)
+GET      /w/chart/orderpark                      controllers.WebPageController.getCityOrderForParkChart(p:Int?= 30)
 GET      /w/chart/user                          controllers.WebPageController.getUserIncreaseChart(p:Int?= 30)
 
 POST      /w/version                          controllers.WebPageController.gotoVersion()

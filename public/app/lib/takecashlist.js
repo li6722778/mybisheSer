@@ -45,6 +45,8 @@ var UserList = function () {
        	    	 var type = jQuery(this).attr("type");
        	    	 
        	    	 var currentPage = jQuery(this).attr("currentPage");
+       	    	 var selectedStatus = jQuery(this).attr("selectedStatus");
+       	    	
        	    	 
        	    	 var checked = "";
       		     $("input[name='cashselect']:checked").each(function() {

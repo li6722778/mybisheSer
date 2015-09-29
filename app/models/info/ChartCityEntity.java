@@ -63,7 +63,7 @@ public class ChartCityEntity{
 	
 	
 	/**
-	 * 得到最近30天的城市
+	 * 得到最近30天的采集数据
 	 * @param city
 	 * @return
 	 */
@@ -85,6 +85,35 @@ public class ChartCityEntity{
 				
 				map.put(c.descri, getRecentlyEmtyDay(ls));
 			}
+		
+		return map;
+	}
+	
+	/**
+	 * 得到最近N天,各个停车场完成的订单数据
+	 * @param city
+	 * @return
+	 */
+	public static HashMap<String,List<ChartCityEntity>> getTop30OrderForEachPark(final int days){
+		
+		HashMap<String,List<ChartCityEntity>> map =new HashMap<String,List<ChartCityEntity>>();
+		
+
+		List<ChartCityEntity> parks = getTop30Park(days);
+			for(ChartCityEntity c:parks){
+				String sql = "select count(parkId) as countorder, date_format(end_date,'%m/%d/%Y') as datestring from "
+						+ "(select a.order_id,a.parkId,a.end_date from tb_order_his a) c "
+						+ "where date_format(end_date,'%m%d') between date_format(date_sub(now(), interval "+days+" day),'%m%d') "
+						+ "and date_format(now(),'%m%d') and parkId = "+c.descri+" group by date_format(end_date,'%Y%m%d') order by end_date desc";
+				final RawSql rawSql = RawSqlBuilder.unparsed(sql)
+						.columnMapping("countorder", "countOrder")
+				        .columnMapping("datestring", "dateString")
+				        .create();
+				final List<ChartCityEntity> ls = Ebean.find(ChartCityEntity.class).setRawSql(rawSql).findList();
+				
+				map.put(c.descri+"-"+c.dateString, getRecentlyEmtyDay(ls));
+			}
+		
 		
 		return map;
 	}
@@ -150,7 +179,15 @@ public class ChartCityEntity{
 	}
 	
 	
-	
+	public static List<ChartCityEntity> getTop30Park(int days){
+		String sql = "select distinct parkId,parkname,count(order_id) as totalorder from (select b.parkId,b.end_date,b.order_id,d.parkname from tb_order_his b,tb_parking_prod d where b.parkId = d.park_id ) c	"
+				+ "where date_format(end_date,'%m%d') between date_format(date_sub(now(), interval "+ days+" day),'%m%d')"
+				+ " and date_format(now(),'%m%d') group by parkId order by totalorder desc limit 10";
+		final RawSql rawSql = RawSqlBuilder.unparsed(sql).columnMapping("parkId", "descri").columnMapping("parkname", "dateString")
+				.create();
+		final List<ChartCityEntity> ls = Ebean.find(ChartCityEntity.class).setRawSql(rawSql).findList();
+		return ls;
+	}
 	
 	
 	public static List<ChartCityEntity> getTop30City(int days){

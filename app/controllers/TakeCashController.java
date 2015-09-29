@@ -91,7 +91,7 @@ public class TakeCashController extends Controller {
 					try {
 						
 						String username = flash("username");
-						
+						data.handleName = username;//暂时用这个字段来保存申请人姓名
 						TTakeCash.saveData(data);
 						response.setResponseStatus(ComResponse.STATUS_OK);
 						response.setResponseEntity(data);

@@ -16,6 +16,7 @@ import play.db.ebean.Model;
 import utils.CommFindEntity;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Page;
 import com.avaje.ebean.SqlQuery;
 import com.avaje.ebean.SqlRow;
@@ -62,7 +63,7 @@ public class TTakeCash extends Model{
 	@Column(columnDefinition = "timestamp NULL")
 	@Expose
 	public Date okData;
-	//1.申请 2.处理中 3.提现成功
+	//1.申请 2.处理中 3.提现成功,4.不处理
 	@Column(columnDefinition = "integer(2) default 0")
 	@Expose
 	public	int status;
@@ -171,9 +172,14 @@ public class TTakeCash extends Model{
 		 * @param orderBy
 		 * @return
 		 */
-		public static Page<TTakeCash> findPageDataForWeb(int currentPage,int pageSize, String orderBy) {
+		public static Page<TTakeCash> findPageDataForWeb(int currentPage,int pageSize, String orderBy, int status) {
 
-			Page<TTakeCash> allData = find.where().orderBy(orderBy)
+			ExpressionList<TTakeCash> el = find.where();
+			if (status>0){
+				el.eq("status", status);
+			}
+			
+			Page<TTakeCash> allData = el.orderBy(orderBy)
 					.findPagingList(pageSize).setFetchAhead(false)
 					.getPage(currentPage);
 
@@ -194,8 +200,18 @@ public class TTakeCash extends Model{
 			return find.byId(id);
 		}
 		
+		//得到每一种提现状态的总和
+		public static double findTakeCashTotalByStatus(int status) {
+			String sql = "SELECT sum(takemoney) as count FROM tb_takecash where status = "+status;
+			SqlQuery sq = Ebean.createSqlQuery(sql);
+			SqlRow sqlRow = sq.findUnique();
+			Double db = sqlRow.getDouble("count");
+			return db == null ? 0 : db;
+		}
+		
+		
 		public static double findTakeCash(long id) {
-			String sql = "SELECT sum(takemoney) as count FROM tb_takecash where parkid="+id;
+			String sql = "SELECT sum(takemoney) as count FROM tb_takecash where parkid="+id+" and status!=4";
 			SqlQuery sq = Ebean.createSqlQuery(sql);
 			SqlRow sqlRow = sq.findUnique();
 			Double db = sqlRow.getDouble("count");

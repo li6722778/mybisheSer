@@ -1,5 +1,5 @@
 @(entityBean: com.avaje.ebean.Page[models.info.TTakeCash], 
-currentPage: Integer, pageSize: Integer,orderBy: String)
+currentPage: Integer, pageSize: Integer,orderBy: String,selectedStatus:Integer)
 
              <!-- BEGIN PAGE HEADER-->
 				<div class="row-fluid">
@@ -51,13 +51,20 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 								</div>
 
 								<div class="tools">
-									<a href="javascript:;" class="reload"></a>
+									
 								</div>
 
 							</div>
 
 							<div class="portlet-body">
           
+                             <div class="btn-group pull-left">
+                                 <a href="javascript:;" post="/w/takecash?f=0" class="btn ajaxify">全部[@flash.get("cash_total")]</i></a>
+                                 <a href="javascript:;" post="/w/takecash?f=1" class="btn green ajaxify">请求中[@flash.get("cash_request")]</i></a>
+                                 <a href="javascript:;" post="/w/takecash?f=2" class="btn yellow ajaxify">处理中[@flash.get("cash_handle")]</i></a>
+                                 <a href="javascript:;" post="/w/takecash?f=3" class="btn black ajaxify">已完成[@flash.get("cash_finish")]</i></a>
+                                 <a href="javascript:;" post="/w/takecash?f=4" class="btn red ajaxify">不处理</i></a>
+                             </div>
 						 
 						        <div class="btn-group pull-right">
 
@@ -66,8 +73,9 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 										</button>
 
 										<ul class="dropdown-menu pull-right">
-										    <li><a href="javascript:;" class="button_update_cash_status" type="2" currentPage="@currentPage"  id="button_p1">设置为处理中</a></li>
-										    <li><a href="javascript:;" class="button_update_cash_status" type="3" currentPage="@currentPage"  id="button_p2">设置为提现完成</a></li>
+										    <li><a href="javascript:;" class="button_update_cash_status" type="4" currentPage="@currentPage" selectedStatus="@selectedStatus" id="button_p2">设置为<font color=red>不处理</font></a></li>
+										    <li><a href="javascript:;" class="button_update_cash_status" type="2" currentPage="@currentPage" selectedStatus="@selectedStatus"  id="button_p1">设置为<font color=orange>处理中</font></a></li>
+										    <li><a href="javascript:;" class="button_update_cash_status" type="3" currentPage="@currentPage" selectedStatus="@selectedStatus" id="button_p2">设置为提现完成</a></li>
 										</ul>
 
 									</div>
@@ -110,7 +118,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 											<td >@if(TCash.parkprod!=null){ 
 											@TCash.parkprod.parkname <br/> 
 											<blockquote class="hero">
-							                      <small>@TCash.parkprod.address </small>
+							                      <small>@TCash.handleName @TCash.parkprod.address </small>
 						                     </blockquote>
 						                     
 						                     } else{ parkid:@TCash.parkid }</td>
@@ -130,6 +138,9 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 											    }
 											    @if(TCash.status==2){
 											    <span class="label label-warning">处理中</span>
+											    } 
+											    @if(TCash.status==4){
+											    <span class="label label-important">不处理</span>
 											    }
 											</td>
 										</tr>
@@ -143,7 +154,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 					               <ul>
 						                @if(entityBean.hasPrev) {
 						                    <li class="prev">
-						                        <a class="ajaxify" href="javascript:;" post="/w/takecash?p=@(entityBean.getPageIndex - 1) ">&larr; 上一页</a>
+						                        <a class="ajaxify" href="javascript:;" post="/w/takecash?p=@(entityBean.getPageIndex - 1)&f=@selectedStatus ">&larr; 上一页</a>
 						                    </li>
 						                } else {
 						                    <li class="prev disabled">
@@ -155,7 +166,7 @@ currentPage: Integer, pageSize: Integer,orderBy: String)
 						                </li>
 						                @if(entityBean.hasNext) {
 						                    <li class="next">
-						                        <a class="ajaxify"  href="javascript:;" post="/w/takecash?p=@(entityBean.getPageIndex + 1) ">下一页 &rarr;</a>
+						                        <a class="ajaxify"  href="javascript:;" post="/w/takecash?p=@(entityBean.getPageIndex + 1)&f=@selectedStatus ">下一页 &rarr;</a>
 						                    </li>
 						                } else {
 						                    <li class="next disabled">

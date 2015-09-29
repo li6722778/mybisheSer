@@ -44,6 +44,7 @@ import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
 import play.mvc.Security;
 import scala.annotation.elidable;
+import utils.Arith;
 import utils.CommFindEntity;
 import utils.ConfigHelper;
 import utils.Constants;
@@ -279,12 +280,22 @@ public class WebPageController extends Controller {
 
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoTakeCash(int currentPage, int pageSize,
-			String orderBy) {
+			String orderBy,int status) {
 		Logger.debug("goto gotoTakeCash");
 		Page<TTakeCash> allData = TTakeCash.findPageDataForWeb(currentPage,
-				pageSize, orderBy);
+				pageSize, orderBy,status);
+		
+		double cash_request = TTakeCash.findTakeCashTotalByStatus(1);
+		double cash_handle = TTakeCash.findTakeCashTotalByStatus(2);
+		double cash_finish = TTakeCash.findTakeCashTotalByStatus(3);
+		
+		flash("cash_total", Arith.decimalPrice(cash_request+cash_handle+cash_finish)+"元");
+		flash("cash_request", cash_handle+"元");
+		flash("cash_handle", cash_request+"元");
+		flash("cash_finish", cash_finish+"元");
+		
 		return ok(views.html.takecash.render(allData, currentPage, pageSize,
-				orderBy));
+				orderBy,status));
 	}
 
 	@Security.Authenticated(SecurityController.class)
@@ -1035,6 +1046,11 @@ public class WebPageController extends Controller {
 		Logger.debug("goto gotoOrderChart");
 		return ok(views.html.orderchart.render());
 	}
+	
+	public static Result gotoOrderParkChart() {
+		Logger.debug("goto gotoOrderParkChart");
+		return ok(views.html.chartorderparking.render());
+	}
 
 	public static Result gotoParkingChart() {
 		Logger.debug("goto gotoParkingChart");
@@ -1129,6 +1145,23 @@ public class WebPageController extends Controller {
 	}
 	
 	/**
+	 * 返回json的车场订单数据
+	 * 
+	 * @param city
+	 * @return
+	 */
+	public static Result getCityOrderForParkChart(int days) {
+		Logger.debug("goto getCityOrderForParkChart for days:" + days);
+		HashMap<String, List<ChartCityEntity>> map = ChartCityEntity
+				.getTop30OrderForEachPark(days);
+
+		String json = OrderController.gsonBuilderWithExpose.toJson(map);
+		JsonNode jsonNode = Json.parse(json);
+		Logger.debug("return json:" + json);
+		return ok(jsonNode);
+	}
+	
+	/**
 	 * 返回json的用户赠涨量
 	 * 
 	 * @param city
@@ -1143,6 +1176,7 @@ public class WebPageController extends Controller {
 		Logger.debug("return json:" + json);
 		return ok(jsonNode);
 	}
+	
 
 	/**
 	 * 返回json的城市订单数据
@@ -1473,7 +1507,7 @@ public class WebPageController extends Controller {
 			}
 		}
 
-		return gotoTakeCash(currentPage, pageSize, orderBy);
+		return gotoTakeCash(currentPage, pageSize, orderBy,status);
 	}
 
 	/**
