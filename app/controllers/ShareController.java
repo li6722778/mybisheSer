@@ -265,37 +265,35 @@ public class ShareController extends Controller {
 
 					// 手机号不在该url的分享记录中
 					if (result == false) {
-						int sendreuslt = sendtouser(telephonenumber, uniqueurl,
+						int sendresult = sendtouser(telephonenumber, uniqueurl,
 								times, counponcodes);
-
-						if (sendreuslt == 0) {
-						Logger.info("分享失败，");
+						if (sendresult == 0) {
 							response.setResponseEntity("0");
 							response.setResponseStatus(ComResponse.STATUS_FAIL);
 						}
 						// 新用户返回4
-						if (sendreuslt == 4) {
+						if (sendresult ==4) {
 							
-							Logger.info("分享成功，获取优惠劵:10元");
 							SMSController.requestSMSmessage(telephonenumber, 10);
+							Logger.info("分享成功，获取10元优惠劵");
 							response.setResponseEntity("10");
 							response.setResponseStatus(ComResponse.STATUS_OK);
 						}
-						
-				       // 老用户返回的获取优惠劵金额 返回2，3，5
-						
-						if(sendreuslt==3){
-							Logger.info("分享成功，获取5元优惠劵");
-							SMSController.requestSMSmessage(telephonenumber, sendreuslt+2);
-						}
+						// 老用户返回的获取优惠劵金额
 						else {
-							Logger.info("分享成功，获取优惠劵:"+sendreuslt+"元");
-							SMSController.requestSMSmessage(telephonenumber, sendreuslt+1);
+							
+							if(sendresult==3){
+								Logger.info("分享成功，获取5元优惠劵");
+								SMSController.requestSMSmessage(telephonenumber, sendresult+2);
+							}
+							else {
+								Logger.info("分享成功，获取优惠劵:"+sendresult+"元");
+								SMSController.requestSMSmessage(telephonenumber, sendresult+1);
+							}
+							
+							response.setResponseEntity(sendresult + "");
+							response.setResponseStatus(ComResponse.STATUS_OK);
 						}
-						
-						response.setResponseEntity(sendreuslt + "");
-						response.setResponseStatus(ComResponse.STATUS_OK);
-					
 
 					}
 					// 该用户已经通过该url领取过优惠劵
