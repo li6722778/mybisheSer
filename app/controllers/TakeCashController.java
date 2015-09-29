@@ -1,17 +1,19 @@
 package controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import action.BasicAuth;
+import models.info.TIncome;
 import models.info.TTakeCash;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+import utils.Arith;
 import utils.ComResponse;
 import utils.CommFindEntity;
-import action.BasicAuth;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 public class TakeCashController extends Controller {
 	public static Gson gsonBuilderWithExpose = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
@@ -78,24 +80,50 @@ public class TakeCashController extends Controller {
 		
 		TTakeCash data = gsonBuilderWithExpose.fromJson(request, TTakeCash.class);
 		ComResponse<TTakeCash>  response = new ComResponse<TTakeCash>();
-		try {
-			
-			String username = flash("username");
-			
-			TTakeCash.saveData(data);
-			response.setResponseStatus(ComResponse.STATUS_OK);
-			response.setResponseEntity(data);
-			response.setExtendResponseContext("更新数据成功.");
-			LogController.info("save comments data:"+data.parkid);
-		} catch (Exception e) {
-			response.setResponseStatus(ComResponse.STATUS_FAIL);
-			response.setErrorMessage(e.getMessage());
-			Logger.error("", e);
+		if(data!=null)
+		{
+	
+			TIncome income = TIncome.findDataByParkid(data.parkid);
+			if(income!=null)
+			{
+				if(Arith.decimalPrice(data.takemoney)<=Arith.decimalPrice(income.incometotal-income.cashtotal-income.takeCashTotal))
+				{
+					try {
+						
+						String username = flash("username");
+						
+						TTakeCash.saveData(data);
+						response.setResponseStatus(ComResponse.STATUS_OK);
+						response.setResponseEntity(data);
+						response.setExtendResponseContext("更新数据成功.");
+						LogController.info("request cash:"+data.takemoney+",bank:"+data.cardname);
+					} catch (Exception e) {
+						response.setResponseStatus(ComResponse.STATUS_FAIL);
+						response.setErrorMessage(e.getMessage());
+						Logger.error("", e);
+					}
+				  String tempJsonString = gsonBuilderWithExpose.toJson(response);
+				  JsonNode json = Json.parse(tempJsonString);
+				  return ok(json);
+				}
+				else
+				{
+					response.setResponseStatus(ComResponse.STATUS_FAIL);
+					response.setErrorMessage("输入金额有误，数据刷新后，重新输入有效金额");
+					String tempJsonString = gsonBuilderWithExpose.toJson(response);
+					JsonNode json = Json.parse(tempJsonString);
+					return ok(json);
+				}
+				
+			}
 		}
+		response.setResponseStatus(ComResponse.STATUS_FAIL);
+		response.setErrorMessage("账户异常，请退出后，重新登陆");
 		String tempJsonString = gsonBuilderWithExpose.toJson(response);
 		JsonNode json = Json.parse(tempJsonString);
 		return ok(json);
 	}
+
 	
 	
 	/**

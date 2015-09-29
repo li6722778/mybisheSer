@@ -133,50 +133,59 @@ var UserChartList = function () {
             	$('#label_days').html("180天");
        	    });
              
-            $('.popup_export').click(function(){
-   	    	 var type = jQuery(this).attr("type");
-   	    	 
-   	    	 $("#form_modal_userbackup .userbacklist").html("请等待");
-   	    	 //get total of parking
-           	 $.get("/w/getbackupuserList",function(result){
-           		 if(result){
-           			$("#form_modal_userbackup .userbacklist").html("");
-           			 $.each(result, function(index, value) {
-           				$("<tr class=\"odd gradeX\">" +
-               					"<td class=\"hidden-480\">"+value.createDate+"</td>" +
-               					"<td >"+value.fileName+"</td>" +
-               					"<td class=\"hidden-480\">"+value.fileSize+"k</td>" +
-               					"<td class=\"hidden-480\"><a href=\"/w/downloaduser?file="+value.fileName+"\" target=\"_parent\"><i class=\"icon-cloud-download\"></i></a></td></tr>").appendTo("#form_modal_userbackup .userbacklist");
-       			     });
-           		 }
-      			});
-   	    	
-    	 });
+            
+            //获取备份数据并且刷新界面
+            var fetchbackupList = function(){
+            	$("#form_modal_userbackup .userbacklist").html("请等待");
+            	 $.get("/w/getbackupList?typeName=.user.csv",function(result){
+               		 if(result){
+               			$("#form_modal_userbackup .userbacklist").html("");
+               			 $.each(result, function(index, value) {
+               				$("<tr class=\"odd gradeX\">" +
+                   					"<td class=\"hidden-480\">"+value.createDate+"</td>" +
+                   					"<td >"+value.fileName+"</td>" +
+                   					"<td class=\"hidden-480\">"+value.fileSize+"k</td>" +
+                   					"<td class=\"hidden-480\"><a href=\"/w/downloaduser?file="+value.fileName+"\" target=\"_parent\"><i class=\"icon-cloud-download\"></i></a></td></tr>").appendTo("#form_modal_userbackup .userbacklist");
+           			     });
+               		 }
+          			});
+            };
+//                        
+           //导出数据，并且刷新界面
+           var startExport = function(fullbackup){
+        		var orderasc = 0;
+            	if($("#orderasc").is(':checked')){
+            		orderasc = 0;
+            	}else{
+            		orderasc = 1;
+            	}
+            	$.get("/w/export/user?fullbackup="+fullbackup+"&asc="+orderasc, function(result){
+            		$("#exportmessage").html("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font size=3 color=red>"+result+"</font>")
+            		if (result == "ok"){
+            			fetchbackupList();
+            		}
+            	});
+           };
+           
+           //点击了导出数据menu
+           $('.popup_export').click(function(){
+  	    	    $("#exportmessage").html("")
+  	    	    //get total of parking
+  	    	    fetchbackupList();
+  	    	
+   	        });
             
             //增量备份
             $('#button_export_user').click(function(){
-               
-            	
-            	
-            	
-            	$("#form_modal_userbackup .userbacklist").html("请等待");
-      	    	 //get total of parking
-              	 $.get("/w/getbackupuserList",function(result){
-              		 if(result){
-              			$("#form_modal_userbackup .userbacklist").html("");
-              			 $.each(result, function(index, value) {
-              				$("<tr class=\"odd gradeX\">" +
-                  					"<td class=\"hidden-480\">"+value.createDate+"</td>" +
-                  					"<td >"+value.fileName+"</td>" +
-                  					"<td class=\"hidden-480\">"+value.fileSize+"k</td>" +
-                  					"<td class=\"hidden-480\"><a href=\"/w/downloaduser?file="+value.fileName+"\" target=\"_parent\"><i class=\"icon-cloud-download\"></i></a></td></tr>").appendTo("#form_modal_userbackup .userbacklist");
-          			     });
-              		 }
-         			});
-      	    	
+            	startExport(0);
        	    });
             
+          //所有备份
+            $('#button_export_alluser').click(function(){
+            	startExport(1);
+       	    });
             
+             //初始化默认用30天的数据
              jumpto(30,0);
              
         }

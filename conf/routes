@@ -177,8 +177,6 @@ POST      /w/user/update                       controllers.WebPageController.upd
 POST      /w/user/adm/add                       controllers.WebPageController.addUserAdm(p ?= "",admpark?="")
 POST      /w/user/adm/delete                    controllers.WebPageController.deleteUserAdm(p ?= "",admpark?="")
 POST      /w/userchart                         controllers.WebPageController.gotoUserChart()
-GET       /w/getbackupuserList                 controllers.ExportController.getBackupUserList()
-GET       /w/downloaduser                      controllers.ExportController.downloaduser(file ?= "")
 
 POST      /w/user/changepw/:phone/:type          controllers.WebPageController.updatedUserPasswdData(phone:String,type:Integer)
 POST      /w/user/gotomulitpasswd               controllers.WebPageController.gotoMutipPasswd(p?="")
@@ -233,7 +231,11 @@ POST      /w/allowanceoffer                     controllers.WebPageController.go
 POST     /w/comment                       controllers.WebPageController.gotoparkcomment(p:Int ?= 0, s:Int ?= 10, o ?= "create_date desc",k?="",v?="")
 GET      /w/comment/deletes               controllers.WebPageController.deletecomments(i?= "",p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",k?="",v?="")
 
-
+GET       /w/getbackupList                 controllers.ExportController.getBackupList(typeName?=".user.csv")
+GET       /w/downloaduser                      controllers.ExportController.downloaduser(file ?= "")
+GET       /w/export/user                      controllers.ExportController.startToUserBackup(fullbackup:Int ?= 0,asc:Int ?= 0)
+GET       /w/export/order                      controllers.ExportController.startToOrderBackup(fullbackup:Int ?= 0,asc:Int ?= 0)
+GET       /w/export/income                      controllers.ExportController.startToIncomeBackup(fullbackup:Int ?= 0,asc:Int ?= 0)
 
 POST     /w/commentskeyword                   controllers.WebPageController.gotokeywordpage(p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",v?="")
 GET      /w/commentskeyword/deletes           controllers.WebPageController.deletekeyword(i?= "",p:Int ?= 0, s:Int ?= 10, o ?= "createDate desc",v?="")
