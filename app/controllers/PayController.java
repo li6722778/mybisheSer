@@ -1882,6 +1882,7 @@ public class PayController extends Controller {
 		}
 	}
 
+	//不包含支付宝回调更新。
 	@BasicAuth
 	public static Result updatePayment(long orderid, long payId, int status,
 			String needfinishedOrder) {
@@ -1976,6 +1977,8 @@ public class PayController extends Controller {
 							+ ",status:" + status);
 				}
 				response.setResponseStatus(ComResponse.STATUS_OK);
+				//防止gson递归解析
+				order.order=null;
 				response.setResponseEntity(order);
 			} else {
 				throw new Exception("没有找到订单付款项");
@@ -2126,6 +2129,8 @@ public class PayController extends Controller {
 							// start to push
 							TOrder torder = order.order;
 							if (torder != null) {
+								//成功以后更新，所以为2
+								updatelijian(order.order.pay,2);
 								if (torder.parkInfo != null
 										&& torder.userInfo != null
 										&& torder.startDate == null
