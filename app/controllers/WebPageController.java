@@ -290,8 +290,8 @@ public class WebPageController extends Controller {
 		double cash_finish = TTakeCash.findTakeCashTotalByStatus(3);
 		
 		flash("cash_total", Arith.decimalPrice(cash_request+cash_handle+cash_finish)+"元");
-		flash("cash_request", cash_handle+"元");
-		flash("cash_handle", cash_request+"元");
+		flash("cash_request", cash_request+"元");
+		flash("cash_handle", cash_handle+"元");
 		flash("cash_finish", cash_finish+"元");
 		
 		return ok(views.html.takecash.render(allData, currentPage, pageSize,
