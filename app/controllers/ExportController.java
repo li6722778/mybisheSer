@@ -31,18 +31,18 @@ import utils.DateHelper;
  */
 public class ExportController extends Controller {
 
-//	public static String path_backup = "/Users/woderchen/Desktop/Project/chebole/test";
-//	public static String path_script = "/Users/woderchen/Desktop/Project/chebole/start.exportuser.sh";
+	public static String path_backup = "/Users/woderchen/Desktop/Project/chebole/test";
+	public static String path_script = "/Users/woderchen/Desktop/Project/chebole/start.exportuser.sh";
 
-	public static String path_backup = "/home/cbluser/backup";
-	public static String path_script = "/home/cbluser/bin/start.exportuser.sh";
+//	public static String path_backup = "/home/cbluser/backup";
+//	public static String path_script = "/home/cbluser/bin/start.exportuser.sh";
 	/**
 	 * 得到当前备份的用户表所有数据
 	 * @return
 	 */
 	@Security.Authenticated(SecurityController.class)
 	public static Result getBackupList(String typeName){
-		Logger.info("start to get Backup User List");
+		Logger.info("start to get Backup List");
 		File exportPathDir = new File(path_backup);
 		File[] csvFiles = exportPathDir.listFiles(new FilenameFilter(){
 			@Override
