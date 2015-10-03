@@ -207,7 +207,7 @@ public class CounponController extends Controller{
 					response.setResponseStatus(ComResponse.STATUS_OK);
 					response.setResponseEntity(counponbean);
 					response.setExtendResponseContext("更新数据成功.");
-					LogController.info("save coupon data:"+counponbean.counponCode);
+					LogController.info("save coupon data:"+counponbean.counponCode+"["+counponbean.money+"] by sharing to "+useinfo.userPhone);
 				} catch (Exception e) {
 					response.setResponseStatus(ComResponse.STATUS_FAIL);
 					response.setErrorMessage(e.getMessage());

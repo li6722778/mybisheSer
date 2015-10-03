@@ -229,6 +229,10 @@ public class PayController extends Controller {
 					throw new Exception("获取当前操作用户失败");
 				}
 				if (infoPark != null && user != null) {
+					
+					//检查可疑订单
+					PayHelper.checkSpiteOrder(clientId,user.userPhone+"",infoPark.parkname+"["+infoPark.parkId+"]");
+					
 					//查询当前停车场是否可以下订单
 					 List<TParkInfoPro_Loc>  locs = infoPark.latLngArray;
 					 if(locs==null||locs.size()<=0){
@@ -496,6 +500,10 @@ public class PayController extends Controller {
 					throw new Exception("获取当前操作用户失败");
 				}
 				if (infoPark != null && user != null) {
+					
+					//检查可疑订单
+					PayHelper.checkSpiteOrder(clientId,user.userPhone+"",infoPark.parkname+"["+infoPark.parkId+"]");
+					
 					//查询当前停车场是否可以下订单
 					 List<TParkInfoPro_Loc>  locs = infoPark.latLngArray;
 					 if(locs==null||locs.size()<=0){
