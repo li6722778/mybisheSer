@@ -38,8 +38,24 @@ public class PayHelper {
 		if (userClientId != null && userClientId.trim().length()>0){
 			
 			TOptions option = TOptions.findOption(MONITOR_SPITE_ORDER);
-			if (option==null||option.textObject==null||option.textObject.trim().equals("0")){
-				Logger.info("#####since the check flag is off,end check#####");
+			if (option!=null&&option.textObject!=null){
+				String flagString = option.textObject.trim();
+				if (flagString!=null){
+					String[] flagArray = flagString.split(",");
+					if (flagArray[0].trim().equals("0")){
+						Logger.info("#####since the check flag is off,end check#####");
+						return;
+					}
+					if (flagArray.length>1){
+						String restrictNull = flagArray[1];
+						if (restrictNull.toLowerCase().equals("no_check_null_device") && userClientId.toLowerCase().trim().equals("null")){
+							Logger.info("#####since the NO_CHECK_NULL_DEVICE set to on and current device id is null,end check#####");
+							return;
+						}
+					}
+				 
+				}
+			}else{
 				return;
 			}
 //			
@@ -47,7 +63,13 @@ public class PayHelper {
 //			
 			
 			Logger.info("check device id from monitor client pool");
-			List<String> phoneCountArray = monitorClientMapForOrder.get(userClientId);
+			String mapKey = "";
+			if (userClientId.toLowerCase().trim().equals("null")){
+				mapKey = parkName;
+			}else{
+				mapKey = userClientId;
+			}
+			List<String> phoneCountArray = monitorClientMapForOrder.get(mapKey);
 			
 			if (phoneCountArray != null && phoneCountArray.size()>0){
 				
@@ -55,11 +77,11 @@ public class PayHelper {
 					int currentCount = phoneCountArray.size();
 					
 					if (currentCount>=MAX_SWICH_NUM){//当前手机已经切换了N次手机号
-						LogController.info("##可疑行为##diffirent phone number["+userPhone+"] with same device["+userClientId+"]->{"+phoneCountArray+"} for "+parkName+",max pool:"+currentCount);
+						LogController.info("##可疑行为##diffirent phone number["+userPhone+"] with same device["+mapKey+"]->{"+phoneCountArray+"} for "+parkName+",max pool:"+currentCount);
 						throw new Exception("系统检测到可疑行为，请稍后再试。");
 					}
 
-					Logger.warn("##add phone："+userPhone+" to "+userClientId+",current size:"+currentCount);
+					Logger.warn("##add phone："+userPhone+" to "+mapKey+",current size:"+currentCount);
 					phoneCountArray.add(userPhone);
 				}else{
 					Logger.warn("##same phone number with same device for "+parkName);
@@ -69,7 +91,13 @@ public class PayHelper {
 				Logger.info("add to monitor client pool");
 				List<String> ls = new ArrayList<String>();
 				ls.add(userPhone);
-				monitorClientMapForOrder.put(userClientId, ls);
+				if (userClientId.toLowerCase().trim().equals("null")){
+					//client id为空得情况
+					monitorClientMapForOrder.put(parkName, ls);
+				}else{
+					//client id不为空得情况
+					monitorClientMapForOrder.put(userClientId, ls);
+				}
 			}
 		}
 		Logger.info("######end check spite order#####");
