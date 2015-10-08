@@ -31,11 +31,11 @@ import utils.DateHelper;
  */
 public class ExportController extends Controller {
 
-	public static String path_backup = "/Users/woderchen/Desktop/Project/chebole/test";
-	public static String path_script = "/Users/woderchen/Desktop/Project/chebole/start.exportuser.sh";
+//	public static String path_backup = "/Users/woderchen/Desktop/Project/chebole/test";
+//	public static String path_script = "/Users/woderchen/Desktop/Project/chebole/start.exportuser.sh";
 
-//	public static String path_backup = "/home/cbluser/backup";
-//	public static String path_script = "/home/cbluser/bin/start.exportuser.sh";
+	public static String path_backup = "/home/cbluser/backup";
+	public static String path_script = "/home/cbluser/bin/start.exportuser.sh";
 	/**
 	 * 得到当前备份的用户表所有数据
 	 * @return
