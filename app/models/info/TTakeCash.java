@@ -142,6 +142,36 @@ public class TTakeCash extends Model{
 		}
 		
 		/**
+		 * 
+		 * @param currentPage
+		 * @param pageSize
+		 * @param orderBy
+		 * @return
+		 */
+		public static CommFindEntity<TTakeCash> findPageDataForNewRequest(int currentPage,
+				int pageSize, String orderBy) {
+
+			CommFindEntity<TTakeCash> result = new CommFindEntity<TTakeCash>();
+
+			Page<TTakeCash> allData = find.where().eq("status", 1).orderBy(orderBy)
+					.findPagingList(pageSize).setFetchAhead(false)
+					.getPage(currentPage);
+
+			List<TTakeCash> tcashList = allData.getList();
+			if(tcashList!=null){
+				for(TTakeCash cash:tcashList){
+					long parkid = cash.parkid;
+					cash.parkprod = TParkInfoProd.findDataById(parkid);
+				}
+			}
+			
+			result.setResult(allData.getList());
+			result.setRowCount(allData.getTotalRowCount());
+			result.setPageCount(allData.getTotalPageCount());
+			return result;
+		}
+		
+		/**
 		 * 根据车位ID得到所有数据，有分页
 		 * 
 		 * @param currentPage

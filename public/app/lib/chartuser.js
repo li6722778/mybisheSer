@@ -194,7 +194,7 @@ var UserChartList = function () {
        	    });
             
              //初始化默认用30天的数据
-             jumpto(30,0);
+             jumpto(90,0);
              
         }
 

@@ -111,7 +111,62 @@ public class ChartCityEntity{
 				        .create();
 				final List<ChartCityEntity> ls = Ebean.find(ChartCityEntity.class).setRawSql(rawSql).findList();
 				
-				map.put(c.descri+"-"+c.dateString, getRecentlyEmtyDay(ls));
+				map.put(c.dateString+"[id:"+c.descri+"]", getRecentlyEmtyDay(ls));
+			}
+		
+		
+		return map;
+	}
+	
+	/**
+	 * 得到最近N天,支付手段统计
+	 * @param city
+	 * @return
+	 */
+	public static HashMap<String,List<ChartCityEntity>> getPayMethodForpay(final int days){
+		
+		HashMap<String,List<ChartCityEntity>> map =new HashMap<String,List<ChartCityEntity>>();
+		
+
+		List<ChartCityEntity> parks = new ArrayList<ChartCityEntity>();
+		ChartCityEntity chartentity = new ChartCityEntity();
+		chartentity.descri = "支付宝";
+		chartentity.dateString = "1,5";
+		parks.add(chartentity);
+		
+		ChartCityEntity chartentity2 = new ChartCityEntity();
+		chartentity2.descri = "微信支付";
+		chartentity2.dateString = "2,6";
+		parks.add(chartentity2);
+		
+		ChartCityEntity chartentity3 = new ChartCityEntity();
+		chartentity3.descri = "优惠卷";
+		chartentity3.dateString = "4,5,6";
+		parks.add(chartentity3);
+		
+		ChartCityEntity chartentity4 = new ChartCityEntity();
+		chartentity4.descri = "现金支付";
+		chartentity4.dateString = "9";
+		parks.add(chartentity4);
+		
+		ChartCityEntity chartentity5 = new ChartCityEntity();
+		chartentity5.descri = "每单立减";
+		chartentity5.dateString = "21";
+		parks.add(chartentity5);
+		
+		
+			for(ChartCityEntity c:parks){
+				String sql = "select count(park_py_id) as countorder, date_format(pay_date,'%m/%d/%Y') as datestring from "
+						+ "(select a.park_py_id,a.pay_method,a.pay_date from tb_order_his_py a union select b.park_py_id,b.pay_method,b.pay_date from tb_order_py b) c "
+						+ "where date_format(pay_date,'%m%d') between date_format(date_sub(now(), interval "+days+" day),'%m%d') "
+						+ "and date_format(now(),'%m%d') and pay_method in ("+c.dateString+") group by date_format(pay_date,'%Y%m%d') order by pay_date desc";
+				final RawSql rawSql = RawSqlBuilder.unparsed(sql)
+						.columnMapping("countorder", "countOrder")
+				        .columnMapping("datestring", "dateString")
+				        .create();
+				final List<ChartCityEntity> ls = Ebean.find(ChartCityEntity.class).setRawSql(rawSql).findList();
+				
+				map.put(c.descri, getRecentlyEmtyDay(ls));
 			}
 		
 		
@@ -170,6 +225,15 @@ public class ChartCityEntity{
 
 						newArray.add(cityEntity);
 					}
+//					//再加一周
+//					for(int i=0;i<3;i++){
+//						ChartCityEntity cityEntity = new ChartCityEntity();
+//						cityEntity.countOrder=0;
+//						String _dayString = DateHelper.format(DateHelper.addDate(new Date(), (i+1)), "MM/dd/yyyy");
+//						cityEntity.dateString=_dayString;
+//
+//						newArray.add(cityEntity);
+//					}
 				}
 			}
 

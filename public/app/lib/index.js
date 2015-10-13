@@ -50,6 +50,30 @@ var Index = function () {
         		 }
    			});
         	 
+        	//get total of takecash
+        	 $.get("/w/takecash/task",function(result){
+        		 if(result){
+        			//total
+        			 $("#header_inbox_bar .badge").text(result.rowCount);
+        			 
+        			var taskHeader="<li><p>新来"+result.rowCount+"条停车场提现请求</p></li>";
+        			$("#header_inbox_bar .inbox").html(taskHeader);
+        			
+        			if(result.result){
+        			 $.each(result.result, function (index, entity) {  
+        				 var taskmessage="<a class=\"ajaxify\"  href=\"javascript:$('#index_takecash').click();\" post=\"/w/takecash\"><span class=\"photo\"><img src=\""+entity.parkprod.imgUrlArray[0].imgUrlHeader+entity.parkprod.imgUrlArray[0].imgUrlPath+"\"/></span>" +
+        				 "<span class=\"subject\"><span class=\"from\">"+entity.parkprod.parkname+"</span>" +
+        				 "<span class=\"time\">取现"+entity.takemoney+"元</span></span><span class=\"message\">"+entity.askdata+"</span></a>"
+        				 
+        				 $('<li/>').html(taskmessage).appendTo($("#header_inbox_bar .inbox"));
+        			 });
+        			}
+        			 var footer = "<a class=\"ajaxify\"  href=\"javascript:$('#index_takecash').click();\" post=\"/w/takecash\">查看更多<i class=\"m-icon-swapright\"></i></a>";
+        			 $('<li class=\"external\" />').html(footer).appendTo($("#header_inbox_bar .inbox"));
+        			
+        		 }
+   			});
+        	 
         	 //禁止backspace键
         	 $( document ).keydown( function( event ) {
                  if ( event.keyCode == 8 && !$("input").is(":focus")&& !$("textarea").is(":focus")) {

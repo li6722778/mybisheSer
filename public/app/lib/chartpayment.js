@@ -1,7 +1,7 @@
 /**
- * 停车场订单类
+ *  付款当时图
  */
-var ParkOrderChartList = function () {
+var PaymentChartList = function () {
     
     return {
         //main function to initiate the module
@@ -9,7 +9,7 @@ var ParkOrderChartList = function () {
 
              function chart2(jsonData) {
            
-                 var plot = $.plot($("#chart_orderpark"), jsonData, {
+                 var plot = $.plot($("#chart_payment"), jsonData, {
                          series: {
                              lines: {
                                  show: true,
@@ -65,7 +65,7 @@ var ParkOrderChartList = function () {
                  }
 
                  var previousPoint = null;
-                 $("#chart_orderpark").bind("plothover", function (event, pos, item) {
+                 $("#chart_payment").bind("plothover", function (event, pos, item) {
                      $("#x").text(pos.x.toFixed(2));
                      $("#y").text(pos.y.toFixed(2));
 
@@ -77,7 +77,7 @@ var ParkOrderChartList = function () {
                              var x = $.datepicker.formatDate('yy/mm/dd', new Date(item.datapoint[0])),
                                  y = item.datapoint[1];
 
-                             showTooltip(item.pageX, item.pageY, item.series.label+ y + "单[" + x + "]");
+                             showTooltip(item.pageX, item.pageY, item.series.label+ y + "次[" + x + "]");
                          }
                      } else {
                          $("#tooltip").remove();
@@ -93,7 +93,7 @@ var ParkOrderChartList = function () {
             	 if(hasloading==1){
             	    App.blockUI(pageContent, false);
             	 }
-            	 $.get("/w/chart/orderpark?p="+days,function(result){
+            	 $.get("/w/chart/paymethod?p="+days,function(result){
             		 if(result){
             			 
             			 var plotData = [];
@@ -132,7 +132,8 @@ var ParkOrderChartList = function () {
             	jumpto(180,1);
             	$('#label_days').html("180天");
        	    });
-             
+            
+             //初始化默认用30天的数据
              jumpto(90,0);
              
         }
@@ -145,7 +146,7 @@ var ParkOrderChartList = function () {
 
 
 jQuery(document).ready(function() {    
-	ParkOrderChartList.init();
+	PaymentChartList.init();
 });
 
 

@@ -97,6 +97,26 @@
 					</li>
 
 					<!-- END NOTIFICATION DROPDOWN -->
+					
+					<!-- BEGIN INBOX DROPDOWN -->
+
+					<li class="dropdown" id="header_inbox_bar">
+
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+
+						<i class="icon-warning-sign"></i>
+
+						<span class="badge">0</span>
+
+						</a>
+
+						<ul class="dropdown-menu extended inbox" id="inboxbar">
+
+						</ul>
+
+					</li>
+
+					<!-- END INBOX DROPDOWN -->
 
 				
 					<!-- BEGIN TODO DROPDOWN -->
@@ -201,6 +221,50 @@
 					</a>
 				</li>
 
+
+                 <li class="">
+					<a href="javascript:;">
+					<i class="icon-bar-chart"></i> 
+					<span class="title">图表统计</span>
+					<span class="selected"></span>
+					<span class="arrow open"></span>
+					</a>
+					<ul class="sub-menu">
+
+                        <li>
+							<a class="ajaxify" id="index_caijireport" href="javascript:;" post="/w/parkingchart">
+							  采集统计图表             
+							</a>
+						</li>
+						
+						<li>
+							<a class="ajaxify" id="index_orderreport" href="javascript:;" post="/w/orderchart">
+							  城市订单图表             
+							</a>
+						</li>
+						
+						<li>
+							<a class="ajaxify" id="index_orderparkreport" href="javascript:;" post="/w/orderchartparking">
+							  车场订单图表             
+							</a>
+						</li>
+						
+						<li>
+							<a class="ajaxify" id="index_paymentreport" href="javascript:;" post="/w/paymethodchart">
+							  支付方式图表             
+							</a>
+						</li>
+
+						<li>
+							<a class="ajaxify" href="javascript:;" post="/w/userchart">
+							   用户统计与导出                   
+							</a>
+
+						</li>
+					</ul>
+
+				</li>
+
 				<li class="">
 					<a href="javascript:;">
 					<i class="icon-map-marker"></i> 
@@ -216,11 +280,7 @@
 							</a>
 						</li>
 						
-						<li>
-							<a class="ajaxify" id="index_caijireport" href="javascript:;" post="/w/parkingchart">
-							  采集统计图表             
-							</a>
-						</li>
+						
 
 						<li>
 							<a class="ajaxify" id="parkingprod" href="javascript:;" post="/w/parkingprod">
@@ -265,19 +325,6 @@
 							</a>
 						</li>
 
-						<li>
-							<a class="ajaxify" id="index_orderreport" href="javascript:;" post="/w/orderchart">
-							  城市订单图表             
-							</a>
-						</li>
-						
-						<li>
-							<a class="ajaxify" id="index_orderparkreport" href="javascript:;" post="/w/orderchartparking">
-							  车场订单图表             
-							</a>
-						</li>
-						
-					
 						<li>
 							<a class="ajaxify" id="index_allowanceoffer" href="javascript:;" post="/w/allowanceoffer">
 							      补贴发放情况       
@@ -415,12 +462,7 @@
 							</a>
 
 						</li>
-						<li>
-							<a class="ajaxify" href="javascript:;" post="/w/userchart">
-							   统计与导出                   
-							</a>
 
-						</li>
 						<li>
 
 							<a class="ajaxify" href="javascript:;" post="/w/user/smspush">

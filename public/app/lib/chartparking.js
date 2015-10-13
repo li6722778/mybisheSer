@@ -133,7 +133,7 @@ var ParkChartList = function () {
             	$('#label_days').html("180天");
        	    });
              
-             jumpto(30,0);
+             jumpto(90,0);
              
         }
 

@@ -401,6 +401,18 @@ public class TOrder extends Model {
 	}
 
 	
+	/**
+	 * 删除没有支付的订单，这个给定时任务用
+	 */
+	public static void deleteUnpayOrder(final String dateobj){
+		Ebean.execute(new TxRunnable() {
+			public void run() {
+				Query<TOrder_Py> query = Ebean.createQuery(TOrder_Py.class).select("order.orderId").setDistinct(true).where().eq("ackStatus",2).query();
+				List<TOrder> allData = find.where().le("orderDate", dateobj).not(Expr.in("orderId", query)).findList();
+				Ebean.delete(allData);
+			}
+		});
+	}
 	
 
 	

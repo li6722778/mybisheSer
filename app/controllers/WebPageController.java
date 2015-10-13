@@ -113,6 +113,19 @@ public class WebPageController extends Controller {
 		return ok(jsonNode);
 
 	}
+	
+	@Security.Authenticated(SecurityController.class)
+	public static Result getTaskOfTakeCash(int currentPage, int pageSize,
+			String orderBy) {
+		Logger.debug("goto getTaskOfParking");
+		CommFindEntity<TTakeCash> allData = TTakeCash.findPageDataForNewRequest(currentPage,
+				pageSize, orderBy);
+
+		String json = TakeCashController.gsonBuilderWithExpose.toJson(allData);
+		JsonNode jsonNode = Json.parse(json);
+		return ok(jsonNode);
+
+	}
 
 	@Security.Authenticated(SecurityController.class)
 	public static Result gotoParkingProd(int currentPage, int pageSize,
@@ -1061,6 +1074,11 @@ public class WebPageController extends Controller {
 		Logger.debug("goto gotoUserChart");
 		return ok(views.html.chartuser.render());
 	}
+	
+	public static Result gotoPayMethodChart() {
+		Logger.debug("goto gotoPayMethodChart");
+		return ok(views.html.chartpayment.render());
+	}
 
 	/**
 	 * 跳转版本界面
@@ -1137,6 +1155,23 @@ public class WebPageController extends Controller {
 		Logger.debug("goto getCityOrderChart for days:" + days);
 		HashMap<String, List<ChartCityEntity>> map = ChartCityEntity
 				.getTop30OrderForEachCity(days);
+
+		String json = OrderController.gsonBuilderWithExpose.toJson(map);
+		JsonNode jsonNode = Json.parse(json);
+		Logger.debug("return json:" + json);
+		return ok(jsonNode);
+	}
+	
+	/**
+	 * 返回json的付款方式订单数据
+	 * 
+	 * @param city
+	 * @return
+	 */
+	public static Result getPaymethodChart(int days) {
+		Logger.debug("goto getPaymethodChart for days:" + days);
+		HashMap<String, List<ChartCityEntity>> map = ChartCityEntity
+				.getPayMethodForpay(days);
 
 		String json = OrderController.gsonBuilderWithExpose.toJson(map);
 		JsonNode jsonNode = Json.parse(json);
