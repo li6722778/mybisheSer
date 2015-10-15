@@ -11,9 +11,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import play.Logger;
 import play.data.format.Formats;
 import play.db.ebean.Model;
 import utils.Constants;
+import utils.DateHelper;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.SqlQuery;
@@ -98,4 +100,53 @@ public class TOrderHis_Py extends Model{
 	public static void saveDataWithoutIDPolicy(final TOrderHis_Py bean) {
 		Ebean.save(bean);
 	}
+	
+	//判断当天立减数量是否符合
+		public static boolean checklijiannum(long userid) {
+			//分别查询历史和当前支付订单中为21（立减的）
+	String sql = "select * from tb_order a left join tb_order_py b on a.order_id=b.orderId where a.userid="+userid+" and b.pay_method=21 and date_format(a.order_date,'%Y-%m-%d')='"+DateHelper.format(new Date(), "yyyy-MM-dd")+"'"+
+	" union select * from tb_order_his a left join tb_order_his_py b on a.order_id=b.orderId where a.userid="+userid+" and b.pay_method=21 and date_format(a.order_date,'%Y-%m-%d')='"+DateHelper.format(new Date(), "yyyy-MM-dd")+"'";
+	Logger.debug("lijian userid"+userid);
+			SqlQuery sq = Ebean.createSqlQuery(sql);
+			//获取已立减数量
+			int hasnum = sq.findList().size();
+			TOptions options = TOptions.findOption(17);
+			if (options.textObject != null) {
+				int Maxlijiannum = Integer.valueOf(options.textObject.toString().trim()); 
+				if (hasnum < Maxlijiannum) {
+					return true;
+				} else {
+					return false;
+				}
+			}else
+				return false;
+			
+//			
+//			TLiJian lijian = TLiJian.findDataById(userid);
+//			if (lijian == null) {
+//				Logger.debug("@@@@@@@@@@@@@@@@@@@@@@@@@");
+//				return true;
+//			} else {
+//				String lijiantime = DateHelper.format(lijian.lijianDate, "yyyy-MM-dd");
+//				if (lijiantime.equals(DateHelper.format(new Date(), "yyyy-MM-dd"))) {
+//					TOptions options = TOptions.findOption(17);
+//					if (options.textObject != null) {
+//						int Maxlijiannum = Integer.valueOf(options.textObject.toString().trim());
+//						Logger.debug("@@@@@@@@@@@@@@@@@@@@@@@@@", Maxlijiannum);
+//						if (lijian.lijiannum < Maxlijiannum) {
+//							return true;
+//						} else {
+//							return false;
+//						}
+	//
+//					}else
+//					{
+//						Logger.debug("###################");
+//					}
+//				}
+//				return true;
+	//
+//			}
+
+		}
 }
