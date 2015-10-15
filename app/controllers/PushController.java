@@ -52,6 +52,11 @@ public class PushController extends Controller {
 			Logger.info("###add to clientMap:" + userid + ", client id: "
 					+ clientId + "#######");
 			clientMap.put(userid, clientId);
+			try {
+			 TParkInfo_adm.registerAdmLogin(userid, clientId);
+			}catch(Exception e){
+				Logger.error("registerAdmUser",e);
+			}
 			return ok("ok");
 		}
 		return ok("no action");

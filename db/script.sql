@@ -255,6 +255,8 @@ create table tb_parking_adm (
 park_adm_id               bigint  not null,
 parkId                    bigint,
 userid                    bigint,
+deviceid                  varchar(200),
+lastlogin_date            timestamp NULL,
 constraint pk_tb_parking_adm primary key (park_adm_id))
 ;
 
