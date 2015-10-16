@@ -215,10 +215,15 @@ public class UserController extends Controller {
 					public void run() {
 					
 						int times = unregisteruser.sharetime;
-						Logger.info("user:" + unregisteruser.userPhone+"times:"+times);
+						int limittimes = unregisteruser.limitsharetime;
+						Logger.info("user:" + unregisteruser.userPhone+"times:"+times+"limittimes:"+limittimes);
 						//根据用户的获取优惠劵次数发放优惠劵
 						for (int i = 0; i < times; i++) {
 							ShareController.sendunregistshareCounpon(user.userid);
+						}
+						//发送limittimes次1块钱优惠券
+						for (int i = 0; i < limittimes; i++) {
+							ShareController.sendoptionCounpon(user.userid);
 						}
 						Tunregisteruser.deletfromunregisteruser(user.userPhone);
 					}

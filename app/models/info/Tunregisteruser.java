@@ -9,13 +9,12 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import play.data.format.Formats;
+import play.db.ebean.Model;
+
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.TxRunnable;
 import com.google.gson.annotations.Expose;
-
-import play.data.format.Formats;
-import play.db.ebean.Model;
-import play.db.ebean.Model.Finder;
 
 /**
  * @author mxs E-mail:308348194@qq.com
@@ -38,11 +37,18 @@ public class Tunregisteruser extends Model{
 	@Column(columnDefinition = "integer(3) default 0")
 	@Expose
 	public int sharetime;
+	
+	
+	@Column(columnDefinition = "default 0")
+	@Expose
+	public int limitsharetime;
 
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(columnDefinition = "timestamp NULL")
 	@Expose
 	public Date sharetDate;
+	
+	
 	
 	
 	
@@ -75,6 +81,7 @@ public class Tunregisteruser extends Model{
 					Tunregisteruser unregisteruser= new Tunregisteruser();
 					unregisteruser.userPhone = userPhone;
 					unregisteruser.sharetime =1;
+					unregisteruser.limitsharetime=0;
 					unregisteruser.sharetDate = new Date();
 					Ebean.save(unregisteruser);
 
@@ -89,6 +96,20 @@ public class Tunregisteruser extends Model{
 		 * 
 		 * @param
 		 */
+		public static void updateunregisterlimitshare(final Long userPhone ,final int addlimitsharetime) {
+
+			Ebean.execute(new TxRunnable() {
+				public void run() {	
+					Tunregisteruser unregisteruser= Tunregisteruser.findDataById(userPhone);
+				    int oldlimitsharetime=unregisteruser.limitsharetime;
+				    unregisteruser.limitsharetime=oldlimitsharetime+1;
+					Ebean.update(unregisteruser);
+				}
+
+			});
+
+		}
+		
 		public static void updateunregistershare(final Long userPhone ,final int time) {
 
 			Ebean.execute(new TxRunnable() {

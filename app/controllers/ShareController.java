@@ -4,6 +4,7 @@ import java.util.Date;
 
 import models.info.TOptions;
 import models.info.TShare;
+import models.info.TUserlimit;
 import models.info.Tuniqueurl;
 import models.info.Tunregisteruser;
 import models.info.TuserInfo;
@@ -181,8 +182,6 @@ public class ShareController extends Controller {
 			}
 		}
 		if (times!= 0 && uniqueurl!= null) {
-			
-
 			if (uniqueurl.sharetime >= times) {
 				// 分享次数已经用完
 				// 判断手机号是否在分享列表中
@@ -199,19 +198,19 @@ public class ShareController extends Controller {
 
 				// 在分享列表中
 				if (result == true) {
-					response.setResponseEntity("4");
+					response.setResponseEntity("99");
 					Logger.info("已经领取过该url链接分享的优惠劵");
 					response.setResponseStatus(ComResponse.STATUS_FAIL);
 				}
 
 				else if (result == false) {
-					response.setResponseEntity("5");
+					response.setResponseEntity("98");
 					Logger.info("该url的分享次数已经用完");
 					response.setResponseStatus(ComResponse.STATUS_FAIL);
 				}
 
 			}
-
+          //分享次数未用完
 			else {
 				
 				Logger.info("---"+uniqueurl.url);
@@ -220,39 +219,50 @@ public class ShareController extends Controller {
 				Logger.info("---"+uniqueurl.userphoneObject);
 				// 之前没有用户使用过该url链接
 				if (phoneobjects == null && counponcodes != null) {
-					int sendresult = sendtouser(telephonenumber, uniqueurl,
-							times, counponcodes);
-					if (sendresult == 0) {
+					int sendresult = sendtouser(telephonenumber, uniqueurl,	times, counponcodes);
+					//失败
+					if (sendresult==0) {
 						response.setResponseEntity("0");
 						response.setResponseStatus(ComResponse.STATUS_FAIL);
 					}
-					// 新用户返回4
-					if (sendresult ==4) {
-						
-						SMSController.requestSMSmessage(telephonenumber, 10);
+					
+					if(sendresult==1)
+					{
+						Logger.info("分享成功，获取1优惠劵>>1");
+						response.setResponseEntity("1");
+						response.setResponseStatus(ComResponse.STATUS_OK);
+						SMSController.requestSMSmessage(telephonenumber, 1);
+					}
+					if(sendresult==2)
+					{
+						Logger.info("分享成功，获取2优惠劵");
+						response.setResponseEntity("2");
+						response.setResponseStatus(ComResponse.STATUS_OK);
+						SMSController.requestSMSmessage(telephonenumber, 2);
+					}
+					
+					if(sendresult==3){
+						Logger.info("分享成功，获取3元优惠劵");
+						response.setResponseEntity("3");
+						response.setResponseStatus(ComResponse.STATUS_OK);
+						SMSController.requestSMSmessage(telephonenumber, 3);
+					}
+					if(sendresult==5){
+						Logger.info("分享成功，获取5元优惠劵");
+						response.setResponseEntity("5");
+						response.setResponseStatus(ComResponse.STATUS_OK);
+						SMSController.requestSMSmessage(telephonenumber, 5);
+					}
+					if(sendresult==10){
 						Logger.info("分享成功，获取10元优惠劵");
 						response.setResponseEntity("10");
 						response.setResponseStatus(ComResponse.STATUS_OK);
+						SMSController.requestSMSmessage(telephonenumber, 10);
 					}
-					// 老用户返回的获取优惠劵金额
-					else {
-						
-						if(sendresult==3){
-							Logger.info("分享成功，获取5元优惠劵");
-							SMSController.requestSMSmessage(telephonenumber, sendresult+2);
-						}
-						else {
-							Logger.info("分享成功，获取优惠劵:"+sendresult+"元");
-							SMSController.requestSMSmessage(telephonenumber, sendresult+1);
-						}
-						
-						response.setResponseEntity(sendresult + "");
-						response.setResponseStatus(ComResponse.STATUS_OK);
-					}
+				
 				}
 				// 该url链接已经被使用，查询该手机号是否在该url中记录过
-				else if (phoneobjects != null
-						&& !(phoneobjects.toString().trim().equals(""))) {
+				else if (phoneobjects != null&&!(phoneobjects.toString().trim().equals(""))) {
 					String[] phoneobject = phoneobjects.split(",");
 					boolean result = false;
 					String telephone = Long.toString(telephonenumber);
@@ -265,40 +275,49 @@ public class ShareController extends Controller {
 
 					// 手机号不在该url的分享记录中
 					if (result == false) {
-						int sendresult = sendtouser(telephonenumber, uniqueurl,
-								times, counponcodes);
-						if (sendresult == 0) {
+						int sendresult = sendtouser(telephonenumber, uniqueurl,times, counponcodes);
+						//失败
+						if (sendresult==0) {
 							response.setResponseEntity("0");
 							response.setResponseStatus(ComResponse.STATUS_FAIL);
 						}
-						// 新用户返回4
-						if (sendresult ==4) {
-							
-							SMSController.requestSMSmessage(telephonenumber, 10);
+						if(sendresult==1)
+						{
+							Logger.info("分享成功，获取1元优惠劵>>2");
+							response.setResponseEntity("1");
+							response.setResponseStatus(ComResponse.STATUS_OK);
+							SMSController.requestSMSmessage(telephonenumber, 1);
+						}
+						if(sendresult==2)
+						{
+							Logger.info("分享成功，获取2元优惠劵");
+							response.setResponseEntity("2");
+							response.setResponseStatus(ComResponse.STATUS_OK);
+							SMSController.requestSMSmessage(telephonenumber, 2);
+						}
+						
+						if(sendresult==3){
+							Logger.info("分享成功，获取3元优惠劵");
+							response.setResponseEntity("3");
+							response.setResponseStatus(ComResponse.STATUS_OK);
+							SMSController.requestSMSmessage(telephonenumber, 3);
+						}
+						if(sendresult==5){
+							Logger.info("分享成功，获取5元优惠劵");
+							response.setResponseEntity("5");
+							response.setResponseStatus(ComResponse.STATUS_OK);
+							SMSController.requestSMSmessage(telephonenumber, 5);
+						}
+						if(sendresult==10){
 							Logger.info("分享成功，获取10元优惠劵");
 							response.setResponseEntity("10");
 							response.setResponseStatus(ComResponse.STATUS_OK);
+							SMSController.requestSMSmessage(telephonenumber, 10);
 						}
-						// 老用户返回的获取优惠劵金额
-						else {
-							
-							if(sendresult==3){
-								Logger.info("分享成功，获取5元优惠劵");
-								SMSController.requestSMSmessage(telephonenumber, sendresult+2);
-							}
-							else {
-								Logger.info("分享成功，获取优惠劵:"+sendresult+"元");
-								SMSController.requestSMSmessage(telephonenumber, sendresult+1);
-							}
-							
-							response.setResponseEntity(sendresult + "");
-							response.setResponseStatus(ComResponse.STATUS_OK);
-						}
-
 					}
 					// 该用户已经通过该url领取过优惠劵
 					else if (result == true) {
-						response.setResponseEntity("4");
+						response.setResponseEntity("99");
 						Logger.info("已经领取过该url链接分享的优惠劵");
 						response.setResponseStatus(ComResponse.STATUS_FAIL);
 					}
@@ -319,8 +338,39 @@ public class ShareController extends Controller {
 			// 获取随机优惠劵编号
 			random = (int) Math.round(Math.random() * (max - min) + min);
 			CounponController.getsharecounpon(counponcodes[random-1], id);
+			if (random==1) {
+				
+				return 2;
+			}
+			if(random==2)
+			{
+				return 3;
+			}
+			if(random==3)
+			{
+				return 5;
+			}
+
 		}
 		return random;
+	}
+	
+	//获取option设置的5天数之内只能拿多少优惠券
+	public static int sendoptionCounpon( Long id) {
+		 int result=0;
+		  TOptions options = TOptions.findOption(20);
+		  String context = options.textObject;
+		  Logger.info("optiontext:>>>>>>>>>>>>>"+context.trim());
+		  if(context!=null){
+			  context = context.replace("，", ",");
+			  String[] contexts = context.split(",");
+			  String coupnprice =contexts[0];
+			  String coupnpricecode =contexts[1];
+			  CounponController.getsharecounpon(coupnpricecode, id);
+			  result=Integer.parseInt(coupnprice);
+			  Logger.info("get limit coupn pirce:"+result);
+		  }
+		return result;
 	}
 
 	/**
@@ -366,40 +416,120 @@ public class ShareController extends Controller {
 		// 返回标识
 		int result;
 		// 证明该链接的分享获取优惠劵次数未用完
-
 		if (uniqueurl.sharetime < times) {
 			// 判断是老用户还是新用户
 			TuserInfo userInfo = TuserInfo.findDataByPhoneId(telephonenumber);
 
 			// 老用户
 			if (userInfo != null) {
-				// 随机赠送优惠劵
-				result = sendrandomshareCounpon(counponcodes, userInfo.userid);
-				// url的分享次数加一
-				Tuniqueurl.updateTuniqueurl(uniqueurl.url,
-						uniqueurl.sharetime + 1, telephonenumber.toString());
-				return result;
+				//新加入userlimitt限制
+				TUserlimit userlimit = TUserlimit.findDataById(telephonenumber);
+				if(userlimit==null)
+				{
+					Logger.info("phonenumber not in limittable>>1"+telephonenumber);
+					// 随机赠送优惠劵
+					result = sendrandomshareCounpon(counponcodes, userInfo.userid);
+					// url的分享次数加一
+					// url的分享次数加一
+					Tuniqueurl.updateTuniqueurl(uniqueurl.url,uniqueurl.sharetime + 1, telephonenumber.toString());
+					//保存到userlimit
+					TUserlimit.savelimit(telephonenumber);
+					Logger.info("save the limituser uniqueurl success>>"+telephonenumber);
+					return result;
+				}
+				else if(userlimit!=null){
+					 Logger.info("phonenumber in limittable>>1"+telephonenumber);
+					 TOptions options = TOptions.findOption(19);;
+					 int optday =Integer.parseInt(options.textObject);
+					 Logger.info("options.day : "+optday);
+					 //判断lasttime的值是否》=option。day
+						Date date = new Date();
+						Date lasttime = userlimit.lastsigntime;
+						//获取时间差 
+						long days = (date.getTime() - lasttime.getTime())/ (1000 * 60 * 60 * 24);
+						//如果天数>=optday天 ,赠送2,3,5元
+						if(days>=optday)
+						{		
+							Logger.info("lasttime>=optday天"+telephonenumber);
+							// 随机赠送优惠劵
+							 result = sendrandomshareCounpon(counponcodes, userInfo.userid);
+							// url的分享次数加一
+								// url的分享次数加一
+								Tuniqueurl.updateTuniqueurl(uniqueurl.url,uniqueurl.sharetime + 1, telephonenumber.toString());
+							//更新到userlimit
+							TUserlimit.updatelimit(telephonenumber);
+							return result;
+						}
+						//optday之内 赠送一元优惠券
+						else {
+							Logger.info("lasttime<optday天"+telephonenumber);
+							result=sendoptionCounpon(userInfo.userid);
+							// url的分享次数加一
+							Tuniqueurl.updateTuniqueurl(uniqueurl.url,uniqueurl.sharetime + 1, telephonenumber.toString());
+							Logger.info("save the  uniqueurl success not update userlimit>>"+telephonenumber);
+							return 1;
+						}				
+					 
+				}
+		
 			}
 			// 新用户,记录用户信息，注册后赠送优惠劵
 			else if (userInfo == null) {
-				Tunregisteruser unregisteruser = Tunregisteruser
-						.findDataById(telephonenumber);
+				Tunregisteruser unregisteruser = Tunregisteruser.findDataById(telephonenumber);
 				// 不在未注册用户列表中
 				if (unregisteruser == null) {
 					Tunregisteruser.saveunregistershare(telephonenumber);
-					Tuniqueurl
-							.updateTuniqueurl(uniqueurl.url,
-									uniqueurl.sharetime + 1,
-									telephonenumber.toString());
-					return 4;
-				} else if (unregisteruser != null) {
-					Tunregisteruser.updateunregistershare(telephonenumber,
-							unregisteruser.sharetime + 1);
-					Tuniqueurl
-							.updateTuniqueurl(uniqueurl.url,
-									uniqueurl.sharetime + 1,
-									telephonenumber.toString());
-					return 4;
+					Tuniqueurl.updateTuniqueurl(uniqueurl.url,uniqueurl.sharetime + 1,telephonenumber.toString());
+					//保存到userlimit
+					TUserlimit.savelimit(telephonenumber);
+					return 10;
+				} 
+				//未注册用户表有该手机号信息
+				else if (unregisteruser != null) {
+					//新加入userlimitt限制
+					TUserlimit userlimit = TUserlimit.findDataById(telephonenumber);
+					//判断userlimit表是否有该用户信息
+					if(userlimit==null)
+					{
+						//这次还是赠送10块钱的
+						//判断是赠送option的优惠券还是赠送10块钱优惠券
+						 Logger.info("phonenumber in not in limittable send 10"+telephonenumber);
+						Tunregisteruser.updateunregistershare(telephonenumber,unregisteruser.sharetime + 1);
+						Tuniqueurl.updateTuniqueurl(uniqueurl.url,uniqueurl.sharetime + 1,telephonenumber.toString());
+						TUserlimit.savelimit(telephonenumber);
+						return 10;
+					}
+					//userlimit表有记录
+					else {	
+						 Logger.info("phonenumber in limittable>>2"+telephonenumber);
+						 TOptions options = TOptions.findOption(19);;
+						 int optday =Integer.parseInt(options.textObject);
+						 Logger.info("options.day is "+optday);
+						 //判断lasttime的值是否》=option。day
+							Date date = new Date();
+							Date lasttime = userlimit.lastsigntime;
+							//获取时间差 
+							long days = (date.getTime() - lasttime.getTime())/ (1000 * 60 * 60 * 24);
+							if(days>=optday)
+							{		
+								Tunregisteruser.updateunregistershare(telephonenumber,1);
+								Tuniqueurl.updateTuniqueurl(uniqueurl.url,uniqueurl.sharetime + 1,telephonenumber.toString());
+								TUserlimit.updatelimit(telephonenumber);
+								return 10;
+							}
+							//optday之内 赠送一元优惠券 ，更新未注册用户表 一块优惠券次数
+							else {
+								Logger.info("lasttime<optday天，update add  limittimes "+telephonenumber);
+								Tunregisteruser.updateunregisterlimitshare(telephonenumber,1);
+								Tuniqueurl.updateTuniqueurl(uniqueurl.url,uniqueurl.sharetime + 1,telephonenumber.toString());
+								return 1;
+							}	
+							
+					
+						
+						
+					}
+				
 				}
 
 			}

@@ -25,7 +25,6 @@ import models.info.TCouponHis;
 import models.info.TOptions;
 import models.info.TOrder;
 import models.info.TOrderHis;
-import models.info.TOrderHis_Py;
 import models.info.TOrder_Py;
 import models.info.TParkInfoPro_Loc;
 import models.info.TParkInfoProd;
@@ -1415,7 +1414,7 @@ public class PayController extends Controller {
 	public static Result getRealPayInfo(long parkingProdId, long counponId, int s) {
 
 		Logger.info("start to get real price for:" + parkingProdId + ",counponId:" + counponId);
-		Logger.error("################");
+
 		ComResponse<ChebolePayOptions> response = new ComResponse<ChebolePayOptions>();
 		try {
 			if (parkingProdId > 0) {
@@ -1526,7 +1525,7 @@ public class PayController extends Controller {
 
 		String tempJsonString = gsonBuilderWithExpose.toJson(response);
 		JsonNode json = Json.parse(tempJsonString);
-		Logger.error("################"+tempJsonString);
+
 		return ok(json);
 	}
 
@@ -2421,7 +2420,7 @@ public class PayController extends Controller {
 		TOptions options = TOptions.findOption(16);
 		// 判断能否使用立减，当天立减次数是否满足
 					if (userid != null) {
-						if (TOrderHis_Py.checklijiannum(Long.valueOf(userid))) {
+						if (checklijiannum(Long.valueOf(userid))) {
 							//可以立减
 							if (options.textObject != null && options.textObject.toString().trim().equals("1")) {
 								// 不能共同使用
@@ -2444,5 +2443,51 @@ public class PayController extends Controller {
 
 	}
 
-	
+	//判断当天立减数量是否符合
+	public static boolean checklijiannum(long userid) {
+String sql = "select * from tb_order a left join tb_order_py b on a.order_id=b.orderId where a.userid="+userid+" and b.pay_method=21 and date_format(a.order_date,'%Y-%m-%d')='"+DateHelper.format(new Date(), "yyyy-MM-dd")+"'"+
+" union select * from tb_order_his a left join tb_order_his_py b on a.order_id=b.orderId where a.userid="+userid+" and b.pay_method=21 and date_format(a.order_date,'%Y-%m-%d')='"+DateHelper.format(new Date(), "yyyy-MM-dd")+"'";
+Logger.debug("lijian userid"+userid);
+		SqlQuery sq = Ebean.createSqlQuery(sql);
+		//获取已立减数量
+		int hasnum = sq.findList().size();
+		TOptions options = TOptions.findOption(17);
+		if (options.textObject != null) {
+			int Maxlijiannum = Integer.valueOf(options.textObject.toString().trim()); 
+			if (hasnum < Maxlijiannum) {
+				return true;
+			} else {
+				return false;
+			}
+		}else
+			return false;
+		
+//		
+//		TLiJian lijian = TLiJian.findDataById(userid);
+//		if (lijian == null) {
+//			Logger.debug("@@@@@@@@@@@@@@@@@@@@@@@@@");
+//			return true;
+//		} else {
+//			String lijiantime = DateHelper.format(lijian.lijianDate, "yyyy-MM-dd");
+//			if (lijiantime.equals(DateHelper.format(new Date(), "yyyy-MM-dd"))) {
+//				TOptions options = TOptions.findOption(17);
+//				if (options.textObject != null) {
+//					int Maxlijiannum = Integer.valueOf(options.textObject.toString().trim());
+//					Logger.debug("@@@@@@@@@@@@@@@@@@@@@@@@@", Maxlijiannum);
+//					if (lijian.lijiannum < Maxlijiannum) {
+//						return true;
+//					} else {
+//						return false;
+//					}
+//
+//				}else
+//				{
+//					Logger.debug("###################");
+//				}
+//			}
+//			return true;
+//
+//		}
+
+	}
 }
