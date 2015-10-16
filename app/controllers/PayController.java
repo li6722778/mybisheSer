@@ -289,7 +289,7 @@ public class PayController extends Controller {
 						payWay = Constants.PAYMENT_TYPE_WEIXIN;
 					}
 					if (chebolePayOptions.useCounpon) {
-						if (chebolePayOptions.payActualPrice <= 0) { // 如果小于0，肯定是优惠券就够用了
+						if (chebolePayOptions.payActualPrice <= 0) { // 如果小于0，肯定是停车券就够用了
 							payWay = Constants.PAYMENT_COUPON;
 						} else {
 							payWay = Constants.PAYMENT_COUPON + payWay;
@@ -547,7 +547,7 @@ public class PayController extends Controller {
 						payWay = Constants.PAYMENT_TYPE_WEIXIN;
 					}
 					if (chebolePayOptions.useCounpon) {
-						if (chebolePayOptions.payActualPrice <= 0) { // 如果小于0，肯定是优惠券就够用了
+						if (chebolePayOptions.payActualPrice <= 0) { // 如果小于0，肯定是停车券就够用了
 							payWay = Constants.PAYMENT_COUPON;
 						} else {
 							payWay = Constants.PAYMENT_COUPON + payWay;
@@ -925,7 +925,7 @@ public class PayController extends Controller {
 			} else {
 				response.setExtendResponseContext("pass");
 
-				// 用了优惠券才没有产生费用，这里我们还是需要生成一个订单
+				// 用了停车券才没有产生费用，这里我们还是需要生成一个订单
 				if (payOption.useCounpon) {
 					Date currentDate = new Date();
 					newpay.payActu = payOption.payActualPrice;
@@ -947,10 +947,10 @@ public class PayController extends Controller {
 				String message = "停车" + payOption.parkSpentHour + "小时。应付" + payOption.payActualPriceForTotal + "元，已付"
 						+ payOption.payActualPriceForTotal + "元";
 				// if(payOption.counponUsedMoneyForTotal>0){
-				// message+="(优惠券支付"+payOption.counponUsedMoneyForTotal+"元)";
+				// message+="(停车券支付"+payOption.counponUsedMoneyForTotal+"元)";
 				// }
 				if (payOption.counponUsedMoneyForOut > 0) {
-					message += "，优惠券支付" + payOption.counponUsedMoneyForOut + "元";
+					message += "，停车券支付" + payOption.counponUsedMoneyForOut + "元";
 				}
 				message += "，还需付0元。";
 
@@ -1025,10 +1025,10 @@ public class PayController extends Controller {
 									- payOption.counponUsedMoneyForOut)
 							+ "元";
 					// if(payOption.counponUsedMoneyForIn>0){
-					// message+="(优惠券支付"+payOption.counponUsedMoneyForIn+"元)";
+					// message+="(停车券支付"+payOption.counponUsedMoneyForIn+"元)";
 					// }
 					if (payOption.counponUsedMoneyForOut > 0) {
-						message += "，优惠券支付" + payOption.counponUsedMoneyForOut + "元";
+						message += "，停车券支付" + payOption.counponUsedMoneyForOut + "元";
 					}
 					message += "，还需付现金" + actPay + "元。";
 
@@ -1120,7 +1120,7 @@ public class PayController extends Controller {
 			} else {
 				response.setExtendResponseContext("pass");
 
-				// 用了优惠券才没有产生费用，这里我们还是需要生成一个订单
+				// 用了停车券才没有产生费用，这里我们还是需要生成一个订单
 				if (payOption.useCounpon) {
 					Date currentDate = new Date();
 					newpay.payActu = payOption.payActualPrice;
@@ -1152,10 +1152,10 @@ public class PayController extends Controller {
 								- payOption.counponUsedMoneyForOut)
 						+ "元";
 				// if(payOption.counponUsedMoneyForTotal>0){
-				// message+="(优惠券支付"+payOption.counponUsedMoneyForTotal+"元)";
+				// message+="(停车券支付"+payOption.counponUsedMoneyForTotal+"元)";
 				// }
 				if (payOption.counponUsedMoneyForOut > 0) {
-					message += "，优惠券支付" + payOption.counponUsedMoneyForOut + "元";
+					message += "，停车券支付" + payOption.counponUsedMoneyForOut + "元";
 				}
 				message += "，还需付0元。";
 
@@ -1238,10 +1238,10 @@ public class PayController extends Controller {
 									- payOption.counponUsedMoneyForOut)
 							+ "元";
 					// if(payOption.counponUsedMoneyForIn>0){
-					// message+="(优惠券支付"+payOption.counponUsedMoneyForIn+"元)";
+					// message+="(停车券支付"+payOption.counponUsedMoneyForIn+"元)";
 					// }
 					if (payOption.counponUsedMoneyForOut > 0) {
-						message += "，优惠券支付" + payOption.counponUsedMoneyForOut + "元";
+						message += "，停车券支付" + payOption.counponUsedMoneyForOut + "元";
 					}
 					message += "，还需付现金" + actPay + "元。";
 
@@ -1332,7 +1332,7 @@ public class PayController extends Controller {
 			} else {
 				response.setExtendResponseContext("pass");
 
-				// 用了优惠券才没有产生费用，这里我们还是需要生成一个订单
+				// 用了停车券才没有产生费用，这里我们还是需要生成一个订单
 				if (payOption.useCounpon) {
 					Date currentDate = new Date();
 					newpay.payActu = payOption.payActualPrice;
@@ -1364,10 +1364,10 @@ public class PayController extends Controller {
 								- payOption.counponUsedMoneyForOut)
 						+ "元";
 				// if(payOption.counponUsedMoneyForTotal>0){
-				// message+="(优惠券支付"+payOption.counponUsedMoneyForTotal+"元)";
+				// message+="(停车券支付"+payOption.counponUsedMoneyForTotal+"元)";
 				// }
 				if (payOption.counponUsedMoneyForOut > 0) {
-					message += "，优惠券支付" + payOption.counponUsedMoneyForOut + "元";
+					message += "，停车券支付" + payOption.counponUsedMoneyForOut + "元";
 				}
 				message += "，还需付0元。";
 
@@ -2425,7 +2425,7 @@ public class PayController extends Controller {
 							//可以立减
 							if (options.textObject != null && options.textObject.toString().trim().equals("1")) {
 								// 不能共同使用
-								if (flag) {// 用了优惠券
+								if (flag) {// 用了停车券
 									return 0;
 								} else {
 									return userallow;

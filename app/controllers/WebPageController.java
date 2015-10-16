@@ -1673,12 +1673,12 @@ public class WebPageController extends Controller {
 	}
 	
 	
-	//直接赠送优惠券
+	//直接赠送停车券
 		@Security.Authenticated(SecurityController.class)
 	public static Result redirectsend(String  phonelist) {
 		Logger.debug("start to redirectsendcoupn"+phonelist);
 		//遍历phonelist
-		//查看option设置的 优惠券编码
+		//查看option设置的 停车券编码
 		TOptions options = TOptions.findOption(12);
 		if(options.textObject!="")
 		{
@@ -1697,7 +1697,7 @@ public class WebPageController extends Controller {
 					}
 					else {
 						Logger.debug("start to redirectsendcoupn to>>"+phone);
-						//赠送优惠券
+						//赠送停车券
 						CounponController.getsharecounpon(coupncode, userInfo.userid);
 						SMSController.redirectsendcoupnsms(phone, couponEntity.money);
 					}
@@ -1713,7 +1713,7 @@ public class WebPageController extends Controller {
 	
 		return ok("保存成功");
 	}
-	//直接赠送优惠券短信推送开关
+	//直接赠送停车券短信推送开关
 	@Security.Authenticated(SecurityController.class)
 	public static Result changeoption(String  type) {
 		Logger.debug("change the sms send");
