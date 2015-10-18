@@ -20,8 +20,6 @@ import utils.DateHelper;
  */
 public class Global extends GlobalSettings{
 	
-	public static TAllowance currentAllowance;
-	
 	@Override
 	  public void onStart(Application app) {
 	    Logger.info("Application has started");
