@@ -10,6 +10,7 @@ import java.util.List;
 
 import models.info.TParkInfo;
 import models.info.TParkInfo_Img;
+import models.info.TuserInfo;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -216,4 +217,118 @@ public class UploadController extends Controller {
 		}
 		return null;
 	}
+	
+	/**
+	 * 图片上传到指定的parking
+	 * 
+	 * @returnlong citycode,long userid
+	 * @throws IOException
+	 */
+	public static Result uploadToParkingtouxiang(int citycode,long userid) throws IOException {
+	     //获取传过来的图片
+		TuserInfo userinfo=TuserInfo.findDataById(userid);
+		ComResponse<String> response = new ComResponse<String>();
+		if(userinfo==null)
+		{
+			response.setResponseStatus(ComResponse.STATUS_FAIL);
+			return null;
+			
+		}
+		String imagepaths = getUploadNodetoxiang(citycode,userid);
+		if(userinfo.userimageurl!=null)
+		{
+			delefile(userinfo.userimageurl);
+			
+		}
+		userinfo.userimageurl=imagepaths;
+		TuserInfo.saveData(userinfo);
+		response.setResponseStatus(ComResponse.STATUS_OK);
+		String tempJsonString = gsonBuilderWithExpose.toJson(response);
+		JsonNode json = Json.parse(tempJsonString);
+		return ok(json);
+	}
+
+	private static String getUploadNodetoxiang(int citycode,long userid)  throws IOException{
+		
+		MultipartFormData body = request().body().asMultipartFormData();
+       
+		Logger.info(">>>>image.store.path:" + image_store_path);
+		if (image_store_path == null || image_store_path.length() <= 0) {
+			image_store_path = "/tmp";
+		}
+		// 用户图片类型
+		String imgType = ConfigHelper.getString("image.store.type");
+		Logger.info(">>>>image.store.type:" + imgType);
+		List<String> imgTypeList = new ArrayList<>();
+		if (imgType != null && imgType.length() > 0) {
+			String[] imgTypeArray = imgType.split(",");
+			imgTypeList = Arrays.asList(imgTypeArray);
+		}
+		FilePart picture=body.getFiles().get(0);
+		String fileName = picture.getFilename();
+		Logger.debug(">>>>try to store the image:" + fileName);
+		String imgtype = isExistType(imgTypeList, fileName);
+		
+		Calendar cal = Calendar.getInstance();// 使用日历类
+		int year = cal.get(Calendar.YEAR);// 得到年
+		int month = cal.get(Calendar.MONTH) + 1;// 得到月，因为从0开始的，所以要加1
+		int day = cal.get(Calendar.DAY_OF_MONTH);// 得到天
+		int hour = cal.get(Calendar.HOUR_OF_DAY);// 得到小时
+		int minute = cal.get(Calendar.MINUTE);// 得到分钟
+		int second = cal.get(Calendar.SECOND);// 得到秒
+		int ms = cal.get(Calendar.MILLISECOND);// 得到毫秒
+		// 返回给数据库的URI
+		String fileUri = File.separator +citycode+File.separator + year + File.separator + month
+				+ File.separator + day + File.separator;
+		if (imgtype != null) {
+			// String contentType = picture.getContentType();
+			File file = picture.getFile();
+
+			StringBuilder _newFile = new StringBuilder(fileUri);
+			_newFile.append(hour).append(minute).append(second).append(ms)
+					.append(".").append(imgtype);
+			// 相对路径
+			String newFileName = image_store_path + _newFile.toString();
+
+			Logger.info("############################" +newFileName);
+			Logger.info(">>>>################rename [" + file.getCanonicalPath() + "] to ["
+					+ newFileName + "]");
+
+			// 存储在服务器上的绝对路径
+			File remoteFile = new File(newFileName);
+			if (!remoteFile.getParentFile().exists()) {
+				Logger.debug(">>>>create path:"
+						+ remoteFile.getParentFile().getCanonicalPath());
+				remoteFile.getParentFile().mkdirs();
+			}
+
+			file.renameTo(remoteFile);
+			Logger.info("restore done,new path:" + file.getAbsolutePath());
+			return _newFile.toString();
+		} else {
+			Logger.warn(">>>>image type is not allowed.");
+		}
+           
+		return null;
+	}
+	private static void delefile(String path)
+	{
+		if(path!=null&&path.length()>0){
+			String fullpath = UploadController.image_store_path+path;
+			Logger.debug("--------start to delete file: " + fullpath+"-----------");
+			try{
+			File file = new File(fullpath);
+			if(file.exists()){
+				file.delete();
+				Logger.debug("------delete done.-------");
+			}
+			}catch(Exception e){
+				Logger.error("deleteExistImage", e);
+				
+			}
+		}
+		
+		
+	}
+
 }

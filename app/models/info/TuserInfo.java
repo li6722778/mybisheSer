@@ -87,6 +87,12 @@ public class TuserInfo extends Model implements Serializable {
 	@Size(max = 50)
 	@Expose
 	public String updatePerson;
+	
+	@Expose
+	public String userimageurl;
+	
+	@Expose
+	public String extensionstring;
 
 	// 查询finder，用于其他方法中需要查询的场景
 	public static Finder<Long, TuserInfo> find = new Finder<Long, TuserInfo>(

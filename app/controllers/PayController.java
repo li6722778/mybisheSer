@@ -1470,15 +1470,24 @@ public class PayController extends Controller {
 
 					}
 					// 再区分的基础上继续判断
-
+					ChebolePayOptions payOption = new ChebolePayOptions();
 					String idString = flash("userid").trim();
 					//判断是否能立减
 					if(actuserallowan>0)
+					{
 					actuserallowan=checklijian(useCounpon,actuserallowan,idString);
 					// Logger.debug("######################" + idString);
-
+					   if(actuserallowan>0)
+					   {
+						   //判断是否显示立减详情
+						   TAllowance userallow = TAllowance.findAllowanceUser();
+						   if(userallow!=null&&userallow.allowanceTimer!=null)
+						   payOption.userAllowanceDescription=userallow.allowanceTimer.toString();
+					   }else
+						   payOption.userAllowanceDescription="";
+					}
 					realPayPrice = Arith.decimalPrice(realPayPrice - actuserallowan);
-					ChebolePayOptions payOption = new ChebolePayOptions();
+					
 					payOption.payActualPrice = Arith.decimalPrice(realPayPrice);
 					payOption.payOrginalPrice = Arith.decimalPrice(orginalPrice);
 					payOption.isDiscount = isDiscount;

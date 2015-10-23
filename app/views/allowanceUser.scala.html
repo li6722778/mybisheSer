@@ -58,7 +58,7 @@
                                     <input type="hidden" id="allowanceType" name="allowanceType"  value="@entityBean.allowanceType">
                                     <input type="hidden" id="isopen" name="isopen"  value="@entityBean.isopen">
                                     <input type="hidden" id="allowanceTypeValue" name="allowanceTypeValue"  value="@entityBean.allowanceTypeValue">
-                                    <input type="hidden" id="allowanceTimer" name="allowanceTimer"  value="@entityBean.allowanceTimer">
+                                    
                                     
 												<div class="row-fluid">
 
@@ -141,13 +141,13 @@
 																	</div>
 																</div>
 						
-						          <div class="control-group">
+						          <div  class="control-group">
 
 										<label class="control-label">补贴发送时间点</label>
 
-										<div class="controls">
+										<div   class="controls">
 
-											<select multiple="multiple" id="my_multi_select2" name="my_multi_select2[]">
+											<select  multiple="multiple" id="my_multi_select2" name="my_multi_select2[]">
 												<optgroup label="按天发放d">
 													<option value="d1">周一-d1</option>
 													<option value="d2">周二-d2</option>
@@ -165,7 +165,10 @@
 													<option value="w5">每月第五周-w5</option>
 												</optgroup>
 											</select>
-											
+						<div >
+						
+						<input type="" id="allowanceTimer" name="allowanceTimer"  value="@entityBean.allowanceTimer">
+						</div>					
 											
 						<div class="alert">
 
@@ -202,6 +205,6 @@
 	<script type="text/javascript" src="@routes.Assets.at("javascripts/jquery.toggle.buttons.js")"></script>
 	<script src="@routes.Assets.at("javascripts/jquery.multi-select.js")" src="media/js/"></script>	
 	<script src="@routes.Assets.at("javascripts/jquery.form.js")" type="text/javascript" ></script>
-	<script src="@routes.Assets.at("app/lib/allowance.js")" type="text/javascript" ></script>
+	<script src="@routes.Assets.at("app/lib/allowance2.js")" type="text/javascript" ></script>
 
 	

@@ -31,6 +31,10 @@ public class ChebolePayOptions {
 	@Expose
     public double userAllowance;
 	
+	//用户补贴
+	@Expose
+    public String userAllowanceDescription;
+	
 	@Expose
 	public double counponUsedMoneyForTotal;
 	
