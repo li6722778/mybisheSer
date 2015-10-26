@@ -47,6 +47,7 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import play.twirl.api.Xml;
 import scala.concurrent.duration.Duration;
+import utils.ActorHelper;
 import utils.Arith;
 import utils.ComResponse;
 import utils.ConfigHelper;
@@ -941,7 +942,7 @@ public class PayController extends Controller {
 				}
 
 				// ***********已经完成的订单需要移到历史表**************/
-				TOrderHis.moveToHisFromOrder(orderId, Constants.ORDER_TYPE_FINISH);
+				ActorHelper.getInstant().sendMoveToHisOrderMessage(orderId, Constants.ORDER_TYPE_FINISH);
 
 				String message = "停车" + payOption.parkSpentHour + "小时。应付" + payOption.payActualPriceForTotal + "元，已付"
 						+ payOption.payActualPriceForTotal + "元";
@@ -1144,7 +1145,7 @@ public class PayController extends Controller {
 				}
 
 				// ***********已经完成的订单需要移到历史表**************/
-				TOrderHis.moveToHisFromOrder(orderId, Constants.ORDER_TYPE_FINISH);
+				ActorHelper.getInstant().sendMoveToHisOrderMessage(orderId, Constants.ORDER_TYPE_FINISH);
 
 				String message = "停车" + payOption.parkSpentHour + "小时。应付" + payOption.payActualPriceForTotal + "元，已付"
 						+ Arith.decimalPrice(payOption.payActualPriceForTotal - payOption.payActualPrice
@@ -1356,7 +1357,7 @@ public class PayController extends Controller {
 				}
 
 				// ***********已经完成的订单需要移到历史表**************/
-				TOrderHis.moveToHisFromOrder(orderId, Constants.ORDER_TYPE_FINISH);
+				ActorHelper.getInstant().sendMoveToHisOrderMessage(orderId, Constants.ORDER_TYPE_FINISH);
 
 				String message = "停车" + payOption.parkSpentHour + "小时。应付" + payOption.payActualPriceForTotal + "元，已付"
 						+ Arith.decimalPrice(payOption.payActualPriceForTotal - payOption.payActualPrice
@@ -1802,7 +1803,7 @@ public class PayController extends Controller {
 
 					if (orderid > 0 && needfinishedOrder != null && needfinishedOrder.trim().equals("true")) {
 						// ***********已经完成的订单需要移到历史表**************/
-						TOrderHis.moveToHisFromOrder(orderid, Constants.ORDER_TYPE_FINISH);
+						ActorHelper.getInstant().sendMoveToHisOrderMessage(orderid, Constants.ORDER_TYPE_FINISH);
 					}
 
 					LogController.info("payment done for payment id:" + payId + ",order id:" + orderid);
@@ -1896,7 +1897,7 @@ public class PayController extends Controller {
 			TOrder_Py.saveData(orderPy);
 
 			// ***********已经完成的订单需要移到历史表**************/
-			TOrderHis.moveToHisFromOrder(orderId, Constants.ORDER_TYPE_FINISH);
+			ActorHelper.getInstant().sendMoveToHisOrderMessage(orderId, Constants.ORDER_TYPE_FINISH);
 
 			response.setResponseStatus(ComResponse.STATUS_OK);
 

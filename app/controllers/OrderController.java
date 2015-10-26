@@ -9,6 +9,7 @@ import play.Logger;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+import utils.ActorHelper;
 import utils.ComResponse;
 import utils.CommFindEntity;
 import utils.Constants;
@@ -245,7 +246,7 @@ public class OrderController extends Controller {
 			TOrder.saveData(data);
 			
 			// ***********已经完成的订单需要移到历史表**************/
-			TOrderHis.moveToHisFromOrder(data.orderId,Constants.ORDER_TYPE_FINISH);
+			ActorHelper.getInstant().sendMoveToHisOrderMessage(data.orderId,Constants.ORDER_TYPE_FINISH);
 			
 			response.setResponseStatus(ComResponse.STATUS_OK);
 			response.setResponseEntity(data);
@@ -343,10 +344,8 @@ public class OrderController extends Controller {
 	@BasicAuth
 	public static Result moveordertohis(Long orderId,int status)
 	{
-		
-	    TOrderHis.moveToHisFromOrder(orderId, status);
+		ActorHelper.getInstant().sendMoveToHisOrderMessage(orderId, status);
 		return ok();
-		
 	}
 	
 	

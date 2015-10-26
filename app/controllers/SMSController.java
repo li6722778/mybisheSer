@@ -3,8 +3,11 @@ package controllers;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
+import actor.VerifyCodeActor;
+import actor.model.TemplateSMS;
+import akka.actor.ActorRef;
+import akka.actor.Props;
 import models.info.TOptions;
 import models.info.TVerifyCode;
 import models.info.Tsmssenduser;
@@ -12,44 +15,62 @@ import models.info.TuserInfo;
 import play.Logger;
 import play.libs.Akka;
 import play.libs.F.Function;
+import play.libs.F.Promise;
 import play.libs.ws.WS;
 import play.libs.ws.WSClient;
-import play.libs.ws.WSResponse;
 import play.mvc.Controller;
 import play.mvc.Result;
-import scala.concurrent.duration.Duration;
+import utils.ActorHelper;
 import utils.ConfigHelper;
 import utils.Constants;
-import utils.DateHelper;
-import utils.EncryptUtil;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.google.gson.Gson;
 
 public class SMSController extends Controller {
 	static WSClient ws = WS.client();
+	static ActorRef verifyActor = Akka.system().actorOf(Props.create(VerifyCodeActor.class),"VerifyCodeActor");
 
-	public static String rest_3part_smsuri = ConfigHelper
-			.getString("rest.3part.sms.uri");
-
-	public static String rest_3part_accountsid = ConfigHelper
-			.getString("rest.3part.sms.accountsid");
-	public static String rest_3part_smsappid = ConfigHelper
-			.getString("rest.3part.sms.appid");
 	public static String rest_3part_smsparam = ConfigHelper
-			.getString("rest.3part.sms.param");
-	public static String rest_3part_smstmpid = ConfigHelper
-			.getString("rest.3part.sms.templateId");
-	public static String rest_3part_token = ConfigHelper
-			.getString("rest.3part.sms.token");
-	public static String rest_3part_noticeCounpon= ConfigHelper
-			.getString("rest.3part.sms.noticeCounpon.templateId");
+			.getString("tcp.actor.sms.param");
+	
+	public static String rest_3part_smstmpid = ConfigHelper.getString("tcp.actor.sms.verify.templateId");
+	public static String rest_3part_smsresettmpid = ConfigHelper.getString("tcp.actor.sms.reset.templateId");
+	public static String rest_3part_smscoupon1 = ConfigHelper.getString("tcp.actor.sms.counpon1.templateId");
+	public static String rest_3part_smscoupon2 = ConfigHelper.getString("tcp.actor.sms.counpon2.templateId");
 
-	public static String rest_3part_smsresettmpid = ConfigHelper
-			.getString("rest.3part.sms.reset.templateId");
-	public static String rest_3part_smspush = ConfigHelper
-			.getString("rest.3part.sms.push");
 
+	//test remote actor
+	public static Promise<Result> sendMessageToSMSActor(long phone,int passwd){
+	
+		if (passwd == 518898){
+		    String phoneString = String.valueOf(phone);
+			// 组合json bean
+			TemplateSMS templateSMS = new TemplateSMS("",
+					"test sms", rest_3part_smsresettmpid, phoneString);
+			
+			//myActor.tell(templateSMS, ActorRef.noSender());
+			return Promise.wrap(ActorHelper.getInstant().askSMSFuture(templateSMS)).map(
+                    new Function<Object, Result>() {
+                        public Result apply(Object response) {
+                        	  Logger.info("SMSActor=>message:"+response);
+                             if( response instanceof TemplateSMS ) {
+                            	 TemplateSMS message = ( TemplateSMS )response;
+                            	 Logger.debug("SMSActor=>result:"+message.getResultCode());
+                                  return ok(message.getResultCode());
+                             }
+                            return notFound( "Message is not of type MyMessage" );
+                        }
+                    }
+                );
+		}
+		return Promise.pure(ok("send fail. password is incorrect"));
+	}
+	
+	
+	/**
+	 * 重置密码
+	 * @param phone
+	 * @param type
+	 * @return
+	 */
 	public static Result requestResetPasswd(long phone, int type) {
 		Logger.info("start to request SMS reset password to:" + phone);
 		TuserInfo usrinfo = TuserInfo.findDataByPhoneId(phone);
@@ -73,52 +94,17 @@ public class SMSController extends Controller {
 			param += "," + rest_3part_smsparam;
 		}
 
-		Logger.debug("-----rest_3part_accountsid:" + rest_3part_accountsid);
-		Logger.debug("-----rest_3part_smsuri:" + rest_3part_smsuri);
-		Logger.debug("-----rest_3part_smsappid:" + rest_3part_smsappid);
 		Logger.debug("-----rest_3part_smsresettmpid:"
 				+ rest_3part_smsresettmpid);
 		Logger.debug("-----rest_3part_smsparam:" + param);
-		Logger.debug("-----rest_3part_token:" + rest_3part_token);
 
 		try {
 			String phoneString = String.valueOf(phone);
 			// 组合json bean
-			TemplateSMS templateSMS = new TemplateSMS(rest_3part_smsappid,
+			TemplateSMS templateSMS = new TemplateSMS("",
 					param, rest_3part_smsresettmpid, phoneString);
-			Gson gson = new Gson();
-			String body = gson.toJson(templateSMS);
-			body = "{\"templateSMS\":" + body + "}";
-
-			Date currentDate = new Date();
-			String timestamp = DateHelper.format(currentDate, "yyyyMMddHHmmss");
-
-			String src = rest_3part_accountsid + ":" + timestamp;
-			String auth = EncryptUtil.base64Encoder(src);
-
-			String signature = getSignature(rest_3part_accountsid,
-					rest_3part_token, timestamp);
-
-			String realUrl = rest_3part_smsuri + "?sig=" + signature;
-
-			Logger.debug("-----real url:" + realUrl);
-			Logger.debug("-----real body:" + body);
-
-			ws.url(realUrl)
-					.setHeader("Content-Type",
-							"application/json;;charset=utf-8")
-					.setHeader("Accept", "application/json")
-					.setHeader("Authorization", auth).setTimeout(5000)
-					.post(body).map(new Function<WSResponse, Result>() {
-						@Override
-						public Result apply(WSResponse response) {
-							JsonNode jsonString = response.asJson();
-
-							Logger.info("SMS Response:" + jsonString);
-
-							return ok();
-						}
-					});
+					
+			ActorHelper.getInstant().sendSMSMessage(templateSMS);
 
 			return ok("密码重置请求发送成功,请注意短信查收");
 		} catch (Exception e) {
@@ -162,67 +148,15 @@ public class SMSController extends Controller {
 			param += "," + rest_3part_smsparam;
 		}
 
-		Logger.debug("-----rest_3part_accountsid:" + rest_3part_accountsid);
-		Logger.debug("-----rest_3part_smsuri:" + rest_3part_smsuri);
-		Logger.debug("-----rest_3part_smsappid:" + rest_3part_smsappid);
 		Logger.debug("-----rest_3part_smstmpid:" + rest_3part_smstmpid);
 		Logger.debug("-----rest_3part_smsparam:" + param);
-		Logger.debug("-----rest_3part_token:" + rest_3part_token);
 
 		try {
 			// 组合json bean
-			TemplateSMS templateSMS = new TemplateSMS(rest_3part_smsappid,
+			TemplateSMS templateSMS = new TemplateSMS("",
 					param, rest_3part_smstmpid, phoneString);
-			Gson gson = new Gson();
-			String body = gson.toJson(templateSMS);
-			body = "{\"templateSMS\":" + body + "}";
-
-			Date currentDate = new Date();
-			String timestamp = DateHelper.format(currentDate, "yyyyMMddHHmmss");
-
-			String src = rest_3part_accountsid + ":" + timestamp;
-			String auth = EncryptUtil.base64Encoder(src);
-
-			String signature = getSignature(rest_3part_accountsid,
-					rest_3part_token, timestamp);
-
-			String realUrl = rest_3part_smsuri + "?sig=" + signature;
-
-			Logger.debug("-----real url:" + realUrl);
-			Logger.debug("-----real body:" + body);
-
-			ws.url(realUrl)
-					.setHeader("Content-Type",
-							"application/json;;charset=utf-8")
-					.setHeader("Accept", "application/json")
-					.setHeader("Authorization", auth).setTimeout(5000)
-					.post(body).map(new Function<WSResponse, Result>() {
-						@Override
-						public Result apply(WSResponse response) {
-							JsonNode jsonString = response.asJson();
-
-							Logger.info("SMS Response:" + jsonString);
-
-							Akka.system()
-									.scheduler()
-									.scheduleOnce(
-											Duration.create(
-													Constants.SCHEDULE_TIME_DELETE_VERIFYCODE,
-													TimeUnit.SECONDS),
-											new Runnable() {
-												public void run() {
-													Logger.debug("#######AKKA schedule start>> TVerifyCode.deletePhone:"
-															+ phone
-															+ "#########");
-													TVerifyCode
-															.deletePhone(phone);
-												}
-											}, Akka.system().dispatcher());
-
-							return ok();
-						}
-					});
-
+			ActorHelper.getInstant().sendSMSMessage(templateSMS);
+			
 			return ok("验证码请求中,请注意短信查收");
 		} catch (Exception e) {
 			Logger.error("requestSMSVerify", e);
@@ -240,7 +174,6 @@ public class SMSController extends Controller {
 		Logger.info("start to request SMS verification to:" + phone);
 		
 		//查看option 发送优惠劵赠送短信是否打开
-		
 		TOptions options = TOptions.findOption(7);
 		if(options.textObject!=null&&options.textObject.toString().trim().equals("1"))
 		{
@@ -261,65 +194,24 @@ public class SMSController extends Controller {
 			param += "," + rest_3part_smsparam;
 		}
 
-		Logger.debug("-----rest_3part_accountsid:" + rest_3part_accountsid);
-		Logger.debug("-----rest_3part_smsuri:" + rest_3part_smsuri);
-		Logger.debug("-----rest_3part_smsappid:" + rest_3part_smsappid);
-		Logger.debug("-----rest_3part_smstmpid:" + rest_3part_noticeCounpon);
+		Logger.debug("-----rest_3part_smscoupon1:" + rest_3part_smscoupon1);
 		Logger.debug("-----rest_3part_smsparam:" + param);
-		Logger.debug("-----rest_3part_token:" + rest_3part_token);
 
 		try {
 			// 组合json bean
-			TemplateSMS templateSMS = new TemplateSMS(rest_3part_smsappid,
-					param, "12676", phoneString);
-			Gson gson = new Gson();
-			String body = gson.toJson(templateSMS);
-			body = "{\"templateSMS\":" + body + "}";
-
-			Date currentDate = new Date();
-			String timestamp = DateHelper.format(currentDate, "yyyyMMddHHmmss");
-			String src = rest_3part_accountsid + ":" + timestamp;
-			String auth = EncryptUtil.base64Encoder(src);
-
-			String signature = getSignature(rest_3part_accountsid,
-					rest_3part_token, timestamp);
-
-			String realUrl = rest_3part_smsuri + "?sig=" + signature;
-			Logger.debug("-----real url:" + realUrl);
-			Logger.debug("-----real body:" + body);
-
-			ws.url(realUrl)
-					.setHeader("Content-Type",
-							"application/json;;charset=utf-8")
-					.setHeader("Accept", "application/json")
-					.setHeader("Authorization", auth).setTimeout(5000)
-					.post(body).map(new Function<WSResponse, Result>() {
-						@Override
-						public Result apply(WSResponse response) {
-							JsonNode jsonString = response.asJson();
-
-							Logger.info("SMS Response:" + jsonString);
-
-							return ok();
-						}
-					});
-
-			return ok("验证码请求中,请注意短信查收");
+			TemplateSMS templateSMS = new TemplateSMS("",
+					param, rest_3part_smscoupon1, phoneString);
+			ActorHelper.getInstant().sendSMSMessage(templateSMS);
+			
+			return ok("优惠劵赠送短信发送");
 			
 		} catch (Exception e) {
 			Logger.error("requestSMSVerify", e);
-			return ok("验证码短信发送失败，请联系管理员.");
+			return ok("优惠劵赠送短信发送失败");
 		}
 		}
 		Logger.info("not open the sendsms option");
         return ok("系统错误");
-	}
-
-	private static String getSignature(String accountSid, String authToken,
-			String timestamp) throws Exception {
-		String sig = accountSid + authToken + timestamp;
-		String signature = EncryptUtil.md5Digest(sig);
-		return signature;
 	}
 
 	private static String getRandomChar() {
@@ -337,36 +229,6 @@ public class SMSController extends Controller {
 		return four;
 	}
 
-	/**
-	 * 这里来自第三方ucpaas.com
-	 * 
-	 * @author woderchen
-	 *
-	 */
-	static class TemplateSMS {
-		public String appId;
-		public String param;
-		public String templateId;
-		public String to;
-
-		public TemplateSMS(String appId, String param, String templateId,
-				String to) {
-			super();
-			this.appId = appId;
-			this.param = param;
-			this.templateId = templateId;
-			this.to = to;
-		}
-		
-		public TemplateSMS(String appId, String templateId,
-				String to) {
-			super();
-			this.appId = appId;
-			this.templateId = templateId;
-			this.to = to;
-		}
-	}
-
 	public static boolean smspush (String phoneString)
 	{
 		
@@ -379,48 +241,15 @@ public class SMSController extends Controller {
 		else {
 			String param = options.textObject;
 			try {
-				
-
 				if (rest_3part_smsparam != null
 						&& !rest_3part_smsparam.trim().equals("")) {
 					param += "," + rest_3part_smsparam;
 				}
-				// 组合json bean
-				//TemplateSMS templateSMS = new TemplateSMS(rest_3part_smsappid, "12676", phoneString);
-				TemplateSMS templateSMS = new TemplateSMS(rest_3part_smsappid,
-						param, "13688", phoneString);
-				Gson gson = new Gson();
-				String body = gson.toJson(templateSMS);
-				body = "{\"templateSMS\":" + body + "}";
-				Date currentDate = new Date();
-				String timestamp = DateHelper.format(currentDate, "yyyyMMddHHmmss");
-				String src = rest_3part_accountsid + ":" + timestamp;
-				String auth = EncryptUtil.base64Encoder(src);
-				String signature = getSignature(rest_3part_accountsid,
-						rest_3part_token, timestamp);
-
-				String realUrl = rest_3part_smsuri + "?sig=" + signature;
-				Logger.debug("-----real url:" + realUrl);
-				Logger.debug("-----real body:" + body);
-
-				ws.url(realUrl)
-						.setHeader("Content-Type",
-								"application/json;;charset=utf-8")
-						.setHeader("Accept", "application/json")
-						.setHeader("Authorization", auth).setTimeout(5000)
-						.post(body).map(new Function<WSResponse, Result>() {
-							@Override
-							public Result apply(WSResponse response) {
-								JsonNode jsonString = response.asJson();
-
-								Logger.info("SMS Response:" + jsonString);
-
-								return ok();
-							}
-						});
+				TemplateSMS templateSMS = new TemplateSMS("",
+						param, rest_3part_smscoupon2, phoneString);
+				ActorHelper.getInstant().sendSMSMessage(templateSMS);
 				return true;
-				
-				
+
 			} catch (Exception e) {
 				Logger.error("requestSMSVerify", e);
 				return false;
@@ -454,20 +283,12 @@ public class SMSController extends Controller {
 					if(result==true)
 					{
 						Logger.info("sms push suceess>>>>"+currentsenduser.telephone);
-						Logger.debug("-----rest_3part_accountsid:" + rest_3part_accountsid);
-						Logger.debug("-----rest_3part_smsuri:" + rest_3part_smsuri);
-						Logger.debug("-----rest_3part_smsappid:" + rest_3part_smsappid);
-						Logger.debug("-----rest_3part_smstmpid:" + rest_3part_smspush);
-						Logger.debug("-----rest_3part_token:" + rest_3part_token);
+						Logger.debug("-----rest_3part_smscoupon2:" + rest_3part_smscoupon2);
 						continue;
 					}
 					else if(result==false){					
 						Logger.info("sms push fail>>>>"+currentsenduser.telephone);
-						Logger.debug("-----rest_3part_accountsid:" + rest_3part_accountsid);
-						Logger.debug("-----rest_3part_smsuri:" + rest_3part_smsuri);
-						Logger.debug("-----rest_3part_smsappid:" + rest_3part_smsappid);
-						Logger.debug("-----rest_3part_smstmpid:" + rest_3part_smspush);
-						Logger.debug("-----rest_3part_token:" + rest_3part_token);
+						Logger.debug("-----rest_3part_smscoupon2:" + rest_3part_smscoupon2);
 						continue;	
 					}
 				}
@@ -517,54 +338,20 @@ public class SMSController extends Controller {
 			param += "," + rest_3part_smsparam;
 		}
 
-		Logger.debug("-----rest_3part_accountsid:" + rest_3part_accountsid);
-		Logger.debug("-----rest_3part_smsuri:" + rest_3part_smsuri);
-		Logger.debug("-----rest_3part_smsappid:" + rest_3part_smsappid);
-		Logger.debug("-----rest_3part_smstmpid:" + rest_3part_noticeCounpon);
+		Logger.debug("-----rest_3part_smscoupon1:" + rest_3part_smscoupon1);
 		Logger.debug("-----rest_3part_smsparam:" + param);
-		Logger.debug("-----rest_3part_token:" + rest_3part_token);
 
 		try {
 			// 组合json bean
-			TemplateSMS templateSMS = new TemplateSMS(rest_3part_smsappid,
-					param, "12676", phoneString);
-			Gson gson = new Gson();
-			String body = gson.toJson(templateSMS);
-			body = "{\"templateSMS\":" + body + "}";
-
-			Date currentDate = new Date();
-			String timestamp = DateHelper.format(currentDate, "yyyyMMddHHmmss");
-			String src = rest_3part_accountsid + ":" + timestamp;
-			String auth = EncryptUtil.base64Encoder(src);
-
-			String signature = getSignature(rest_3part_accountsid,
-					rest_3part_token, timestamp);
-
-			String realUrl = rest_3part_smsuri + "?sig=" + signature;
-			Logger.debug("-----real url:" + realUrl);
-			Logger.debug("-----real body:" + body);
-
-			ws.url(realUrl)
-					.setHeader("Content-Type",
-							"application/json;;charset=utf-8")
-					.setHeader("Accept", "application/json")
-					.setHeader("Authorization", auth).setTimeout(5000)
-					.post(body).map(new Function<WSResponse, Result>() {
-						@Override
-						public Result apply(WSResponse response) {
-							JsonNode jsonString = response.asJson();
-
-							Logger.info("SMS Response:" + jsonString);
-
-							return ok();
-						}
-					});
-
-			return ok("验证码请求中,请注意短信查收");
+			TemplateSMS templateSMS = new TemplateSMS("",
+					param, rest_3part_smscoupon1, phoneString);
+			ActorHelper.getInstant().sendSMSMessage(templateSMS);
+			
+			return ok("定向发送优惠劵赠送短信请求中,请注意短信查收");
 			
 		} catch (Exception e) {
 			Logger.error("requestSMSVerify", e);
-			return ok("验证码短信发送失败，请联系管理员.");
+			return ok("定向发送优惠劵赠送短信失败，请联系管理员.");
 		}
 		}
 		Logger.info("not open the sendsms option");

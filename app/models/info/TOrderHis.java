@@ -15,15 +15,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
-import net.sf.cglib.beans.BeanCopier;
-import play.Logger;
-import play.data.format.Formats;
-import play.db.ebean.Model;
-import utils.Arith;
-import utils.CommFindEntity;
-import utils.Constants;
-import utils.DateHelper;
-
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Page;
@@ -31,11 +22,16 @@ import com.avaje.ebean.Query;
 import com.avaje.ebean.TxRunnable;
 import com.google.gson.annotations.Expose;
 
-import controllers.PushController;
+import net.sf.cglib.beans.BeanCopier;
+import play.data.format.Formats;
+import play.db.ebean.Model;
+import utils.CommFindEntity;
+import utils.DateHelper;
 
 @Entity
 @Table(name = "tb_order_his")
 public class TOrderHis extends Model {
+	
 	public static BeanCopier copier = BeanCopier.create(TOrder.class,
 			TOrderHis.class, false);
 	public static BeanCopier copierPy = BeanCopier.create(TOrder_Py.class,
@@ -192,88 +188,6 @@ public class TOrderHis extends Model {
 	}
 	
 	/**
-	 * 已经完成的订单需要转到历史表
-	 * @param orderId
-	 */
-	public static void moveToHisFromOrder(final Long orderId, final int status){
-		Logger.info("move to history table");
-		final TOrder order = TOrder.findDataById(orderId);
-		Ebean.execute(new TxRunnable() {
-			public void run() {
-				
-				if(order!=null){
-					Logger.debug(">>>>order moving start");
-					
-					order.endDate = new Date();
-					order.orderStatus = status;
-					
-					TOrderHis orderHis = new TOrderHis();
-					copier.copy(order, orderHis, null);
-					
-					List<TOrderHis_Py> pyArray = new ArrayList<TOrderHis_Py>();
-					orderHis.pay = pyArray;
-					
-					if(order.pay!=null){
-						Logger.debug(">>>>>>>>>>>TOrder_Py moving start");
-						for(TOrder_Py py:order.pay){
-							TOrderHis_Py hisPy = new TOrderHis_Py();
-							copierPy.copy(py, hisPy, null);
-							hisPy.order = orderHis;
-							pyArray.add(hisPy);
-							if(hisPy.ackStatus == Constants.PAYMENT_STATUS_FINISH){
-								
-								double cash = 0;
-								if(hisPy.payMethod==Constants.PAYMENT_TYPE_CASH)
-								{
-									cash=hisPy.payActu;
-									
-								}
-							
-								Logger.debug(">>>>>>>>>>cash:"+cash+"#######used coupon:"+hisPy.couponUsed);
-								
-							   TIncome.saveIncome(order.parkInfo.parkId, Arith.decimalPrice(hisPy.payActu+hisPy.couponUsed),cash,hisPy.couponUsed);
-							}
-						}
-						Logger.debug(">>>>>>>>>>>TOrder_Py moving end");
-					}
-					saveDataWithoutIDPolicy(orderHis);
-					Logger.debug(">>>>order moving end");
-
-					if(order.couponId>0){ //不能删除优惠劵，只是标记为使用
-						
-					    TUseCouponEntity.setUseCoupon(order.couponId, order.userInfo.userid);
-					    Logger.debug(">>>>delete used coupon");
-					}
-					
-					//看下是不是需要发放补贴
-					TAllowanceOffer.offerAllowance(orderHis);
-					
-					TOrder.deleteData(orderId);
-				}
-				
-			}
-		});
-		
-		
-		if(order!=null){
-			TParkInfoProd parkInfo = order.parkInfo;
-			if(parkInfo!=null){
-				
-				TuserInfo user = order.userInfo;
-				String phone = "";
-				if(user!=null){
-					phone = ""+user.userPhone;
-				}else{
-					phone = "订单号:"+order.orderId+" ";
-				}
-				
-		       //发送通知
-		       PushController.pushToParkAdminForOut(parkInfo.parkId, phone, parkInfo.parkname,order.orderId);
-			}
-		}
-	}
-
-	/**
 	 * 删除数据
 	 * 
 	 * @param id
@@ -420,10 +334,23 @@ public class TOrderHis extends Model {
 	}
 	
 	
+	/**
+	 * 优惠卷统计功能
+	 * @param currentPage
+	 * @param pageSize
+	 * @param orderBy
+	 * @param filter
+	 * @return
+	 */
 	public static Page<TOrderHis> pageByTypeAndFilter(int currentPage,
 			int pageSize, String orderBy, String filter) {
 		
-		Query<TOrderHis_Py> query = Ebean.createQuery(TOrderHis_Py.class).select("order.orderId").where().eq("payMethod",4).query();
+		List<Integer> arrayPayWay = new ArrayList<Integer>();
+		arrayPayWay.add(utils.Constants.PAYMENT_COUPON);
+		arrayPayWay.add(utils.Constants.PAYMENT_COUPONZFB);
+		arrayPayWay.add(utils.Constants.PAYMENT_COUPONWEIXIN);
+		arrayPayWay.add(utils.Constants.PAYMENT_COUPONCASH);
+		Query<TOrderHis_Py> query = Ebean.createQuery(TOrderHis_Py.class).select("order.orderId").where().in("payMethod",arrayPayWay).query();
 
 		ExpressionList<TOrderHis> elist = find.fetch("parkInfo").where().gt("couponId", 0).in("orderId", query);
 		
@@ -459,10 +386,6 @@ public class TOrderHis extends Model {
 		 }
 		 
 	 }
-	
-		
-		
-
 		return allData;
 	}
 }

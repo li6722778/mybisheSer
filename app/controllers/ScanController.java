@@ -13,6 +13,7 @@ import play.Logger;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+import utils.ActorHelper;
 import utils.ComResponse;
 import utils.ConfigHelper;
 import utils.Constants;
@@ -258,7 +259,7 @@ public class ScanController extends Controller{
 					options.add("startDate");
 					Ebean.update(order, options);
 					//***********已经完成的订单需要移到历史表**************/
-					TOrderHis.moveToHisFromOrder(orderId,Constants.ORDER_TYPE_FINISH);
+					ActorHelper.getInstant().sendMoveToHisOrderMessage(orderId,Constants.ORDER_TYPE_FINISH);
 				}
 				//移除推送消息
 				PushController.removeForIn(orderId);

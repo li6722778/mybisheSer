@@ -2,6 +2,7 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+GET     /a/sms/test/:phone            controllers.SMSController.sendMessageToSMSActor(phone:Long,p:Int?=0)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

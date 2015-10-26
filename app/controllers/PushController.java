@@ -5,21 +5,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import models.PushMessage;
+import actor.model.PushMessage;
+import actor.model.PushTarget;
 import models.info.TParkInfo_adm;
 import play.Logger;
 import play.mvc.Controller;
 import play.mvc.Result;
-import utils.ConfigHelper;
+import utils.ActorHelper;
 import utils.DateHelper;
-
-import com.gexin.rp.sdk.base.IPushResult;
-import com.gexin.rp.sdk.base.impl.ListMessage;
-import com.gexin.rp.sdk.base.impl.SingleMessage;
-import com.gexin.rp.sdk.base.impl.Target;
-import com.gexin.rp.sdk.exceptions.RequestException;
-import com.gexin.rp.sdk.http.IGtPush;
-import com.gexin.rp.sdk.template.TransmissionTemplate;
 
 /**
  * 推送
@@ -29,10 +22,7 @@ import com.gexin.rp.sdk.template.TransmissionTemplate;
  */
 public class PushController extends Controller {
 
-	static String appId = ConfigHelper.getString("push.getui.appId");;
-	static String appkey = ConfigHelper.getString("push.getui.appkey");;
-	static String master = ConfigHelper.getString("push.getui.master");;
-	static String host = ConfigHelper.getString("push.getui.host");;
+	static String appId = "push";
 	// static String Alias = "";
 
 	public static HashMap<Long, String> clientMap = new HashMap<Long, String>();
@@ -110,7 +100,7 @@ public class PushController extends Controller {
 		Logger.info("########plan to push to administrator of park:" + parkId
 				+ " for " + phone + "#######");
 
-		List<Target> targets = new ArrayList<Target>();
+		List<PushTarget> targets = new ArrayList<PushTarget>();
 		if (clientMap != null) {
 
 			List<TParkInfo_adm> adms = TParkInfo_adm
@@ -120,7 +110,7 @@ public class PushController extends Controller {
 				for (TParkInfo_adm adm : adms) {
 					String clientId = clientMap.get(adm.userInfo.userid);
 					if (clientId != null) {
-						Target target = new Target();
+						PushTarget target = new PushTarget();
 						target.setAppId(appId);
 						target.setClientId(clientId);
 						Logger.debug("###try to push to user:" + clientId);
@@ -152,7 +142,7 @@ public class PushController extends Controller {
 
 		// message.setPushNetWorkType(1);
 
-		List<Target> targets = new ArrayList<Target>();
+		List<PushTarget> targets = new ArrayList<PushTarget>();
 		if (clientMap != null) {
 
 			List<TParkInfo_adm> adms = TParkInfo_adm
@@ -162,7 +152,7 @@ public class PushController extends Controller {
 				for (TParkInfo_adm adm : adms) {
 					String clientId = clientMap.get(adm.userInfo.userid);
 					if (clientId != null) {
-						Target target = new Target();
+						PushTarget target = new PushTarget();
 						target.setAppId(appId);
 						target.setClientId(clientId);
 						Logger.debug("###try to push to user:" + clientId);
@@ -190,7 +180,7 @@ public class PushController extends Controller {
 		Logger.info("########plan to push to administrator for pay request:"
 				+ payment + " for " + phone + "#######");
 
-		List<Target> targets = new ArrayList<Target>();
+		List<PushTarget> targets = new ArrayList<PushTarget>();
 		if (clientMap != null) {
 			List<TParkInfo_adm> adms = TParkInfo_adm
 					.findAdmPartInfoByParkId(parkId);
@@ -198,7 +188,7 @@ public class PushController extends Controller {
 				for (TParkInfo_adm adm : adms) {
 					String clientId = clientMap.get(adm.userInfo.userid);
 					if (clientId != null) {
-						Target target = new Target();
+						PushTarget target = new PushTarget();
 						target.setAppId(appId);
 						target.setClientId(clientId);
 						Logger.debug("###try to push to user:" + clientId);
@@ -229,7 +219,7 @@ public class PushController extends Controller {
 		String clientId = adminPushToClientMap.get(orderId);
 
 		if(clientId!=null){
-			Target target = new Target();
+			PushTarget target = new PushTarget();
 			String userId =adminPushToClientMap.get(orderId);
 			target.setAppId(appId);
 			target.setClientId(userId);
@@ -261,7 +251,7 @@ public class PushController extends Controller {
 
 		if(clientId!=null){
 			String userId = adminPushToClientMapForIn.get(orderId);
-			Target target = new Target();
+			PushTarget target = new PushTarget();
 			target.setAppId(appId);
 			target.setClientId(userId);
 			Logger.debug("###try to push to user:" + clientId);
@@ -297,14 +287,14 @@ public class PushController extends Controller {
 				+ orderId);
 
 		
-		List<Target> targets = new ArrayList<Target>();
+		List<PushTarget> targets = new ArrayList<PushTarget>();
 		if (clientMap != null) {
 			List<TParkInfo_adm> adms = TParkInfo_adm.findAdmPartInfoByParkId(parkId);
 			if (adms != null) {
 				for (TParkInfo_adm adm : adms) {
 					String clientId = clientMap.get(adm.userInfo.userid);
 					if (clientId != null) {
-						Target target = new Target();
+						PushTarget target = new PushTarget();
 						target.setAppId(appId);
 						target.setClientId(clientId);
 						Logger.debug("###try to push to user:" + clientId);
@@ -344,30 +334,10 @@ public class PushController extends Controller {
 	 * @param targets
 	 */
 	private static void pushToClient(PushMessage pushMessage,
-			List<Target> targets) {
+			List<PushTarget> targets) {
 
-		try {
-			final IGtPush push = new IGtPush(host, appkey, master);
-
-			TransmissionTemplate template = new TransmissionTemplate();
-			template.setAppId(appId);
-			template.setAppkey(appkey);
-			// 透传消息设置，1为强制启动应用，客户端接收到消息后就会立即启动应用；2为等待应用启动
-			template.setTransmissionType(2);
-			template.setTransmissionContent(pushMessage.encodeMessage());
-
-			ListMessage message = new ListMessage();
-			message.setData(template);
-			message.setOffline(false);
-			message.setOfflineExpireTime(1000 * 3600 * 24);
-			// message.setPushNetWorkType(1);
-
-			String taskId = push.getContentId(message);
-			IPushResult ret = push.pushMessageToList(taskId, targets);
-			Logger.info("#####push result:" + ret.getResponse() + "#######");
-		} catch (Exception e) {
-			Logger.error("pushToParkAdmin", e);
-		}
+		pushMessage.targets = targets;
+		ActorHelper.getInstant().sendPushMessage(pushMessage);
 	}
 
 	/**
@@ -376,37 +346,12 @@ public class PushController extends Controller {
 	 * @param template
 	 * @param targets
 	 */
-	private static void pushToClient(PushMessage pushMessage,Target targets ){
+	private static void pushToClient(PushMessage pushMessage,PushTarget targets ){
 
-		try {
-			final IGtPush push = new IGtPush(host, appkey, master);
-
-			TransmissionTemplate template = new TransmissionTemplate();
-			template.setAppId(appId);
-			template.setAppkey(appkey);
-			// 透传消息设置，1为强制启动应用，客户端接收到消息后就会立即启动应用；2为等待应用启动
-			template.setTransmissionType(2);
-			template.setTransmissionContent(pushMessage.encodeMessage());
-			
-			SingleMessage message = new SingleMessage();
-			message.setData(template);
-			message.setOffline(false);
-			message.setOfflineExpireTime(1000 * 3600 * 24);
-			// message.setPushNetWorkType(1);
-			
-			IPushResult ret = null;
-			try{
-			ret = push.pushMessageToSingle(message, targets);
-			}catch(RequestException e){
-			e.printStackTrace();
-			ret = push.pushMessageToSingle(message, targets, e.getRequestId());
-			}
-	
-
-			Logger.info("#####push result:" + ret==null?null:ret.getResponse() + "#######");
-		} catch (Exception e) {
-			Logger.error("pushToParkAdmin", e);
-		}
+		List<PushTarget> targetArray = new ArrayList<PushTarget>();
+		targetArray.add(targets);
+		pushMessage.targets = targetArray;
+		ActorHelper.getInstant().sendPushMessage(pushMessage);
 	}
 	/*
 	 * private static NotificationTemplate NotificationTemplateDemo(String

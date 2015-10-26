@@ -12,5 +12,6 @@ libraryDependencies ++= Seq(
   cache,
   javaWs,
    "cglib"  % "cglib-nodep"  % "2.1_3",
-   "javax.inject" % "javax.inject" % "1"
+   "javax.inject" % "javax.inject" % "1",
+   "com.typesafe.akka" %% "akka-remote" % "2.3.8"
 )

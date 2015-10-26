@@ -44,6 +44,7 @@ import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
 import play.mvc.Security;
 import scala.annotation.elidable;
+import utils.ActorHelper;
 import utils.Arith;
 import utils.CommFindEntity;
 import utils.ConfigHelper;
@@ -1035,7 +1036,7 @@ public class WebPageController extends Controller {
 					Logger.info("try to set exception for:" + pid);
 					TOrder allData = TOrder.findDataById(pid);
 					if (allData != null) {
-						TOrderHis.moveToHisFromOrder(pid,
+						ActorHelper.getInstant().sendMoveToHisOrderMessage(pid,
 								Constants.ORDER_TYPE_EXCPTION);
 						Logger.debug("done for set exception:" + pid);
 						LogController.info("done for set exception:" + pid);
