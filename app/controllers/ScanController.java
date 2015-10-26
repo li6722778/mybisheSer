@@ -281,4 +281,47 @@ public class ScanController extends Controller{
 			return ok(json);
 			
 		}
+	
+	
+	/**
+	 * 判断推广的停车场
+	 * 前期我们认为应该是 http://-------/parkingmc.apk#123456;
+	 * @param scanResult
+	 * @return
+	 */
+	public static Result UserRegisterescan(String c) throws Exception{
+		
+	
+		Logger.info(">>>>>>scan result:"+c);
+		
+		ComResponse<String> response = new ComResponse<String>();
+		if(c!=null&&!c.trim().equals("")){
+			//解析
+			if(c.startsWith("http")){ 
+				Logger.info(">>>>>>scanResult:"+c);
+				String[] scans = c.split("\\#");
+				Logger.info(">>>>>>scans.length:"+scans.length);
+				if(scans.length>1){
+					//第二个就是parkingId
+					String parkStr = scans[1];
+					try{
+						response.setResponseEntity("P"+parkStr);
+						response.setResponseStatus(ComResponse.STATUS_OK);
+						Logger.info(">>>>>>decode:"+parkStr);
+					
+					}catch(Exception e){
+						response.setResponseStatus(ComResponse.STATUS_FAIL);
+						throw new Exception("无效的二维码图片");
+					}
+					
+				}else{
+					response.setResponseStatus(ComResponse.STATUS_FAIL);
+					
+				}
+			}
+		}
+		String tempJsonString = gsonBuilderWithExpose.toJson(response);
+		JsonNode json = Json.parse(tempJsonString);
+		return ok(json);
+	}
 }
