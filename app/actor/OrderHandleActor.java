@@ -37,7 +37,7 @@ public class OrderHandleActor extends UntypedActor {
 	
 	@Override
 	public void onReceive(Object response) throws Exception {
-		Logger.info("SMSActor=>message:"+response);
+		Logger.info("OrderHandleActor=>message:"+response);
 		 if (response instanceof OrderMovingObject) {
 			 
 			 OrderMovingObject orderMove = (OrderMovingObject)response;

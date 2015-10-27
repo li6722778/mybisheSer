@@ -2,22 +2,25 @@ package controllers;
 
 import java.util.Date;
 
-import models.info.TCouponEntity;
-import models.info.TCouponHis;
-import models.info.TUseCouponEntity;
-import models.info.TUseCouponHis;
-import models.info.TuserInfo;
-import play.Logger;
-import play.libs.Json;
-import play.mvc.Controller;
-import play.mvc.Result;
-import utils.ComResponse;
-import utils.CommFindEntity;
-import action.BasicAuth;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import action.BasicAuth;
+import actor.model.ScanCounponModel;
+import actor.model.TemplateSMS;
+import models.info.TCouponEntity;
+import models.info.TUseCouponEntity;
+import models.info.TuserInfo;
+import play.Logger;
+import play.libs.F.Function;
+import play.libs.F.Promise;
+import play.libs.Json;
+import play.mvc.Controller;
+import play.mvc.Result;
+import utils.ActorHelper;
+import utils.ComResponse;
+import utils.CommFindEntity;
 
 public class CounponController extends Controller{
 	public static Gson gsonBuilderWithExpose = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
@@ -36,194 +39,71 @@ public class CounponController extends Controller{
 	}
 	
 	
-	@BasicAuth
-	public static Result getcounpon(String counponcode,Long userid)
-	{
-		
-		ComResponse<TCouponEntity>  response = new ComResponse<TCouponEntity>();
-		TCouponEntity counponbean=TCouponEntity.findentityByCode(counponcode);
-		TuserInfo useinfo;
-		if(counponbean==null||(counponbean.count>0&&counponbean.scancount>=counponbean.count)||counponbean.isable==0||counponbean.isable==2)
-		{
-			Logger.debug("not find TCouponEntity");
-			if(counponbean!=null&&counponbean.scancount>=counponbean.count&&!TUseCouponEntity.findExistCouponByCouponId(counponbean.counponId))
-			{
-				
-				TCouponHis.moveToHis(counponbean);
-				
-			}
-			return ok();
-			
-		}else
-		{
-			Date startDate = counponbean.startDate;
-			Date endDate = counponbean.endDate;
-			Date currentDate = new Date();
-			if(startDate!=null){ //如果还没有到
-				if(startDate.after(currentDate)){
-					Logger.debug("not find coupon as start Date after current Date");
-					return ok();
-				}
-				
-			}else{//优惠券没有开始时间
-				if(endDate!=null){//失效了
-					if(endDate.before(currentDate)){
-						if(!TUseCouponEntity.findExistCouponByCouponId(counponbean.counponId))
-						{
-							TCouponHis.moveToHis(counponbean);
-						}
-						Logger.debug("not find coupon as end Date before current Date");
-						return ok();
-					}
-				}
-				
-			}
-			
-			if(endDate!=null){//失效了
-				if(endDate.before(currentDate)){
-					if(startDate.before(currentDate)){
-						if(!TUseCouponEntity.findExistCouponByCouponId(counponbean.counponId))
-						{
-							TCouponHis.moveToHis(counponbean);
-						}
-						Logger.debug("not find coupon as end Date before current Date");
-						return ok();
-					}
-				}
-			}
-			
-			//判断是否已经有优惠券了
-			if(TUseCouponEntity.findExistCouponByUserIdAndId(counponbean.counponId, userid)||TUseCouponHis.findExistCouponByUserIdAndId(counponbean.counponId, userid)){
-				Logger.debug("existing coupon!");
-				return ok();
-			}
-			
-			useinfo=TuserInfo.findDataById(userid);
-			if(useinfo==null)
-			{
-				Logger.debug("not find useinfo");
-				return ok();
-			}else
-			{
-				
-				try {
-					//更新用户优惠表
-					TUseCouponEntity databean=new TUseCouponEntity();
-					databean.scanDate=new Date();
-					databean.Id=null;
-					databean.userInfo=useinfo;
-					databean.counponentity=counponbean;
-					databean.counponId=counponbean.counponId;
-					databean.isable = 1;
-					TUseCouponEntity.saveData(databean);
-					//更新优惠信息表
-					counponbean.scancount=counponbean.scancount+1;
-					TCouponEntity.saveData(counponbean);
-					response.setResponseStatus(ComResponse.STATUS_OK);
-					response.setResponseEntity(counponbean);
-					response.setExtendResponseContext("更新数据成功.");
-					LogController.info("save coupon data:"+counponbean.counponCode);
-				} catch (Exception e) {
-					response.setResponseStatus(ComResponse.STATUS_FAIL);
-					response.setErrorMessage(e.getMessage());
-					Logger.error("", e);
-				}
-				String tempJsonString = gsonBuilderWithExpose.toJson(response);
-				JsonNode json = Json.parse(tempJsonString);
-				return ok(json);
-			}
-			
-		
-		}
-		}
-		
+//	@BasicAuth
+//	public static Result getcounpon(String counponcode,Long userid)
+//	{
+//		
+//		ComResponse<TCouponEntity>  response = new ComResponse<TCouponEntity>();
+//		
+//		
+//		
+//		
+//		String tempJsonString = gsonBuilderWithExpose.toJson(response);
+//		JsonNode json = Json.parse(tempJsonString);
+//		return ok(json);
+//	}
 	
+	/**
+	 * 扫描优惠卷，需要等到线程回答是否扫码成功
+	 * @param counponcode
+	 * @param userid
+	 * @return
+	 */
 	@BasicAuth
-	public static Result getsharecounpon(String counponcode,Long userid)
+	public static Promise<Result> getcounpon(String counponcode,Long userid)
 	{
+		ScanCounponModel model = new ScanCounponModel();
+		model.counponcode = counponcode;
+		model.userid = userid;
+		model.type = ScanCounponModel.TYPE_DEFAULT;
 		
-		
-		ComResponse<TCouponEntity>  response = new ComResponse<TCouponEntity>();
-		TCouponEntity counponbean=TCouponEntity.findentityByCode(counponcode);
-		TuserInfo useinfo;
-		if(counponbean==null||(counponbean.count>0&&counponbean.scancount>=counponbean.count)||counponbean.isable==0||counponbean.isable==2)
-		{
-			Logger.debug("not find TCouponEntity");
-			return ok();
-			
-		}else
-		{
-			Date startDate = counponbean.startDate;
-			Date endDate = counponbean.endDate;
-			Date currentDate = new Date();
-			if(startDate!=null){ //如果还没有到
-				if(startDate.after(currentDate)){
-					Logger.debug("not find coupon as start Date after current Date");
-					return ok();
-				}
-				
-			}else{//优惠券没有开始时间
-				if(endDate!=null){//失效了
-					if(endDate.before(currentDate)){
-						Logger.debug("not find coupon as end Date before current Date");
-						return ok();
-					}
-				}
-				
-			}
-			
-			if(endDate!=null){//失效了
-				if(endDate.before(currentDate)){
-					if(startDate.before(currentDate)){
-						Logger.debug("not find coupon as end Date before current Date");
-						return ok();
-					}
-				}
-			}
-			
-			
-			useinfo=TuserInfo.findDataById(userid);
-			if(useinfo==null)
-			{
-				Logger.debug("not find useinfo");
-				return ok();
-			}else
-			{
-				
-				try {
-					//更新用户优惠表 lwei
-					TUseCouponEntity databean=new TUseCouponEntity();
-					databean.scanDate=new Date();
-					databean.Id=null;
-					databean.userInfo=useinfo;
-					databean.counponentity=counponbean;
-					databean.counponId=counponbean.counponId;
-					databean.isable = 1;
-					databean.type=1;
-					TUseCouponEntity.saveData(databean);
-					//更新优惠信息表
-					counponbean.scancount=counponbean.scancount+1;
-					TCouponEntity.saveData(counponbean);		
-					response.setResponseStatus(ComResponse.STATUS_OK);
-					response.setResponseEntity(counponbean);
-					response.setExtendResponseContext("更新数据成功.");
-					LogController.info("save coupon data:"+counponbean.counponCode+"["+counponbean.money+"] by sharing to "+useinfo.userPhone);
-				} catch (Exception e) {
-					response.setResponseStatus(ComResponse.STATUS_FAIL);
-					response.setErrorMessage(e.getMessage());
-					Logger.error("", e);
-				}
-				String tempJsonString = gsonBuilderWithExpose.toJson(response);
-				JsonNode json = Json.parse(tempJsonString);
-				return ok(json);
-			}
-			
-		
-		}
-		
-		
-		
+		return Promise.wrap(ActorHelper.getInstant().askCouponFuture(model)).map(
+                new Function<Object, Result>() {
+                    public Result apply(Object response) {
+                    	  Logger.info("ScanCouponActor=>message:"+response);
+                         if( response instanceof ScanCounponModel ) {
+                        	 ScanCounponModel message = ( ScanCounponModel )response;
+                        	 
+                        	ComResponse<TCouponEntity>  responseCoupon = new ComResponse<TCouponEntity>();
+                     		if (message.responseResult == 0){
+                        	     responseCoupon.setResponseStatus(ComResponse.STATUS_OK);
+                     		}else{
+                     		     responseCoupon.setResponseStatus(ComResponse.STATUS_FAIL);
+                     		}
+                     		String tempJsonString = gsonBuilderWithExpose.toJson(responseCoupon);
+                     		JsonNode json = Json.parse(tempJsonString);
+                        	 
+                        	 Logger.debug("ScanCouponActor=>result:"+message.responseResult);
+                              return ok(json);
+                         }
+                        return notFound( "Message is not of type MyMessage" );
+                    }
+                }
+            );
 	}
-	
-	
+		
+	/**
+	 * 分享优惠卷
+	 * @param counponcode
+	 * @param userid
+	 */
+	public static void getsharecounpon(String counponcode,Long userid)
+	{
+		ScanCounponModel model = new ScanCounponModel();
+		model.counponcode = counponcode;
+		model.userid = userid;
+		model.type = ScanCounponModel.TYPE_SHARE;
+		
+		ActorHelper.getInstant().sendCouponMessage(model);
+	}
 }

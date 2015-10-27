@@ -2,6 +2,7 @@ package utils;
 
 
 import actor.OrderHandleActor;
+import actor.ScanCouponActor;
 import actor.model.OrderMovingObject;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
@@ -14,27 +15,34 @@ import scala.concurrent.Future;
 
 public class ActorHelper {
 
-	static ActorSystem actorOrderSystem = ActorSystem.create( "play" );
+	private static ActorSystem actorOrderSystem = ActorSystem.create( "play" );
+	
+	private static ActorSystem actorCouponSystem = ActorSystem.create( "play" );
     
     static {
          // Create our local actors
     	actorOrderSystem.actorOf( Props.create( OrderHandleActor.class ), "OrderHandleActor" );
+    	actorCouponSystem.actorOf( Props.create( ScanCouponActor.class ), "ScanCouponActor" );
     }
     
 	private static ActorHelper actorHelper;
 	//local actor
-	static ActorSelection orderMoveingActor;
+	private static ActorSelection orderMoveingActor;
+	
+	//local actor
+	private static ActorSelection scanCouponActor;
 	
 	//remote actor
-	static ActorSelection smsActor;
+	private static ActorSelection smsActor;
 	
 	//remote actor
-	static ActorSelection pushActor;
+	private static ActorSelection pushActor;
 	
 	public static ActorHelper getInstant(){
 		if (actorHelper==null){
 			actorHelper = new ActorHelper();
 			orderMoveingActor = actorOrderSystem.actorSelection( "user/OrderHandleActor" );
+			scanCouponActor = actorOrderSystem.actorSelection( "user/ScanCouponActor" );
 			smsActor = Akka.system().actorSelection(ConfigHelper.getString("tcp.actor.sms.address"));
 			pushActor  = Akka.system().actorSelection(ConfigHelper.getString("tcp.actor.push.address"));
 		}
@@ -66,6 +74,16 @@ public class ActorHelper {
 	}
 	
 	/**
+	 * 发送消息给优惠卷actor
+	 * @param message
+	 */
+	public void sendCouponMessage(Object message){
+		Logger.info("ActorHelper>send message to Coupon actor");
+		scanCouponActor.tell(message, ActorRef.noSender());
+	    Logger.info("ActorHelper>sending done for Coupon actor");
+	}
+	
+	/**
 	 * 发送消息给推送actor
 	 * @param message
 	 */
@@ -83,6 +101,16 @@ public class ActorHelper {
 	public Future<Object> askSMSFuture(Object message){
 		Logger.info("ActorHelper>send message to SMS actor with Futrue Model");
 		return Patterns.ask(smsActor, message, 10000);
+	}
+	
+	/**
+	 * 需要等待返回处理优惠卷扫描
+	 * @param message
+	 * @return
+	 */
+	public Future<Object> askCouponFuture(Object message){
+		Logger.info("ActorHelper>send message to Coupon actor with Futrue Model");
+		return Patterns.ask(scanCouponActor, message, 10000);
 	}
 	
 }
