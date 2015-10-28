@@ -98,7 +98,11 @@ public class ScanCouponActor extends UntypedActor {
 						// 更新优惠信息表
 						counponbean.scancount = counponbean.scancount + 1;
 						TCouponEntity.saveData(counponbean);
-						LogController.info("save coupon data:" + counponbean.counponCode+" for "+userid);
+						if (type == ScanCounponModel.TYPE_DEFAULT){
+						    LogController.info("save coupon data:" + counponbean.counponCode+" for "+userid);
+						}else if (type == ScanCounponModel.TYPE_SHARE){
+							LogController.info("save coupon data:" + counponbean.counponCode+" for "+userid+" by sharing");
+						}
 					}
 				});
 				return true;

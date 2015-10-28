@@ -22,6 +22,7 @@ public class Global extends GlobalSettings{
 	  public void onStart(Application app) {
 	    Logger.info("Application has started");
 
+	    //这里的actorOf会创建一个新的实例
 	    ActorRef cleanActor = Akka.system().actorOf(Props.create(CleanUnpayActor.class),"CleanUnpayActor");
 	    
 	  //这里设置一个删除没有支付的订单的定期任务

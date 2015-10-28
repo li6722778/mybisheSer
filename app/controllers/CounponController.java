@@ -1,17 +1,13 @@
 package controllers;
 
-import java.util.Date;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import action.BasicAuth;
 import actor.model.ScanCounponModel;
-import actor.model.TemplateSMS;
 import models.info.TCouponEntity;
 import models.info.TUseCouponEntity;
-import models.info.TuserInfo;
 import play.Logger;
 import play.libs.F.Function;
 import play.libs.F.Promise;
@@ -71,10 +67,9 @@ public class CounponController extends Controller{
                 new Function<Object, Result>() {
                     public Result apply(Object response) {
                     	  Logger.info("ScanCouponActor=>message:"+response);
+                    	  ComResponse<TCouponEntity>  responseCoupon = new ComResponse<TCouponEntity>();
                          if( response instanceof ScanCounponModel ) {
                         	 ScanCounponModel message = ( ScanCounponModel )response;
-                        	 
-                        	ComResponse<TCouponEntity>  responseCoupon = new ComResponse<TCouponEntity>();
                      		if (message.responseResult == 0){
                         	     responseCoupon.setResponseStatus(ComResponse.STATUS_OK);
                      		}else{
@@ -86,7 +81,11 @@ public class CounponController extends Controller{
                         	 Logger.debug("ScanCouponActor=>result:"+message.responseResult);
                               return ok(json);
                          }
-                        return notFound( "Message is not of type MyMessage" );
+                         responseCoupon.setResponseStatus(ComResponse.STATUS_FAIL);
+                         String tempJsonString = gsonBuilderWithExpose.toJson(responseCoupon);
+                  		 JsonNode json = Json.parse(tempJsonString);
+                  		 Logger.debug("ScanCouponActor=>result:not a ScanCounponModel");
+                        return ok(json);
                     }
                 }
             );

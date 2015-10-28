@@ -15,14 +15,10 @@ import scala.concurrent.Future;
 
 public class ActorHelper {
 
-	private static ActorSystem actorOrderSystem = ActorSystem.create( "play" );
-	
-	private static ActorSystem actorCouponSystem = ActorSystem.create( "play" );
-    
     static {
          // Create our local actors
-    	actorOrderSystem.actorOf( Props.create( OrderHandleActor.class ), "OrderHandleActor" );
-    	actorCouponSystem.actorOf( Props.create( ScanCouponActor.class ), "ScanCouponActor" );
+    	Akka.system().actorOf( Props.create( OrderHandleActor.class ), "OrderHandleActor" );
+    	Akka.system().actorOf( Props.create( ScanCouponActor.class ), "ScanCouponActor" );
     }
     
 	private static ActorHelper actorHelper;
@@ -41,8 +37,8 @@ public class ActorHelper {
 	public static ActorHelper getInstant(){
 		if (actorHelper==null){
 			actorHelper = new ActorHelper();
-			orderMoveingActor = actorOrderSystem.actorSelection( "user/OrderHandleActor" );
-			scanCouponActor = actorOrderSystem.actorSelection( "user/ScanCouponActor" );
+			orderMoveingActor = Akka.system().actorSelection( "user/OrderHandleActor" );
+			scanCouponActor = Akka.system().actorSelection( "user/ScanCouponActor" );
 			smsActor = Akka.system().actorSelection(ConfigHelper.getString("tcp.actor.sms.address"));
 			pushActor  = Akka.system().actorSelection(ConfigHelper.getString("tcp.actor.push.address"));
 		}
