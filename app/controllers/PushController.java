@@ -100,7 +100,7 @@ public class PushController extends Controller {
 		Logger.info("########plan to push to administrator of park:" + parkId
 				+ " for " + phone + "#######");
 
-		List<PushTarget> targets = new ArrayList<PushTarget>();
+		ArrayList<PushTarget> targets = new ArrayList<PushTarget>();
 		if (clientMap != null) {
 
 			List<TParkInfo_adm> adms = TParkInfo_adm
@@ -142,7 +142,7 @@ public class PushController extends Controller {
 
 		// message.setPushNetWorkType(1);
 
-		List<PushTarget> targets = new ArrayList<PushTarget>();
+		ArrayList<PushTarget> targets = new ArrayList<PushTarget>();
 		if (clientMap != null) {
 
 			List<TParkInfo_adm> adms = TParkInfo_adm
@@ -180,7 +180,7 @@ public class PushController extends Controller {
 		Logger.info("########plan to push to administrator for pay request:"
 				+ payment + " for " + phone + "#######");
 
-		List<PushTarget> targets = new ArrayList<PushTarget>();
+		ArrayList<PushTarget> targets = new ArrayList<PushTarget>();
 		if (clientMap != null) {
 			List<TParkInfo_adm> adms = TParkInfo_adm
 					.findAdmPartInfoByParkId(parkId);
@@ -287,7 +287,7 @@ public class PushController extends Controller {
 				+ orderId);
 
 		
-		List<PushTarget> targets = new ArrayList<PushTarget>();
+		ArrayList<PushTarget> targets = new ArrayList<PushTarget>();
 		if (clientMap != null) {
 			List<TParkInfo_adm> adms = TParkInfo_adm.findAdmPartInfoByParkId(parkId);
 			if (adms != null) {
@@ -334,7 +334,7 @@ public class PushController extends Controller {
 	 * @param targets
 	 */
 	private static void pushToClient(PushMessage pushMessage,
-			List<PushTarget> targets) {
+			ArrayList<PushTarget> targets) {
 
 		pushMessage.targets = targets;
 		ActorHelper.getInstant().sendPushMessage(pushMessage);
@@ -348,7 +348,7 @@ public class PushController extends Controller {
 	 */
 	private static void pushToClient(PushMessage pushMessage,PushTarget targets ){
 
-		List<PushTarget> targetArray = new ArrayList<PushTarget>();
+		ArrayList<PushTarget> targetArray = new ArrayList<PushTarget>();
 		targetArray.add(targets);
 		pushMessage.targets = targetArray;
 		ActorHelper.getInstant().sendPushMessage(pushMessage);

@@ -1,7 +1,7 @@
 package actor.model;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * 消息推送消息体
@@ -9,6 +9,11 @@ import java.util.List;
  *
  */
 public class PushMessage implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public String type;
 	
@@ -24,7 +29,7 @@ public class PushMessage implements Serializable {
 	
 	public String ext2;
 	
-	public List<PushTarget> targets;
+	public ArrayList<PushTarget> targets;
 	
 	/**
 	 * 组合消息
